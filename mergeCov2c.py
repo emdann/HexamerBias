@@ -8,7 +8,7 @@ argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHel
 argparser.add_argument('cov2c', type=str, help='chromosome cytosine report input')
 args = argparser.parse_args()
 
-dir="/hpc/hub_oudenaarden/edann/hexamers/kaester/met_extraction"
+dir="/home/emma/mnt/edann/hexamers/kaester/met_extraction"
 files=[]
 for file in os.listdir(dir):
     if fnmatch.fnmatch(file, '*.CpG_report.txt.gz'):
@@ -25,3 +25,8 @@ for file in files[1:]:
 	df=pd.merge(cov2c,cov2c_2,how="outer",on=["chr","pos","strand","context", "flank"] ).fillna(0)
 	df=df.assign(C=df.C_x+df.C_y, T=df.T_x+df.T_y)
 	cov2c=df[["chr","pos","strand","C","T","context","flank"]]
+
+# average values
+cov2c_avg=cov2c.assign(T=df["T"]/len(files), C=df.C/len(files))
+
+cov2c_avg.to_csv(dir+"/cov2c_merged_refGen.csv", sep='\t')
