@@ -5,10 +5,10 @@ import argparse
 import fnmatch
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Compute distance to TSS of hexamers in BS converted chromosome.\n Do it per chromosome! By Emma Dann")
-argparser.add_argument('cov2c', type=str, help='chromosome cytosine report input')
+#argparser.add_argument('cov2c', type=str, help='chromosome cytosine report input')
 args = argparser.parse_args()
 
-dir="/home/emma/mnt/edann/hexamers/kaester/met_extraction"
+dir="/hpc/hub_oudenaarden/edann/hexamers/kaester/met_extraction"
 files=[]
 for file in os.listdir(dir):
     if fnmatch.fnmatch(file, '*.CpG_report.txt.gz'):
