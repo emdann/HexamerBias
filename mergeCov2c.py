@@ -28,5 +28,6 @@ for file in files[1:]:
 
 # average values
 cov2c_avg=cov2c.assign(T=df["T"]/len(files), C=df.C/len(files))
+cov2c_avg=cov2c_avg.assign(frac=cov2c_avg.C/(cov2c_avg.C+cov2c_avg['T']))
 
 cov2c_avg.to_csv(dir+"/cov2c_merged_refGen.csv", sep='\t')

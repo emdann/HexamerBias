@@ -49,8 +49,32 @@ counts=weightCountKmers(seq,cov2c,args.k)
 for kmer, abundance in counts.most_common(): # sorts by abundance
 	print(f"{kmer}\t{abundance}")
 
+filt_cov2c=cov2c.assign(frac=cov2c.C/(cov2c.C+cov2c["T"])).dropna()
+
+covs=[]
+seqs=[]
+
+bin_len=1000
+start_pos=0
+end_pos=bin_len
+while end_pos<len(seq):
+	small_seq=seq[start_pos:end_pos]
+	small_cov = filt_cov2c[(filt_cov2c.pos<end_pos) & (filt_cov2c.pos>start_pos)]
+	small_cov = small_cov.assign(pos=small_cov.pos-start_pos)
+	seqs.append(small_seq)
+	covs.append(small_cov)
+	# weightCountKmers(small_seq,small_cov,6)
+	start_pos = end_pos-5
+	end_pos = start_pos + bin_len
 
 
+last_seq = seq[start_pos:]
+last_cov = filt_cov2c[(filt_cov2c.pos < end_pos) & (filt_cov2c.pos > start_pos)]
+seqs.append(last_seq)
+covs.append(last_cov)
+
+for i in list(range(len(seqs))):
+	weightCountKmers(seqs[i],covs[i],6)
 
 
 
