@@ -38,7 +38,8 @@ def weightCountKmers(params):
 # cov2c file processed with added fraction of methylation
 # zcat cov2c_smp.deduplicated.bismark.cov.gz | awk '$4+$5!=0{print $N"\t"$4/($4+$5)}'
 cov2c = pd.read_csv(args.cov2c, sep="\t", header=None) 
-cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank", "frac"]
+cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank"]
+cov2c=cov2c.assign(frac=cov2c.C / (cov2c.C+cov2c["T"]))
 # print("cov2c loaded!")
 
 # Load fasta file
@@ -81,7 +82,7 @@ for kmerCounts in workers.imap_unordered(weightCountKmers, [ (seqs[i],covs[i],ar
         counts+=kmerCounts
         # track+=1
 
-      
+
 for kmer, abundance in counts.most_common(): # sorts by abundance
 	print(f"{kmer}\t{abundance}")
 
