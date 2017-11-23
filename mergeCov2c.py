@@ -35,7 +35,7 @@ for file in os.listdir(dir):
 
 cov_dict=collections.OrderedDict()
 with gzip.open(files[0], "rb") as f:
-    for line in f:
+	for line in f:
 		line=line.strip('\n').split('\t')
 		cov_dict['\t'.join([line[i] for i in [0,1,2,5,6]])]=[int(i) for i in line[3:5]]
 
