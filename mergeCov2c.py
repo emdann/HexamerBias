@@ -49,4 +49,4 @@ for file in files[1:]:
 for key,val in cov_dict.items():
 	list_key=key.split("\t")
 	newLine =  list_key[:3]+[str(i/2) for i in val]+list_key[3:]
-	print '\t'.join(newLine)
+	print('\t'.join(newLine))
