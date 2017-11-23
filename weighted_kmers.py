@@ -39,11 +39,13 @@ def weightCountKmers(params):
 # zcat cov2c_smp.deduplicated.bismark.cov.gz | awk '$4+$5!=0{print $N"\t"$4/($4+$5)}'
 cov2c = pd.read_csv(args.cov2c, sep="\t", header=None) 
 cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank", "frac"]
+# print("cov2c loaded!")
 
 # Load fasta file
 with ps.FastxFile(args.fasta) as chr:
  	for entry in chr:
  		seq=entry.sequence.upper()
+# print("Fasta loaded!")
 
 covs=[]
 seqs=[]
@@ -51,7 +53,9 @@ seqs=[]
 bin_len=1000
 start_pos=0
 end_pos=bin_len
+track=1
 while end_pos<len(seq):
+	# print("Binning bin no."+str(track))
 	small_seq=seq[start_pos:end_pos]
 	small_cov = cov2c[(cov2c.pos<end_pos) & (cov2c.pos>start_pos)]
 	small_cov = small_cov.assign(pos=small_cov.pos-start_pos)
@@ -60,8 +64,9 @@ while end_pos<len(seq):
 	# weightCountKmers(small_seq,small_cov,6)
 	start_pos = end_pos-5
 	end_pos = start_pos + bin_len
+	# track+=1
 
-
+# print("Binning last bin!")
 last_seq = seq[start_pos:]
 last_cov = cov2c[(cov2c.pos < end_pos) & (cov2c.pos > start_pos)]
 seqs.append(last_seq)
@@ -70,9 +75,13 @@ covs.append(last_cov)
 workers = multiprocessing.Pool(8)
 counts=collections.Counter()
 
+# track=1
 for kmerCounts in workers.imap_unordered(weightCountKmers, [ (seqs[i],covs[i],args.k) for i in list(range(len(seqs)))]):
+        # print("Adding count no. "+str(track))
         counts+=kmerCounts
+        # track+=1
 
+      
 for kmer, abundance in counts.most_common(): # sorts by abundance
 	print(f"{kmer}\t{abundance}")
 

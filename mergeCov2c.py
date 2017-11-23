@@ -35,20 +35,3 @@ for key,val in cov_dict.items():
 	print('\t'.join(newLine))
 
 
-## Pandas version (MemoryError)
-# cov2c = pd.read_csv(dir+"/"+files[0], sep="\t", header=None) 
-# cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank"]
-
-# for file in files[1:]:
-# 	cov2c_2 = pd.read_csv(dir+"/"+file, sep="\t", header=None) 
-# 	cov2c_2.columns = ["chr", "pos", "strand", "C", "T", "context", "flank"]
-# 	## gives MemoryError --> ask Buys
-# 	df=pd.merge(cov2c,cov2c_2,how="outer",on=["chr","pos","strand","context", "flank"] ).fillna(0)
-# 	df=df.assign(C=df.C_x+df.C_y, T=df.T_x+df.T_y)
-# 	cov2c=df[["chr","pos","strand","C","T","context","flank"]]
-
-# # average values
-# cov2c_avg=cov2c.assign(T=df["T"]/len(files), C=df.C/len(files))
-# cov2c_avg=cov2c_avg.assign(frac=cov2c_avg.C/(cov2c_avg.C+cov2c_avg['T']))
-
-# cov2c_avg.to_csv(dir+"/cov2c_merged_refGen.csv", sep='\t')
