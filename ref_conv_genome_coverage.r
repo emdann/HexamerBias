@@ -3,9 +3,6 @@ library(data.table)
 library(ggplot2)
 library(dplyr)
 
-cov4<-fread("gunzip -c ~/mnt/edann/hexamers/4_tr2_R1_bismark_bt2.deduplicated.bismark.cov.gz")
-cov3<-fread("gunzip -c ~/mnt/edann/hexamers/3_tr2_R1_bismark_bt2.deduplicated.bismark.cov.gz")
-
 a_chr1<-filter(a,V1=="chr1")
 a<-mutate(a,cov = V5+V6)
 
@@ -40,18 +37,35 @@ plot(smp4.cov[chr=="chr1"]$start, smp4.cov[chr=="chr1"]$cov, type="s")
 # hist(a$cov, xlim=c(0,200), breaks = 100, main = "CpG site coverage distribution smp.4", xlab="coverage")
 
 ## 	HOW MANY UNCOVERED CpGs?
-cov2c_973<-fread("gunzip -c ./hexamers/kaester/met_extraction/ERR454973_1_val_1_bismark_bt2.deduplicated.CpG_report.txt.gz")
+files=list.files("~/mnt/edann/hexamers/kaester/met_extraction/",pattern = "CpG_report", full.names = T)
+cov2c_973_1<-fread("gunzip -c ~/mnt/edann/hexamers/kaester/met_extraction/ERR454973_1_val_1_bismark_bt2.deduplicated.CpG_report.txt.gz")
+cov2c_973_2<-fread("gunzip -c ~/mnt/edann/hexamers/kaester/met_extraction/ERR454973_2_val_2_bismark_bt2.deduplicated.CpG_report.txt.gz")
+cov2c_965_1<-fread("gunzip -c ~/mnt/edann/hexamers/kaester/met_extraction/ERR454965_1_val_1_bismark_bt2.deduplicated.CpG_report.txt.gz")
+cov2c_965_2<-fread("gunzip -c ~/mnt/edann/hexamers/kaester/met_extraction/ERR454965_2_val_2_bismark_bt2.deduplicated.CpG_report.txt.gz")
+cov2c_978_1<-fread("gunzip -c ~/mnt/edann/hexamers/kaester/met_extraction/ERR454978_1_val_1_bismark_bt2.deduplicated.CpG_report.txt.gz")
+cov2c_978_2<-fread("gunzip -c ~/mnt/edann/hexamers/kaester/met_extraction/ERR454978_2_val_2_bismark_bt2.deduplicated.CpG_report.txt.gz")
 
-plotCpGcoverage<-function(cov2c,smp_name){
-  cov <- cov2c_973$V4+cov2c_973$V5
+cov2c_gen<-fread("gunzip -c ~/mnt/edann/hexamers/cov2c_merged_convRef.txt.gz")
+
+computeCpGcoverage<-function(cov2c){
+  cov <- cov2c$V4+cov2c$V5
   tab<-table(cov)
   uncovered<-tab[1]
   covered<-sum(tab[-1])
-  pie(c(covered,uncovered),clockwise = T, labels = "", main = smp_name)
-  legend("bottomleft",c("covered", "uncovered"), fill=c("lightblue", "white"), bty = "n")
-  coverage=cov[cov!=0]
-  boxplot(coverage, ylim=c(0,20), outline = F, main=smp_name, ylab="coverage per CpG")
+  coverage<-c(covered,uncovered)
+  names(coverage)<-c("covered", "uncovered")
+  return(list(coverage,cov))
 }
+
+plotCoverage<-function(coverage,cov,smp_name){
+  x11()
+  par(mfrow=c(1,2))
+  pie(coverage,clockwise = T, labels = "", main = smp_name)
+  legend("bottomleft",c("covered", "uncovered"), fill=c("lightblue", "white"), bty = "n")
+  cov=cov[cov!=0]
+  boxplot(cov, ylim=c(0,40), outline = F, main=smp_name, ylab="coverage per CpG")
+}
+cov2c_beta<- cov2c_gen$V4/(cov2c_gen$V4+cov2c_gen$V5)  
 
 
 pdf("../output/covered_cpgs_smp3.pdf")
