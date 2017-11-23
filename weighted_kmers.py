@@ -6,7 +6,7 @@ import pysam as ps
 import sys 
 import os
 import argparse
-
+import multiprocessing
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Count hexamers in BS converted fasta file.\n Do it per chromosome! By Emma Dann")
 argparser.add_argument('fasta', type=str, help='Fasta input')
@@ -14,13 +14,14 @@ argparser.add_argument('cov2c', type=str, help='cytosine report input')
 argparser.add_argument('-k', type=int, default=6, required=False, help='Kmer size')
 args = argparser.parse_args()
 
-def weightCountKmers(seq,df,k):
+def weightCountKmers(params):
+	seq,df,k = params
 	spl_seq=list(seq)
 	probs=[[df.frac[df.pos==i+1].values[0], 1-df.frac[df.pos==i+1].values[0]] if i in list(df["pos"]-1) else [1] for i in list(range(len(spl_seq)))]
-	print("Probs computed.")
+	# print("Probs computed.")
 	## strand specific
 	bases=[[spl_seq[i],'T'] if i in list(df[(df.pos==i+1) & (df.strand=='+')].pos-1) else [spl_seq[i],'A'] if i in list(df[(df.pos==i+1) & (df.strand=='-')].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]
-	print("Bases computed.")
+	# print("Bases computed.")
 	kmerCounts = collections.Counter() 
 	ls = []
 	for i in range(0, len(bases)-k+1):
@@ -44,13 +45,6 @@ with ps.FastxFile(args.fasta) as chr:
  	for entry in chr:
  		seq=entry.sequence.upper()
 
-counts=weightCountKmers(seq,cov2c,args.k)
-
-for kmer, abundance in counts.most_common(): # sorts by abundance
-	print(f"{kmer}\t{abundance}")
-
-filt_cov2c=cov2c.assign(frac=cov2c.C/(cov2c.C+cov2c["T"])).dropna()
-
 covs=[]
 seqs=[]
 
@@ -59,7 +53,7 @@ start_pos=0
 end_pos=bin_len
 while end_pos<len(seq):
 	small_seq=seq[start_pos:end_pos]
-	small_cov = filt_cov2c[(filt_cov2c.pos<end_pos) & (filt_cov2c.pos>start_pos)]
+	small_cov = cov2c[(cov2c.pos<end_pos) & (cov2c.pos>start_pos)]
 	small_cov = small_cov.assign(pos=small_cov.pos-start_pos)
 	seqs.append(small_seq)
 	covs.append(small_cov)
@@ -69,12 +63,16 @@ while end_pos<len(seq):
 
 
 last_seq = seq[start_pos:]
-last_cov = filt_cov2c[(filt_cov2c.pos < end_pos) & (filt_cov2c.pos > start_pos)]
+last_cov = cov2c[(cov2c.pos < end_pos) & (cov2c.pos > start_pos)]
 seqs.append(last_seq)
 covs.append(last_cov)
 
-for i in list(range(len(seqs))):
-	weightCountKmers(seqs[i],covs[i],6)
+workers = multiprocessing.Pool(8)
+counts=collections.Counter()
 
+for kmerCounts in workers.imap_unordered(weightCountKmers, [ (seqs[i],covs[i],args.k) for i in list(range(len(seqs)))]):
+        counts+=kmerCounts
 
+for kmer, abundance in counts.most_common(): # sorts by abundance
+	print(f"{kmer}\t{abundance}")
 
