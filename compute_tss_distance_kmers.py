@@ -64,9 +64,9 @@ def load_obj(name ):
     with open(name + '.pkl', 'rb') as f:
         return pickle.load(f)
 
-
+chr=args.fasta.split('/')[-1].split('.')[0]
 refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4],  nrows=100, header=0, dtype={4:int}) 
-refgen=refgen[refgen.chrom==args.fasta.split('/')[-1].split('.')[0]]
+refgen=refgen[refgen.chrom==chr]
 refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
 
 with ps.FastxFile(args.fasta) as chr:
