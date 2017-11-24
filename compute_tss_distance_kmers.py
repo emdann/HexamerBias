@@ -9,6 +9,7 @@ import argparse
 import scipy.sparse as sp
 import pickle
 import random
+import multiprocessing
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Compute distance to TSS of hexamers in BS converted chromosome.\n Do it per chromosome! By Emma Dann")
 argparser.add_argument('fasta', type=str, help='chr.fasta input')
@@ -105,7 +106,7 @@ covs.append(last_cov)
 # tss=np.array([random.randrange(1000) for x in range(100)])
 # save_obj(tss_dist, TSS)
 
-workers = multiprocessing.Pool(10)
+workers = multiprocessing.Pool(5)
 tss_dist={}
 for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],covs[i],args.k) for i in list(range(len(seqs)))]):
 	for key,val in dist.items():
