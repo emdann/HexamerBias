@@ -8,6 +8,7 @@ import os
 import argparse
 import scipy.sparse as sp
 import pickle
+import random
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Compute distance to TSS of hexamers in BS converted chromosome.\n Do it per chromosome! By Emma Dann")
 argparser.add_argument('fasta', type=str, help='chr.fasta input')
@@ -16,27 +17,10 @@ argparser.add_argument('refgen', type=str, help='RefGen file of chr of interest 
 argparser.add_argument('-k', type=int, default=6, required=False, help='Kmer size')
 args = argparser.parse_args()
 
-# refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4],  nrows=100, header=0, dtype={4:int}) 
-
-# refgen = pd.read_csv("~/mnt/edann/hexamers/hgTables.refgen.mm10.txt", sep="\t", usecols=[0,2,3,4],  nrows=100, header=0, dtype={4:int}) 
-# refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
-
-# with ps.FastxFile("mnt/edann/genomes/mm10/chr1.fa") as chr:
-#  	for entry in chr:
-#  		seq=entry.sequence.upper()
-
-# cov2c = pd.read_csv("mnt/edann/hexamers/test/test_chr1.txt", sep="\t", header=None) 
-# cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank"]
-# cov2c=cov2c.assign(frac=cov2c.C / (cov2c.C+cov2c["T"]))
-# df=cov2c[-np.isnan(cov2c.frac)]
-
-# spl_seq=list(seq)
-# bases=[[spl_seq[i],'T'] if i in list(df[(df.pos==i+1) & (df.strand=='+')].pos-1) else [spl_seq[i],'A'] if i in list(df[(df.pos==i+1) & (df.strand=='-')].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]
-
-# tss=np.array([random.randrange(1000) for x in range(100)])
-# [[spl_seq[i],'T'] if i in list(df1000[df1000.pos==i+1]) for i in list(range(len(spl_seq1000)))]
-
-def kmer_distTSS(bases,tss, k=6):
+def kmer_distTSS(params):
+	seq,df,k = params
+	spl_seq=list(seq)
+	bases=[[spl_seq[i],'T'] if i in list(df[(df.pos==i+1) & (df.strand=='+')].pos-1) else [spl_seq[i],'A'] if i in list(df[(df.pos==i+1) & (df.strand=='-')].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]	
 	tss_dist={}
 	for i in range(0, len(bases)-k+1):
 	    hex = bases[i:i+k]
@@ -80,23 +64,57 @@ def load_obj(name ):
     with open(name + '.pkl', 'rb') as f:
         return pickle.load(f)
 
-def compute_tss_distance_kmers():
-	refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4],  nrows=100, header=0, dtype={4:int}) 
-	refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
-	with ps.FastxFile(args.fasta) as chr:
-	 	for entry in chr:
-	 		seq=entry.sequence.upper()
-	spl_seq=list(seq)
-	cov2c = pd.read_csv(args.cov2c, sep="\t", header=None) 
-	cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank"]
-	cov2c=cov2c.assign(frac=cov2c.C / (cov2c.C+cov2c["T"]))
-	df=cov2c[-np.isnan(cov2c.frac)]
-	bases=[[spl_seq[i],'T'] if i in list(df[(df.pos==i+1) & (df.strand=='+')].pos-1) else [spl_seq[i],'A'] if i in list(df[(df.pos==i+1) & (df.strand=='-')].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]	
-	# tss = refgen.txStart
-	tss=np.array([random.randrange(1000) for x in range(100)])
-	tss_dist = kmer_distTSS(bases,tss)
-	# save_obj(tss_dist, TSS)
-	return(tss_dist)
+
+refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4],  nrows=100, header=0, dtype={4:int}) 
+refgen=refgen[refgen.chrom==args.fasta.split('/')[-1].split('.')[0]]
+refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
+
+with ps.FastxFile(args.fasta) as chr:
+ 	for entry in chr:
+ 		seq=entry.sequence.upper()
+
+cov2c = pd.read_csv(args.cov2c, sep="\t", header=None) 
+cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank"]
+cov2c=cov2c.assign(frac=cov2c.C / (cov2c.C+cov2c["T"]))
+cov2c=cov2c[-np.isnan(cov2c.frac)]
+
+covs=[]
+seqs=[]
+bin_len=1000
+start_pos=0
+end_pos=bin_len
+track=1
+while end_pos<len(seq):
+	# print("Binning bin no."+str(track))
+	small_seq=seq[start_pos:end_pos]
+	small_cov = cov2c[(cov2c.pos<end_pos) & (cov2c.pos>start_pos)]
+	small_cov = small_cov.assign(pos=small_cov.pos-start_pos)
+	seqs.append(small_seq)
+	covs.append(small_cov)
+	# weightCountKmers(small_seq,small_cov,6)
+	start_pos = end_pos-5
+	end_pos = start_pos + bin_len
+	# track+=1
+# print("Binning last bin!")
+last_seq = seq[start_pos:]
+last_cov = cov2c[(cov2c.pos < end_pos) & (cov2c.pos > start_pos)]
+seqs.append(last_seq)
+covs.append(last_cov)
+
+# tss = refgen.txStart
+# tss=np.array([random.randrange(1000) for x in range(100)])
+# save_obj(tss_dist, TSS)
+
+workers = multiprocessing.Pool(10)
+tss_dist={}
+for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],covs[i],args.k) for i in list(range(len(seqs)))]):
+	for key,val in dist.items():
+		if key not in tss_dist.keys():
+			tss_dist[key]=[]
+		for pos in val:
+			tss_dist[key].append(pos)
+
+save_obj(tss_dist, "TSS"+args.cov2c)
 
 def make_occurrencies_tbl(tss_dist):
 	dic_oc={}
@@ -113,7 +131,6 @@ def make_occurrencies_tbl(tss_dist):
 	oc_tbl=pd.DataFrame(dic_oc).T
 	return(oc_tbl)
 
-tss_distance=compute_tss_distance_kmers()
 oc_tbl=make_occurrencies_tbl(tss_distance)
 save_obj(oc_tbl, occurrencies_tbl)
 
