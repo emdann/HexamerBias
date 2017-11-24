@@ -40,6 +40,7 @@ def weightCountKmers(params):
 cov2c = pd.read_csv(args.cov2c, sep="\t", header=None) 
 cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank"]
 cov2c=cov2c.assign(frac=cov2c.C / (cov2c.C+cov2c["T"]))
+cov2c=cov2c[-np.isnan(cov2c.frac)]
 # print("cov2c loaded!")
 
 # Load fasta file
@@ -73,7 +74,7 @@ last_cov = cov2c[(cov2c.pos < end_pos) & (cov2c.pos > start_pos)]
 seqs.append(last_seq)
 covs.append(last_cov)
 
-workers = multiprocessing.Pool(8)
+workers = multiprocessing.Pool(10)
 counts=collections.Counter()
 
 # track=1
@@ -81,7 +82,6 @@ for kmerCounts in workers.imap_unordered(weightCountKmers, [ (seqs[i],covs[i],ar
         # print("Adding count no. "+str(track))
         counts+=kmerCounts
         # track+=1
-
 
 for kmer, abundance in counts.most_common(): # sorts by abundance
 	print(f"{kmer}\t{abundance}")
