@@ -19,7 +19,7 @@ argparser.add_argument('-k', type=int, default=6, required=False, help='Kmer siz
 args = argparser.parse_args()
 
 def kmer_distTSS(params):
-	seq,df,k = params
+	seq,df,tss,k = params
 	spl_seq=list(seq)
 	bases=[[spl_seq[i],'T'] if i in list(df[(df.pos==i+1) & (df.strand=='+')].pos-1) else [spl_seq[i],'A'] if i in list(df[(df.pos==i+1) & (df.strand=='-')].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]	
 	tss_dist={}
@@ -69,6 +69,8 @@ chr=args.fasta.split('/')[-1].split('.')[0]
 refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4],  nrows=100, header=0, dtype={4:int}) 
 refgen=refgen[refgen.chrom==chr]
 refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
+tss=refgen.txStart
+
 
 with ps.FastxFile(args.fasta) as chr:
  	for entry in chr:
@@ -108,7 +110,7 @@ covs.append(last_cov)
 
 workers = multiprocessing.Pool(5)
 tss_dist={}
-for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],covs[i],args.k) for i in list(range(len(seqs)))]):
+for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],covs[i],tss,args.k) for i in list(range(len(seqs)))]):
 	for key,val in dist.items():
 		if key not in tss_dist.keys():
 			tss_dist[key]=[]
