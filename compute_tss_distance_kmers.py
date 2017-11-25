@@ -66,11 +66,12 @@ def load_obj(name ):
         return pickle.load(f)
 
 chr=args.fasta.split('/')[-1].split('.')[0]
-refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4],  nrows=100, header=0, dtype={4:int}) 
+print chr
+refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4], header=0, dtype={4:int}) 
 refgen=refgen[refgen.chrom==chr]
 refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
 tss=refgen.txStart
-
+print refgen
 
 with ps.FastxFile(args.fasta) as chr:
  	for entry in chr:
@@ -103,7 +104,7 @@ last_seq = seq[start_pos:]
 last_cov = cov2c[(cov2c.pos < end_pos) & (cov2c.pos > start_pos)]
 seqs.append(last_seq)
 covs.append(last_cov)
-
+print "Covs computed,"+str(len(covs))+" tables"
 # tss = refgen.txStart
 # tss=np.array([random.randrange(1000) for x in range(100)])
 # save_obj(tss_dist, TSS)
