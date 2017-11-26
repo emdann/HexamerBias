@@ -23,7 +23,7 @@ hexAbundance=collections.Counter()
 for file in files:
 	with open(file,'rb') as f:
 		for line in f:
-			aline=line.strip('\n').split('\t')
+			aline=line.decode().strip('\n').split('\t')
 			hexAbundance[aline[0]]+=float(aline[1])
 
 for kmer, abundance in hexAbundance.most_common(): # sorts by abundance
