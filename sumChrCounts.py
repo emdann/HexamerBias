@@ -9,8 +9,8 @@ import argparse
 import scipy.sparse as sp
 import fnmatch
 
-dir='/home/emma/mnt/edann/hexamers'
-# dir="/hpc/hub_oudenaarden/edann/hexamers"
+# dir='/home/emma/mnt/edann/hexamers'
+dir="/hpc/hub_oudenaarden/edann/hexamers"
 files=[]
 for file in os.listdir(dir):
     if fnmatch.fnmatch(file, 'count_noNan_chr*'):
