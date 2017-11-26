@@ -109,7 +109,7 @@ covs.append(last_cov)
 # tss=np.array([random.randrange(1000) for x in range(100)])
 # save_obj(tss_dist, TSS)
 
-workers = multiprocessing.Pool(5)
+workers = multiprocessing.Pool(10)
 tss_dist={}
 for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],covs[i],tss,args.k) for i in list(range(len(seqs)))]):
 	for key,val in dist.items():
