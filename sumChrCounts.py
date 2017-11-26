@@ -27,5 +27,5 @@ for file in files:
 			hexAbundance[aline[0]]+=float(aline[1])
 
 for kmer, abundance in hexAbundance.most_common(): # sorts by abundance
-	# print(f"{kmer}\t{abundance}")
-	print kmer, abundance
+	print(f"{kmer}\t{abundance}")
+	# print kmer, abundance
