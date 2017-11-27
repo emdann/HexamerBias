@@ -26,7 +26,7 @@ def kmer_distTSS(params):
 	seq,df,k = params
 	spl_seq=list(seq)
 	bases=[[spl_seq[i],'T'] if i in list(df[(df.pos==i+1) & (df.strand=='+')].pos-1) else [spl_seq[i],'A'] if i in list(df[(df.pos==i+1) & (df.strand=='-')].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]	
-	print(bases)
+	# print(bases)
 	tss=(len(seq)/2)-1
 	tss_dist={}
 	for i in range(0, len(bases)-k+1):
