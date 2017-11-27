@@ -10,10 +10,10 @@ argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHel
 #argparser.add_argument('cov2c', type=str, help='chromosome cytosine report input')
 args = argparser.parse_args()
 
-dir="/hpc/hub_oudenaarden/edann/hexamers/kaester/met_extraction"
+dir="/hpc/hub_oudenaarden/edann/reikVSnla/met_extraction"
 files=[]
 for file in os.listdir(dir):
-    if fnmatch.fnmatch(file, '*.CpG_report.txt.gz'):
+    if fnmatch.fnmatch(file, '*.cov.gz'):
         files.append(dir+"/"+file)
 
 cov_dict=collections.OrderedDict()
