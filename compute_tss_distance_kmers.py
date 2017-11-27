@@ -92,7 +92,9 @@ for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],covs[i],args.k) for 
 			tss_dist[key].append(pos)
 
 oc_tbl=make_occurrencies_tbl(tss_dist)
-oc_tbl.to_csv("/hpc/hub_oudenaarden/edann/TSSocc_"+chromosome+".csv")
+
+for x in list(range(len(oc_tbl))):
+	print '\t'.join([str(i) for i in list(refgen.loc[x])])
 
 
 
