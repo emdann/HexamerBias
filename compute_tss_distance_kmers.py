@@ -50,7 +50,7 @@ def make_occurrencies_tbl(tss_dist):
 	oc_tbl=oc_tbl.fillna(0)
 	return(oc_tbl)
 
-# chr=fasta_file.split('/')[-1].split('.')[0]
+# chromosome=fasta_file.split('/')[-1].split('.')[0]
 chromosome=args.fasta.split('/')[-1].split('.')[0]
 # print chr
 # refgen = pd.read_csv(refgen_file, sep="\t", usecols=[0,2,3,4], header=0, dtype={4:int}) 
@@ -92,8 +92,11 @@ for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],covs[i],args.k) for 
 			tss_dist[key].append(pos)
 
 oc_tbl=make_occurrencies_tbl(tss_dist)
+# print "#hex"+'\t'.join([str(i) for i in list(oc_tbl)])
+print("#hex"+'\t'.join([str(i) for i in list(oc_tbl)]))
 for x in list(range(len(oc_tbl))):
-	print('\t'.join([str(i) for i in list(refgen.loc[x])]))
+	print(oc_tbl.index[x]+'\t'+'\t'.join([str(i) for i in oc_tbl.ix[x]]))
+	# print oc_tbl.index[x]+'\t'+'\t'.join([str(i) for i in oc_tbl.ix[x]])	
 
 
 
