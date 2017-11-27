@@ -50,22 +50,22 @@ def make_occurrencies_tbl(tss_dist):
 	oc_tbl=oc_tbl.fillna(0)
 	return(oc_tbl)
 
-chr=fasta_file.split('/')[-1].split('.')[0]
-# chr=args.fasta.split('/')[-1].split('.')[0]
+# chr=fasta_file.split('/')[-1].split('.')[0]
+chr=args.fasta.split('/')[-1].split('.')[0]
 # print chr
-refgen = pd.read_csv(refgen_file, sep="\t", usecols=[0,2,3,4], header=0, dtype={4:int}) 
-# refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4], header=0, dtype={4:int}) 
+# refgen = pd.read_csv(refgen_file, sep="\t", usecols=[0,2,3,4], header=0, dtype={4:int}) 
+refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4], header=0, dtype={4:int}) 
 refgen=refgen[refgen.chrom==chr]
 refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
 tss=refgen.txStart
 # print refgen
-with ps.FastxFile(fasta_file) as chr:
-# with ps.FastxFile(args.fasta) as chr:
+# with ps.FastxFile(fasta_file) as chr:
+with ps.FastxFile(args.fasta) as chr:
  	for entry in chr:
  		seq=entry.sequence.upper()
 
-cov2c = pd.read_csv(cov2c_file, sep="\t", header=None) 
-# cov2c = pd.read_csv(args.cov2c, sep="\t", header=None) 
+# cov2c = pd.read_csv(cov2c_file, sep="\t", header=None) 
+cov2c = pd.read_csv(args.cov2c, sep="\t", header=None) 
 cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank"]
 cov2c=cov2c.assign(frac=cov2c.C / (cov2c.C+cov2c["T"]))
 cov2c=cov2c[-np.isnan(cov2c.frac)]
