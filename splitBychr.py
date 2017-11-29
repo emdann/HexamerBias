@@ -1,9 +1,9 @@
 import sys, os
-from pandas.io.parsers import read_csv
+# from pandas.io.parsers import read_csv
 import pandas as pd
 
 try:
-    df = read_csv(sys.argv[1], sep = '\t', header = None)
+    df = pd.read_csv(sys.argv[1], sep = '\t', header = None)
     output = sys.argv[2]
 except:
     sys.exit('Please, give (1) input cov2c file; (2) root for output file')

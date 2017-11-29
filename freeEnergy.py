@@ -11,7 +11,7 @@ import pickle
 
 ## rows= first nucleotide (AGTC) cols=second nucleotide (AGTC)
 
-rand_hex=[''.join(i) for i in list(it.product(list("ATCG"),repeat=6))]
+rand_hex=[''.join(i) for i in list(it.product(list("ATCG"),repeat=9))]
 
 def compute_deltaG(hex):
 	deltaG_tbl=np.array([-1.28,-1.54,-1.12,-1.72,-1.58,-2.07,-1.72,-2.53, -0.85, -1.73,-1.28,-1.58, -1.74,-2.49,-1.54,-2.07]).reshape((4,4))
@@ -25,7 +25,7 @@ def compute_deltaG(hex):
 
 #rand_hex_deltaG={}
 for hex in rand_hex:
-	print(hex, compute_deltaG(hex))
+	print hex, compute_deltaG(hex) 
 	#rand_hex_deltaG[hex]=compute_deltaG(hex)
 	
 
