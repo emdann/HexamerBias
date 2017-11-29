@@ -3,7 +3,6 @@ library(data.table)
 library(caTools)
 library(RColorBrewer)
 
-colpal
 
 loadHeaderTSStab<-function(file_path){
   header<-scan(file_path,what = "", nlines = 1)
@@ -22,8 +21,8 @@ sapply(sample(seq_along(p_df$hex),10), function(hex) lines(as.numeric(colnames(p
 
 
 hex.df<-read.csv("~/hex_analysis.csv")
-top_hex<-hex.df[order(hex.df$usage, decreasing = T),]$hex[1:10]
-bot_hex<-hex.df[order(hex.df$usage, decreasing = F),]$hex[1:10]
+top_hex<-hex.df[order(hex.df$deltaG, decreasing = F),]$hex[1:10]
+bot_hex<-hex.df[order(hex.df$deltaG, decreasing = T),]$hex[1:10]
 
 plotSetProfile<- function(hexs,k=100,title=NULL){
   cols=rainbow(length(hexs))
@@ -40,3 +39,8 @@ par(mfrow=c(1,2))
 plotSetProfile(top_hex, title = "Most used hexamers")
 plotSetProfile(bot_hex, title = "Least used hexamers")
 dev.off()
+
+hclustfunc <- function(x, method = "complete", dmeth = "euclidean") {    
+  hclust(dist(x, method = dmeth), method = method)
+}
+
