@@ -35,7 +35,7 @@ for file in files[1:]:
 			else:
 				print("Error! Unexpected number of values in line "+ aline[0])
 
-output_file=dir+"/sumTSS_distances.txt"
+output_file=dir+"/sumTSS_distances_zf.txt"
 with open(output_file, "w") as output:
 	for key,val in tss_dist_dic.items():
 		print(key+','+','.join([str(v) for v in val]), file=output)
