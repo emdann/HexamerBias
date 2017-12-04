@@ -17,7 +17,7 @@ tss_dist_dic={}
 with open(files[0], "rb") as f:
 	for line in f:
 		aline=line.decode().strip('\n').split('\t')
-		if len([float(i) for i in aline[1:]])==5995:
+		if len([float(i) for i in aline[1:]])==5994:
 			tss_dist_dic[aline[0]]=[float(i) for i in aline[1:]]
 		else:
 			print("Error! Unexpected number of values in line "+ aline[0])
@@ -28,9 +28,9 @@ for file in files[1:]:
 		for line in f:
 			aline=line.decode().strip('\n').split('\t')
 			if aline[0] not in tss_dist_dic.keys():
-				tss_dist_dic[aline[0]]=[0]*5995
-			if len([float(i) for i in aline[1:]])==5995:
-				print("Processing hex "+aline[0]+"...")	
+				tss_dist_dic[aline[0]]=[0]*5994
+			if len([float(i) for i in aline[1:]])==5994:
+				print("File: "+file+ " Processing hex "+aline[0]+"...")	
 				tss_dist_dic[aline[0]]=list(pd.Series(tss_dist_dic[aline[0]])+pd.Series([float(i) for i in aline[1:]]))
 			else:
 				print("Error! Unexpected number of values in line "+ aline[0])
