@@ -83,7 +83,7 @@ for i in (tss-1):
 	# small_cov = cov2c[(cov2c.pos<end_pos) & (cov2c.pos>start_pos)]
 	# small_cov = small_cov.assign(pos=small_cov.pos-start_pos)
 	seqs.append(small_seq)
-<<<<<<< HEAD
+
 	# covs.append(small_cov)
 
 workers = multiprocessing.Pool(10)
@@ -97,7 +97,7 @@ for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],args.k) for i in lis
 
 oc_tbl=make_occurrencies_tbl(tss_dist)
 # print "#hex"+'\t'.join([str(i) for i in list(oc_tbl)])
-print("#hex"+'\t'.join([str(i) for i in list(oc_tbl)]))
+print("#hex\t"+'\t'.join([str(i) for i in list(oc_tbl)]))
 for x in list(range(len(oc_tbl))):
 	print(oc_tbl.index[x]+'\t'+'\t'.join([str(i) for i in oc_tbl.ix[x]]))
 	# print oc_tbl.index[x]+'\t'+'\t'.join([str(i) for i in oc_tbl.ix[x]])	
