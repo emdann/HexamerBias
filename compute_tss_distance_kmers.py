@@ -13,7 +13,7 @@ import multiprocessing
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Compute distance to TSS of hexamers in BS converted chromosome.\n Do it per chromosome! By Emma Dann")
 argparser.add_argument('fasta', type=str, help='chr.fasta input')
-argparser.add_argument('cov2c', type=str, help='chromosome cytosine report input')
+# argparser.add_argument('cov2c', type=str, help='chromosome cytosine report input')
 argparser.add_argument('refgen', type=str, help='RefGen file of chr of interest (downloaded from UCSC genome browser)')
 argparser.add_argument('-k', type=int, default=6, required=False, help='Kmer size')
 args = argparser.parse_args()
@@ -23,9 +23,10 @@ def kmer_distTSS(params):
 	# seq = sequence of the flanking region
 	# df = cov2c table of methylation fraction for the flanking region
 	# 
-	seq,df,k = params
+	seq,k = params
 	spl_seq=list(seq)
-	bases=[[spl_seq[i],'T'] if i in list(df[(df.pos==i+1) & (df.strand=='+')].pos-1) else [spl_seq[i],'A'] if i in list(df[(df.pos==i+1) & (df.strand=='-')].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]	
+	# bases=[[spl_seq[i],'T'] if i in list(df[(df.pos==i+1) & (df.strand=='+')].pos-1) else [spl_seq[i],'A'] if i in list(df[(df.pos==i+1) & (df.strand=='-')].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]	
+	bases=[[spl_seq[i],'T'] if ((spl_seq[i]=="C") & (spl_seq[i+1]=="G")) else [spl_seq[i],'A'] if ((spl_seq[i]=="G") & (spl_seq[i-1]=="C")) else spl_seq[i] for i in range(len(spl_seq)-1)]
 	# print(bases)
 	tss=(len(seq)/2)-1
 	tss_dist={}
@@ -64,27 +65,27 @@ with ps.FastxFile(args.fasta) as chr:
  	for entry in chr:
  		seq=entry.sequence.upper()
 
-# cov2c = pd.read_csv(cov2c_file, sep="\t", header=None) 
-cov2c = pd.read_csv(args.cov2c, sep="\t", header=None) 
-cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank"]
-cov2c=cov2c.assign(frac=cov2c.C / (cov2c.C+cov2c["T"]))
-cov2c=cov2c[-np.isnan(cov2c.frac)]
+# # cov2c = pd.read_csv(cov2c_file, sep="\t", header=None) 
+# cov2c = pd.read_csv(args.cov2c, sep="\t", header=None) 
+# cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank"]
+# cov2c=cov2c.assign(frac=cov2c.C / (cov2c.C+cov2c["T"]))
+# cov2c=cov2c[-np.isnan(cov2c.frac)]
 
 flank_wid=3000
-covs=[]
+# covs=[]
 seqs=[]
 for i in (tss-1):
 	start_pos=i-flank_wid
 	end_pos=i+flank_wid
 	small_seq=seq[start_pos:end_pos]
-	small_cov = cov2c[(cov2c.pos<end_pos) & (cov2c.pos>start_pos)]
-	small_cov = small_cov.assign(pos=small_cov.pos-start_pos)
+	# small_cov = cov2c[(cov2c.pos<end_pos) & (cov2c.pos>start_pos)]
+	# small_cov = small_cov.assign(pos=small_cov.pos-start_pos)
 	seqs.append(small_seq)
-	covs.append(small_cov)
+	# covs.append(small_cov)
 
 workers = multiprocessing.Pool(10)
 tss_dist={}
-for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],covs[i],args.k) for i in list(range(len(seqs)))]):
+for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],args.k) for i in list(range(len(seqs)))]):
 	for key,val in dist.items():
 		if key not in tss_dist.keys():
 			tss_dist[key]=[]

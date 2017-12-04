@@ -37,4 +37,3 @@ for key,val in cov_dict.items():
 	newLine =  list_key[:3]+[str(i/2) for i in val]+list_key[3:]
 	print('\t'.join(newLine))
 
-

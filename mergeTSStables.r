@@ -2,6 +2,7 @@ library(dplyr)
 library(data.table)
 library(caTools)
 library(RColorBrewer)
+library(gplots)
 
 
 loadHeaderTSStab<-function(file_path){
@@ -11,18 +12,24 @@ loadHeaderTSStab<-function(file_path){
   return(header)
 }
 
-TSSdistances<-fread("~/mnt/edann/hexamers/sumTSS_distances.txt", col.names = c("hex", loadHeaderTSStab("~/mnt/edann/hexamers/TSS_tab.chr10.txt")))
+TSSdistances<-fread("gunzip -c ~/mnt/edann/hexamers/sumTSS_distances.txt.gz", col.names = c("hex",seq(-2995,2999)))
 
 # Make prob function
 p_mat <- apply(t(TSSdistances[,-1]),1,function(i) as.numeric(i/sum(i)))
 p_df<-cbind(TSSdistances[,1],p_mat)
 
-sapply(sample(seq_along(p_df$hex),10), function(hex) lines(as.numeric(colnames(p_df)[-1]),runmean(as.numeric(p_df[hex,-1]), k = 100), type='l', main=paste(p_df$hex[hex])))
-
-
 hex.df<-read.csv("~/hex_analysis.csv")
 top_hex<-hex.df[order(hex.df$deltaG, decreasing = F),]$hex[1:10]
 bot_hex<-hex.df[order(hex.df$deltaG, decreasing = T),]$hex[1:10]
+
+top_ab_hex<-hex.df[order(hex.df$abundance, decreasing = T),]$hex[1:10]
+bot_ab_hex<-hex.df[order(hex.df$abundance, decreasing = F),]$hex[1:10]
+
+pdf("~/HexamerBias/output/TSS_profiles_mostVSleastabund.pdf", width = 12)
+par(mfrow=c(1,2))
+plotSetProfile(c(as.character(top_hex),as.character(bot_hex)), title = "Usage")
+plotSetProfile(bot_ab_hex, title = "Least abundant hexamers")
+dev.off()
 
 plotSetProfile<- function(hexs,k=100,title=NULL){
   cols=rainbow(length(hexs))
@@ -40,7 +47,21 @@ plotSetProfile(top_hex, title = "Most used hexamers")
 plotSetProfile(bot_hex, title = "Least used hexamers")
 dev.off()
 
-hclustfunc <- function(x, method = "complete", dmeth = "euclidean") {    
-  hclust(dist(x, method = dmeth), method = method)
-}
+# Heatmap
+dGsort_hex<-as.character(hex.df[order(hex.df$deltaG),]$hex)
+ord_p_df<-p_df[match(dGsort_hex, p_df$hex)]
+e<-apply(as.matrix(ord_p_df)[,-1],1, runmean, k=100)
+colnames(e)<- ord_p_df$hex
 
+pdf("~/HexamerBias/output/tss_heatmap_mm10.pdf")
+heatmap(t(e), Rowv = NA, Colv = NA, labRow =FALSE, labCol = FALSE, ylab="DeltaG ranked hexamers", col=pal,revC = TRUE, RowSideColors = pal2)
+# axis(2,outer = T,pos = 0.9, at=seq(-4.5,44,length.out = 5), labels = seq(min(e), max(e), length.out = 5), xpd=T)
+axis(1, pos=-0.1, at=seq(0.14, 0.77, length.out = 3), labels = c("- 3 kb", "TSS", "3 kb"))
+dev.off()
+
+Occsort_hex<-as.character(hex.df[order(hex.df$occupancy, decreasing = T),]$hex)
+ord_p_df<-p_df[match(Occsort_hex, p_df$hex)]
+e<-apply(as.matrix(ord_p_df)[,-1],1, runmean, k=100)
+colnames(e)<- ord_p_df$hex
+
+heatmap(t(e), Rowv = NA, Colv = NA, labCol = FALSE, ylab="Occupancy ranked hexamers", col=pal, revC = TRUE)
