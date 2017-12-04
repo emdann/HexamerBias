@@ -5,12 +5,14 @@ library(RColorBrewer)
 library(gplots)
 
 
+
 loadHeaderTSStab<-function(file_path){
   header<-scan(file_path,what = "", nlines = 1)
   hex<-substr(header[1],1,4)
   header[1]<-substr(header[1],5,11)
   return(header)
 }
+
 
 TSSdistances<-fread("gunzip -c ~/mnt/edann/hexamers/sumTSS_distances.txt.gz", col.names = c("hex",seq(-2995,2999)))
 
@@ -22,6 +24,7 @@ hex.df<-read.csv("~/hex_analysis.csv")
 top_hex<-hex.df[order(hex.df$deltaG, decreasing = F),]$hex[1:10]
 bot_hex<-hex.df[order(hex.df$deltaG, decreasing = T),]$hex[1:10]
 
+
 top_ab_hex<-hex.df[order(hex.df$abundance, decreasing = T),]$hex[1:10]
 bot_ab_hex<-hex.df[order(hex.df$abundance, decreasing = F),]$hex[1:10]
 
@@ -30,6 +33,7 @@ par(mfrow=c(1,2))
 plotSetProfile(c(as.character(top_hex),as.character(bot_hex)), title = "Usage")
 plotSetProfile(bot_ab_hex, title = "Least abundant hexamers")
 dev.off()
+
 
 plotSetProfile<- function(hexs,k=100,title=NULL){
   cols=rainbow(length(hexs))
@@ -46,6 +50,7 @@ par(mfrow=c(1,2))
 plotSetProfile(top_hex, title = "Most used hexamers")
 plotSetProfile(bot_hex, title = "Least used hexamers")
 dev.off()
+
 
 # Heatmap
 dGsort_hex<-as.character(hex.df[order(hex.df$deltaG),]$hex)
@@ -65,3 +70,4 @@ e<-apply(as.matrix(ord_p_df)[,-1],1, runmean, k=100)
 colnames(e)<- ord_p_df$hex
 
 heatmap(t(e), Rowv = NA, Colv = NA, labCol = FALSE, ylab="Occupancy ranked hexamers", col=pal, revC = TRUE)
+

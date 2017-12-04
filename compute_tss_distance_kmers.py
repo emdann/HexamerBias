@@ -27,6 +27,7 @@ def kmer_distTSS(params):
 	spl_seq=list(seq)
 	# bases=[[spl_seq[i],'T'] if i in list(df[(df.pos==i+1) & (df.strand=='+')].pos-1) else [spl_seq[i],'A'] if i in list(df[(df.pos==i+1) & (df.strand=='-')].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]	
 	bases=[[spl_seq[i],'T'] if ((spl_seq[i]=="C") & (spl_seq[i+1]=="G")) else [spl_seq[i],'A'] if ((spl_seq[i]=="G") & (spl_seq[i-1]=="C")) else spl_seq[i] for i in range(len(spl_seq)-1)]
+	seq,df,k = params
 	# print(bases)
 	tss=(len(seq)/2)-1
 	tss_dist={}
@@ -65,6 +66,7 @@ with ps.FastxFile(args.fasta) as chr:
  	for entry in chr:
  		seq=entry.sequence.upper()
 
+
 # # cov2c = pd.read_csv(cov2c_file, sep="\t", header=None) 
 # cov2c = pd.read_csv(args.cov2c, sep="\t", header=None) 
 # cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank"]
@@ -81,6 +83,7 @@ for i in (tss-1):
 	# small_cov = cov2c[(cov2c.pos<end_pos) & (cov2c.pos>start_pos)]
 	# small_cov = small_cov.assign(pos=small_cov.pos-start_pos)
 	seqs.append(small_seq)
+<<<<<<< HEAD
 	# covs.append(small_cov)
 
 workers = multiprocessing.Pool(10)
