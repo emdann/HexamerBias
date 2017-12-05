@@ -21,23 +21,37 @@ args = argparser.parse_args()
 def kmer_distTSS(params):
 	# compute the distance from a given tss for each hexamer in the region flanking the tss
 	# seq = sequence of the flanking region
-	# df = cov2c table of methylation fraction for the flanking region
 	# 
 	seq,k = params
 	spl_seq=list(seq)
 	# bases=[[spl_seq[i],'T'] if i in list(df[(df.pos==i+1) & (df.strand=='+')].pos-1) else [spl_seq[i],'A'] if i in list(df[(df.pos==i+1) & (df.strand=='-')].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]	
-	bases=[[spl_seq[i],'T'] if ((spl_seq[i]=="C") & (spl_seq[i+1]=="G")) else [spl_seq[i],'A'] if ((spl_seq[i]=="G") & (spl_seq[i-1]=="C")) else spl_seq[i] for i in range(len(spl_seq)-1)]
-	# seq,df,k = params
-	# print(bases)
+	basesPlus=[[spl_seq[i],'T'] if ((spl_seq[i]=="C") & (spl_seq[i+1]=="G")) else spl_seq[i] for i in range(len(spl_seq)-1)]
+	basesMinus=[[spl_seq[i],'A'] if ((spl_seq[i]=="G") & (spl_seq[i-1]=="C")) else spl_seq[i] for i in range(len(spl_seq)-1)]
 	tss=(len(seq)/2)-1
 	tss_dist={}
-	for i in range(0, len(bases)-k+1):
+	for i in range(0, len(basesPlus)-k+1):
 	    hex = bases[i:i+k]
 	    hex_perm = list(it.product(*hex))
 	    for x in range(len(hex_perm)):
 	    	if(''.join(hex_perm[x]) not in tss_dist.keys()):
 	    		tss_dist[''.join(hex_perm[x])]=[]
 	    	tss_dist[''.join(hex_perm[x])].append(i-tss)
+	tss_distMinus={}
+	for i in range(0, len(basesMinus)-k+1):
+	    hex = bases[i:i+k]
+	    hex_perm = list(it.product(*hex))
+	    for x in range(len(hex_perm)):
+	    	if(''.join(hex_perm[x]) not in tss_distMinus.keys()):
+	    		tss_distMinus[''.join(hex_perm[x])]=[]
+		    	tss_distMinus[''.join(hex_perm[x])].append(i-tss)	
+	tss_distRevMinus={}
+	for key,val in tss_distMinus.items():
+		tss_distRevMinus[str(Seq(key, generic_dna).reverse_complement())]=val
+	for key,val in tss_distRevMinus.items():
+		if key not in tss_dist.keys():
+			tss_dist[key]=[]
+		for pos in val:
+			tss_dist[key].append(pos)
 	return(tss_dist)
 
 def make_occurrencies_tbl(tss_dist):
@@ -66,25 +80,14 @@ with ps.FastxFile(args.fasta) as chr:
  	for entry in chr:
  		seq=entry.sequence.upper()
 
-
-# # cov2c = pd.read_csv(cov2c_file, sep="\t", header=None) 
-# cov2c = pd.read_csv(args.cov2c, sep="\t", header=None) 
-# cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank"]
-# cov2c=cov2c.assign(frac=cov2c.C / (cov2c.C+cov2c["T"]))
-# cov2c=cov2c[-np.isnan(cov2c.frac)]
-
 flank_wid=3000
-# covs=[]
 seqs=[]
 for i in (tss-1):
 	start_pos=i-flank_wid
 	end_pos=i+flank_wid
 	small_seq=seq[start_pos:end_pos]
-	# small_cov = cov2c[(cov2c.pos<end_pos) & (cov2c.pos>start_pos)]
-	# small_cov = small_cov.assign(pos=small_cov.pos-start_pos)
 	seqs.append(small_seq)
 
-	# covs.append(small_cov)
 
 workers = multiprocessing.Pool(10)
 tss_dist={}
@@ -96,11 +99,9 @@ for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],args.k) for i in lis
 			tss_dist[key].append(pos)
 
 oc_tbl=make_occurrencies_tbl(tss_dist)
-# print "#hex"+'\t'.join([str(i) for i in list(oc_tbl)])
 print("#hex\t"+'\t'.join([str(i) for i in list(oc_tbl)]))
 for x in list(range(len(oc_tbl))):
 	print(oc_tbl.index[x]+'\t'+'\t'.join([str(i) for i in oc_tbl.ix[x]]))
-	# print oc_tbl.index[x]+'\t'+'\t'.join([str(i) for i in oc_tbl.ix[x]])	
 
 
 
