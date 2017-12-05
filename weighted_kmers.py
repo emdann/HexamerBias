@@ -34,6 +34,15 @@ def weightCountKmers(params):
 	    	kmerCounts[''.join(hex_perm[i])] += np.prod(np.array(hex_prob_perm)[i])
 	return(kmerCounts)
 
+def strandSpecificCount(params):
+	seq,df,k = params
+	dfPlus = df[df.strand=="+"]
+	dfMinus = df[df.strand=="-"]
+	kmerCounts=collections.Counter()
+	kmerCounts+=weightCountKmers((seq,dfPlus,k))
+	kmerCounts+=weightCountKmers((seq,dfMinus,k))
+	return(kmerCounts)
+
 # Load cov2c
 # cov2c file processed with added fraction of methylation
 # zcat cov2c_smp.deduplicated.bismark.cov.gz | awk '$4+$5!=0{print $N"\t"$4/($4+$5)}'
@@ -78,7 +87,7 @@ workers = multiprocessing.Pool(10)
 counts=collections.Counter()
 
 # track=1
-for kmerCounts in workers.imap_unordered(weightCountKmers, [ (seqs[i],covs[i],args.k) for i in list(range(len(seqs)))]):
+for kmerCounts in workers.imap_unordered(strandSpecificCount, [ (seqs[i],covs[i],args.k) for i in list(range(len(seqs)))]):
         # print("Adding count no. "+str(track))
         counts+=kmerCounts
         # track+=1
