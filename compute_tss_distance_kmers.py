@@ -25,10 +25,14 @@ def kmer_distTSS(params):
 	# seq = sequence of the flanking region
 	# 
 	seq,k = params
+	compl_seq=str(Seq(seq, generic_dna).complement())
 	spl_seq=list(seq)
 	# bases=[[spl_seq[i],'T'] if i in list(df[(df.pos==i+1) & (df.strand=='+')].pos-1) else [spl_seq[i],'A'] if i in list(df[(df.pos==i+1) & (df.strand=='-')].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]	
 	basesPlus=[[spl_seq[i],'T'] if ((spl_seq[i]=="C") & (spl_seq[i+1]=="G")) else spl_seq[i] for i in range(len(spl_seq)-1)]
-	basesMinus=[[spl_seq[i],'A'] if ((spl_seq[i]=="G") & (spl_seq[i-1]=="C")) else spl_seq[i] for i in range(len(spl_seq)-1)]
+	basesPlus=['T' if i=='C' else i for i in basesPlus]
+	spl_seq_compl=list(compl_seq)
+	basesMinus=[[spl_seq_compl[i],'T'] if ((spl_seq_compl[i]=="C") & (spl_seq[i-1]=="G")) else spl_seq_compl[i] for i in range(len(spl_seq_compl)-1)]
+	basesMinus=['T' if i=='C' else i for i in basesMinus]
 	tss=(len(seq)/2)-1
 	tss_dist={}
 	for i in range(0, len(basesPlus)-k+1):
@@ -48,7 +52,7 @@ def kmer_distTSS(params):
 		    	tss_distMinus[''.join(hex_perm[x])].append(i-tss)	
 	tss_distRevMinus={}
 	for key,val in tss_distMinus.items():
-		tss_distRevMinus[str(Seq(key, generic_dna).reverse_complement())]=val
+		tss_distRevMinus[key[::-1]]=val
 	for key,val in tss_distRevMinus.items():
 		if key not in tss_dist.keys():
 			tss_dist[key]=[]
