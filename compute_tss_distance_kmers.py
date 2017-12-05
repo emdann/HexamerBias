@@ -10,6 +10,8 @@ import scipy.sparse as sp
 import pickle
 import random
 import multiprocessing
+from Bio.Seq import Seq
+from Bio.Alphabet import generic_dna
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Compute distance to TSS of hexamers in BS converted chromosome.\n Do it per chromosome! By Emma Dann")
 argparser.add_argument('fasta', type=str, help='chr.fasta input')
