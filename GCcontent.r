@@ -1,7 +1,6 @@
 ## GENOME GC content
 library(data.table)
 
-<<<<<<< HEAD
 danRer10_1000<- fread("/home/emma/mnt/edann/hexamers/GCcont_1000slop_hgTables.refgen.danRer.txt")
 mm10<- fread("/home/emma/mnt/edann/hexamers/GCcont_1000slop_hgTables.refgen.mm10.txt")
 hg38<- fread("/home/emma/mnt/edann/hexamers/GCcont_1000slop_hgTables.refgen.hg38.txt")

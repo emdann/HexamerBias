@@ -23,7 +23,7 @@ with open(files[0], "rb") as f:
 			print("Error! Unexpected number of values in line "+ aline[0])
 		# cov_dict['\t'.join([aline[i] for i in [0,1,2]])]=[int(i) for i in aline[4:]]
 
-for file in files[1:]:
+for file in files[1:11]+files[12:]:
 	with open(file,'rb') as f:
 		for line in f:
 			aline=line.decode().strip('\n').split('\t')
