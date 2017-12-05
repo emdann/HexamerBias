@@ -5,19 +5,14 @@ import numpy as np
 import pysam as ps
 import sys 
 import os
-import argparse
 import scipy.sparse as sp
 import fnmatch
 
-# dir='/home/emma/mnt/edann/hexamers'
 dir="/hpc/hub_oudenaarden/edann/hexamers"
 files=[]
 for file in os.listdir(dir):
-    if fnmatch.fnmatch(file, 'count_noNan_chr*'):
+    if fnmatch.fnmatch(file, 'count_convRef.chr*'):
         files.append(dir+"/"+file)
-# with open(dir+"/"+"files.txt",'rb') as f:
-# 	for file in f.readlines():
-# 		files.append(dir+"/"+file.strip("\n"))
 
 hexAbundance=collections.Counter()
 for file in files:

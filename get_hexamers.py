@@ -49,8 +49,3 @@ for i in ids_r1:
 
 for kmer, abundance in hex_count1.most_common(): # sorts by abundance
 	print(f"{kmer}\t{abundance}")
-
-# echo "source /hpc/hub_oudenaarden/edann/venv2/bin/activate; python ../bin/coverage_bias/get_hexamers.py D50-a-NN_lmerged_R1.fastq.gz /hpc/hub_oudenaarden/mauro/D50_D51_BS_2017_11/avo_files/D50-a-NN_tr2_R1_bismark_bt2.deduplicated.bam" | qsub -cwd -N hex_D50-a-NN -l h_rt=10:00:00 -l h_vmem=50G
-
-# for smp in $(ls *.fastq.gz | sed 's/_lmerged/\t/' | cut -f 1 | uniq); do echo "python ../bin/coverage_bias/get_hexamers.py ${smp}_lmerged_R1.fastq.gz /hpc/hub_oudenaarden/mauro/D50_D51_BS_2017_11/avo_files/${smp}_tr2_R1_bismark_bt2.deduplicated.bam"| qsub -cwd -N hex_${smp} -l h_rt=10:00:00 -l h_vmem=50G; done
-# for smp in $(ls *.fastq.gz | sed 's/_lmerged/\t/' | cut -f 1 | uniq); do echo "python ../bin/coverage_bias/get_hexamers.py ${smp}_lmerged_R2.fastq.gz /hpc/hub_oudenaarden/mauro/D50_D51_BS_2017_11/avo_files/${smp}_tr2_R2_bismark_bt2.deduplicated.bam"| qsub -cwd -N hex_${smp} -l h_rt=10:00:00 -l h_vmem=50G; done
