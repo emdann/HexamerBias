@@ -7,6 +7,8 @@ import sys
 import os
 import argparse
 import multiprocessing
+from Bio.Seq import Seq
+from Bio.Alphabet import generic_dna
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Count hexamers in BS converted fasta file.\n Do it per chromosome! By Emma Dann")
 argparser.add_argument('fasta', type=str, help='Fasta input')
@@ -38,9 +40,15 @@ def strandSpecificCount(params):
 	seq,df,k = params
 	dfPlus = df[df.strand=="+"]
 	dfMinus = df[df.strand=="-"]
+	my_dna = Seq(seq, generic_dna)
 	kmerCounts=collections.Counter()
-	kmerCounts+=weightCountKmers((seq,dfPlus,k))
-	kmerCounts+=weightCountKmers((seq,dfMinus,k))
+	kmerCountsPlus=weightCountKmers((seq,dfPlus,k))
+	kmerCountsMinus=weightCountKmers((seq,dfMinus,k))
+	kmerCountsRevMinus=collections.Counter()
+	for key,val in kmerCountsMinus.items():
+		kmerCountsRevMinus[str(Seq(key, generic_dna).reverse_complement())]+=val
+	kmerCounts+=kmerCountsPlus
+	kmerCounts+=kmerCountsRevMinus
 	return(kmerCounts)
 
 # Load cov2c
