@@ -32,7 +32,7 @@ def kmer_distTSS(params):
 	basesPlus.append(spl_seq[-1])
 	basesPlus=['T' if i=='C' else i for i in basesPlus]
 	spl_seq_compl=list(compl_seq)
-	basesMinus=[[spl_seq_compl[i],'T'] if ((spl_seq_compl[i]=="C") & (spl_seq[i-1]=="G")) else spl_seq_compl[i] for i in range(len(spl_seq_compl)-1)]
+	basesMinus=[[spl_seq_compl[i],'T'] if ((spl_seq_compl[i]=="C") & (spl_seq[i+1]=="G")) else spl_seq_compl[i] for i in range(len(spl_seq_compl)-1)]
 	basesMinus.append(spl_seq_compl[-1])
 	basesMinus=['T' if i=='C' else i for i in basesMinus]
 	tss=(len(seq)/2)-1
