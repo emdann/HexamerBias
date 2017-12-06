@@ -26,7 +26,7 @@ def compute_deltaG(hex):
 
 #rand_hex_deltaG={}
 for hex in rand_hex:
-	print hex, compute_deltaG(hex) 
+	print(hex, compute_deltaG(hex)) 
 	#rand_hex_deltaG[hex]=compute_deltaG(hex)
 	
 
