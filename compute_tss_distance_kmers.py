@@ -63,8 +63,8 @@ def make_occurrencies_tbl(tss_dist):
 	dic_oc={}
 	hexs=list(tss_dist.keys())
 	counts=[collections.Counter(i) for i in tss_dist.values()]
-	col_ind = [i for ids in tss_dist.values() for i in ids]
-	col_ind = list(set(col_ind))
+	# col_ind = [i for ids in tss_dist.values() for i in ids]
+	# col_ind = list(set(col_ind))
 	for i in list(range(len(hexs))):
 		dic_oc[hexs[i]]=counts[i]
 	oc_tbl=pd.DataFrame(dic_oc).T
@@ -104,7 +104,7 @@ for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],args.k) for i in lis
 			tss_dist[key].append(pos)
 
 oc_tbl=make_occurrencies_tbl(tss_dist)
-print("#hex\t"+'\t'.join([str(i) for i in list(oc_tbl)]))
+print("hex\t"+'\t'.join([str(i) for i in list(oc_tbl)]))
 for x in list(range(len(oc_tbl))):
 	print(oc_tbl.index[x]+'\t'+'\t'.join([str(i) for i in oc_tbl.ix[x]]))
 
