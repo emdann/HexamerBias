@@ -36,7 +36,7 @@ def kmer_distTSS(params):
 	tss=(len(seq)/2)-1
 	tss_dist={}
 	for i in range(0, len(basesPlus)-k+1):
-	    hex = bases[i:i+k]
+	    hex = basesPlus[i:i+k]
 	    hex_perm = list(it.product(*hex))
 	    for x in range(len(hex_perm)):
 	    	if(''.join(hex_perm[x]) not in tss_dist.keys()):
@@ -44,7 +44,7 @@ def kmer_distTSS(params):
 	    	tss_dist[''.join(hex_perm[x])].append(i-tss)
 	tss_distMinus={}
 	for i in range(0, len(basesMinus)-k+1):
-	    hex = bases[i:i+k]
+	    hex = basesMinus[i:i+k]
 	    hex_perm = list(it.product(*hex))
 	    for x in range(len(hex_perm)):
 	    	if(''.join(hex_perm[x]) not in tss_distMinus.keys()):
