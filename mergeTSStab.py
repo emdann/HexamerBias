@@ -14,10 +14,10 @@ for file in os.listdir(dir):
 
 
 tss_dist_dic={}
-with open(files[11], "rb") as f:
+with open(files[0], "rb") as f:
 	for line in f:
 		aline=line.decode().strip('\n').split('\t')
-		if len([float(i) for i in aline[1:]])==5995 and aline[0]!="hex":
+		if len([float(i) for i in aline[1:]])==5995:
 			tss_dist_dic[aline[0]]=[float(i) for i in aline[1:]]
 		else:
 			print("Error! Unexpected number of values in line "+ aline[0])
@@ -36,6 +36,9 @@ for file in files[1:12]+files[13:]:
 				print("Error! Unexpected number of values in line "+ aline[0])
 
 output_file=dir+"/sumTSS_distances_corrected.txt"
+colNames=tss_dist_dic.pop("hex")
+# print('hex,'+','.join([str(v) for v in colNames]))
 with open(output_file, "w") as output:
+	print('hex,'+','.join([str(v) for v in colNames]), file=output)
 	for key,val in tss_dist_dic.items():
 		print(key+','+','.join([str(v) for v in val]), file=output)

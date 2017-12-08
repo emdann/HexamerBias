@@ -16,11 +16,13 @@ for file in os.listdir(dir):
 
 hexAbundance=collections.Counter()
 for file in files:
-	with open(file,'rb') as f:
-		for line in f:
-			aline=line.decode().strip('\n').split('\t')
-			hexAbundance[aline[0]]+=float(aline[1])
+with open(file,'rb') as f:
+	for line in f:
+		aline=line.decode().strip('\n').split('\t')
+		hexAbundance[aline[0]]+=float(aline[1])
 
-for kmer, abundance in hexAbundance.most_common(): # sorts by abundance
-	print(f"{kmer}\t{abundance}")
+output_file=dir+"/rand_hex_abundance_with5amp.txt"
+with open(output_file, "w") as output:
+	for kmer, abundance in hexAbundance.most_common(): # sorts by abundance
+		print(f"{kmer}\t{abundance}", file=output)
 	# print kmer, abundance

@@ -49,6 +49,14 @@ def strandSpecificCount(params):
 	kmerCounts+=kmerCountsRevMinus
 	return(kmerCounts)
 
+def count_amplification(kmerCounts):
+	countsAmp=collections.Counter()
+	for hex,count in kmerCounts.items():
+		countsAmp[hex]+=count*2
+		countsAmp[str(Seq(hex, generic_dna).reverse_complement())]+= count*3
+	return(countsAmp)
+
+
 # Load cov2c
 # cov2c file processed with added fraction of methylation
 # zcat cov2c_smp.deduplicated.bismark.cov.gz | awk '$4+$5!=0{print $N"\t"$4/($4+$5)}'

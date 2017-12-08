@@ -21,7 +21,7 @@ def compute_deltaG(hex):
 	for i in list(range(len(hex)-1)):
 		#print(deltaG_tbl[pos[hex[i]], pos[hex[i+1]]])
 		hex_G += deltaG_tbl[pos[hex[i]], pos[hex[i+1]]]
-	hex_G += deltaG_tbl[pos[hex[-1]],].mean()
+	# hex_G += deltaG_tbl[pos[hex[-1]],].mean()
 	return(hex_G)
 
 #rand_hex_deltaG={}
