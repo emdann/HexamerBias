@@ -52,10 +52,10 @@ with ps.FastxFile(fasta2) as fastq:
 #  		fq2_dict[entry.name]=entry.sequence[:6]
 
 
-CTOT=pd.DataFrame.from_dict(collections.Counter(fq1_dict[147] + collections.Counter(fq2_dict[99])), orient='index')
-CTOB=pd.DataFrame.from_dict(collections.Counter(fq1_dict[163] + collections.Counter(fq2_dict[83])), orient='index')
-OT=pd.DataFrame.from_dict(collections.Counter(fq1_dict[99] + collections.Counter(fq2_dict[147])), orient='index')
-OB=pd.DataFrame.from_dict(collections.Counter(fq1_dict[83]+ collections.Counter(fq2_dict[163])), orient='index')
+CTOT=pd.DataFrame.from_dict(collections.Counter(fq1_dict[147]) + collections.Counter(fq2_dict[99]), orient='index')
+CTOB=pd.DataFrame.from_dict(collections.Counter(fq1_dict[163]) + collections.Counter(fq2_dict[83]), orient='index')
+OT=pd.DataFrame.from_dict(collections.Counter(fq1_dict[99]) + collections.Counter(fq2_dict[147]), orient='index')
+OB=pd.DataFrame.from_dict(collections.Counter(fq1_dict[83]) + collections.Counter(fq2_dict[163]), orient='index')
 df=pd.concat([OT,OB,CTOB,CTOT], axis=1, join_axes=[OT.index])
 df.columns=["OT", "OB", "CTOB", "CTOT"]
 
