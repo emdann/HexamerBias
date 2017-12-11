@@ -10,9 +10,9 @@ argparser.add_argument('bam', type=str, help='cytosine report input')
 # argparser.add_argument('-t', type=int, default=8, required=False, help='Amount of threads to use.')
 args = argparser.parse_args()
 
-# bam=args.bam
-# fasta1=args.fasta1
-# fasta2=args.fasta2
+bam=args.bam
+fasta1=args.fasta1
+fasta2=args.fasta2
 
 # bam='sorted_L3_trim1_R1_bismark_bt2_pe.deduplicated.bam'
 # fasta1='L3_R1.fastq.gz'
