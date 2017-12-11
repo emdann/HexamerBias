@@ -18,20 +18,20 @@ args = argparser.parse_args()
 
 def weightCountKmers(params):
 	seq,df,k = params
-	spl_seq=['T' if i == "C" else i for i in list(seq)]
-	probs=[[1-df.frac[df.pos==i+1].values[0], df.frac[df.pos==i+1].values[0]] if i in list(df["pos"]-1) else [1] for i in list(range(len(spl_seq)))]
+	spl_seq=[['T','C'] if i == "C" else i for i in list(seq)]
+	probs=[[1-df.frac[df.pos==i+1].values[0], df.frac[df.pos==i+1].values[0]] if i in list(df["pos"]-1) else [0.9,0.1] if len(spl_seq[i])==2 else [1] for i in list(range(len(spl_seq)))]
 	# bases=[[spl_seq[i],'C'] if i in list(df[(df.pos==i+1) & (df.strand=='+')].pos-1) else [spl_seq[i],'G'] if i in list(df[(df.pos==i+1) & (df.strand=='-')].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]
-	bases=[[spl_seq[i],'C'] if i in list(df[(df.pos==i+1)].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]
+	bases=spl_seq
 	kmerCounts = collections.Counter() 
 	ls = []
 	for i in range(0, len(bases)-k+1):
-	    hex = bases[i:i+k]
-	    hex_prob = probs[i:i+k]
-	    hex_perm = list(it.product(*hex))
-	    hex_prob_perm = list(it.product(*hex_prob))
+		hex = bases[i:i+k]
+		hex_prob = probs[i:i+k]
+		hex_perm = list(it.product(*hex))
+		hex_prob_perm = list(it.product(*hex_prob))
 	    # print(f"Processing window {i}")
-	    for i in range(len(hex_perm)):
-	    	kmerCounts[''.join(hex_perm[i])] += np.prod(np.array(hex_prob_perm)[i])
+		for i in range(len(hex_perm)):
+			kmerCounts[''.join(hex_perm[i])] += np.prod(np.array(hex_prob_perm)[i])
 	return(kmerCounts)
 
 def strandSpecificCount(params):
@@ -52,8 +52,8 @@ def strandSpecificCount(params):
 def count_amplification(kmerCounts):
 	countsAmp=collections.Counter()
 	for hex,count in kmerCounts.items():
-		countsAmp[hex]+=count*2
-		countsAmp[str(Seq(hex, generic_dna).reverse_complement())]+= count*3
+		countsAmp[hex]+=count
+		countsAmp[str(Seq(hex, generic_dna).reverse_complement())]+= count
 	return(countsAmp)
 
 
