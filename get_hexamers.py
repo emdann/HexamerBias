@@ -10,9 +10,9 @@ argparser.add_argument('bam', type=str, help='cytosine report input')
 # argparser.add_argument('-t', type=int, default=8, required=False, help='Amount of threads to use.')
 args = argparser.parse_args()
 
-bam=args.bam
-fasta1=args.fasta1
-fasta2=args.fasta2
+# bam=args.bam
+# fasta1=args.fasta1
+# fasta2=args.fasta2
 
 # bam='sorted_L3_trim1_R1_bismark_bt2_pe.deduplicated.bam'
 # fasta1='L3_R1.fastq.gz'
@@ -41,10 +41,10 @@ with ps.FastxFile(fasta2) as fastq:
  		if entry.name in ids_r2.keys():
 	 		fq2_dict[ids_r2[entry.name]].append(entry.sequence[:6])
 
-tot={99:[], 163:[], 147:[], 83:[]}
-for dict in fq1_dict,fq2_dict:
-	for k,v in dict.items():
-		tot[k].extend(v)
+# tot={99:[], 163:[], 147:[], 83:[]}
+# for dict in fq1_dict,fq2_dict:
+# 	for k,v in dict.items():
+# 		tot[k].extend(v)
 
 # fq2_dict={}
 # with ps.FastxFile(fasta2) as fastq:
@@ -52,10 +52,10 @@ for dict in fq1_dict,fq2_dict:
 #  		fq2_dict[entry.name]=entry.sequence[:6]
 
 
-CTOT=pd.DataFrame.from_dict(collections.Counter(tot[147]), orient='index')
-CTOB=pd.DataFrame.from_dict(collections.Counter(tot[163]), orient='index')
-OT=pd.DataFrame.from_dict(collections.Counter(tot[99]), orient='index')
-OB=pd.DataFrame.from_dict(collections.Counter(tot[83]), orient='index')
+CTOT=pd.DataFrame.from_dict(collections.Counter(fq1_dict[147] + collections.Counter(fq2_dict[99])), orient='index')
+CTOB=pd.DataFrame.from_dict(collections.Counter(fq1_dict[163] + collections.Counter(fq2_dict[83])), orient='index')
+OT=pd.DataFrame.from_dict(collections.Counter(fq1_dict[99] + collections.Counter(fq2_dict[147])), orient='index')
+OB=pd.DataFrame.from_dict(collections.Counter(fq1_dict[83]+ collections.Counter(fq2_dict[163])), orient='index')
 df=pd.concat([OT,OB,CTOB,CTOT], axis=1, join_axes=[OT.index])
 df.columns=["OT", "OB", "CTOB", "CTOT"]
 
