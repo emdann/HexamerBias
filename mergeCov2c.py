@@ -21,7 +21,7 @@ cov_dict=collections.OrderedDict()
 with gzip.open(files[0], "rb") as f:
 	for line in f:
 		aline=line.decode().strip('\n').split('\t')
-		cov_dict['\t'.join([aline[i] for i in [0,1,2]])]=[int(i) for i in aline[4:]]
+		cov_dict['\t'.join([aline[i] for i in [0,1,2]])]=[int(i) for i in aline[3:5]]
 
 for file in files[1:]:
 	with gzip.open(file,'rb') as f:
@@ -29,8 +29,8 @@ for file in files[1:]:
 			aline=line.decode().strip('\n').split('\t')
 			if '\t'.join([aline[i] for i in [0,1,2]]) not in cov_dict.keys():
 				cov_dict['\t'.join([aline[i] for i in [0,1,2]])]=[0,0]
-			cov_dict['\t'.join([aline[i] for i in [0,1,2]])][0]+= int(aline[4])
-			cov_dict['\t'.join([aline[i] for i in [0,1,2]])][1]+= int(aline[5])
+			cov_dict['\t'.join([aline[i] for i in [0,1,2]])][0]+= int(aline[3])
+			cov_dict['\t'.join([aline[i] for i in [0,1,2]])][1]+= int(aline[4])
 
 for key,val in cov_dict.items():
 	list_key=key.split("\t")
