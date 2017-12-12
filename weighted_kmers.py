@@ -19,7 +19,7 @@ args = argparser.parse_args()
 def weightCountKmers(params):
 	seq,df,k = params
 	spl_seq=[['T','C'] if i == "C" else i for i in list(seq)]
-	probs=[[1-df.frac[df.pos==i+1].values[0], df.frac[df.pos==i+1].values[0]] if i in list(df["pos"]-1) else [0.9,0.1] if len(spl_seq[i])==2 else [1] for i in list(range(len(spl_seq)))]
+	probs=[[1-df.frac[df.pos==i+1].values[0], df.frac[df.pos==i+1].values[0]] if i in list(df["pos"]-1) else [0.99,0.01] if len(spl_seq[i])==2 else [1] for i in list(range(len(spl_seq)))]
 	# bases=[[spl_seq[i],'C'] if i in list(df[(df.pos==i+1) & (df.strand=='+')].pos-1) else [spl_seq[i],'G'] if i in list(df[(df.pos==i+1) & (df.strand=='-')].pos-1) else spl_seq[i] for i in list(range(len(spl_seq)))]
 	bases=spl_seq
 	kmerCounts = collections.Counter() 
