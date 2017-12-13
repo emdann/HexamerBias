@@ -76,16 +76,16 @@ chromosome=args.fasta.split('/')[-1].split('.')[0]
 # print chr
 # refgen = pd.read_csv(refgen_file, sep="\t", usecols=[0,2,3,4], header=0, dtype={4:int}) 
 refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4], header=0, dtype={4:int}) 
-refgen=refgen[refgen.chrom==chromosome]
+refgen = refgen[refgen.chrom==chromosome]
 refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
-tss=refgen.txStart
+tss = refgen.txStart
 # print refgen
 # with ps.FastxFile(fasta_file) as chr:
 with ps.FastxFile(args.fasta) as chr:
  	for entry in chr:
  		seq=entry.sequence.upper()
 
-flank_wid=3000
+flank_wid=6000
 seqs=[]
 for i in (tss-1):
 	start_pos=i-flank_wid
