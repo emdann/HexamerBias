@@ -74,8 +74,15 @@ def make_occurrencies_tbl(tss_dist):
 	oc_tbl=oc_tbl.fillna(0)
 	return(oc_tbl)
 
+fasta=args.fasta
+bedfile=args.bed
+
+fasta="/hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa"
+bedfile="/hpc/hub_oudenaarden/edann/hexamers/rand_tss.mm10.txt"
+
+
 # chromosome=args.fasta.split('/')[-1].split('.')[0]
-bed = pd.read_csv(args.bed, sep="\t", header=None, dtype={4:int}, names=["chrom", "start", "end"])
+bed = pd.read_csv(bedfile, sep="\t", header=None, dtype={4:int}, names=["chrom", "start", "end"])
 # refgen = pd.read_csv(args.refgen, sep="\t", header=None, dtype={4:int}, names=["chrom", "start", "end"]) 
 # refgen = refgen[refgen.chrom==chromosome]
 # # refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
@@ -84,7 +91,6 @@ bed = pd.read_csv(args.bed, sep="\t", header=None, dtype={4:int}, names=["chrom"
 # refgen=pd.read_csv(args.refgen, sep="\t", header=False, dtype={1:int,2:int}, names=["chrom", "start", "end"])
 # refgen = refgen[refgen.chrom==chromosome]
 
-fasta=args.fasta
 
 # with ps.FastxFile(fasta) as chr:
 #  	for entry in chr:
@@ -102,13 +108,17 @@ flank_wid=3000
 seqs=[]
 for chr in chrs:
 	refgen = bed[bed.chrom==chr]
+	# print(refgen)
 	# refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
 	tss = refgen.start
 	tss = tss.drop_duplicates(keep='first', inplace=False)
 	seq=genome[chr]
 	for i in (tss-1):
-		start_pos=i-flank_wid
-		end_pos=i+flank_wid
+		if i>flank_wid and (i+flank_wid)<len(seq):
+			start_pos=i-flank_wid
+			end_pos=i+flank_wid
+		else:
+			next
 		small_seq=seq[start_pos:end_pos]
 		seqs.append(small_seq)
 
@@ -119,10 +129,9 @@ for chr in chrs:
 # 	small_seq=seq[start_pos:end_pos]
 # 	seqs.append(small_seq)
 
-
 workers = multiprocessing.Pool(8)
 tss_dist={}
-for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],args.k) for i in list(range(len(seqs)))]):
+for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],6) for i in list(range(len(seqs)))]):
 	for key,val in dist.items():
 		if key not in tss_dist.keys():
 			tss_dist[key]=[]
