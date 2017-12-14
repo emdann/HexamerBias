@@ -74,7 +74,7 @@ def make_occurrencies_tbl(tss_dist):
 	return(oc_tbl)
 
 chromosome=args.fasta.split('/')[-1].split('.')[0]
-refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4], header=0, dtype={4:int}) 
+refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4,5], header=0, dtype={4:int}) 
 refgen = refgen[refgen.chrom==chromosome]
 refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
 tss = refgen.txEnd
