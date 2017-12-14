@@ -41,7 +41,7 @@ def kmer_pos(bases,k):
 	    	tss_dist[''.join(hex_perm[x])].append(i-tss)
 	return(tss_dist)
 
-def kmer_distTSS(params, conv=False):
+def kmer_distTSS(params, conv=True):
 	# compute the distance from a given tss for each hexamer in the region flanking the tss
 	# seq = sequence of the flanking region
 	# 
