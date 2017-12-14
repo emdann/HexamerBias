@@ -10,7 +10,7 @@ import scipy.sparse as sp
 import multiprocessing
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
-from freeEnergy import compute_deltaG
+# from freeEnergy import compute_deltaG
 
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Compute distance to TSS of hexamers in BS converted chromosome.\n Do it per chromosome! By Emma Dann")
