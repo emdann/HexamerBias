@@ -80,7 +80,7 @@ bedfile=args.bed
 # fasta="/hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa"
 # bedfile="/hpc/hub_oudenaarden/edann/hexamers/rand_tss.mm10.txt"
 
-bed = pd.read_csv(bedfile, sep="\t", header=None, dtype={4:int}, names=["chrom", "start", "end"])
+bed = pd.read_csv(bedfile, sep="\t", header=None, usecols=[0,1,2], dtype={4:int}, names=["chrom", "start", "end"])
 chrs = bed.chrom.unique()
 genome={}
 with ps.FastxFile(fasta) as gen:
