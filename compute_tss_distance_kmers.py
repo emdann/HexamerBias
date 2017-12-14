@@ -13,6 +13,7 @@ import multiprocessing
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
 
+
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Compute distance to TSS of hexamers in BS converted chromosome.\n Do it per chromosome! By Emma Dann")
 argparser.add_argument('fasta', type=str, help='chr.fasta input')
 # argparser.add_argument('cov2c', type=str, help='chromosome cytosine report input')
@@ -74,12 +75,12 @@ def make_occurrencies_tbl(tss_dist):
 	return(oc_tbl)
 
 chromosome=args.fasta.split('/')[-1].split('.')[0]
-# refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4,5], header=0, dtype={4:int}) 
-refgen = pd.read_csv(args.refgen, sep="\t", header=None, dtype={4:int}, names=["chrom", "start", "end"]) 
+refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4,5], header=0, dtype={4:int}) 
+# refgen = pd.read_csv(args.refgen, sep="\t", header=None, dtype={4:int}, names=["chrom", "start", "end"]) 
 refgen = refgen[refgen.chrom==chromosome]
-refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
-tss = refgen.start
-
+# refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
+tss = refgen.txEnd
+tss = tss.drop_duplicates(subset=None, keep='first', inplace=False)
 # refgen=pd.read_csv(args.refgen, sep="\t", header=False, dtype={1:int,2:int}, names=["chrom", "start", "end"])
 # refgen = refgen[refgen.chrom==chromosome]
 
