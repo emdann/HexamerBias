@@ -17,7 +17,7 @@ from Bio.Alphabet import generic_dna
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Compute distance to TSS of hexamers in BS converted chromosome.\n Do it per chromosome! By Emma Dann")
 argparser.add_argument('fasta', type=str, help='chr.fasta input')
 # argparser.add_argument('cov2c', type=str, help='chromosome cytosine report input')
-argparser.add_argument('refgen', type=str, help='RefGen file of chr of interest (downloaded from UCSC genome browser)')
+argparser.add_argument('bed', type=str, help='RefGen file of chr of interest (downloaded from UCSC genome browser)')
 argparser.add_argument('-k', type=int, default=6, required=False, help='Kmer size')
 args = argparser.parse_args()
 
@@ -74,19 +74,43 @@ def make_occurrencies_tbl(tss_dist):
 	oc_tbl=oc_tbl.fillna(0)
 	return(oc_tbl)
 
-chromosome=args.fasta.split('/')[-1].split('.')[0]
-refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4,5], header=0, dtype={4:int}) 
+# chromosome=args.fasta.split('/')[-1].split('.')[0]
+bed = pd.read_csv(args.bed, sep="\t", header=None, dtype={4:int}, names=["chrom", "start", "end"])
 # refgen = pd.read_csv(args.refgen, sep="\t", header=None, dtype={4:int}, names=["chrom", "start", "end"]) 
-refgen = refgen[refgen.chrom==chromosome]
-# refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
-tss = refgen.txEnd
-tss = tss.drop_duplicates(subset=None, keep='first', inplace=False)
+# refgen = refgen[refgen.chrom==chromosome]
+# # refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
+# tss = refgen.txEnd
+# tss = tss.drop_duplicates(subset=None, keep='first', inplace=False)
 # refgen=pd.read_csv(args.refgen, sep="\t", header=False, dtype={1:int,2:int}, names=["chrom", "start", "end"])
 # refgen = refgen[refgen.chrom==chromosome]
 
-with ps.FastxFile(args.fasta) as chr:
- 	for entry in chr:
- 		seq=entry.sequence.upper()
+fasta=args.fasta
+
+# with ps.FastxFile(fasta) as chr:
+#  	for entry in chr:
+#  		seq=entry.sequence.upper()
+
+chrs = bed.chrom.unique()
+
+genome={}
+with ps.FastxFile(fasta) as gen:
+	for chr in gen:
+		if chr.name in chrs:
+			genome[chr.name]=chr.sequence.upper()
+
+flank_wid=3000
+seqs=[]
+for chr in chrs:
+	refgen = bed[bed.chrom==chr]
+	# refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
+	tss = refgen.start
+	tss = tss.drop_duplicates(keep='first', inplace=False)
+	seq=genome[chr]
+	for i in (tss-1):
+		start_pos=i-flank_wid
+		end_pos=i+flank_wid
+		small_seq=seq[start_pos:end_pos]
+		seqs.append(small_seq)
 
 # seqs=[]
 # for i in range(len(refgen)):
@@ -94,14 +118,6 @@ with ps.FastxFile(args.fasta) as chr:
 # 	end_pos=list(refgen.end)[i]
 # 	small_seq=seq[start_pos:end_pos]
 # 	seqs.append(small_seq)
-
-flank_wid=3000
-seqs=[]
-for i in (tss-1):
-	start_pos=i-flank_wid
-	end_pos=i+flank_wid
-	small_seq=seq[start_pos:end_pos]
-	seqs.append(small_seq)
 
 
 workers = multiprocessing.Pool(8)
