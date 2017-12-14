@@ -77,7 +77,7 @@ chromosome=args.fasta.split('/')[-1].split('.')[0]
 refgen = pd.read_csv(args.refgen, sep="\t", usecols=[0,2,3,4], header=0, dtype={4:int}) 
 refgen = refgen[refgen.chrom==chromosome]
 refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
-tss = refgen.txStart
+tss = refgen.txEnd
 
 # refgen=pd.read_csv(args.refgen, sep="\t", header=False, dtype={1:int,2:int}, names=["chrom", "start", "end"])
 # refgen = refgen[refgen.chrom==chromosome]
