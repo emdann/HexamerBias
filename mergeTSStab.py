@@ -9,7 +9,7 @@ import gzip
 dir="/hpc/hub_oudenaarden/edann/hexamers"
 files=[]
 for file in os.listdir(dir):
-    if fnmatch.fnmatch(file, 'TSS_unconv.*'):
+    if fnmatch.fnmatch(file, 'TES_conv.*'):
         files.append(dir+"/"+file)
 
 
@@ -35,7 +35,7 @@ for file in files[1:]:
 			else:
 				print("Error! Unexpected number of values in line "+ aline[0])
 
-output_file=dir+"/sumTSS_distances_unconv.txt"
+output_file=dir+"/sumTES_distances_conv.txt"
 colNames=tss_dist_dic.pop("hex")
 # print('hex,'+','.join([str(v) for v in colNames]))
 with open(output_file, "w") as output:
