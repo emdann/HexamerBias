@@ -20,6 +20,19 @@ argparser.add_argument('bed', type=str, help='RefGen file of chr of interest (do
 argparser.add_argument('-k', type=int, default=6, required=False, help='Kmer size')
 args = argparser.parse_args()
 
+
+def compute_deltaG(hex):
+	deltaG_tbl=np.array([-1.28,-1.54,-1.12,-1.72,-1.58,-2.07,-1.72,-2.53, -0.85, -1.73,-1.28,-1.58, -1.74,-2.49,-1.54,-2.07]).reshape((4,4))
+	#hex="TTCGAT"
+	pos={"A":0,"G":1,"T":2,"C":3}
+	hex_G=0
+	for i in list(range(len(hex)-1)):
+		#print(deltaG_tbl[pos[hex[i]], pos[hex[i+1]]])
+		hex_G += deltaG_tbl[pos[hex[i]], pos[hex[i+1]]]
+	# hex_G += deltaG_tbl[pos[hex[-1]],].mean()
+	return(hex_G)
+
+
 def convert_seq(seq):
 	spl_seq=list(seq)
 	bases=[[spl_seq[i],'T'] if ((spl_seq[i]=="C") & (spl_seq[i+1]=="G")) else spl_seq[i] for i in range(len(spl_seq)-1)]
@@ -62,17 +75,6 @@ def dG_distTSS(params, conv=True):
 			dg_distPlus[key].append(pos)
 	return(dg_distPlus)
 
-
-def compute_deltaG(hex):
-	deltaG_tbl=np.array([-1.28,-1.54,-1.12,-1.72,-1.58,-2.07,-1.72,-2.53, -0.85, -1.73,-1.28,-1.58, -1.74,-2.49,-1.54,-2.07]).reshape((4,4))
-	#hex="TTCGAT"
-	pos={"A":0,"G":1,"T":2,"C":3}
-	hex_G=0
-	for i in list(range(len(hex)-1)):
-		#print(deltaG_tbl[pos[hex[i]], pos[hex[i+1]]])
-		hex_G += deltaG_tbl[pos[hex[i]], pos[hex[i+1]]]
-	# hex_G += deltaG_tbl[pos[hex[-1]],].mean()
-	return(hex_G)
 
 fasta=args.fasta
 bedfile=args.bed
