@@ -51,7 +51,7 @@ def compute_deltaG_ions(hex, NaConc=0.05, MgConc=0.01):
 		-1.38, -2.17,-1.69,-1.88, 
 		-2.17,-2.65,-1.81,-2.18
 		]).reshape((4,4))
-	mean_tbl = np.add(deltaGMg_tbl, deltaG_tbl)/2
+	mean_tbl = np.add(deltaGMg_tbl, deltaGNa_tbl)/2
 	pos={"A":0,"G":1,"T":2,"C":3}
 	hex_G=0
 	for i in list(range(len(hex)-1)):
