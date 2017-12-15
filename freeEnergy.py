@@ -59,9 +59,9 @@ def compute_deltaG_ions(hex, NaConc=0.05, MgConc=0.01):
 		hex_G += mean_tbl[pos[hex[i]], pos[hex[i+1]]] - mNa_tbl[pos[hex[i]], pos[hex[i+1]]]*math.log(NaConc) - mMg_tbl[pos[hex[i]], pos[hex[i+1]]]*math.log(MgConc)
 	# hex_G += deltaG_tbl[pos[hex[-1]],].mean()
 	if hex[0] in ["A","T"]:
-		hex_G = hex_G + 0.49
+		hex_G = hex_G + 0.43
 	if hex[-1] in ["A","T"]:
-		hex_G = hex_G + 0.49
+		hex_G = hex_G + 0.43
 	return(hex_G)
 
 
