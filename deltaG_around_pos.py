@@ -47,10 +47,11 @@ def deltaG_pos(bases,k):
 	    hex = bases[i:i+k]
 	    hex_perm = list(it.product(*hex))
 	    for x in range(len(hex_perm)):
-	    	if (i-tss) not in pos_dic.keys():
-	    		pos_dic[i-tss]=[]
-	    	# print ''.join(hex_perm[x])
-	    	pos_dic[i-tss].append(compute_deltaG(''.join(hex_perm[x])))
+		    if "N" not in hex_perm[x]:	
+		    	if (i-tss) not in pos_dic.keys():
+		    		pos_dic[i-tss]=[]
+		    	# print ''.join(hex_perm[x])
+		    	pos_dic[i-tss].append(compute_deltaG(''.join(hex_perm[x])))
 	return(pos_dic)
 
 def dG_distTSS(params, conv=True):
@@ -80,7 +81,7 @@ fasta=args.fasta
 bedfile=args.bed
 
 # fasta="/hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa"
-# bedfile="/hpc/hub_oudenaarden/edann/hexamers/rand_tss.mm10.txt"
+# bedfile="/hpc/hub_oudenaarden/edann/hexamers/annotations_bed/TxStart_mm10.bed"
 
 bed = pd.read_csv(bedfile, sep="\t", header=None, usecols=[0,1,2], dtype={4:int}, names=["chrom", "start", "end"])
 chrs = bed.chrom.unique()
@@ -123,3 +124,8 @@ for k,v in dg.items():
 for pos, meandg in dgMeans.items(): 
 	print(f"{pos}\t{meandg}")
 
+for seq in seqs:
+	for key,val in dG_distTSS((seq,6)).items():
+		if key not in dg.keys():
+			dg[key]=[]
+		dg[key].extend(val)
