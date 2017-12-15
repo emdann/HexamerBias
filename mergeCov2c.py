@@ -10,11 +10,11 @@ argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHel
 #argparser.add_argument('cov2c', type=str, help='chromosome cytosine report input')
 args = argparser.parse_args()
 
-dir='/hpc/hub_oudenaarden/edann/crypts_bs/VAN1667'
+dir='/hpc/hub_oudenaarden/edann/hexamers/kaester/met_extraction/'
 # dir="/hpc/hub_oudenaarden/edann/reikVSnla/met_extraction"
 files=[]
 for file in os.listdir(dir):
-    if fnmatch.fnmatch(file, '*.cov.gz'):
+    if fnmatch.fnmatch(file, '*bismark.cov.gz'):
         files.append(dir+"/"+file)
 
 cov_dict=collections.OrderedDict()
@@ -32,7 +32,7 @@ for file in files[1:]:
 			cov_dict['\t'.join([aline[i] for i in [0,1,2]])][0]+= int(aline[4])
 			cov_dict['\t'.join([aline[i] for i in [0,1,2]])][1]+= int(aline[5])
 
-output_file=dir+'/merged_VAN1667.cov'
+output_file=dir+'/merged_reference_CX.cov'
 with open(output_file, "w") as output:
 	for key,val in cov_dict.items():
 		list_key=key.split("\t")

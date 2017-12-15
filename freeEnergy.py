@@ -17,13 +17,10 @@ def compute_deltaG(hex):
 		-0.85, -1.73,-1.28,-1.58, 
 		-1.74,-2.49,-1.54,-2.07
 		]).reshape((4,4))
-	#hex="TTCGAT"
 	pos={"A":0,"G":1,"T":2,"C":3}
 	hex_G=0
 	for i in list(range(len(hex)-1)):
-		#print(deltaG_tbl[pos[hex[i]], pos[hex[i+1]]])
 		hex_G += deltaG_tbl[pos[hex[i]], pos[hex[i+1]]]
-	# hex_G += deltaG_tbl[pos[hex[-1]],].mean()
 	return(hex_G)
 
 def compute_deltaG_ions(hex, NaConc=0.05, MgConc=0.01):
@@ -52,12 +49,11 @@ def compute_deltaG_ions(hex, NaConc=0.05, MgConc=0.01):
 		-2.17,-2.65,-1.81,-2.18
 		]).reshape((4,4))
 	mean_tbl = np.add(deltaGMg_tbl, deltaGNa_tbl)/2
+	
 	pos={"A":0,"G":1,"T":2,"C":3}
 	hex_G=0
 	for i in list(range(len(hex)-1)):
-		#print(deltaG_tbl[pos[hex[i]], pos[hex[i+1]]])
 		hex_G += mean_tbl[pos[hex[i]], pos[hex[i+1]]] - mNa_tbl[pos[hex[i]], pos[hex[i+1]]]*math.log(NaConc) - mMg_tbl[pos[hex[i]], pos[hex[i+1]]]*math.log(MgConc)
-	# hex_G += deltaG_tbl[pos[hex[-1]],].mean()
 	if hex[0] in ["A","T"]:
 		hex_G = hex_G + 0.43
 	if hex[-1] in ["A","T"]:
