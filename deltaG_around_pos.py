@@ -123,9 +123,3 @@ for k,v in dg.items():
 
 for pos, meandg in dgMeans.items(): 
 	print(f"{pos}\t{meandg}")
-
-for seq in seqs:
-	for key,val in dG_distTSS((seq,6)).items():
-		if key not in dg.keys():
-			dg[key]=[]
-		dg[key].extend(val)
