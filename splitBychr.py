@@ -1,5 +1,5 @@
 import sys, os
-qstatfrom pandas.io.parsers import read_csv
+from pandas.io.parsers import read_csv
 import pandas as pd
 
 try:
