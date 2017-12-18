@@ -7,6 +7,8 @@ import sys
 import os
 import argparse
 import multiprocessing
+from Bio import pairwise2
+from Bio.pairwise2 import format_alignment
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
 
