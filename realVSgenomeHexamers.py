@@ -4,6 +4,7 @@ import numpy as np
 import pysam as ps
 import sys 
 import os
+import argparse
 import gzip
 from Bio import SeqIO
 from Bio.Seq import Seq
