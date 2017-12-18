@@ -61,5 +61,5 @@ for hex,bestScore in workers.imap_unordered(bestAlignmentKmers, [ (seqs[i],hexs[
         counts.append((hex,bestScore))
         # track+=1
 
-for kmer, abundance in counts.most_common(): # sorts by abundance
-	print(f"{kmer}\t{abundance}")
+for el in counts: # sorts by abundance
+	print(str(el[0])+'\t'+str(el[1]))
