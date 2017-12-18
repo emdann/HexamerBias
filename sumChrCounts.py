@@ -11,7 +11,7 @@ import fnmatch
 dir="/hpc/hub_oudenaarden/edann/hexamers"
 files=[]
 for file in os.listdir(dir):
-    if fnmatch.fnmatch(file, 'count_convRef_lowEfficiency_99.chr*'):
+    if fnmatch.fnmatch(file, 'hexcountCX.chr*'):
         files.append(dir+"/"+file)
 
 hexAbundance=collections.Counter()
@@ -21,7 +21,7 @@ for file in files:
 			aline=line.decode().strip('\n').split('\t')
 			hexAbundance[aline[0]]+=float(aline[1])
 
-output_file=dir+"/rand_hex_abundance_lowEfficiency99.txt"
+output_file=dir+"/rand_hex_abundance_CX.txt"
 with open(output_file, "w") as output:
 	for kmer, abundance in hexAbundance.most_common(): # sorts by abundance
 		print(f"{kmer}\t{abundance}", file=output)
