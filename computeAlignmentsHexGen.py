@@ -33,7 +33,7 @@ def bestAlignmentKmers(params):
 			maxScore = score
 	return(fqHex, maxScore)
 
-fasta=args.chrom
+fasta='/hpc/hub_oudenaarden/edann/genomes/mm10/'+args.chrom+'.fa.gz'
 bedfile='/hpc/hub_oudenaarden/edann/primeGen_L1.bed'
 
 chromosome = fasta.split('/')[-1].split('.')[0]
