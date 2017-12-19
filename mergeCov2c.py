@@ -29,7 +29,7 @@ with open(files[0], "rb") as f:
 			cov_dict['\t'.join([aline[i] for i in [0,1,2,5,6]])]=[int(i) for i in aline[3:5]]
 		
 for file in files[1:]:
-	with gzip.open(file,'rb') as f:
+	with open(file,'rb') as f:
 		for line in f:
 			if chrom+'\\t' in str(line):
 				aline=line.decode().strip('\n').split('\t')
