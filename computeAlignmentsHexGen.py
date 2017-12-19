@@ -12,6 +12,9 @@ from Bio.pairwise2 import format_alignment
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
 
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Compute distance to TSS of hexamers in BS converted chromosome.\n Do it per chromosome! By Emma Dann")
+argparser.add_argument('chrom', type=str, help='chromosome cytosine report input')
+args = argparser.parse_args()
 
 def bestAlignmentKmers(params):
 	seq,fqHex = params
@@ -30,7 +33,7 @@ def bestAlignmentKmers(params):
 			maxScore = score
 	return(fqHex, maxScore)
 
-fasta='/hpc/hub_oudenaarden/edann/genomes/mm10/chr10.fa.gz'
+fasta=args.chrom
 bedfile='/hpc/hub_oudenaarden/edann/primeGen_L1.bed'
 
 chromosome = fasta.split('/')[-1].split('.')[0]
