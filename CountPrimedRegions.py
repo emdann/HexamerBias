@@ -7,13 +7,21 @@ import sys
 import os
 import argparse
 import multiprocessing
+from Bio import pairwise2
+from Bio.pairwise2 import format_alignment
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
 
-bedfile='/hpc/hub_oudenaarden/edann/hexamers/L3_primed_reg.bed'
-cov2cfile='/hpc/hub_oudenaarden/edann/hexamers/merged_ref_CX.cov2c.chr1'
-fasta='/hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa'
-# cov2cfile=args.cov2c
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Count hexamers in BS converted fasta file.\n Do it per chromosome! By Emma Dann")
+argparser.add_argument('fasta', type=str, help='Fasta input')
+argparser.add_argument('cov2c', type=str, help='cytosine report input')
+argparser.add_argument('-k', type=int, default=6, required=False, help='Kmer size')
+args = argparser.parse_args()
+
+bedfile='/hpc/hub_oudenaarden/edann/hexamers/L1_primed_reg.bed'
+fasta=args.fasta
+cov2cfile=args.cov2c
+
 def weightCountKmers(params):
 	seq,df,k = params
 	spl_seq=[['T','C'] if i == "C" else i for i in list(seq)]
@@ -65,16 +73,13 @@ chromosome = fasta.split('/')[-1].split('.')[0]
 bed = pd.read_csv(bedfile, sep="\t", header=None, dtype={4:int}, names=["chrom", "start", "end"])
 refgen = bed[bed.chrom==chromosome]
 
-# chrs = bed.chrom.unique()
-# records = SeqIO.to_dict(SeqIO.parse(open(fasta), 'fasta'))
-
-with ps.FastxFile(args.fasta) as chr:
+with ps.FastxFile(fasta) as chr:
  	for entry in chr:
  		seq=entry.sequence.upper()
 
+# hexs=refgen.hex
 covs=[]
 seqs=[]
-refgen = bed[bed.chrom==chr]
 start = refgen.start
 for i in start:
 	start_pos = i
