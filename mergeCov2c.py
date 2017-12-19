@@ -24,10 +24,10 @@ with open(files[0], "rb") as f:
 	for line in f:
 		# print("processing line", h)
 		# h+=1
-		# if chrom+'\\t' in str(line):
-		aline=line.decode().strip('\n').split('\t')
-		cov_dict['\t'.join([aline[i] for i in [0,1,2,5,6]])]=[int(i) for i in aline[3:5]]
-	
+		if chrom+'\\t' in str(line):
+			aline=line.decode().strip('\n').split('\t')
+			cov_dict['\t'.join([aline[i] for i in [0,1,2,5,6]])]=[int(i) for i in aline[3:5]]
+		
 for file in files[1:]:
 	with gzip.open(file,'rb') as f:
 		for line in f:
