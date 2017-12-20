@@ -74,7 +74,7 @@ def make_occurrencies_tbl(tss_dist):
 	oc_tbl=oc_tbl.fillna(0)
 	return(oc_tbl)
 
-fasta=args.fasta
+# fasta=args.fasta
 bedfile=args.bed
 
 fasta="/hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa"
