@@ -8,7 +8,7 @@ import math
 
 ## rows= first nucleotide (AGTC) cols=second nucleotide (AGTC)
 
-rand_hex=[''.join(i) for i in list(it.product(list("ATCG"),repeat=6))]
+# rand_hex=[''.join(i) for i in list(it.product(list("ATCG"),repeat=6))]
 
 def compute_deltaG(hex):
 	deltaG_tbl=np.array([
@@ -61,10 +61,10 @@ def compute_deltaG_ions(hex, NaConc=0.05, MgConc=0.01):
 	return(hex_G)
 
 
-#rand_hex_deltaG={}
-for hex in rand_hex:
-	print(hex, compute_deltaG_ions(hex)) 
-	#rand_hex_deltaG[hex]=compute_deltaG(hex)
+# #rand_hex_deltaG={}
+# for hex in rand_hex:
+# 	print(hex, compute_deltaG_ions(hex)) 
+# 	#rand_hex_deltaG[hex]=compute_deltaG(hex)
 	
 
 
