@@ -102,3 +102,4 @@ for kmerCounts in workers.imap_unordered(strandSpecificCount, [ (seqs[i],covs[i]
 
 for kmer, abundance in counts.most_common(): # sorts by abundance
 	print(f"{kmer}\t{abundance}")
+

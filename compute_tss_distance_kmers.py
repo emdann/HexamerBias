@@ -15,7 +15,7 @@ from Bio.Alphabet import generic_dna
 
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Compute distance to TSS of hexamers in BS converted chromosome.\n Do it per chromosome! By Emma Dann")
-argparser.add_argument('fasta', type=str, help='chr.fasta input')
+# argparser.add_argument('fasta', type=str, help='chr.fasta input')
 # argparser.add_argument('cov2c', type=str, help='chromosome cytosine report input')
 argparser.add_argument('bed', type=str, help='RefGen file of chr of interest (downloaded from UCSC genome browser)')
 argparser.add_argument('-k', type=int, default=6, required=False, help='Kmer size')
@@ -42,11 +42,11 @@ def kmer_pos(bases,k):
 	    	tss_dist[''.join(hex_perm[x])].append(i-tss)
 	return(tss_dist)
 
-def kmer_distTSS(params, conv=True):
+def kmer_distTSS(params):
 	# compute the distance from a given tss for each hexamer in the region flanking the tss
 	# seq = sequence of the flanking region
 	# 
-	seq,k = params
+	seq,k,conv = params
 	plStrand=seq
 	minStrand=str(Seq(seq, generic_dna).reverse_complement())
 	if conv:
@@ -78,23 +78,9 @@ fasta=args.fasta
 bedfile=args.bed
 
 fasta="/hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa"
-bedfile="/hpc/hub_oudenaarden/edann/hexamers/rand_tss.mm10.txt"
+# bedfile="/hpc/hub_oudenaarden/edann/hexamers/rand_tss.mm10.txt"
 
-
-# chromosome=args.fasta.split('/')[-1].split('.')[0]
 bed = pd.read_csv(bedfile, sep="\t", header=None, dtype={4:int}, names=["chrom", "start", "end"])
-# refgen = pd.read_csv(args.refgen, sep="\t", header=None, dtype={4:int}, names=["chrom", "start", "end"]) 
-# refgen = refgen[refgen.chrom==chromosome]
-# # refgen = refgen.drop_duplicates(subset=None, keep='first', inplace=False)
-# tss = refgen.txEnd
-# tss = tss.drop_duplicates(subset=None, keep='first', inplace=False)
-# refgen=pd.read_csv(args.refgen, sep="\t", header=False, dtype={1:int,2:int}, names=["chrom", "start", "end"])
-# refgen = refgen[refgen.chrom==chromosome]
-
-
-# with ps.FastxFile(fasta) as chr:
-#  	for entry in chr:
-#  		seq=entry.sequence.upper()
 
 chrs = bed.chrom.unique()
 
@@ -122,16 +108,9 @@ for chr in chrs:
 		small_seq=seq[start_pos:end_pos]
 		seqs.append(small_seq)
 
-# seqs=[]
-# for i in range(len(refgen)):
-# 	start_pos=list(refgen.start)[i]
-# 	end_pos=list(refgen.end)[i]
-# 	small_seq=seq[start_pos:end_pos]
-# 	seqs.append(small_seq)
-
 workers = multiprocessing.Pool(8)
 tss_dist={}
-for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],6) for i in list(range(len(seqs)))]):
+for dist in workers.imap_unordered(kmer_distTSS, [ (seqs[i],args.k, False) for i in list(range(len(seqs)))]):
 	for key,val in dist.items():
 		if key not in tss_dist.keys():
 			tss_dist[key]=[]
