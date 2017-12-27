@@ -64,7 +64,7 @@ def count_amplification(kmerCounts):
 
 
 cov2c = pd.read_csv(cov2cfile, sep="\t", header=None) 
-cov2c.columns = ["chr", "pos", "strand", "C", "T", "context", "flank"]
+cov2c.columns = ["chr", "pos", "strand", "C", "T", "context"]
 cov2c=cov2c.assign(frac=cov2c.C / (cov2c.C+cov2c["T"]))
 cov2c=cov2c[-np.isnan(cov2c.frac)]
 # print("cov2c loaded!")
