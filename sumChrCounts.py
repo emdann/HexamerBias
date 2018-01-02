@@ -21,7 +21,7 @@ for file in files:
 			aline=line.decode().strip('\n').split('\t')
 			hexAbundance[aline[0]]+=float(aline[1])
 
-output_file=dir+"/rand_hex_abundance_CX.txt"
+output_file=dir+"/primedreg_abundance_CX.txt"
 with open(output_file, "w") as output:
 	for kmer, abundance in hexAbundance.most_common(): # sorts by abundance
 		print(f"{kmer}\t{abundance}", file=output)
