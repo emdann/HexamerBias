@@ -8,10 +8,10 @@ import os
 import scipy.sparse as sp
 import fnmatch
 
-dir="/hpc/hub_oudenaarden/edann/hexamers"
+dir="/hpc/hub_oudenaarden/edann"
 files=[]
 for file in os.listdir(dir):
-    if fnmatch.fnmatch(file, 'hexcountCX.chr*'):
+    if fnmatch.fnmatch(file, 'primedreg_L1.chr*'):
         files.append(dir+"/"+file)
 
 hexAbundance=collections.Counter()
