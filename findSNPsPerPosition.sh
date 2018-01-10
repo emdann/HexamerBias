@@ -5,8 +5,10 @@
 #
 #  Created by Emma on 10/01/2018.
 #  
+path2samtools=/hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.3.1
 
-samtools mpileup -O -I -f /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa L1_R1_bismark_bt2_pe.sorted.bam > L1_R1_bismark_bt2_pe.sorted.mpileup
+
+${path2samtools}/samtools mpileup -O -I -f /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa L1_R1_bismark_bt2_pe.sorted.bam > L1_R1_bismark_bt2_pe.sorted.mpileup
 
 cat L1_R1_bismark_bt2_pe.sorted.mpileup |
 awk '$5 ~ /[ACGTNacgtn]/ {print}' | # Select lines with mismatches
