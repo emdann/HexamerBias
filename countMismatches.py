@@ -40,5 +40,6 @@ def make_mm_table(listDic):
 a = read_pileup(pileup)
 tab = make_mm_table(a)
 tab.to_csv('/hpc/hub_oudenaarden/edann/hexamers/mismatch/L1trimmed_mismatchfreq.csv')
-tabPlus = make_mm_table(strandSpecificDic(a, '+'))
-tabMinus = make_mm_table(strandSpecificDic(a, '-'))
+#tabPlus = make_mm_table(strandSpecificDic(a, '+'))
+#tabMinus = make_mm_table(strandSpecificDic(a, '-'))
+
