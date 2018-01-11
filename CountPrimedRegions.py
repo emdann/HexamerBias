@@ -18,7 +18,7 @@ argparser.add_argument('cov2c', type=str, help='cytosine report input')
 argparser.add_argument('-k', type=int, default=6, required=False, help='Kmer size')
 args = argparser.parse_args()
 
-bedfile='/hpc/hub_oudenaarden/edann/hexamers/L1_primed_reg.bed'
+bedfile='/hpc/hub_oudenaarden/edann/hexamers/L1_primed_reg.uniq.bed'
 fasta=args.fasta
 cov2cfile=args.cov2c
 

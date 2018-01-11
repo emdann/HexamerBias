@@ -4,7 +4,7 @@ import os
 import pandas as pd
 import collections
 
-pileup='/hpc/hub_oudenaarden/edann/hexamers/mismatch/L1_R1_bismark_bt2_pe.sorted.filt.pileup'
+pileup='/hpc/hub_oudenaarden/edann/hexamers/mismatch/L1_trim1_R1_bismark_bt2_pe.filt.pileup'
 
 def read_pileup(pileupfile):
     a = []
@@ -39,6 +39,6 @@ def make_mm_table(listDic):
 
 a = read_pileup(pileup)
 tab = make_mm_table(a)
-tab.to_csv('/hpc/hub_oudenaarden/edann/hexamers/mismatch/L1_mismatchfreq.csv')
+tab.to_csv('/hpc/hub_oudenaarden/edann/hexamers/mismatch/L1trimmed_mismatchfreq.csv')
 tabPlus = make_mm_table(strandSpecificDic(a, '+'))
 tabMinus = make_mm_table(strandSpecificDic(a, '-'))
