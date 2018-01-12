@@ -5,7 +5,7 @@ from matplotlib import pyplot
 import multiprocessing
 
 
-file='/Users/user/mnt/edann/VAN1667_depth.bed'
+file='/hpc/hub_oudenaarden/edann/VAN1667_depth.bed'
 
 
 def findPeaks(cov):
