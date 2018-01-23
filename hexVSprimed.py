@@ -41,23 +41,23 @@ primedregFile=args.primedreg
 #fastqFile='/hpc/hub_oudenaarden/edann/crypts_bs/VAN1667/L1_R1.fastq.gz'
 #primedregFile='/hpc/hub_oudenaarden/edann/hexamers/L1_R1_primed_seq.original.fa'
 
-dict={}
+dic={}
 with ps.FastxFile(primedregFile) as fastq:
     for entry in fastq:
-        dict[entry.name.split('_')[0]]=[entry.sequence.upper()]
+        dic[entry.name.split('_')[0]]=[entry.sequence.upper()]
 
 with ps.FastxFile(fastqFile) as fastq:
     for entry in fastq:
 #        print(entry.name)
-        if entry.name in dict.keys():
-            dict[entry.name].append(entry.sequence[:6])
+        if entry.name in dic.keys():
+            dic[entry.name].append(entry.sequence[:6])
 
 
-with open(primedregFile+'.mismatch.txt', 'w') as output:
+with open(primedregFile.split("/")[-1].split('.fa')[0] +'.mismatch.txt', 'w') as output:
     print('read', 'primedSeq', 'hex', sep='\t', file=output)
-    for key,val in dict.items():
+    for key,val in dic.items():
         print(key, val[0], val[1], sep='\t', file=output)
 
 
 tbl = make_occurrencies_tbl(dict)
-tbl.to_csv(primedregFile+'.csv')
+tbl.to_csv(primedregFile.split("/")[-1].split('.fa')[0] +'.csv')
