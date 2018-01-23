@@ -52,9 +52,10 @@ with ps.FastxFile(fastqFile) as fastq:
         if entry.name in dict.keys():
             dict[entry.name].append(entry.sequence[:6])
 
+
 with open(primedregFile+'.mismatch.txt', 'w') as output:
     print('read', 'primedSeq', 'hex', sep='\t', file=output)
-    for key,val in newdict.items():
+    for key,val in dict.items():
         print(key, val[0], val[1], sep='\t', file=output)
 
 
