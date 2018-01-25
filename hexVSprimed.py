@@ -1,16 +1,13 @@
 import pandas as pd
 import pysam as ps
 import collections
+import numpy as np
 from Bio import pairwise2
 from Bio.pairwise2 import format_alignment
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
 import argparse
-
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get hexamers used in fasta file.\n By Emma Dann")
-argparser.add_argument('fasta', type=str, help='Fasta input')
-argparser.add_argument('primedreg', type=str, help='Fasta input')
-args = argparser.parse_args()
+import math
 
 def mismatchKmers(params):
     seq,fqHex = params
@@ -35,29 +32,27 @@ def make_occurrencies_tbl(seqDict):
     oc_tbl=oc_tbl.fillna(0)
     return(oc_tbl)
 
-fastqFile=args.fasta
-primedregFile=args.primedreg
+def makePWM(occTbl)
 
-#fastqFile='/hpc/hub_oudenaarden/edann/crypts_bs/VAN1667/L1_R1.fastq.gz'
-#primedregFile='/hpc/hub_oudenaarden/edann/hexamers/L1_R1_primed_seq.original.fa'
+def countBases(hex):
+    count={0:collections.Counter(), 1:collections.Counter(), 2:collections.Counter(), 3:collections.Counter(), 4:collections.Counter(), 5:collections.Counter()}
+    for i in range(len(hex)):
+        for pos in count.keys():
+            count[pos][hex.index[i][pos]]+=hex[i]
+    df = pd.DataFrame(count)
+    return(df/df.sum())
 
-dic={}
-with ps.FastxFile(primedregFile) as fastq:
-    for entry in fastq:
-        dic[entry.name.split('_')[0]]=[entry.sequence.upper()]
+def computeEntropy(pwm):
+    H=0
+    for pos in pwm.iteritems():
+        h=0
+        for base in ["A","T","C", "G"]:
+            if pos[1][base]!=0:
+                h+= - pos[1][base]*math.log(pos[1][base], 4)
+        H+=h
+    return(H)
 
-with ps.FastxFile(fastqFile) as fastq:
-    for entry in fastq:
-#        print(entry.name)
-        if entry.name in dic.keys():
-            dic[entry.name].append(entry.sequence[:6])
-
-
-with open(primedregFile.split("/")[-1].split('.fa')[0] +'.mismatch.txt', 'w') as output:
-    print('read', 'primedSeq', 'hex', sep='\t', file=output)
-    for key,val in dic.items():
-        print(key, val[0], val[1], sep='\t', file=output)
-
-
-tbl = make_occurrencies_tbl(dict)
-tbl.to_csv(primedregFile.split("/")[-1].split('.fa')[0] +'.csv')
+# filename='L1_R2_hex_entropy.txt'
+# with open(filename, 'w') as f:
+#     for row in tbl.iterrows():
+#         print(row[0], computeEntropy(countBases(row[1])), sep='\t', file=f)
