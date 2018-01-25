@@ -30,8 +30,6 @@ def mismatchKmers(params, tolerateBSmm):
     mmatch=6-score
     return(mmatch)
 
-mismatchKmers((a,b), tolerateBSmm=True)
-
 def make_occurrencies_tbl(seqDict):
     dic_oc={}
     for seqs in seqDict.values():
