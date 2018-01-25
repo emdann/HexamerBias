@@ -9,12 +9,28 @@ from Bio.Alphabet import generic_dna
 import argparse
 import math
 
-def mismatchKmers(params):
+def mismatchKmers(params, tolerateBSmm):
     seq,fqHex = params
-    a = pairwise2.align.globalxs(fqHex, seq, -1000, -1000) # alignment funciton to not open gaps
-    score = a[0][2]
+    if tolerateBSmm==True:
+        score=0
+        for i in range(len(fqHex)):
+            x,y=fqHex[i],seq[i]
+            print(x,y)
+            if x==y:
+                score+=1
+            elif x == 'T' and y =='C':
+                score+=1
+            elif x == 'G' and y =='A':
+                score+=1
+            else:
+                score+=0
+    else:
+        a = pairwise2.align.globalxs(fqHex, seq, -1000, -1000) # alignment funciton to not open gaps
+        score = a[0][2]
     mmatch=6-score
     return(mmatch)
+
+mismatchKmers((a,b), tolerateBSmm=True)
 
 def make_occurrencies_tbl(seqDict):
     dic_oc={}
