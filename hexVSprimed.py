@@ -32,7 +32,7 @@ def make_occurrencies_tbl(seqDict):
     oc_tbl=oc_tbl.fillna(0)
     return(oc_tbl)
 
-def makePWM(occTbl)
+# def makePWM(occTbl)
 
 def countBases(hex):
     count={0:collections.Counter(), 1:collections.Counter(), 2:collections.Counter(), 3:collections.Counter(), 4:collections.Counter(), 5:collections.Counter()}
