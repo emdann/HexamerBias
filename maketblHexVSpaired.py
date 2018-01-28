@@ -1,4 +1,4 @@
-import hexVSprimed
+from hexVSprimed import *
 import argparse
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get hexamers used in fasta file.\n By Emma Dann")
