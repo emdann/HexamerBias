@@ -21,6 +21,6 @@ name=$(echo $bam | tr '/' '\t' | awk '{print $NF}' | sed 's/..am$//')
 
 
 source /hpc/hub_oudenaarden/edann/venv27/bin/activate
-macs2 callpeak -t $bam --outdir $outdir -n $name --format $format -g $gen --nomodel --keep-dup all
+macs2 callpeak -t $bam --outdir $outdir -n $name --format $format -g $gen --nomodel --keep-dup all # maybe change p-val to call more peaks 
 cat ${outdir}/${name}_peaks.narrowPeak | awk '$7>4.5' > ${outdir}/${name}_peaks.filt.narrowPeak
 rm ${outdir}/${name}_peaks.xls
