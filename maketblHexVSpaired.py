@@ -27,16 +27,16 @@ with open(hexFile, 'r') as f:
         l=line.strip().split("\t")
         dic[l[0]].append(l[1])
 
-# with open(primedregFile.split("/")[-1].split('.fa')[0] +'.mismatch.txt', 'w') as output:
-#    print('read', 'primedSeq', 'hex', sep='\t', file=output)
-#    for key,val in dic.items():
-#        print(key, val[0], val[1], sep='\t', file=output)
+with open(primedregFile.split("/")[-1].split('.fa')[0] +'.mismatch.txt', 'w') as output:
+   print('read', 'primedSeq', 'hex', sep='\t', file=output)
+   for key,val in dic.items():
+       print(key, val[0], val[1], sep='\t', file=output)
 
-newDic={}
-with open('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'+primedregFile.split("/")[-1].split('.fa')[0] +'.mismatch.txt', 'rt') as f:
-    f.readline()
-    for line in f.readlines():
-        newDic[line.split()[0]]=[line.split()[1], line.split()[2]]
+# newDic={}
+# with open('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'+primedregFile.split("/")[-1].split('.fa')[0] +'.mismatch.txt', 'rt') as f:
+#     f.readline()
+#     for line in f.readlines():
+#         newDic[line.split()[0]]=[line.split()[1], line.split()[2]]
 
 tbl = make_occurrencies_tbl(dic)
 tbl.to_csv(primedregFile.split("/")[-1].split('.fa')[0] +'.csv')
