@@ -55,25 +55,25 @@ def mmPerHex(openbam): ## to be tested!!
     '''
     mmHex={}
     for r in openbam.fetch(until_eof=True):
-    if r.flag!=4:
-        bases=[i[2] for i in r.get_aligned_pairs(with_seq=True)]
-        if r.flag == 0:
-            seq = r.seq
-            start,end = 0,6
-        elif r.flag == 16:
-            seq = str(Seq(r.seq, generic_dna).reverse_complement())
-            start,end = -6,None
-        hex=seq[0:6]
-        mm = 0
-        for b in bases[start:end]:
-            if not b:
-                mm+=1
-            if b and b.islower():
-                mm+=1
-        if hex not in mmHex.keys():
-            mmHex[hex]=[]
-        mmHex[hex].append(mm)
-        hexDic={}
+        if r.flag!=4:
+            bases=[i[2] for i in r.get_aligned_pairs(with_seq=True)]
+            if r.flag == 0:
+                seq = r.seq
+                start,end = 0,6
+            elif r.flag == 16:
+                seq = str(Seq(r.seq, generic_dna).reverse_complement())
+                start,end = -6,None
+            hex=seq[0:6]
+            mm = 0
+            for b in bases[start:end]:
+                if not b:
+                    mm+=1
+                if b and b.islower():
+                    mm+=1
+            if hex not in mmHex.keys():
+                mmHex[hex]=[]
+            mmHex[hex].append(mm)
+    hexDic={}
     for k,i in mmHex.items():
         hexDic[k]=np.mean(i)
     return(hexDic)
