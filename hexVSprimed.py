@@ -10,6 +10,10 @@ import argparse
 import math
 
 def mismatchKmers(params, tolerateBSmm):
+    '''
+    calculates the mismatch between the reference aligned sequence (seq) and the hexamer found in the fastq file (fqHex)
+    tolerateBSoption to ignore C to T and G to A mismatch.
+    '''
     seq,fqHex = params
     if tolerateBSmm==True:
         score=0
@@ -30,7 +34,77 @@ def mismatchKmers(params, tolerateBSmm):
     mmatch=6-score
     return(mmatch)
 
+def mmPerPosition(openbam):
+    a = []
+    for r in openbam.fetch(until_eof=True):
+        if r.flag!=4:
+            for i in r.get_aligned_pairs(with_seq=True):
+                rpos,refbase=i[0],i[2]
+                if refbase and refbase.islower():
+                    mm=refbase.upper()+'->'+r.seq[rpos]
+                    if r.flag==16:
+                        strand='-'
+                    if r.flag==0:
+                        strand='+'
+                    a.append({'type':mm, 'pos':rpos, 'strand':strand})
+    return(a)
+
+def mmPerHex(openbam): ## to be tested!!
+    '''
+    Computes average number of mismatches for a specific hexamer (from RNAseq bwa aligned bam)
+    '''
+    mmHex={}
+    for r in openbam.fetch(until_eof=True):
+    if r.flag!=4:
+        bases=[i[2] for i in r.get_aligned_pairs(with_seq=True)]
+        if r.flag == 0:
+            seq = r.seq
+            start,end = 0,6
+        elif r.flag == 16:
+            seq = str(Seq(r.seq, generic_dna).reverse_complement())
+            start,end = -6,None
+        hex=seq[0:6]
+        mm = 0
+        for b in bases[start:end]:
+            if not b:
+                mm+=1
+            if b and b.islower():
+                mm+=1
+        if hex not in mmHex.keys():
+            mmHex[hex]=[]
+        mmHex[hex].append(mm)
+        hexDic={}
+    for k,i in mmHex.items():
+        hexDic[k]=np.mean(i)
+    return(hexDic)
+
+def countHex(openbam):
+    hexCounts=collections.Counter()
+    for r in openbam.fetch(until_eof=True):
+        if r.flag!=4:
+            if r.flag == 0:
+                seq = r.seq
+            elif r.flag == 16:
+                seq = Seq(r.seq, generic_dna).reverse_complement()
+            hex=str(seq)[0:6]
+            hexCounts[hex]+=1
+    return(hexCounts)
+
+def make_mm_table(listDic):
+    pos = [int(i['pos']) for i in listDic]
+    occ = dict.fromkeys(list(range(0,max(pos)+1)))
+    for pos in occ.keys():
+        occ[pos]=collections.Counter()
+    for line in listDic:
+        occ[int(line['pos'])][line['type']]+=1
+    mmOcc = pd.DataFrame(occ)
+    return(mmOcc)
+
+
 def make_occurrencies_tbl(seqDict):
+    '''
+    Make matrix of cooccurrencies of hexamer and primed sequence
+    '''
     dic_oc={}
     for seqs in seqDict.values():
         primed,hex = seqs[0],seqs[1]
@@ -49,6 +123,9 @@ def make_occurrencies_tbl(seqDict):
 # def makePWM(occTbl)
 
 def countBases(hex):
+    '''
+    Counts the amount of mismatches in each po???
+    '''
     count={0:collections.Counter(), 1:collections.Counter(), 2:collections.Counter(), 3:collections.Counter(), 4:collections.Counter(), 5:collections.Counter()}
     for i in range(len(hex)):
         for pos in count.keys():
@@ -57,6 +134,9 @@ def countBases(hex):
     return(df/df.sum())
 
 def computeEntropy(pwm):
+    '''
+    Computes entropy of sequences binding with specific hexamer
+    '''
     H=0
     for pos in pwm.iteritems():
         h=0
