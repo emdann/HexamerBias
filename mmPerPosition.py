@@ -8,7 +8,7 @@ from hexVSprimed import *
 bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/gk2a-2.sam'
 
 with ps.AlignmentFile(bamfile,"rb") as bam:
-    hexmm,countedHex = mmPerHex(bam),countHex(bam)
-    df = pd.DataFrame([hexmm, countedHex]).T
-    df.columns=['avgMM', 'usage']
-    df.to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/hexMMusage.csv')
+    countedHex = countHex(bam)
+    df = pd.DataFrame([countedHex]).T
+    df.columns=['usage']
+    df.to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/hexUsage.csv')
