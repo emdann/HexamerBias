@@ -78,8 +78,10 @@ def usageMmPerHex(openbam, ref, templDic=None):
             start,end = 0,6
             if ref=='primer':
                 hex=seq[0:6]
+                print('Primer seq: '+hex)
             elif ref=='template':
                 hex = templDic[r.qname]
+                print('Template seq: '+hex)
             mm = 0
             for b in refbases[start:end]:
                 if not b:

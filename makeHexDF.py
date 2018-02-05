@@ -16,8 +16,8 @@ bamfile = args.bam
 fasta = args.primedseq_fasta
 abFile =  args.abundance
 
-# bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/zebrafish/gk2a-2.sam'
-# fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2_primed_seq.fa'
+# bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d4-MitoTrackerThird-Satellites-Adult.sam'
+# fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/SvdB11d4-MitoTrackerThird-Satellites-Adult.sam_primed_reg.qname.bed.fa'
 
 templDic={}
 with ps.FastxFile(fasta) as templ:
