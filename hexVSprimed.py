@@ -64,7 +64,7 @@ def mmPerQual(openbam):
                     mmQual[mm].append(qual)
     return(mmQual)
 
-def usageMmPerHex(openbam, ref='primer', templDic=None):
+def usageMmPerHex(openbam, ref, templDic=None):
     '''
     Computes usage and average number of mismatches and count of mismatching events for a specific hexamer
     either as primer or as template sequence
