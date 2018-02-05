@@ -8,6 +8,20 @@ import pickle
 
 bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/gk2a-2.sam'
 
+def mmPerQual(openbam):
+    mmQual = {}
+    for r in openbam.fetch(until_eof=True):
+        if r.flag==0:
+            for i in r.get_aligned_pairs(with_seq=True):
+                rpos,refbase=i[0],i[2]
+                if rpos and refbase:
+                    mm=refbase.upper()+'->'+r.seq[rpos]
+                    qual=r.query_qualities[rpos]
+                    if mm not in mmQual.keys():
+                        mmQual[mm]=[]
+                    mmQual[mm].append(qual)
+    return(mmQual)
+
 with ps.AlignmentFile(bamfile,"rb") as bam:
     mmDic = mmPerQual(bam)
     # df=make_mm_table(mmDic)
