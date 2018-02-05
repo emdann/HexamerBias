@@ -27,6 +27,8 @@ with ps.FastxFile(fasta) as templ:
 
 with ps.AlignmentFile(bamfile,"rb") as bam:
     UsageMmDicPrimer = usageMmPerHex(bam, ref='primer')
+
+with ps.AlignmentFile(bamfile,"rb") as bam:
     UsageMmDicTempl = usageMmPerHex(bam, ref='template', templDic=templDic)
 
 dfPrimer = pd.DataFrame(UsageMmDicPrimer).T
