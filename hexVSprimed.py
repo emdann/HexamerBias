@@ -100,8 +100,8 @@ def countHex(openbam):
     for r in openbam.fetch(until_eof=True):
         if r.flag==0:
                 seq = r.seq
-            hex=str(seq)[0:6]
-            hexCounts[hex]+=1
+                hex=str(seq)[0:6]
+                hexCounts[hex]+=1
     return(hexCounts)
 
 def make_mm_table(listDic):
