@@ -6,7 +6,7 @@ from Bio.Alphabet import generic_dna
 from hexVSprimed import *
 import pickle
 
-bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/gk2a-2.sam'
+bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/zebrafish/gk2a-2.sam'
 
 def mmPerQual(openbam):
     mmQual = {}
