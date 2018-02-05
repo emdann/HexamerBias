@@ -4,9 +4,20 @@ import collections
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
 from hexVSprimed import *
+import args.parse
 
-bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/zebrafish/gk2a-2.sam'
-fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2_primed_seq.fa'
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Extract position of primer placement from trimmed section of aligned reads. By Emma Dann")
+argparser.add_argument('bam', type=str, help='Input bam file')
+argparser.add_argument('primedseq_fasta', type=str, help='Fasta file of primed regions')
+argparser.add_argument('abundance', type=str, help='Hex abundance in refgenome')
+args = argparser.parse_args()
+
+bamfile = args.bam
+fasta = args.primedseq_fasta
+abFile =  args.abundance
+
+# bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/zebrafish/gk2a-2.sam'
+# fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2_primed_seq.fa'
 
 templDic={}
 with ps.FastxFile(fasta) as templ:
@@ -25,4 +36,14 @@ dfTempl = pd.DataFrame(UsageMmDicTempl).T
 dfTempl.columns = ['bindingEventsTempl','mmEventsTempl', 'avgMmTempl']
 
 df = pd.concat([dfTempl, dfPrimer], axis=1)
-df.to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2.hexTable.csv')
+
+# Add abundance
+abDf = pd.read_csv(abFile, sep='\t')
+abDf.columns = ['abundance', 'kmer']
+abDf.index = abDf.kmer
+df2 = pd.concat([df,abDf.abundance], axis=1, join='inner')
+df3 = df2.drop([i for i in df2.index if 'N' in i])
+
+# Save
+output = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'+bamfile.split('/')[-1][:-4]+'.hexTab.wAb.csv'
+df3.to_csv(output)

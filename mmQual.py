@@ -12,7 +12,9 @@ def mmPerQual(openbam):
     mmQual = {}
     for r in openbam.fetch(until_eof=True):
         if r.flag==0:
-            for i in r.get_aligned_pairs(with_seq=True):
+            alPairs = r.get_aligned_pairs(with_seq=True)[:6]
+            print(alPairs)
+            for i in alPairs:
                 rpos,refbase=i[0],i[2]
                 if rpos and refbase:
                     mm=refbase.upper()+'->'+r.seq[rpos]
@@ -25,13 +27,17 @@ def mmPerQual(openbam):
 with ps.AlignmentFile(bamfile,"rb") as bam:
     mmDic = mmPerQual(bam)
 
-with open('mmQual.pickle', 'wb') as handle:
+with open('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mmQualHex.pickle', 'wb') as handle:
     pickle.dump(mmDic, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-with open('mnt/edann/hexamers/rnaseq/mmQual.pickle', 'rb') as handle:
+with open('/Users/user/mnt/edann/hexamers/rnaseq/mmQualHex.pickle', 'rb') as handle:
     mmDic = pickle.load(handle)
 
+counts = [len(i) for i in mmDic.values()]
+widths = [c/float(sum(counts)) for c in counts]
 plt.boxplot(mmDic.values(), labels=mmDic.keys())
 plt.ylabel('Phread score')
 plt.xticks(rotation=90)
 plt.show()
+
+plt.savefig('phred_score_hex.png')
