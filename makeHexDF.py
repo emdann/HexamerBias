@@ -25,4 +25,4 @@ dfTempl = pd.DataFrame(UsageMmDicTempl).T
 dfTempl.columns = ['bindingEventsTempl','mmEventsTempl', 'avgMmTempl']
 
 df = pd.concat([dfTempl, dfPrimer], axis=1)
-df.to_csv()
+df.to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2.hexTable.csv')

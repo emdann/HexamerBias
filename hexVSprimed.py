@@ -64,9 +64,9 @@ def mmPerQual(openbam):
                     mmQual[mm].append(qual)
     return(mmQual)
 
-def mmPerHex(openbam, ref=('template', 'primer'), templDic=None):
+def usageMmPerHex(openbam, ref=('template', 'primer'), templDic=None):
     '''
-    Computes average number of mismatches and count of mismatching events for a specific hexamer
+    Computes usage and average number of mismatches and count of mismatching events for a specific hexamer
     either as primer or as template sequence
     (from RNAseq bwa aligned bam)
     '''
@@ -78,7 +78,7 @@ def mmPerHex(openbam, ref=('template', 'primer'), templDic=None):
             start,end = 0,6
             if ref=='primer':
                 hex=seq[0:6]
-            elif ref=='template'
+            elif ref=='template':
                 hex = templDic[r.qname]
             mm = 0
             for b in refbases[start:end]:
@@ -91,7 +91,8 @@ def mmPerHex(openbam, ref=('template', 'primer'), templDic=None):
             mmHex[hex].append(mm)
     hexDic={}
     for k,i in mmHex.items():
-        hexDic[k]=(len(i),np.mean(i))
+        mmEvents=[a for a in i if a!=0]
+        hexDic[k]=(len(i),len(mmEvents), np.mean(i))
     return(hexDic)
 
 def countHex(openbam):

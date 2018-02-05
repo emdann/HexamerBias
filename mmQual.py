@@ -24,8 +24,14 @@ def mmPerQual(openbam):
 
 with ps.AlignmentFile(bamfile,"rb") as bam:
     mmDic = mmPerQual(bam)
-    # df=make_mm_table(mmDic)
-    # df.to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mmPerPosition.csv')
 
 with open('mmQual.pickle', 'wb') as handle:
     pickle.dump(mmDic, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('mnt/edann/hexamers/rnaseq/mmQual.pickle', 'rb') as handle:
+    mmDic = pickle.load(handle)
+
+plt.boxplot(mmDic.values(), labels=mmDic.keys())
+plt.ylabel('Phread score')
+plt.xticks(rotation=90)
+plt.show()
