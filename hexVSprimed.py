@@ -8,6 +8,7 @@ from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
 import argparse
 import math
+import random
 
 def mismatchKmers(params, tolerateBSmm):
     '''
@@ -49,23 +50,38 @@ def mmPerPosition(openbam):
                     a.append({'type':mm, 'pos':rpos, 'strand':strand})
     return(a)
 
-def mmPerHex(openbam): ## to be tested!!
+def mmPerQual(openbam):
+    mmQual = {}
+    for r in openbam.fetch(until_eof=True):
+        if r.flag==0:
+            for i in r.get_aligned_pairs(with_seq=True):
+                rpos,refbase=i[0],i[2]
+                if rpos and refbase:
+                    mm=refbase.upper()+'->'+r.seq[rpos]
+                    qual=r.query_qualities[rpos]
+                    if mm not in mmQual.keys():
+                        mmQual[mm]=[]
+                    mmQual[mm].append(qual)
+    return(mmQual)
+
+def mmPerHex(openbam, ref=('template', 'primer'), templDic=None):
     '''
-    Computes average number of mismatches for a specific hexamer (from RNAseq bwa aligned bam)
+    Computes average number of mismatches and count of mismatching events for a specific hexamer
+    either as primer or as template sequence
+    (from RNAseq bwa aligned bam)
     '''
     mmHex={}
     for r in openbam.fetch(until_eof=True):
-        if r.flag!=4:
-            bases=[i[2] for i in r.get_aligned_pairs(with_seq=True)]
-            if r.flag == 0:
-                seq = r.seq
-                start,end = 0,6
-            elif r.flag == 16:
-                seq = str(Seq(r.seq, generic_dna).reverse_complement())
-                start,end = -6,None
-            hex=seq[0:6]
+        if r.flag==0:
+            refbases=[i[2] for i in r.get_aligned_pairs(with_seq=True)]
+            seq = r.seq
+            start,end = 0,6
+            if ref=='primer':
+                hex=seq[0:6]
+            elif ref=='template'
+                hex = templDic[r.qname]
             mm = 0
-            for b in bases[start:end]:
+            for b in refbases[start:end]:
                 if not b:
                     mm+=1
                 if b and b.islower():
@@ -75,17 +91,14 @@ def mmPerHex(openbam): ## to be tested!!
             mmHex[hex].append(mm)
     hexDic={}
     for k,i in mmHex.items():
-        hexDic[k]=np.mean(i)
+        hexDic[k]=(len(i),np.mean(i))
     return(hexDic)
 
 def countHex(openbam):
     hexCounts=collections.Counter()
     for r in openbam.fetch(until_eof=True):
-        if r.flag!=4:
-            if r.flag == 0:
+        if r.flag==0:
                 seq = r.seq
-            elif r.flag == 16:
-                seq = Seq(r.seq, generic_dna).reverse_complement()
             hex=str(seq)[0:6]
             hexCounts[hex]+=1
     return(hexCounts)
@@ -145,6 +158,7 @@ def computeEntropy(pwm):
                 h+= - pos[1][base]*math.log(pos[1][base], 4)
         H+=h
     return(H)
+
 
 # filename='L1_R2_hex_entropy.txt'
 # with open(filename, 'w') as f:
