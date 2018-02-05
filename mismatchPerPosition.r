@@ -5,7 +5,8 @@ library(ggplot2)
 library(pheatmap)
 
 ## Compare primed region and used hexamer
-counts=read.delim('mnt/edann/hexamers/mismatch/L1_R1_hexVSprimed.count.txt')
+counts=read.csv('mnt/edann/hexamers/rnaseq/hexUsage.csv')
+
 
 counts %>% filter(primed_region_count < 20000 & usage_count < 20000) %>% ggplot(., aes(primed_region_count, usage_count, label=seq)) +
   geom_text(cex=2) +
@@ -13,17 +14,27 @@ counts %>% filter(primed_region_count < 20000 & usage_count < 20000) %>% ggplot(
   ylab('Usage as hexamer') +
   ggsave('~/AvOwork/output/hexVSprimed_usage_low.pdf')
 
-avgMMtol=read.delim('mnt/edann/hexamers/mismatch/L1_R1_avgMM_tolerateBSmm.txt', header=FALSE)
-  
-counts %>% mutate(avgMM=avgMMtol[match(counts$seq, avgMMtol$V1),]$V2) %>%
-  ggplot(., aes(avgMM, primed_region_count, label=seq)) +
+avgMM=read.csv('mnt/edann/hexamers/rnaseq/hexMMusage.csv')
+
+df <- counts %>% mutate(avgMM=avgMM[match(counts$X, avgMM$X),]$avgMM) %>%
+  filter(!grepl('N', X)) %>% mutate(gc=sapply(df$X, GCcont))
+  %>% mutate(gc=ifelse(gc>=0.5, 'high', 'low'))
+
+ggplot(df, aes(avgMM, usage, color=gc, label=X)) +
   geom_text(cex=2) +
-  ylab('Usage as primed region') +
-  xlab('avg # mismatches') +
-  ggsave('~/AvOwork/output/avgMMVShex_usage_tolBS.pdf')
+  ylab('Usage as primer') +
+  xlab('avg # mismatches') + 
+  scale_color_gradient2(midpoint = 0.5) +
+  labs(color='GC content') +
+  ggsave('~/AvOwork/output/avgMMVShex_usage_gccont_rna.pdf')
   
+ggplot(df, aes(x=avgMM, fill=gc)) +
+  geom_histogram(binwidth=.2, alpha=.5, position="identity") +
+  labs(fill="GC cont") +
+  ggsave('~/AvOwork/output/avgMMdistGC_rna.pdf')
+
 ## Mismatch per position
-tab <- read.csv('~/mnt/edann/hexamers/mismatch/L1_mismatchfreq.csv', header = 1, row.names = 1)
+tab <- read.csv('~/mnt/edann/hexamers/rnaseq/mmPerPosition.csv', header = 1, row.names = 1)
 tab <- tab[!grepl('N', rownames(tab)),]
 melt(t(tab)) %>% ggplot(., aes(Var1, value, fill=Var2)) + geom_bar(stat='identity')
 
@@ -41,7 +52,7 @@ d <- melt(t(freqTab)) %>%
 ggplot(d, aes(pos, freq, fill=MMtype)) + 
   geom_bar(stat='identity', size=0, width = 1.2) +
   labs(x='Position') +
-  ggsave(filename = '~/AvOwork/output/mismatch_per_position_abs_L1.pdf')
+  ggsave(filename = '~/AvOwork/output/mismatch_per_position_abs_rna.pdf')
 
 ## Mismatch matrix
 mmmatrix <- fread("~/mnt/edann/hexamers/mismatch/L1_R1_primed_seq.original.csv", header = TRUE)
