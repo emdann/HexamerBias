@@ -4,7 +4,7 @@ import collections
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
 from hexVSprimed import *
-import args.parse
+import argparse
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Extract position of primer placement from trimmed section of aligned reads. By Emma Dann")
 argparser.add_argument('bam', type=str, help='Input bam file')
