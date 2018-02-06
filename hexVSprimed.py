@@ -86,7 +86,7 @@ def usageMmPerHex(openbam, ref, templDic=None):
             for b in refbases[start:end]:
                 if not b:
                     mm+=1
-                if b!='lowqual' and b.islower():
+                elif b!='lowqual' and b.islower():
                     mm+=1
             if hex not in mmHex.keys():
                 mmHex[hex]=[]
