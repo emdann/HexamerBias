@@ -47,5 +47,5 @@ df2 = pd.concat([df,abDf.abundance], axis=1, join='inner')
 df3 = df2.drop([i for i in df2.index if 'N' in i])
 
 # Save
-output = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'+bamfile.split('/')[-1][:-4]+'.hexTab.wAb.csv'
+output = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'+bamfile.split('/')[-1][:-4]+'.phredFilter.hexTab.wAb.csv'
 df3.to_csv(output)

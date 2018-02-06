@@ -73,7 +73,7 @@ def usageMmPerHex(openbam, ref, templDic=None):
     mmHex={}
     for r in openbam.fetch(until_eof=True):
         if r.flag==0:
-            refbases=[i[2] for i in r.get_aligned_pairs(with_seq=True)]
+            refbases = [r.get_aligned_pairs(with_seq=True)[i][2] if r.query_qualities[i] >=32 else 'lowqual' for i in range(0,len(r.get_aligned_pairs())) ]
             seq = r.seq
             start,end = 0,6
             if ref=='primer':
@@ -86,7 +86,7 @@ def usageMmPerHex(openbam, ref, templDic=None):
             for b in refbases[start:end]:
                 if not b:
                     mm+=1
-                if b and b.islower():
+                if b!='lowqual' and b.islower():
                     mm+=1
             if hex not in mmHex.keys():
                 mmHex[hex]=[]
@@ -138,15 +138,16 @@ def make_occurrencies_tbl(seqDict):
 
 # def makePWM(occTbl)
 
-def countBases(hex):
+def makePWMtempl(counterTempl):
     '''
-    Counts the amount of mismatches in each po???
+    From Counter of binding primers, makes PWM.
     '''
     count={0:collections.Counter(), 1:collections.Counter(), 2:collections.Counter(), 3:collections.Counter(), 4:collections.Counter(), 5:collections.Counter()}
-    for i in range(len(hex)):
+    for k,v in counterTempl.items():
         for pos in count.keys():
-            count[pos][hex.index[i][pos]]+=hex[i]
+            count[pos][k[pos]]+= v
     df = pd.DataFrame(count)
+    df = df.drop([i for i in df.index if 'N' in i])
     return(df/df.sum())
 
 def computeEntropy(pwm):
