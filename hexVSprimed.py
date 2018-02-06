@@ -73,7 +73,7 @@ def usageMmPerHex(openbam, ref, templDic=None):
     mmHex={}
     for r in openbam.fetch(until_eof=True):
         if r.flag==0:
-            refbases = [r.get_aligned_pairs(with_seq=True)[i][2] if r.query_qualities[i] >=32 else 'lowqual' for i in range(0,len(r.get_aligned_pairs())) ]
+            refbases = [r.get_aligned_pairs(with_seq=True)[i][2] if r.query_qualities[i] >=32 else 'lowqual' for i in range(0,len(r.get_aligned_pairs())-1) ]
             seq = r.seq
             start,end = 0,6
             if ref=='primer':
@@ -159,7 +159,8 @@ def computeEntropy(pwm):
         h=0
         for base in ["A","T","C", "G"]:
             if pos[1][base]!=0:
-                h+= - pos[1][base]*math.log(pos[1][base], 4)
+                h+= pos[1][base]*math.log(pos[1][base], 2)
+        h = -h
         H+=h
     return(H)
 
