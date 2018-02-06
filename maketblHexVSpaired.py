@@ -54,7 +54,7 @@ entropies = {k:computeEntropy(v) for k,v in pwms.items()}
 
 print(ref+'\tentropy')
 for k,v in entropies.items():
-    
+    print(k,v,sep='\t')
 # for k,pwm in pwms.items():
 #     pwm.to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'+k+'.primerDanRer.pwm.csv')
 

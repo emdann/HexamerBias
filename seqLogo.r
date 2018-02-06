@@ -1,8 +1,8 @@
 ### SPREAD ANALYSIS ###
 library(dplyr)
 library(data.table)
-# source("https://bioconductor.org/biocLite.R")
-# biocLite("seqLogo")
+source("https://bioconductor.org/biocLite.R")
+biocLite("seqLogo")
 library(ggplot2)
 library(seqLogo)
 require(ggseqlogo)
