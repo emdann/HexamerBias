@@ -58,7 +58,11 @@ workers = multiprocessing.Pool(8)
 finalKmerCounts = collections.Counter()
 
 cellDic={}
-for cell,counter in workers.imap_unordered(cellKmersAbundance, [ (countDic, countT, cell) for cell in countT]):
-    cellDic[cell]=counter
+for cellCounter in workers.imap_unordered(cellKmersAbundance, [ (countDic, countT, cell) for cell in countT]):
+    if len(cellCounter.keys())==1:
+        for cell,counter in cellCounter.items():
+            cellDic[cell]=counter
+    else:
+        print('Something wrong...')
 
 outputTab = pd.DataFrame.from_dict(cellDic).to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2.cellAbundance.csv')
