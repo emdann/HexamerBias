@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import pysam
+import pysam as ps
 import argparse
 import collections
 import multiprocessing
