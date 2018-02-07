@@ -119,19 +119,20 @@ def make_mm_table(listDic):
 
 def make_occurrencies_tbl(seqDict):
     '''
-    Make matrix of cooccurrencies of hexamer and primed sequence
+    Make matrix of cooccurrencies of primer and template sequence:
+    ---> primers on columns, template on rows <---
     '''
     dic_oc={}
     for seqs in seqDict.values():
-        primed,hex = seqs[0],seqs[1]
-        if hex not in dic_oc.keys():
-            dic_oc[hex]=[]
-        dic_oc[hex].append(primed)
-    hexs=list(dic_oc.keys())
+        templ,primer = seqs[0],seqs[1]
+        if primer not in dic_oc.keys():
+            dic_oc[primer]=[]
+        dic_oc[primer].append(templ)
+    primers=list(dic_oc.keys())
     countOcc={}
     counts=[collections.Counter(i) for i in dic_oc.values()]
-    for i in list(range(len(hexs))):
-        countOcc[hexs[i]]=counts[i]
+    for i in list(range(len(primers))):
+        countOcc[primers[i]]=counts[i]
     oc_tbl=pd.DataFrame(countOcc)
     oc_tbl=oc_tbl.fillna(0)
     return(oc_tbl)

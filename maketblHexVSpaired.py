@@ -15,8 +15,8 @@ bamfile=args.bam
 ref = args.ref
 
 
-# bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d3-MitoTrackerThird-Satellites-Adult.sam'
-# fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/SvdB11d3-MitoTrackerThird-Satellites-Adult.sam_primed_reg.qname.bed.fa'
+bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/zebrafish/gk2a-2.sam'
+fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2_primed_seq.fa'
 
 templDic={}
 with ps.FastxFile(fasta) as templ:
@@ -30,7 +30,7 @@ with ps.AlignmentFile(bamfile,"rb") as bam:
             templDic[r.qname].append(r.seq[0:6])
         elif r.flag==16:
             templDic.pop(r.qname)
-#
+
 # SOI=["GTGTGT", "TGTGTG" ,"TTCCCC", "TAGAAC" ,"ACGAAT" ,"TAGGAA" ,
 #     "AAAAAA" ,"TTTTTT", "GGGGGG", "CCCCCC",
 #     "GTAGGT","GTACGC", "GTACCG", "AAAAAT", "ATGAAA",
