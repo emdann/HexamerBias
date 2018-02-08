@@ -38,20 +38,31 @@ def cellDgMat(params):
 ptMatrix = args.ptmatrix
 cellAbundanceTab = args.cellabcsv
 
-# ptMatrix='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/cell121ptCounts.csv.gz'
-# cellAbundanceTab='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2.cellAbundance.noN.csv'
+ptMatrix='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/cell121ptCounts.csv.gz'
+cellAbundanceTab='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2.cellAbundance.noN.csv'
 cell = ptMatrix.split('/')[-1].split('ptCounts')[0][4:]
+
+tabAb=pd.read_csv(cellAbundanceTab, index_col=0)
+cellAb = tabAb[cell]
 
 if ptMatrix.endswith('gz'):
     compr='gzip'
 elif ptMatrix.endswith('csv'):
     compr='infer'
 
+# Order pt matrix and add missing values
 ptMat = pd.read_csv(ptMatrix, compression=compr, index_col=0)
 ptMat = ptMat[[i for i in ptMat.columns if 'N' not in i]]
+for temp in [i for i in cellAb.index if i not in ptMat.index]:
+    newRow=pd.DataFrame(0, index=[temp], columns=ptMat.columns)
+    ptMat = ptMat.append(newRow)
 
-tabAb=pd.read_csv(cellAbundanceTab, index_col=0)
-cellAb = tabAb[cell]
+for primer in [i for i in cellAb.index if i not in ptMat.columns]:
+    newCol=pd.DataFrame(0.0, index=[primer], columns=ptMat.index).T
+    ptMat = pd.concat([ptMat, newCol], axis=1)
+
+ptMat=ptMat.sort_index(axis=1).sort_index()
+
 
 dgMat = cellDgMat((cellAb, ptMat))
 
