@@ -50,7 +50,9 @@ def cellSpecificTbl(templDic, cellsOI):
     # ---> primers on columns, templates on rows <---
     return(tblCellDic)
 
-
+templDic = makeTemplPrimerDic(bamfile,fasta)
 highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values())>10000]
+tblCellDic = cellSpecificTbl(templDic, highcovCells)
+
 for cell in tblCellDic:
     tblCellDic[cell].to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/cell'+cell+'ptCounts.csv')
