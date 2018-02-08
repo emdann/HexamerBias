@@ -51,6 +51,6 @@ def cellSpecificTbl(templDic, cellsOI):
     return(tblCellDic)
 
 
-highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values())>100000]
+highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values())>10000]
 for cell in tblCellDic:
     tblCellDic[cell].to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/cell'+cell+'ptCounts.csv')
