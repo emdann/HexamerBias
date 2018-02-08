@@ -32,18 +32,12 @@ def makeTemplPrimerDic(bamfile,templFasta):
                 templDic.pop(r.qname)
     return(templDic)
 
-def cellSpecificTbl(templDic, cellsOI):
+def cellSpecificTbl(cellDic, cellsOI):
     '''
     Makes primer VS template occurrency table for a given subset of cells.
-    Input: dict of {read:[template sequence, primer sequence]}
+    Input: dict of {cell:{read:[template sequence, primer sequence]}}
     Output: dict of {cell name:matrix}
     '''
-    cellDic={}
-    for name,seqs in templDic.items():
-        cell = name.split(':')[-1]
-        if cell not in cellDic.keys():
-            cellDic[cell]={}
-        cellDic[cell][name]=seqs
     tblCellDic={}
     for cell in CellsOI:
         tblCellDic[cell] = make_occurrencies_tbl(cellDic[cell])
@@ -51,6 +45,12 @@ def cellSpecificTbl(templDic, cellsOI):
     return(tblCellDic)
 
 templDic = makeTemplPrimerDic(bamfile,fasta)
+cellDic={}
+for name,seqs in templDic.items():
+    cell = name.split(':')[-1]
+    if cell not in cellDic.keys():
+        cellDic[cell]={}
+    cellDic[cell][name]=seqs
 highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values())>10000]
 tblCellDic = cellSpecificTbl(templDic, highcovCells)
 
