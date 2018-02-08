@@ -11,7 +11,7 @@ argparser.add_argument('primedreg', type=str, help='Fasta input')
 argparser.add_argument('ref', type=str, help='template or primer')
 args = argparser.parse_args()
 
-fasta = args.primedseq_fasta
+fasta = args.primedreg
 bamfile=args.bam
 ref = args.ref
 
