@@ -15,8 +15,8 @@ fasta = args.primedseq_fasta
 bamfile=args.bam
 ref = args.ref
 
-bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/zebrafish/gk2a-2.sam'
-fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2_primed_seq.fa'
+# bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/zebrafish/gk2a-2.sam'
+# fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2_primed_seq.fa'
 
 def makeTemplPrimerDic(bamfile,templFasta):
     templDic={}

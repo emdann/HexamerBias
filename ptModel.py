@@ -37,9 +37,8 @@ def cellDgMat(params):
 
 ptMatrix = args.ptmatrix
 cellAbundanceTab = args.cellabcsv
-
-ptMatrix='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/cell121ptCounts.csv.gz'
-cellAbundanceTab='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2.cellAbundance.noN.csv'
+# ptMatrix='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/cell121ptCounts.csv.gz'
+# cellAbundanceTab='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2.cellAbundance.noN.csv'
 cell = ptMatrix.split('/')[-1].split('ptCounts')[0][4:]
 
 tabAb=pd.read_csv(cellAbundanceTab, index_col=0)
