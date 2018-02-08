@@ -17,7 +17,7 @@ def extractDeltaG(templateRow,tempAb):
     Extract predicted [log(p) + DeltaG] for row of ptCount table (one template)
     ...
     '''
-    dg = np.log(temprow/tempAb)
+    dg = np.log(templateRow/tempAb)
     dg[dg == - np.inf] = -99999
     return(dg)
 
