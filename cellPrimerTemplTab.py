@@ -39,7 +39,7 @@ def cellSpecificTbl(cellDic, cellsOI):
     Output: dict of {cell name:matrix}
     '''
     tblCellDic={}
-    for cell in CellsOI:
+    for cell in cellsOI:
         tblCellDic[cell] = make_occurrencies_tbl(cellDic[cell])
     # ---> primers on columns, templates on rows <---
     return(tblCellDic)
