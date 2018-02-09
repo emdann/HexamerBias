@@ -23,6 +23,7 @@ def makeNonInfDic(file):
         t,p = templ
         for i in range(len(p)):
             if p[i] != -99999:
+                cellDic[t+'-'+p.index[i]]={}
                 cellDic[t+'-'+p.index[i]][cell] = p[i]
     return(cellDic)
 
