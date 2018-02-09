@@ -39,7 +39,7 @@ for dic in workers.imap_unordered(makeNonInfDic, [ file for file in os.listdir(p
 filtDic={}
 for k,v in finalCellDic.items():
     if len(v)>=20:
-        finalCellDic[k] = v
+        filtDic[k] = v
 
 output = path + 'commonPtPairs_allCells_parallel.csv'
 pd.DataFrame.from_dict(filtDic).to_csv(output)
