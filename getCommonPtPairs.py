@@ -6,10 +6,6 @@ import multiprocessing
 
 path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'
 
-bigDic={}
-for file in os.listdir(path):
-    if fnmatch.fnmatch(file, 'cell*ptDg*'):
-
 def makeNonInfDic(file):
     '''
     Makes a dictionary of pt pairs that have values != -99999 in cell pt dg matrix
