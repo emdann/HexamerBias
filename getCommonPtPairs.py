@@ -10,7 +10,11 @@ bigDic={}
 for file in os.listdir(path):
     if fnmatch.fnmatch(file, 'cell*ptDg*'):
         cell= file.split('_')[0][4:]
-        tab=pd.read_csv(path+file, index_col=0)
+        if file.endswith('gz'):
+            compr='gzip'
+        elif file.endswith('csv'):
+            compr='infer'
+        tab=pd.read_csv(path+file, index_col=0, compression=compr)
         for templ in tab.iterrows():
             t,p = templ
             for i in range(len(p)):
@@ -21,8 +25,8 @@ for file in os.listdir(path):
 
 filtDic={}
 for k,v in bigDic.items():
-    if len(v)>=3:
+    if len(v)>=20:
         filtDic[k]=v
 
-output = path + 'commonPtPairs.csv'
+output = path + 'commonPtPairs_allCells.csv'
 pd.DataFrame.from_dict(filtDic).to_csv(output)
