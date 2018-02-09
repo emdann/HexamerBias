@@ -29,7 +29,7 @@ def makeNonInfDic(file):
 workers = multiprocessing.Pool(8)
 finalCellDic = {}
 
-for dic in workers.imap_unordered(cellKmersAbundance, [ file for file in os.listdir(path) if fnmatch.fnmatch(file, 'cell*ptDg*')]):
+for dic in workers.imap_unordered(makeNonInfDic, [ file for file in os.listdir(path) if fnmatch.fnmatch(file, 'cell*ptDg*')]):
     for pt,celdic in dic.items():
         if pt not in finalCellDic.keys():
             finalCellDic[pt]={}
