@@ -35,7 +35,6 @@ def cellDgMat(params):
         dgMat = dgMat.append(dg)
     return(dgMat)
 
-
 ptMatrix = args.ptmatrix
 cellAbundanceTab = args.cellabcsv
 # ptMatrix='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/cell121ptCounts.csv.gz'
