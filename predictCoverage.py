@@ -76,11 +76,11 @@ thresh=args.t
 
 cell = ptMatrix.split('pt')[0][4:]
 
-tab = pd.read_csv(path+predictedDg, index_col=0, compression=findCompr(predictedDg))
+tab = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predictedDg))
 if thresh:
     tab=setThresh4Dg(tab,thresh=thresh)
 
-tabAb=pd.read_csv(path+cellAbundanceTab, index_col=0, compr=findCompr(cellAbundanceTab))
+tabAb=pd.read_csv(path+cellAbundanceTab, index_col=0, compression = findCompr(cellAbundanceTab))
 cellAb = tabAb[cell]
 
 ptMat = pd.read_csv(path+ptMatrix, compression = findCompr(ptMatrix), index_col=0)
