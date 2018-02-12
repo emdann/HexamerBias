@@ -96,7 +96,7 @@ for primer in [i for i in cellAb.index if i not in ptMat.columns]:
 ptMat=ptMat.sort_index(axis=1).sort_index()
 
 list=[]
-with open(path+'predicetdCov/gk2a-2.CovPred.'+cell+'.thresh'+thresh+'.txt', 'w') as output:
+with open(path+'predictedCov/gk2a-2.CovPred.'+cell+'.thresh'+thresh+'.txt', 'w') as output:
     print('template','obs', 'exp', sep='\t', file=output)
     for templ in tab.iterrows():
         t,DgRow = templ
