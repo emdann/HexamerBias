@@ -15,8 +15,8 @@ fasta = args.primedreg
 bamfile=args.bam
 ref = args.ref
 
-# bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/zebrafish/gk2a-2.sam'
-# fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2_primed_seq.fa'
+bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/zebrafish/gk2a-2.sam.gz'
+fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2_primed_seq.fa.gz'
 
 def makeTemplPrimerDic(bamfile,templFasta):
     templDic={}
@@ -26,8 +26,10 @@ def makeTemplPrimerDic(bamfile,templFasta):
             templDic[name]=[seq]
     with ps.AlignmentFile(bamfile,"rb") as bam:
         for r in bam.fetch(until_eof=True):
-            if r.flag==0:
+            if r.flag==0 and not any(q<32 for q in r.query_qualities[:6]):
                 templDic[r.qname].append(r.seq[0:6])
+            elif r.flag==0 and any(q<32 for q in r.query_qualities[:6]):
+                templDic.pop(r.qname)
             elif r.flag==16:
                 templDic.pop(r.qname)
     return(templDic)
@@ -55,4 +57,4 @@ highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values())>10000]
 tblCellDic = cellSpecificTbl(cellDic, highcovCells)
 
 for cell in tblCellDic:
-    tblCellDic[cell].to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/cell'+cell+'ptCounts.csv')
+    tblCellDic[cell].to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/cell'+cell+'ptCounts.qualFilt.csv')
