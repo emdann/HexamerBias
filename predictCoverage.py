@@ -76,10 +76,6 @@ thresh=args.t
 
 cell = ptMatrix.split('pt')[0][4:]
 
-tab = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predictedDg))
-if thresh:
-    tab=setThresh4Dg(tab,thresh=thresh)
-
 tabAb=pd.read_csv(path+cellAbundanceTab, index_col=0, compression = findCompr(cellAbundanceTab))
 cellAb = tabAb[cell]
 
@@ -94,6 +90,10 @@ for primer in [i for i in cellAb.index if i not in ptMat.columns]:
     ptMat = pd.concat([ptMat, newCol], axis=1)
 
 ptMat=ptMat.sort_index(axis=1).sort_index()
+
+tab = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predictedDg))
+if thresh:
+    tab=setThresh4Dg(tab,ptMat,thresh=thresh)
 
 list=[]
 with open(path+'predictedCov/gk2a-2.CovPred.'+str(cell)+'.thresh'+str(thresh)+'.txt', 'w') as output:
