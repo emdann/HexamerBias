@@ -96,7 +96,7 @@ if thresh:
     tab=setThresh4Dg(tab,ptMat,thresh=thresh)
 
 list=[]
-with open(path+'predictedCov/gk2a-2.CovPred.'+str(cell)+'.thresh'+str(thresh)+'.txt', 'w') as output:
+with open(path+'predictedCov/gk2a-2.CovPred.30kavg.'+str(cell)+'.thresh'+str(thresh)+'.txt', 'w') as output:
     print('template','obs', 'exp', sep='\t', file=output)
     for templ in tab.iterrows():
         t,DgRow = templ
