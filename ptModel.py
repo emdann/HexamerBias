@@ -26,7 +26,7 @@ def cellDgMat(params):
     Make matrix of predicted dg for p-t couples
     Input: tab of template abundace for cell OI, matrix of pt occurrencies
     '''
-    cellAb,ptMat=params
+    cellAb,ptMat = params
     dgMat=pd.DataFrame()
     for temp in cellAb.index:
         temprow = ptMat[ptMat.index==temp]
@@ -34,6 +34,7 @@ def cellDgMat(params):
         dg = extractDeltaG(temprow,tempAb)
         dgMat = dgMat.append(dg)
     return(dgMat)
+
 
 ptMatrix = args.ptmatrix
 cellAbundanceTab = args.cellabcsv

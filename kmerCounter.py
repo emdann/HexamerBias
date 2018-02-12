@@ -4,11 +4,12 @@ import argparse
 import collections
 import multiprocessing
 import pandas as pd
-# argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Count kmers in fasta file. By Buys de Barbanson")
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Count kmers in fasta file. By Buys de Barbanson")
 # argparser.add_argument('fasta', type=str, help='Fasta input')
-# argparser.add_argument('-k', type=int, default=6, required=False, help='Kmer size')
-# argparser.add_argument('-t', type=int, default=8, required=False, help='Amount of threads to use.')
-# args = argparser.parse_args()
+argparser.add_argument('coutt', type=str, help='UMI counts')
+argparser.add_argument('-k', type=int, default=6, required=False, help='Kmer size')
+argparser.add_argument('-t', type=int, default=8, required=False, help='Amount of threads to use.')
+args = argparser.parse_args()
 
 def find_kmers(params):
     string, k, addTo = params
@@ -37,7 +38,7 @@ def cellKmersAbundance(params):
     return({cellname:umiCountDic})
 
 
-coutt='/hpc/hub_oudenaarden/aalemany/emma-adi/zebrafish/gk2a-2.coutt.csv'
+coutt = args.coutt
 fasta = '/hpc/hub_oudenaarden/abarve/genomes/Danio_rerio_Zv9_ens74_extended3_genes_ERCC92_GFPmod_geneids.fa'
 
 ## Read files
@@ -65,4 +66,4 @@ for cellCounter in workers.imap_unordered(cellKmersAbundance, [ (countDic, count
     else:
         print('Something wrong...')
 
-outputTab = pd.DataFrame.from_dict(cellDic).to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2.cellAbundance.csv')
+outputTab = pd.DataFrame.from_dict(cellDic).to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'+coutt.split('/')[-1].split('.coutt')[0]+'.cellAbundance.csv')
