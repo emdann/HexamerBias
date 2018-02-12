@@ -23,7 +23,7 @@ dev.off()
 
 no.reads <- read.delim('mnt/edann/hexamers/rnaseq/gk2a-2_alignedReadsPerCells.txt', header=F, sep=' ')
 anno.row <- data.frame(row.names =paste0('cell',no.reads[match(rownames(corr), paste0('cell',no.reads$V2)),]$V2), no.reads=no.reads[match(rownames(corr), paste0('cell',no.reads$V2)),]$V1)
-anno = data.frame(row.names = rownames(anno.row), alignedReads=ifelse(anno.row$no.reads<20000, '< 20000', '> 20000'))
+anno = data.frame(row.names = rownames(anno.row), alignedReads=ifelse(anno.row$no.reads<30000, '< 30000', '> 30000'))
 my.breaks <- c(10000,20000,30000,max(anno.row$no.reads))
 ii <- cut(anno.row$no.reads, breaks = my.breaks, include.lowest = TRUE)
 colors <- brewer.pal(3, 'RdBu')[ii]
@@ -31,7 +31,7 @@ p <- pheatmap(corr, show_rownames = F, show_colnames = F,
          legend_breaks = c(0.5, 0.6, 0.7, 0.8, 0.9, max(corr)), legend_labels=c(0.5, 0.6, 0.7, 0.8, 0.9, 'PCC'),
          cellheight=2.5,cellwidth=2.5, 
          border_color = NA,annotation_row = anno, annotation_col = anno, annotation_names_row = FALSE, annotation_names_col = FALSE,# annotation_colors = list(no.reads=colors),
-         annotation_legend = TRUE, fontsize = 12,
+         annotation_legend = TRUE) #, fontsize = 12,
          filename = 'AvOwork/output/deltaGprediction/cellsCorr_heatmap_withAnno.pdf', height = 10, width = 10)
 
 corClust <- names(which(cutree(p$tree_col, k=2)==1))
@@ -87,9 +87,9 @@ dev.off()
 pdf('AvOwork/output/deltaGprediction/complRows_DgDistribution_goodCluster.pdf', onefile = T, width = 10 )
 sapply(complRows, rowHist, ptOrdGcTempl=ptOrdGcTempl[,c('pt',corClust)])
 dev.off()
+
 # Predicted deltaG
-ptWithDg <- ptOrdGcTempl %>% mutate(predictedDg = apply(ptOrdGcTempl[,rownames(anno.row>20000)],1, median, na.rm=TRUE)) 
-write.csv(ptWithDg[c('pt', 'predictedDg')])
-
-dgMatrix <- matrix()
-
+ptWithDg <- ptOrdGcTempl %>% mutate(predictedDg = apply(ptOrdGcTempl[,rownames(anno.row>30000)],1, median, na.rm=TRUE)) 
+write.csv(file = 'AvOwork/predictedDg_over30kreads.csv',x=ptWithDg[c('pt', 'predictedDg')])
+ptWsd <- ptWithDg %>% mutate(sd=apply(ptOrdGcTempl[,rownames(anno.row>30000)],1, sd, na.rm=TRUE)) %>% 
+  ggplot(., aes(sd)) + geom_histogram()

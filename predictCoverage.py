@@ -62,9 +62,9 @@ def findCompr(filename):
     return(compr)
 
 # # Make predicted Dg tab
-# file = 'predictedDg_over20kreads.csv'
+# file = 'predictedDg_over30kreads.csv'
 # df = makePredictedDgMatrix('predictedDg_over20kreads.csv', cellAb)
-# df.to_csv(path+'gk2a-2_predictedDg_over20kreads.csv')
+# df.to_csv(path+'gk2a-2_predictedDg_over30kreads.csv')
 
 path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'
 
