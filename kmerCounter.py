@@ -39,7 +39,7 @@ def cellKmersAbundance(params):
 
 
 coutt = args.coutt
-fasta = '/hpc/hub_oudenaarden/abarve/genomes/Danio_rerio_Zv9_ens74_extended3_genes_ERCC92_GFPmod_geneids.fa'
+fasta = '/hpc/hub_oudenaarden/abarve/genomes/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa.gz'
 
 ## Read files
 countT = pd.read_csv(coutt, sep='\t', index_col=0)
