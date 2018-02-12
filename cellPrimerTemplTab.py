@@ -5,15 +5,15 @@ import argparse
 import pandas as pd
 import multiprocessing
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get hexamers used in fasta file.\n By Emma Dann")
-argparser.add_argument('bam', type=str, help='Bam input')
-argparser.add_argument('primedreg', type=str, help='Fasta input')
-argparser.add_argument('ref', type=str, help='template or primer')
-args = argparser.parse_args()
-
-fasta = args.primedreg
-bamfile=args.bam
-ref = args.ref
+# argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get hexamers used in fasta file.\n By Emma Dann")
+# argparser.add_argument('bam', type=str, help='Bam input')
+# argparser.add_argument('primedreg', type=str, help='Fasta input')
+# argparser.add_argument('ref', type=str, help='template or primer')
+# args = argparser.parse_args()
+#
+# fasta = args.primedreg
+# bamfile=args.bam
+# ref = args.ref
 
 bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/zebrafish/gk2a-2.sam.gz'
 fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2_primed_seq.fa.gz'
