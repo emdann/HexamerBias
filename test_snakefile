@@ -1,0 +1,118 @@
+import itertools as it
+
+SAMPLE=["k562_reik_cat", "K562_nla_cat"]
+READS=["R2"]
+#WD="~/snakemake-tutorial/"
+PATH_BISMARK="/hpc/hub_oudenaarden/bin/software/bismark_v0.16.3"
+REF_GEN="/hpc/hub_oudenaarden/avo/BS/mm10"
+PATH_BOWTIE="/hpc/hub_oudenaarden/bin/software/bowtie2-2.2.9"
+PATH_SAMTOOLS="/hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.3.1"
+
+rule all:
+    input:
+        # html=expand("fastqc/{sample}_{read}_fastqc.html",sample=SAMPLE, read=READS),
+        met_extraction=expand("met_extraction/{sample}_{read}_bismark_bt2.deduplicated.CpG_report.txt.gz", sample=SAMPLE, read=READS)
+        # split_bam=expand("bam/{sample}_{read}_bismark_bt2.bam", sample=SAMPLE, read=READS)
+        # bam1=expand("bam/{sample}_1_bismark_bt2.bam", sample=SAMPLE)
+
+rule qc:
+    input:
+        fastq=expand("{{sample}}_{read}.fastq.gz", read=READS)
+    output:
+        html=expand("fastqc/{{sample}}_{read}_fastqc.html", read=READS)
+        #zip=expand("data/samples/{sample}_fastqc.zip",sample=SAMPLE)
+    shell:
+        "/hpc/hub_oudenaarden/edann/bin/FastQC/fastqc -o fastqc {input.fastq}"
+
+rule trim:
+    input:
+        fastq=expand("{{sample}}_{read}.fastq.gz", read=READS),
+        # fastq2=expand("{sample}_2.fastq.gz", sample=SAMPLE)
+    output:
+        trim=expand("trimmed_samples/{{sample}}_{read}_val_{read}.fq.gz", read=READS),
+    # params:
+    # 	3clip="3"
+    shell:
+        '/hpc/hub_oudenaarden/edann/bin/TrimGalore-0.4.3/trim_galore --clip_R1 10 --clip_R2 10 --three_prime_clip_R1 3 --three_prime_clip_R2 3 --path_to_cutadapt /hpc/hub_oudenaarden/edann/venv2/bin/cutadapt --paired -o trimmed_samples {input.fastq}'
+
+# # rule split:
+# #     input:
+# #         trim="trimmed_samples/{sample}_{read}_val_{read}.fq.gz",
+# #         refgen=REF_GEN
+# #     output:
+# #         split_trim="split_trimmed_samples/split_{sample}_{read}_{suffix}"
+# #     params:
+# #         suffix="split_{sample}_{read}_"
+# #     #   path2samtools=PATH_SAMTOOLS,
+# #     #   path2bowtie=PATH_BOWTIE
+# #     shell:
+# #         'zcat {input.trim} | split -n l/ 40000000 - {params.suffix}'
+
+
+rule map: # <--- Play around with multi threading!
+    input:
+        split_trim="split_trimmed_samples/split_{sample}_{read}_{suffix}",
+        refgen=REF_GEN
+    output:
+        split_bam="bam/split_{sample}_{read}_{suffix}_bismark_bt2.bam"
+    params:
+      path2bismark=PATH_BISMARK,
+      path2samtools=PATH_SAMTOOLS,
+      path2bowtie=PATH_BOWTIE
+    shell:
+        '{params.path2bismark}/bismark --multicore 10 --non_directional --samtools_path {params.path2samtools} --path_to_bowtie {params.path2bowtie} -o ./bam {input.refgen} {input.split_trim}'
+
+# # rule merge_bam:
+# #     input:
+# #         split_bam=expand("bam/split_{sample}_{read}_{suffix}_bismark_bt2.bam", sample=SAMPLE, read=READS, suffix=[''.join(i) for i in list(it.product("012","0123456789"))])
+# #     output:
+# #         merged_bam="bam/{sample}_{read}_bismark_bt2.bam"
+# #     params:
+# #         path2bismark=PATH_BISMARK,
+# #         path2samtools=PATH_SAMTOOLS,
+# #         path2bowtie=PATH_BOWTIE
+# #     shell:
+# #         '{params.path2samtools}/samtools merge {output.merged_bam} {input.split_bam}'
+
+# rule map: # <--- Play around with multi threading!
+#     input:
+#         trim="trimmed_samples/{sample}_{read}_val_{read}.fq.gz",
+#         refgen=REF_GEN
+#     output:
+#         bam="bam/{sample}_{read}_val_{read}_bismark_bt2.bam"
+#     params:
+#       path2bismark=PATH_BISMARK,
+#       path2samtools=PATH_SAMTOOLS,
+#       path2bowtie=PATH_BOWTIE
+#     threads: 10
+#     shell:
+#         '{params.path2bismark}/bismark --multicore {threads} --non_directional --samtools_path {params.path2samtools} --path_to_bowtie {params.path2bowtie} -o ./bam {input.refgen} {input.trim}'
+
+rule deduplicate:
+    input:
+        bam="bam/{sample}_{read}_val_{read}_bismark_bt2.bam"
+    output:
+        dedup_bam="bam/{sample}_{read}_val_{read}_bismark_bt2.deduplicated.bam"
+        #zip=expand("data/samples/{sample}_fastqc.zip",sample=SAMPLE)
+    params:
+      refgen=REF_GEN,
+      path2bismark=PATH_BISMARK,
+      path2samtools=PATH_SAMTOOLS,
+      path2bowtie=PATH_BOWTIE
+    shell:
+        "{params.path2bismark}/deduplicate_bismark --samtools_path {params.path2samtools} -s --bam {input.bam}"
+
+rule met_extraction:
+    input:
+        dedup_bam="bam/{sample}_{read}_bismark_bt2.deduplicated.bam",
+        refgen=REF_GEN
+        #zip=expand("data/samples/{sample}_fastqc.zip",sample=SAMPLE)
+    output:
+        met_extraction="met_extraction/{sample}_{read}_bismark_bt2.deduplicated.CpG_report.txt.gz"
+    params:
+      path2bismark=PATH_BISMARK,
+      path2samtools=PATH_SAMTOOLS,
+      path2bowtie=PATH_BOWTIE
+    threads: 4
+    shell:
+        "{params.path2bismark}/bismark_methylation_extractor --samtools_path {params.path2samtools} -s --gzip --report --multicore {threads} --comprehensive --merge_non_CpG --bedGraph -o ./met_extraction --genome_folder {input.refgen} {input.dedup_bam}"
