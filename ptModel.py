@@ -69,6 +69,6 @@ dgMat = cellDgMat((cellAb, ptMat))
 outpath = '/'.join(ptMatrix.split('/')[:-1])
 sample = cellAbundanceTab.split('/')[-1].split('.cellAbundance')[0]
 if outpath:
-    dgMat.to_csv(outpath+'/'+ sample + 'cell'+ cell +'_ptDg_qual.csv')
+    dgMat.to_csv(outpath+'/'+ sample + '_cell'+ cell +'_ptDg_qual.csv')
 else:
-    dgMat.to_csv(outpath+ sample +'cell'+cell+'_ptDg_qual.csv')
+    dgMat.to_csv(outpath+ sample +'_cell'+cell+'_ptDg_qual.csv')
