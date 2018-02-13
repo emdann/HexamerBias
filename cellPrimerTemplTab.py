@@ -5,18 +5,18 @@ import argparse
 import pandas as pd
 import multiprocessing
 
-# argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get hexamers used in fasta file.\n By Emma Dann")
-# argparser.add_argument('bam', type=str, help='Bam input')
-# argparser.add_argument('primedreg', type=str, help='Fasta input')
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get hexamers used in fasta file.\n By Emma Dann")
+argparser.add_argument('bam', type=str, help='Bam input')
+argparser.add_argument('primedreg', type=str, help='Fasta input')
 # argparser.add_argument('ref', type=str, help='template or primer')
-# args = argparser.parse_args()
-#
-# fasta = args.primedreg
-# bamfile=args.bam
+args = argparser.parse_args()
+
+fasta = args.primedreg
+bamfile = args.bam
 # ref = args.ref
 
-bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/zebrafish/gk2a-2.sam.gz'
-fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2_primed_seq.fa.gz'
+# bamfile='/hpc/hub_oudenaarden/aalemany/emma-adi/zebrafish/gk2a-2.sam.gz'
+# fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2_primed_seq.fa.gz'
 
 def makeTemplPrimerDic(bamfile,templFasta):
     templDic={}
@@ -57,4 +57,4 @@ highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values())>10000]
 tblCellDic = cellSpecificTbl(cellDic, highcovCells)
 
 for cell in tblCellDic:
-    tblCellDic[cell].to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/cell'+cell+'ptCounts.qualFilt.csv')
+    tblCellDic[cell].to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/cell'+cell+'ptCounts.qualFilt.csv')
