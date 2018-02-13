@@ -30,7 +30,7 @@ def makeNonInfDic(file):
 workers = multiprocessing.Pool(8)
 finalCellDic = {}
 
-for dic in workers.imap_unordered(makeNonInfDic, [ file for file in os.listdir(path) if fnmatch.fnmatch(file, 'cell*ptDg*')]):
+for dic in workers.imap_unordered(makeNonInfDic, [ file for file in os.listdir(path) if fnmatch.fnmatch(file, 'cell*ptDg_qual*')]):
     for pt,celdic in dic.items():
         if pt not in finalCellDic.keys():
             finalCellDic[pt]={}
@@ -38,8 +38,8 @@ for dic in workers.imap_unordered(makeNonInfDic, [ file for file in os.listdir(p
 
 filtDic={}
 for k,v in finalCellDic.items():
-    if len(v)>=20:
+    if len(v)>=10:
         filtDic[k] = v
 
-output = path + 'commonPtPairs_allCells_parallel.csv'
-pd.DataFrame.from_dict(filtDic).to_csv(output)
+output = path + 'commonPtPairs_qual_allCells_parallel.csv'
+pd.DataFrame.from_dict(filtDic).T.to_csv(output)
