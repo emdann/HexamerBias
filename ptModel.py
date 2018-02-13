@@ -37,11 +37,12 @@ def cellDgMat(params):
 
 ptMatrix = args.ptmatrix
 cellAbundanceTab = args.cellabcsv
-# ptMatrix='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/cell121ptCounts.csv.gz'
-# cellAbundanceTab='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2.cellAbundance.noN.csv'
+# ptMatrix='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/SvdB11d4-MitoTrackerThird-Satellites-Adultcell100ptCounts.qualFilt.csv'
+# cellAbundanceTab='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/SvdB11d4-MitoTrackerThird-Satellites-Adult.cellAbundance.csv'
 cell = ptMatrix.split('/')[-1].split('ptCounts')[0].split('cell')[-1]
 tabAb=pd.read_csv(cellAbundanceTab, index_col=0)
 cellAb = tabAb[cell]
+cellAb = cellAb[[i for i in cellAb.index if 'N' not in i]]
 
 if ptMatrix.endswith('gz'):
     compr='gzip'
@@ -51,6 +52,7 @@ elif ptMatrix.endswith('csv'):
 # Order pt matrix and add missing values
 ptMat = pd.read_csv(ptMatrix, compression=compr, index_col=0)
 ptMat = ptMat[[i for i in ptMat.columns if 'N' not in i]]
+ptMat = ptMat.loc[[i for i in ptMat.index if 'N' not in i]]
 for temp in [i for i in cellAb.index if i not in ptMat.index]:
     newRow=pd.DataFrame(0, index=[temp], columns=ptMat.columns)
     ptMat = ptMat.append(newRow)
@@ -65,7 +67,8 @@ ptMat=ptMat.sort_index(axis=1).sort_index()
 dgMat = cellDgMat((cellAb, ptMat))
 
 outpath = '/'.join(ptMatrix.split('/')[:-1])
+sample = cellAbundanceTab.split('/')[-1].split('.cellAbundance')[0]
 if outpath:
-    dgMat.to_csv(outpath+'/cell'+cell+'_ptDg_qual.csv')
+    dgMat.to_csv(outpath+'/'+ sample + 'cell'+ cell +'_ptDg_qual.csv')
 else:
-    dgMat.to_csv(outpath+'cell'+cell+'_ptDg_qual.csv')
+    dgMat.to_csv(outpath+ sample +'cell'+cell+'_ptDg_qual.csv')
