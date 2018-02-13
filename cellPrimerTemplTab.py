@@ -57,4 +57,4 @@ highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values())>10000]
 tblCellDic = cellSpecificTbl(cellDic, highcovCells)
 
 for cell in tblCellDic:
-    tblCellDic[cell].to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/cell'+cell+'ptCounts.qualFilt.csv')
+    tblCellDic[cell].to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/'+bamfile.split('/')[-1].split('.')[0]+'cell'+cell+'ptCounts.qualFilt.csv')
