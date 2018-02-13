@@ -67,6 +67,6 @@ dgMat = cellDgMat((cellAb, ptMat))
 
 outpath = '/'.join(ptMatrix.split('/')[:-1])
 if outpath:
-    dgMat.to_csv(outpath+'/cell'+cell+'_ptDg.csv')
+    dgMat.to_csv(outpath+'/cell'+cell+'_ptDg_qual.csv')
 else:
-    dgMat.to_csv(outpath+'cell'+cell+'_ptDg.csv')
+    dgMat.to_csv(outpath+'cell'+cell+'_ptDg_qual.csv')
