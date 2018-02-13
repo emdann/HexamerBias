@@ -23,7 +23,6 @@ def predictCov(t,DgRow):
     return(cov)
 
 def makePredictedDgMatrix(file, cellAb):
-
     '''
     Turns file of pt - predicted Dg (precessed in R) to matrix of template on row and primer on column
     Needs cell abundance file to fill in missing pt pairs
@@ -62,9 +61,8 @@ def findCompr(filename):
     return(compr)
 
 # # Make predicted Dg tab
-# file = 'predictedDg_over30kreads.csv'
-# df = makePredictedDgMatrix('predictedDg_over20kreads.csv', cellAb)
-# df.to_csv(path+'gk2a-2_predictedDg_over30kreads.csv')
+# df = makePredictedDgMatrix('predictedDg_over40kreads.csv', cellAb)
+# df.to_csv(path+'gk2a-2_predictedDg_over40kreads.csv')
 
 path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'
 
