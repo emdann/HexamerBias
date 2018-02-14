@@ -64,7 +64,7 @@ def findCompr(filename):
 # df = makePredictedDgMatrix('predictedDg_over40kreads.csv', cellAb)
 # df.to_csv(path+'gk2a-2_predictedDg_over40kreads.csv')
 
-path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'
+path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/'
 
 predictedDg = args.predDg
 ptMatrix = args.cellPtCount
