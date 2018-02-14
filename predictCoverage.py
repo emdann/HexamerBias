@@ -93,8 +93,10 @@ tab = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predict
 if thresh:
     tab=setThresh4Dg(tab,ptMat,thresh=thresh)
 
+sample = predictedDg.split('_')[0]
+
 list=[]
-with open(path+'predictedCov/gk2a-2.40kavg.CovPred.'+str(cell)+'.thresh'+str(thresh)+'.qual.txt', 'w') as output:
+with open(path+'predictedCov/'+sample+'.CovPred.'+str(cell)+'.thresh'+str(thresh)+'.qual.txt', 'w') as output:
     print('template','obs', 'exp', sep='\t', file=output)
     for templ in tab.iterrows():
         t,DgRow = templ
