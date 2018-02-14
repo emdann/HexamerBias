@@ -47,5 +47,5 @@ for k,v in finalCellDic.items():
     if len(v)>=10:
         filtDic[k] = v
 
-output = path + 'commonPtPairs_qual_allCells_parallel.csv'
+output = path + pattern + 'commonPtPairs_qual_allCells_parallel.csv'
 pd.DataFrame.from_dict(filtDic).T.to_csv(output)
