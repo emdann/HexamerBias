@@ -3,8 +3,14 @@ import os
 import pandas as pd
 import numpy as np
 import multiprocessing
+import argparse
 
-path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get matrix of predicted dg for primer-template complex in single cells \n By Emma Dann")
+argparser.add_argument('sample', type=str, help='Pattern for ptDg files to merge')
+args = argparser.parse_args()
+
+pattern = args.sample
+path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse'
 
 def makeNonInfDic(file):
     '''
@@ -30,7 +36,7 @@ def makeNonInfDic(file):
 workers = multiprocessing.Pool(8)
 finalCellDic = {}
 
-for dic in workers.imap_unordered(makeNonInfDic, [ file for file in os.listdir(path) if fnmatch.fnmatch(file, 'cell*ptDg_qual*')]):
+for dic in workers.imap_unordered(makeNonInfDic, [ file for file in os.listdir(path) if fnmatch.fnmatch(file, pattern+'*ptDg_qual*')]):
     for pt,celdic in dic.items():
         if pt not in finalCellDic.keys():
             finalCellDic[pt]={}
