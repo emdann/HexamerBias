@@ -10,7 +10,7 @@ argparser.add_argument('sample', type=str, help='Pattern for ptDg files to merge
 args = argparser.parse_args()
 
 pattern = args.sample
-path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse'
+path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/'
 
 def makeNonInfDic(file):
     '''
