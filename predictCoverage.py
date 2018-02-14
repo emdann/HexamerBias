@@ -68,7 +68,8 @@ path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/'
 
 predictedDg = args.predDg
 ptMatrix = args.cellPtCount
-cellAbundanceTab = 'gk2a-2.cellAbundance.noN.csv'
+sample = predictedDg.split('_')[0]
+cellAbundanceTab = sample + '.cellAbundance.csv'
 thresh=args.t
 
 
@@ -76,6 +77,7 @@ cell = ptMatrix.split('pt')[0][4:]
 
 tabAb=pd.read_csv(path+cellAbundanceTab, index_col=0, compression = findCompr(cellAbundanceTab))
 cellAb = tabAb[cell]
+cellAb = cellAb[[i for i in cellAb.index if 'N' not in i]]
 
 ptMat = pd.read_csv(path+ptMatrix, compression = findCompr(ptMatrix), index_col=0)
 ptMat = ptMat[[i for i in ptMat.columns if 'N' not in i]]
@@ -93,7 +95,7 @@ tab = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predict
 if thresh:
     tab=setThresh4Dg(tab,ptMat,thresh=thresh)
 
-sample = predictedDg.split('_')[0]
+
 
 list=[]
 with open(path+'predictedCov/'+sample+'.CovPred.'+str(cell)+'.thresh'+str(thresh)+'.qual.txt', 'w') as output:
