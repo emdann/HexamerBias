@@ -18,7 +18,7 @@ def makeNonInfDic(file):
         Input: name of .csv file of predicted deltaG matrix
         Output: dictionary of {pt pair : {cellname : predicted deltaG}}
     '''
-    cell = file.split('_')[0][4:]
+    cell = file.split('_')[1][4:]
     if file.endswith('gz'):
         compr='gzip'
     elif file.endswith('csv'):
