@@ -73,7 +73,7 @@ cellAbundanceTab = sample + '.cellAbundance.csv'
 thresh=args.t
 
 
-cell = ptMatrix.split('pt')[0][4:]
+cell = ptMatrix.split('pt')[0].split('cell')[-1]
 
 tabAb=pd.read_csv(path+cellAbundanceTab, index_col=0, compression = findCompr(cellAbundanceTab))
 cellAb = tabAb[cell]
