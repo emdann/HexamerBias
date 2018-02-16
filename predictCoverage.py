@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import multiprocessing
 import argparse
+from hexVSprimed import *
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -22,28 +23,34 @@ def predictCov(t,DgRow):
     cov = t*sumRow
     return(cov)
 
+def propagateError(t,DgRow):
+    '''
+    Propagation of error from standard deviation of avg deltaG
+    '''
+    sumRow =
+
 def makePredictedDgMatrix(file, cellAb):
     '''
     Turns file of pt - predicted Dg (precessed in R) to matrix of template on row and primer on column
     Needs cell abundance file to fill in missing pt pairs
     '''
     df = pd.read_csv(file, index_col=0)
-    tabDic={}
+    tabDic = {}
+    sdDic = {}
     for row in df.iterrows():
-        pt,dg = row[1].pt, row[1].predictedDg
+        pt,dg,sd = row[1].pt, row[1].predictedDg, row[1].sd
         t,p = pt.split('-')
         if t not in tabDic.keys():
             tabDic[t]={}
-        tabDic[t][p]=dg
+        tabDic[t][p] = dg
+        if t not in sdDic.keys():
+            sdDic[t]={}
+        sdDic[t][p] = sd
     ptMat = pd.DataFrame(tabDic)
-    for temp in [i for i in cellAb.index if i not in ptMat.index]:
-        newRow=pd.DataFrame(np.nan, index=[temp], columns=ptMat.columns)
-        ptMat = ptMat.append(newRow)
-    for primer in [i for i in cellAb.index if i not in ptMat.columns]:
-        newCol=pd.DataFrame(np.nan, index=[primer], columns=ptMat.index).T
-        ptMat = pd.concat([ptMat, newCol], axis=1)
-    ptMat=ptMat.sort_index(axis=1).sort_index()
-    return(ptMat)
+    ptMat = fillNsortPTmatrix(ptMat)
+    sdMat = pd.DataFrame(sdDic)
+    sdMat = fillNsortPTmatrix(sdMat)
+    return((ptMat,sdMat))
 
 def setThresh4Dg(dgMat,ptMat,thresh=1):
     '''
@@ -59,10 +66,6 @@ def findCompr(filename):
     else:
         compr='infer'
     return(compr)
-
-# # Make predicted Dg tab
-# df = makePredictedDgMatrix('predictedDg_over40kreads.csv', cellAb)
-# df.to_csv(path+'gk2a-2_predictedDg_over40kreads.csv')
 
 path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/'
 
@@ -81,15 +84,7 @@ cellAb = cellAb[[i for i in cellAb.index if 'N' not in i]]
 
 ptMat = pd.read_csv(path+ptMatrix, compression = findCompr(ptMatrix), index_col=0)
 ptMat = ptMat[[i for i in ptMat.columns if 'N' not in i]]
-for temp in [i for i in cellAb.index if i not in ptMat.index]:
-    newRow=pd.DataFrame(0, index=[temp], columns=ptMat.columns)
-    ptMat = ptMat.append(newRow)
-
-for primer in [i for i in cellAb.index if i not in ptMat.columns]:
-    newCol=pd.DataFrame(0.0, index=[primer], columns=ptMat.index).T
-    ptMat = pd.concat([ptMat, newCol], axis=1)
-
-ptMat=ptMat.sort_index(axis=1).sort_index()
+ptMat = fillNsortPTmatrix(ptMat)
 
 tab = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predictedDg))
 if thresh:

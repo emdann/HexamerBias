@@ -7,6 +7,7 @@ from hexVSprimed import *
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get hexamers used in fasta file.\n By Emma Dann")
 argparser.add_argument('input', type=str, help='File of predicted Dg')
+argparser.add_argument('cellab', type=str, help='name of output file')
 argparser.add_argument('output', type=str, help='name of output file')
 args = argparser.parse_args()
 
@@ -32,6 +33,10 @@ def makePredictedDgMatrix(file, cellAb):
     sdMat = pd.DataFrame(sdDic)
     sdMat = fillNsortPTmatrix(sdMat)
     return((ptMat,sdMat))
+
+tabAb = pd.read_csv(args.cellab, index_col=0, compression = findCompr(args.cellab))
+cellAb = tabAb[cell]
+cellAb = cellAb[[i for i in cellAb.index if 'N' not in i]]
 
 predictedDgFile = args.input
 # Make predicted Dg tab

@@ -165,7 +165,26 @@ def computeEntropy(pwm):
         H+=h
     return(H)
 
+def fillNsortPTmatrix(ptMat, cellAb):
+    '''
+    Fills matrix of template rows and primer columns with missing values and sorts
+    Input: matrix and abundance table (to have all possible hexamers)
+    '''
+    for temp in [i for i in cellAb.index if i not in ptMat.index]:
+        newRow = pd.DataFrame(np.nan, index=[temp], columns=ptMat.columns)
+        ptMat = ptMat.append(newRow)
+    for primer in [i for i in cellAb.index if i not in ptMat.columns]:
+        newCol = pd.DataFrame(np.nan, index=[primer], columns=ptMat.index).T
+        ptMat = pd.concat([ptMat, newCol], axis=1)
+    ptMat=ptMat.sort_index(axis=1).sort_index()
+    return(ptMat)
 
+def findCompr(filename):
+    if filename.endswith('gz'):
+        compr='gzip'
+    else:
+        compr='infer'
+    return(compr)
 # filename='L1_R2_hex_entropy.txt'
 # with open(filename, 'w') as f:
 #     for row in tbl.iterrows():
