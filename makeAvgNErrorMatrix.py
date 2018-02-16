@@ -34,9 +34,8 @@ def makePredictedDgMatrix(file, cellAb):
     sdMat = fillNsortPTmatrix(sdMat, cellAb)
     return((ptMat,sdMat))
 
-tabAb = pd.read_csv(args.cellab, index_col=0, compression = findCompr(args.cellab))
-cellAb = tabAb[1]
-cellAb = cellAb[[i for i in cellAb.index if 'N' not in i]]
+cellAb = pd.read_csv(args.cellab, index_col=0, compression = findCompr(args.cellab))
+cellAb = cellAb.loc[[i for i in cellAb.index if 'N' not in i]]
 
 predictedDgFile = args.input
 # Make predicted Dg tab
