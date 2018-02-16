@@ -8,7 +8,7 @@ from hexVSprimed import *
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get hexamers used in fasta file.\n By Emma Dann")
 argparser.add_argument('input', type=str, help='File of predicted Dg')
 argparser.add_argument('cellab', type=str, help='name of output file')
-argparser.add_argument('output', type=str, help='name of output file')
+argparser.add_argument('output', type=str, help='suffix for output files')
 args = argparser.parse_args()
 
 def makePredictedDgMatrix(file, cellAb):
@@ -29,16 +29,17 @@ def makePredictedDgMatrix(file, cellAb):
             sdDic[t]={}
         sdDic[t][p] = sd
     ptMat = pd.DataFrame(tabDic)
-    ptMat = fillNsortPTmatrix(ptMat)
+    ptMat = fillNsortPTmatrix(ptMat, cellAb)
     sdMat = pd.DataFrame(sdDic)
-    sdMat = fillNsortPTmatrix(sdMat)
+    sdMat = fillNsortPTmatrix(sdMat, cellAb)
     return((ptMat,sdMat))
 
 tabAb = pd.read_csv(args.cellab, index_col=0, compression = findCompr(args.cellab))
-cellAb = tabAb[cell]
+cellAb = tabAb[1]
 cellAb = cellAb[[i for i in cellAb.index if 'N' not in i]]
 
 predictedDgFile = args.input
 # Make predicted Dg tab
 dgMat,errMat = makePredictedDgMatrix(predictedDgFile, cellAb)
-df.to_csv(args.output)
+dgMat.to_csv(args.output+'dgMat.csv')
+errMat.to_csv(args.output+'errMat.csv')
