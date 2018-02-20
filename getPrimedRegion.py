@@ -3,13 +3,10 @@ import argparse
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Extract position of primer placement from trimmed section of aligned reads. By Emma Dann")
 argparser.add_argument('bam', type=str, help='Input bam file')
+argparser.add_argument('refgen', type=str, help='Fasta of reference genome')
 argparser.add_argument('type', type=str, help='Original data of bam (bs or rna)')
 argparser.add_argument('-o', type=str, help='path to directory to save output')
 args = argparser.parse_args()
-
-bamfile = args.bam
-type = args.type
-outpath = args.o
 
 def get_template_bed(bamfile, type):
 	'''
@@ -55,6 +52,11 @@ def get_template_fasta(bedfile, fi):
 	faout.save_seqs(bedfile.strip('.bed') + '.fa')
 	return(faout)
 
+bamfile = args.bam
+type = args.type
+fi = args.refgen
+outpath = args.o
+
 bed = get_template_bed(bamfile, type=type)
-bedfile = save_bedfile(bed)
-get_template_fasta(bedfile)
+bedfile = save_bedfile(bed, bamfile, outpath)
+get_template_fasta(bedfile, fi)
