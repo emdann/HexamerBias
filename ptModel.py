@@ -17,7 +17,7 @@ def extractDeltaG(templateRow,tempAb):
     Extract predicted [log(p) + DeltaG] for row of ptCount table (one template)
     ...
     '''
-    dg = np.log(templateRow/tempAb)
+    dg = np.log(templateRow/(tempAb - templateRow.values.sum()))
     dg[dg == - np.inf] = -99999
     return(dg)
 
@@ -30,6 +30,7 @@ def cellDgMat(params):
     dgMat=pd.DataFrame()
     for temp in cellAb.index:
         temprow = ptMat[ptMat.index==temp]
+        temprow = temprow.fillna(0)
         tempAb=cellAb[temp]
         dg = extractDeltaG(temprow,tempAb)
         dgMat = dgMat.append(dg)
@@ -40,7 +41,7 @@ cellAbundanceTab = args.cellabcsv
 # ptMatrix='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/SvdB11d4-MitoTrackerThird-Satellites-Adultcell100ptCounts.qualFilt.csv'
 # cellAbundanceTab='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/SvdB11d4-MitoTrackerThird-Satellites-Adult.cellAbundance.csv'
 cell = ptMatrix.split('/')[-1].split('ptCounts')[0].split('cell')[-1]
-tabAb=pd.read_csv(cellAbundanceTab, index_col=0)
+tabAb = pd.read_csv(cellAbundanceTab, index_col=0)
 cellAb = tabAb[cell]
 cellAb = cellAb[[i for i in cellAb.index if 'N' not in i]]
 
@@ -51,18 +52,7 @@ elif ptMatrix.endswith('csv'):
 
 # Order pt matrix and add missing values
 ptMat = pd.read_csv(ptMatrix, compression=compr, index_col=0)
-ptMat = ptMat[[i for i in ptMat.columns if 'N' not in i]]
-ptMat = ptMat.loc[[i for i in ptMat.index if 'N' not in i]]
-for temp in [i for i in cellAb.index if i not in ptMat.index]:
-    newRow=pd.DataFrame(0, index=[temp], columns=ptMat.columns)
-    ptMat = ptMat.append(newRow)
-
-for primer in [i for i in cellAb.index if i not in ptMat.columns]:
-    newCol=pd.DataFrame(0.0, index=[primer], columns=ptMat.index).T
-    ptMat = pd.concat([ptMat, newCol], axis=1)
-
-ptMat=ptMat.sort_index(axis=1).sort_index()
-
+ptMat = fillNsortPTmatrix(ptMat, cellAb)
 
 dgMat = cellDgMat((cellAb, ptMat))
 

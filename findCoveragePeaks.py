@@ -7,7 +7,6 @@ import multiprocessing
 
 file='/hpc/hub_oudenaarden/edann/VAN1667_depth.bed'
 
-
 def findPeaks(cov):
     """
     detects peaks in depth.bed file (use small chunks)

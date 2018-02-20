@@ -5,10 +5,11 @@ import collections
 import multiprocessing
 import pandas as pd
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Count kmers in fasta file. By Buys de Barbanson")
-# argparser.add_argument('fasta', type=str, help='Fasta input')
 argparser.add_argument('coutt', type=str, help='UMI counts')
+argparser.add_argument('refgen', type=str, help='Fasta file of reference genome')
 argparser.add_argument('-k', type=int, default=6, required=False, help='Kmer size')
 argparser.add_argument('-t', type=int, default=8, required=False, help='Amount of threads to use.')
+argparser.add_argument('-o', type=str, required=False, help='Output directory')
 args = argparser.parse_args()
 
 def find_kmers(params):
@@ -19,14 +20,21 @@ def find_kmers(params):
         kmerCounts[ string[i:i+k] ] += 1
     return kmerCounts
 
+def count_kmers_refgen(refgenFasta):
+    countDic = {}
+    with ps.FastxFile(refgenFasta) as f:
+        for entry in f:
+            countDic[entry.name]=find_kmers((entry.sequence.upper(), 6, None))
+    return(countDic)
+
 def cellKmersAbundance(params):
     '''
     Take dictionary of abundances counts per entry of fasta file and cell transcript count table and cell name
     return count based on number of transcript for that cell
     '''
     CountDic,countTranscr,cellname=params
-    cell=countTranscr[cellname]
-    umiCountDic=collections.Counter()
+    cell = countTranscr[cellname]
+    umiCountDic = collections.Counter()
     for gene,counter in CountDic.items():
         if not cell[cell.index==gene].empty:
             n = int(cell[cell.index==gene])
@@ -37,22 +45,12 @@ def cellKmersAbundance(params):
             umiCountDic+=geneNewDict
     return({cellname:umiCountDic})
 
-
 coutt = args.coutt
-fasta = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa.gz'
+fasta = args.refgen
 
 ## Read files
 countT = pd.read_csv(coutt, sep='\t', index_col=0)
-countDic={}
-with ps.FastxFile(fasta) as f:
-    for entry in f:
-        countDic[entry.name]=find_kmers((entry.sequence.upper(), 6, None))
-
-# cellDic={}
-# for cell in countT:
-#     print('cell no. '+str(cell))
-#     cellDic[cell]=cellKmersAbundance((countDic,countT[cell]))
-#     print('done')
+countDic = count_kmers_refgen(fasta)
 
 ## Run on multiple cores
 workers = multiprocessing.Pool(8)
@@ -66,4 +64,10 @@ for cellCounter in workers.imap_unordered(cellKmersAbundance, [ (countDic, count
     else:
         print('Something wrong...')
 
-outputTab = pd.DataFrame.from_dict(cellDic).to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'+coutt.split('/')[-1].split('.coutt')[0]+'.cellAbundance.csv')
+sample = coutt.split('/')[-1].split('.coutt')[0]
+if args.o:
+    outpath = args.o
+else:
+    outpath = '/'.join(fasta.split('/')[:-1]) + '/'
+
+outputTab = pd.DataFrame.from_dict(cellDic).to_csv(outpath + sample +'.cellAbundance.csv')

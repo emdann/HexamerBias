@@ -167,9 +167,11 @@ def computeEntropy(pwm):
 
 def fillNsortPTmatrix(ptMat, cellAb):
     '''
-    Fills matrix of template rows and primer columns with missing values and sorts
+    Fills matrix of template rows and primer columns with missing values, removes Ns and sorts
     Input: matrix and abundance table (to have all possible hexamers)
     '''
+    ptMat = ptMat[[i for i in ptMat.columns if 'N' not in i]]
+    ptMat = ptMat.loc[[i for i in ptMat.index if 'N' not in i]]
     for temp in [i for i in cellAb.index if i not in ptMat.index]:
         newRow = pd.DataFrame(np.nan, index=[temp], columns=ptMat.columns)
         ptMat = ptMat.append(newRow)

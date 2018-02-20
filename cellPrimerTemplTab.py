@@ -8,7 +8,6 @@ import multiprocessing
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get hexamers used in fasta file.\n By Emma Dann")
 argparser.add_argument('bam', type=str, help='Bam input')
 argparser.add_argument('primedreg', type=str, help='Fasta input')
-# argparser.add_argument('ref', type=str, help='template or primer')
 args = argparser.parse_args()
 
 fasta = args.primedreg
@@ -19,6 +18,9 @@ bamfile = args.bam
 # fasta='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/gk2a-2_primed_seq.fa.gz'
 
 def makeTemplPrimerDic(bamfile,templFasta):
+    '''
+    Makes dictionary of template-primer pairs, removing pairs if the phred score is low
+    '''
     templDic={}
     with ps.FastxFile(templFasta) as templ:
         for entry in templ:
@@ -56,5 +58,9 @@ for name,seqs in templDic.items():
 highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values())>10000]
 tblCellDic = cellSpecificTbl(cellDic, highcovCells)
 
+outpath = '/'.join(fasta.split('/')[:-1]) + '/ptCounts/'
+sample = bamfile.split('/')[-1].split('.')[0]
+
 for cell in tblCellDic:
-    tblCellDic[cell].to_csv('/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/'+bamfile.split('/')[-1].split('.')[0]+'cell'+cell+'ptCounts.qualFilt.csv')
+    countsMatrix = fillNsortPTmatrix(tblCellDic[cell])
+    countsMatrix.to_csv(outpath + sample + 'cell' + cell + 'ptCounts.qualFilt.csv')

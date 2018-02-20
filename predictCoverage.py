@@ -23,34 +23,12 @@ def predictCov(t,DgRow):
     cov = t*sumRow
     return(cov)
 
-def propagateError(t,DgRow):
+def propagateError(t,ErrRow):
     '''
     Propagation of error from standard deviation of avg deltaG
     '''
-    sumRow =
-
-def makePredictedDgMatrix(file, cellAb):
-    '''
-    Turns file of pt - predicted Dg (precessed in R) to matrix of template on row and primer on column
-    Needs cell abundance file to fill in missing pt pairs
-    '''
-    df = pd.read_csv(file, index_col=0)
-    tabDic = {}
-    sdDic = {}
-    for row in df.iterrows():
-        pt,dg,sd = row[1].pt, row[1].predictedDg, row[1].sd
-        t,p = pt.split('-')
-        if t not in tabDic.keys():
-            tabDic[t]={}
-        tabDic[t][p] = dg
-        if t not in sdDic.keys():
-            sdDic[t]={}
-        sdDic[t][p] = sd
-    ptMat = pd.DataFrame(tabDic)
-    ptMat = fillNsortPTmatrix(ptMat)
-    sdMat = pd.DataFrame(sdDic)
-    sdMat = fillNsortPTmatrix(sdMat)
-    return((ptMat,sdMat))
+    error = np.sqrt(sum(np.square(np.exp(ErrRow)).fillna(0)))
+    return(error)
 
 def setThresh4Dg(dgMat,ptMat,thresh=1):
     '''
@@ -67,10 +45,11 @@ def findCompr(filename):
         compr='infer'
     return(compr)
 
-path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/'
+path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'
 
 predictedDg = args.predDg
 ptMatrix = args.cellPtCount
+errMatrix = predictedDg.split('dgMat.csv')[0]+'errMat.csv'
 sample = predictedDg.split('_')[0]
 cellAbundanceTab = sample + '.cellAbundance.csv'
 thresh=args.t
@@ -84,21 +63,24 @@ cellAb = cellAb[[i for i in cellAb.index if 'N' not in i]]
 
 ptMat = pd.read_csv(path+ptMatrix, compression = findCompr(ptMatrix), index_col=0)
 ptMat = ptMat[[i for i in ptMat.columns if 'N' not in i]]
-ptMat = fillNsortPTmatrix(ptMat)
+ptMat = fillNsortPTmatrix(ptMat, cellAb)
+
+errMat = pd.read_csv(path+errMatrix, compression = findCompr(errMatrix), index_col=0)
+errMat = errMat[[i for i in errMat.columns if 'N' not in i]]
+errMat = fillNsortPTmatrix(errMat, cellAb)
+
 
 tab = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predictedDg))
 if thresh:
     tab=setThresh4Dg(tab,ptMat,thresh=thresh)
 
-
-
 list=[]
 with open(path+'predictedCov/'+sample+'.CovPred.'+str(cell)+'.thresh'+str(thresh)+'.qual.txt', 'w') as output:
-    print('template','obs', 'exp', sep='\t', file=output)
-    for templ in tab.iterrows():
-        t,DgRow = templ
-        # list.append((sum(ptMat[t]), predictCov(cellAb[t],DgRow)))
-        print(t, sum(ptMat[t]), predictCov(cellAb[t],DgRow), sep='\t', file=output)
+    print('template','obs', 'exp', 'err' sep='\t') #, file=output)
+for templ in tab.iterrows():
+    t,DgRow = templ
+    # list.append((sum(ptMat[t]), predictCov(cellAb[t],DgRow)))
+    print(t, sum(ptMat[t].fillna(0)), predictCov(cellAb[t],DgRow), propagateError(cellAb[t], errMat[t]), sep='\t')#, file=output)
 # obs = [x for x,y in list]
 # exp = [y for x,y in list]
 #
