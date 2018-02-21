@@ -59,8 +59,8 @@ def save_ptCounts(cellDic,cellsOI,fasta, cores=10):
     abundanceFile = fasta.strip('.primedreg.fa')+'.cellAbundance.csv'
     tabAb = pd.read_csv(abundanceFile, index_col=0)
     outpath = '/'.join(fasta.split('/')[:-1]) + '/ptCounts/'
-    if not os.path.exists(outpath):
-        os.makedirs(outpath)
+    # if not os.path.exists(outpath):
+    #     os.makedirs(outpath)
     sample = bamfile.split('/')[-1].split('.')[0]
     workers = multiprocessing.Pool(cores)
     for cellMatrix in workers.imap_unordered(make_cell_pt_table, [ (cellDic[cell], tabAb[cell]) for cell in cellsOI]):
