@@ -40,9 +40,12 @@ def cellSpecificTbl(cellDic, cellsOI):
     Input: dict of {cell:{read:[template sequence, primer sequence]}}
     Output: dict of {cell name:matrix}
     '''
+    abundanceFile = fasta.strip('.primedreg.fa')+'.cellAbundance.csv'
+    tabAb = pd.read_csv(abundanceFile, index_col=0)
     tblCellDic={}
     for cell in cellsOI:
-        tblCellDic[cell] = fillNsortPTmatrix(make_occurrencies_tbl(cellDic[cell]))
+        cellAb = tabAb[cell]
+        tblCellDic[cell] = fillNsortPTmatrix(make_occurrencies_tbl(cellDic[cell]), cellAb)
     # ---> primers on columns, templates on rows <---
     return(tblCellDic)
 
