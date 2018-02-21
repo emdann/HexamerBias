@@ -70,4 +70,6 @@ if args.o:
 else:
     outpath = '/'.join(fasta.split('/')[:-1]) + '/'
 
-outputTab = pd.DataFrame.from_dict(cellDic).to_csv(outpath + sample +'.cellAbundance.csv')
+ab = pd.DataFrame.from_dict(cellDic)
+noN = ab.T[[i for i in ab.index if 'N' not in i]].T
+outputTab = noN.to_csv(outpath + sample +'.cellAbundance.csv')
