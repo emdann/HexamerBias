@@ -46,7 +46,6 @@ def cellSpecificTbl(cellDic, cellsOI):
     # ---> primers on columns, templates on rows <---
     return(tblCellDic)
 
-
 def make_cell_tp_dic(templDic):
     '''
     Split dictionary of reads:[template,primer] by cell.

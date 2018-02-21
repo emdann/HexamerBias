@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import multiprocessing
 import gzip
+import os
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get matrix of predicted dg for primer-template complex in single cells \n By Emma Dann")
 argparser.add_argument('ptmatrix', type=str, help='Bam input')
@@ -24,7 +25,7 @@ def extractDeltaG(templateRow,tempAb):
 def cellDgMat(params):
     '''
     Make matrix of predicted dg for p-t couples
-    Input: tab of template abundace for cell OI, matrix of pt occurrencies
+    Input: tab of template abundance for cell OI, matrix of pt occurrencies
     '''
     cellAb,ptMat = params
     dgMat=pd.DataFrame()
@@ -38,26 +39,23 @@ def cellDgMat(params):
 
 ptMatrix = args.ptmatrix
 cellAbundanceTab = args.cellabcsv
-# ptMatrix='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/SvdB11d4-MitoTrackerThird-Satellites-Adultcell100ptCounts.qualFilt.csv'
-# cellAbundanceTab='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/SvdB11d4-MitoTrackerThird-Satellites-Adult.cellAbundance.csv'
 cell = ptMatrix.split('/')[-1].split('ptCounts')[0].split('cell')[-1]
 tabAb = pd.read_csv(cellAbundanceTab, index_col=0)
 cellAb = tabAb[cell]
 cellAb = cellAb[[i for i in cellAb.index if 'N' not in i]]
 
-if ptMatrix.endswith('gz'):
-    compr='gzip'
-elif ptMatrix.endswith('csv'):
-    compr='infer'
-
 # Order pt matrix and add missing values
-ptMat = pd.read_csv(ptMatrix, compression=compr, index_col=0)
+ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
 ptMat = fillNsortPTmatrix(ptMat, cellAb)
 
 dgMat = cellDgMat((cellAb, ptMat))
 
-outpath = '/'.join(ptMatrix.split('/')[:-1])
+outpath = '/'.join(fasta.split('/')[:-1]) + '/predictedDg/'
+if not os.path.exists(outpath):
+    os.makedirs(outpath)
+
 sample = cellAbundanceTab.split('/')[-1].split('.cellAbundance')[0]
+
 if outpath:
     dgMat.to_csv(outpath+'/'+ sample + '_cell'+ cell +'_ptDg_qual.csv')
 else:

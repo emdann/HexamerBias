@@ -27,9 +27,9 @@ def num_reads_per_cell(bamfile, to_dir = None):
         sample = bamfile.split('/')[-1].split('.')[0]
         outfile = to_dir + '/' + sample + '.numReads.txt'
         with open(outfile, 'wb') as f:
-            print('cell', 'numReads', sep='\t', file = outfile)
+            print('cell', 'numReads', sep='\t', file = f)
             for cell,num in numReads.items():
-                print(cell, num, sep='\t', file = outfile)
+                print(cell, num, sep='\t', file = f)
     return(numReads)
 
 num_reads_per_cell(bamfile, to_dir = outpath)
