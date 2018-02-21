@@ -28,8 +28,8 @@ def make_templ_primer_dic(bamfile,templFasta):
                 templDic[r.qname].append(r.seq[0:6])
             elif r.flag==0 and any(q<32 for q in r.query_qualities[:6]):
                 templDic.pop(r.qname)
-            elif r.flag==16:
-                templDic.pop(r.qname)
+            # elif r.flag==16:
+            #     templDic.pop(r.qname)
     return(templDic)
 
 def cellSpecificTbl(cellDic, cellsOI):
