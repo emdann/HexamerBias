@@ -6,13 +6,10 @@ import pandas as pd
 import multiprocessing
 import os
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts table \n By Emma Dann")
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts tables (run on 10 cores) \n By Emma Dann")
 argparser.add_argument('bam', type=str, help='Bam input')
 argparser.add_argument('primedreg', type=str, help='Fasta input')
 args = argparser.parse_args()
-
-fasta = args.primedreg
-bamfile = args.bam
 
 def make_templ_primer_dic(bamfile,templFasta):
     '''
@@ -33,23 +30,19 @@ def make_templ_primer_dic(bamfile,templFasta):
             #     templDic.pop(r.qname)
     return(templDic)
 
-def cellSpecificTbl(cellDic, cellsOI):
+def make_cell_pt_table(params):
     '''
-    Makes primer VS template occurrency table for a given subset of cells.
-    Fills missing values and sorts in alphabetical order
-    Input: dict of {cell:{read:[template sequence, primer sequence]}}
-    Output: dict of {cell name:matrix}
+    Makes primer VS template occurrency table, filling missing values and
+    sorting in alphabetical order.
+    Input: dict of {read:[template sequence, primer sequence]}
+    Output: matrix
     '''
-    abundanceFile = fasta.strip('.primedreg.fa')+'.cellAbundance.csv'
-    tabAb = pd.read_csv(abundanceFile, index_col=0)
-    tblCellDic={}
-    for cell in cellsOI:
-        cellAb = tabAb[cell]
-        tblCellDic[cell] = fillNsortPTmatrix(make_occurrencies_tbl(cellDic[cell]), cellAb)
+    ptDic,cellAb = params
+    cellMatrix = fillNsortPTmatrix(make_occurrencies_tbl(ptDic), cellAb)
     # ---> primers on columns, templates on rows <---
-    return(tblCellDic)
+    return(cellMatrix)
 
-def make_cell_tp_dic(templDic):
+def split_pt_dic(templDic):
     '''
     Split dictionary of reads:[template,primer] by cell.
     Output: dictionary of pt tables, one for each cell with more than 10k aligned reads
@@ -60,17 +53,25 @@ def make_cell_tp_dic(templDic):
         if cell not in cellDic.keys():
             cellDic[cell]={}
         cellDic[cell][name]=seqs
-    highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values()) > 10000]
-    tblCellDic = cellSpecificTbl(cellDic, highcovCells)
-    return(tblCellDic)
+    return(cellDic)
+
+def save_ptCounts(cellDic,cellsOI,fasta, cores=10):
+    abundanceFile = fasta.strip('.primedreg.fa')+'.cellAbundance.csv'
+    tabAb = pd.read_csv(abundanceFile, index_col=0)
+    outpath = '/'.join(fasta.split('/')[:-1]) + '/ptCounts/'
+    if not os.path.exists(outpath):
+        os.makedirs(outpath)
+    sample = bamfile.split('/')[-1].split('.')[0]
+    workers = multiprocessing.Pool(cores)
+    for cellMatrix in workers.imap_unordered(make_cell_pt_table, [ (cellDic[cell], tabAb[cell]) for cell in cellsOI]):
+        tblCellDic[cell]
+        cellMatrix.to_csv(outpath + sample + '.cell' + cell + '.ptCounts.qualFilt.csv')
+    return('')
+
+fasta = args.primedreg
+bamfile = args.bam
 
 templDic = make_templ_primer_dic(bamfile,fasta)
-tblCellDic = make_cell_tp_dic(templDic)
-
-outpath = '/'.join(fasta.split('/')[:-1]) + '/ptCounts/'
-if not os.path.exists(outpath):
-    os.makedirs(outpath)
-sample = bamfile.split('/')[-1].split('.')[0]
-
-for cell in tblCellDic:
-    countsMatrix.to_csv(outpath + sample + '.cell' + cell + '.ptCounts.qualFilt.csv')
+cellDic = split_pt_dic(templDic)
+highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values()) > 10000]
+save_ptCounts(cellDic, highcovCells, fasta)

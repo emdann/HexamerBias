@@ -71,6 +71,6 @@ else:
     outpath = '/'.join(fasta.split('/')[:-1]) + '/'
 
 ab = pd.DataFrame.from_dict(cellDic)
-noN = ab.T[[i for i in ab.index if 'N' not in i]].T
+noN = ab.T[[i for i in ab.index if 'N' not in i and 'Y' not in i]].T
 print(noN)
-outputTab = noN.to_csv(outpath + sample +'.cellAbundance.noN.csv')
+outputTab = noN.to_csv(outpath + '/' + sample +'.cellAbundance.noN.csv')
