@@ -4,6 +4,7 @@ import collections
 import argparse
 import pandas as pd
 import multiprocessing
+import os
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts table \n By Emma Dann")
 argparser.add_argument('bam', type=str, help='Bam input')
