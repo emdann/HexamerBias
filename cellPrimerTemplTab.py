@@ -64,7 +64,6 @@ def save_ptCounts(cellDic,cellsOI,fasta, cores=10):
     sample = bamfile.split('/')[-1].split('.')[0]
     workers = multiprocessing.Pool(cores)
     for cellMatrix in workers.imap_unordered(make_cell_pt_table, [ (cellDic[cell], tabAb[cell]) for cell in cellsOI]):
-        tblCellDic[cell]
         cellMatrix.to_csv(outpath + sample + '.cell' + cell + '.ptCounts.qualFilt.parallel.csv')
     return('')
 
