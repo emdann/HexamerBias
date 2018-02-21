@@ -12,6 +12,7 @@ argparser.add_argument('cellab', type=str, help='name of output file')
 argparser.add_argument('output', type=str, help='suffix for output files')
 args = argparser.parse_args()
 
+
 def filterCells(predictedDgFile, noReads):
     '''
     Finds average of predicted Dg and standard deviation using a selection of cells
@@ -57,5 +58,5 @@ noReads = args.no.reads
 # Make predicted Dg tab
 pairsDg = filterCells(predictedDgFile, noReads)
 dgMat,errMat = makePredictedDgMatrix(pairsDg, cellAb)
-dgMat.to_csv(args.output+'dgMat.csv')
-errMat.to_csv(args.output+'errMat.csv')
+dgMat.to_csv(args.output+'.dgMat.csv')
+errMat.to_csv(args.output+'.errMat.csv')

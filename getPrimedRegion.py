@@ -1,5 +1,7 @@
 import pysam as ps
 import argparse
+import os
+import pybedtools as pbt
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Extract position of primer placement from trimmed section of aligned reads. By Emma Dann")
 argparser.add_argument('bam', type=str, help='Input bam file')
@@ -42,11 +44,16 @@ def save_bedfile(bedlist, bamfile, outpath):
 			print('\t'.join([str(i) for i in line]), file=out)
 	return(outpath + outfile)
 
-def get_template_fasta(bedfile, fi):
+def get_template_fasta(bamfile, fi, outpath, type):
 	'''
 	Makes fasta file of template sequences from bed file.
 	Saves output fasta file.
 	'''
+	sample = bamfile.split('/')[-1].split('.')[0]
+	bedfile = outpath + sample + '.primedreg.bed'
+	if not os.path.exists(bedfile):
+		bed = get_template_bed(bamfile, type=type)
+		bedfile = save_bedfile(bed, bamfile, outpath)
 	bed = pbt.BedTool(bedfile)
 	faout = bed.sequence(fi)
 	faout.save_seqs(bedfile.strip('.bed') + '.fa')
@@ -57,6 +64,4 @@ type = args.type
 fi = args.refgen
 outpath = args.o
 
-bed = get_template_bed(bamfile, type=type)
-bedfile = save_bedfile(bed, bamfile, outpath)
-get_template_fasta(bedfile, fi)
+get_template_fasta(bamfile, fi, outpath, type)
