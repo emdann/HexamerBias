@@ -37,10 +37,10 @@ def make_cell_pt_table(params):
     Input: dict of {read:[template sequence, primer sequence]}
     Output: matrix
     '''
-    ptDic,cellAb = params
+    ptDic,cellAb,cellname = params
     cellMatrix = fillNsortPTmatrix(make_occurrencies_tbl(ptDic), cellAb)
     # ---> primers on columns, templates on rows <---
-    return(cellMatrix)
+    return({cellname:cellMatrix})
 
 def split_pt_dic(templDic):
     '''
@@ -63,8 +63,9 @@ def save_ptCounts(cellDic,cellsOI,fasta, cores=10):
     #     os.makedirs(outpath)
     sample = bamfile.split('/')[-1].split('.')[0]
     workers = multiprocessing.Pool(cores)
-    for cellMatrix in workers.imap_unordered(make_cell_pt_table, [ (cellDic[cell], tabAb[cell]) for cell in cellsOI]):
-        cellMatrix.to_csv(outpath + sample + '.cell' + cell + '.ptCounts.qualFilt.parallel.csv')
+    for cellMatrix in workers.imap_unordered(make_cell_pt_table, [ (cellDic[cell], tabAb[cell], cell) for cell in cellsOI]):
+        for cell,matrix in cellMatrix.items():
+            matrix.to_csv(outpath + sample + '.cell' + cell + '.ptCounts.qualFilt.parallel.csv')
     return('')
 
 fasta = args.primedreg
