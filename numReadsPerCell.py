@@ -1,6 +1,7 @@
 import pandas as pd
 import pysam as ps
 import collections
+import argparse
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts table \n By Emma Dann")
 argparser.add_argument('bam', type=str, help='Bam input')
