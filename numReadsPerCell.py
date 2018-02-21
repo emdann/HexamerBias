@@ -25,7 +25,7 @@ def num_reads_per_cell(bamfile, to_dir = None):
     numReads = collections.Counter(cells)
     if to_dir:
         sample = bamfile.split('/')[-1].split('.')[0]
-        outfile = to_dir + '/' + sample + 'numReads.txt'
+        outfile = to_dir + '/' + sample + '.numReads.txt'
         with open(outfile, 'w') as f:
             print('cell', 'numReads', sep='\t', file = outfile)
             for cell,num in numReads.items():
