@@ -73,4 +73,4 @@ else:
 ab = pd.DataFrame.from_dict(cellDic)
 noN = ab.T[[i for i in ab.index if 'N' not in i]].T
 print(noN)
-outputTab = noN.to_csv(outpath + sample +'.cellAbundance.csv')
+outputTab = noN.to_csv(outpath + sample +'.cellAbundance.noN.csv')
