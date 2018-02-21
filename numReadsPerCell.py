@@ -5,13 +5,13 @@ import argparse
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts table \n By Emma Dann")
 argparser.add_argument('bam', type=str, help='Bam input')
-argparser.add_argument('-o', type=str, required=False, help='Output file')
+argparser.add_argument('-o', type=str, required=False, help='Output directory')
 args = argparser.parse_args()
 
 bamfile = args.bam
-outfile = args.o
+outpath = args.o
 
-def num_reads_per_cell(bamfile, to_file = None):
+def num_reads_per_cell(bamfile, to_dir = None):
     '''
     Makes dictionary of number of aligned reads with high quality hexamer
     sequencing for each cell
@@ -24,11 +24,12 @@ def num_reads_per_cell(bamfile, to_file = None):
     cells = [r.split(':')[-1] for r in reads]
     numReads = collections.Counter(cells)
     if to_file:
-        print('bubi')
-        with open(to_file, 'w') as f:
-            print('cell', 'numReads', sep='\t', file=to_file)
+        sample = bamfile.split('/')[-1].split('.')[0]
+        outfile = to_dir + '/' + sample + 'numReads.txt'
+        with open(outfile, 'w') as f:
+            print('cell', 'numReads', sep='\t', file = outfile)
             for cell,num in numReads.items():
-                print(cell, num, sep='\t', file=to_file)
+                print(cell, num, sep='\t', file = outfile)
     return(numReads)
 
-num_reads_per_cell(bamfile,to_file = outfile)
+num_reads_per_cell(bamfile, to_dir = outpath)
