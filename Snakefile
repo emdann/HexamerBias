@@ -21,7 +21,7 @@ rule kmer_count:
         coutt='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.coutt.csv',
         refgen=REFGEN
     output:
-        cellAbundance= '{dir}/{sample}.cellAbundance.noN.csv
+        cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
     params:
         out={dir}
     threads: 8
