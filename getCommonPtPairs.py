@@ -16,7 +16,7 @@ def makeNonInfDic(file):
         Input: name of .csv file of predicted deltaG matrix
         Output: dictionary of {pt pair : {cellname : predicted deltaG}}
     '''
-    cell = file.split('_')[1][4:]
+    cell = file.split('_cell')[1].split('_')[0]
     if file.endswith('gz'):
         compr='gzip'
     elif file.endswith('csv'):
@@ -37,7 +37,7 @@ ncells = args.n
 workers = multiprocessing.Pool(10)
 
 finalCellDic = {}
-for dic in workers.imap_unordered(makeNonInfDic, [ file for file in os.listdir(path)]):
+for dic in workers.imap_unordered(makeNonInfDic, [ path + '/' + file for file in os.listdir(path)]):
     for pt,celdic in dic.items():
         if pt not in finalCellDic.keys():
             finalCellDic[pt]={}
