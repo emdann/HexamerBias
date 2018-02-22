@@ -44,18 +44,14 @@ sample = cellAbundanceTab.split('/')[-1].split('.cellAbundance')[0]
 cell = ptMatrix.split('/')[-1].split('ptCounts')[0].split('cell')[-1]
 tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbundanceTab))
 cellAb = tabAb[cell]
-# cellAb = cellAb[[i for i in cellAb.index if 'N' not in i]]
-
-# Order pt matrix and add missing values <----- SHOULD BE OK NOW
 ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
-# ptMat = fillNsortPTmatrix(ptMat, cellAb) <--- NOT NEEDED??
 
 dgMat = make_DgMat_per_cell((cellAb, ptMat))
 
-outpath = '/'.join(ptMatrix.split('/')[:-1]) + '/predictedDg/'
-if not os.path.exists(outpath):
-    os.makedirs(outpath)
+path = '/'.join(cellAbundanceTab.split('/')[:-1])
+if path:
+    outpath = path + '/predictedDg/'
+else:
+    outpath = './predictedDg/'
 
-
-
-dgMat.to_csv(outpath+ sample + '_cell'+ cell +'_ptDg_qual.csv')
+dgMat.to_csv(outpath + sample + '_cell'+ cell +'_ptDg_qual.csv')
