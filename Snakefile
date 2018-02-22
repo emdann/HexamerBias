@@ -8,7 +8,7 @@ rule get_primed_region:
     input:
         bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz'
     output:
-        primedfa=expand(DIR+'{{sample}}.primedreg.fa', dir=DIR)
+        primedfa= ''{dir}/{sample}.primedreg.fa'
     params:
         refgen=REFGEN,
         t=TYPE,
