@@ -11,7 +11,7 @@ rule compose_merge:
         txt='{{sample}}.primedreg.fa'
     params:
         refgen=REF_GEN
-        type=TYPE
+        t=TYPE
         out=DIR
     run:
-        getPrimedRegion.py -o {params.out} {input.bam} {input.refgen} {params.type}
+        getPrimedRegion.py -o {params.out} {input.bam} {params.refgen} {params.t}
