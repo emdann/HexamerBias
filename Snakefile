@@ -6,7 +6,7 @@ REFGEN='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean
 
 rule get_primed_region:
     input:
-        bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.bam'
+        bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz'
     output:
         txt='{sample}.primedreg.fa'
     params:
