@@ -14,4 +14,4 @@ rule get_primed_region:
         t=TYPE,
         out=DIR
     script:
-        getPrimedRegion.py -o {params.out} {input.bam} {params.refgen} {params.t}
+        "getPrimedRegion.py -o {params.out} {input.bam} {params.refgen} {params.t}"
