@@ -41,7 +41,7 @@ rule pt_counts:
         bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz',
         primedfa= '{dir}/{sample}.primedreg.fa'
     output:
-        ptCounts=expand('{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS)
+        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS)
     threads: 10
     script:
         "cellPrimerTemplTab.py -o {input.bam} {input.primedfa}"
