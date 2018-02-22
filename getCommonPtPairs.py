@@ -21,7 +21,7 @@ def makeNonInfDic(file):
         compr='gzip'
     elif file.endswith('csv'):
         compr='infer'
-    tab = pd.read_csv(path+file, index_col=0, compression=compr)
+    tab = pd.read_csv(file, index_col=0, compression=compr)
     cellDic={}
     for templ in tab.iterrows():
         t,p = templ
