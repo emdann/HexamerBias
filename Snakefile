@@ -1,0 +1,16 @@
+
+SAMPLE = 'SvdB11d1-MitoTrackerThird-Satellites-Adult'
+TYPE = 'rna'
+DIR = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing/'
+
+rule compose_merge:
+    input:
+        bam=expand('{{sample}}.bam')
+        refgen='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa'
+    output:
+        txt='{{sample}}.primedreg.fa'
+    params:
+        type=TYPE
+        out=DIR
+    run:
+        getPrimedRegion.py -o {params.out} {input.bam} {input.refgen} {params.type}
