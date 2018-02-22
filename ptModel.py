@@ -41,7 +41,7 @@ ptMatrix = args.ptmatrix
 cellAbundanceTab = args.cellabcsv
 
 sample = cellAbundanceTab.split('/')[-1].split('.cellAbundance')[0]
-cell = ptMatrix.split('/')[-1].split('ptCounts')[0].split('cell')[-1]
+cell = ptMatrix.split('/')[-1].split('.ptCounts')[0].split('cell')[-1]
 tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbundanceTab))
 cellAb = tabAb[cell]
 ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
