@@ -15,3 +15,15 @@ rule get_primed_region:
         out=DIR
     script:
         "getPrimedRegion.py -o {params.out} {input.bam} {params.refgen} {params.t}"
+
+rule kmer_count:
+    input:
+        coutt='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.coutt.csv',
+        refgen=REFGEN
+    output:
+        cellAbundance= '{dir}/{sample}.cellAbundance.noN.csv
+    params:
+        out={dir}
+    threads: 8
+    script:
+        "kmerCounter.py -o {params.out} {input.coutt} {input.refgen}"
