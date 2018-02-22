@@ -13,5 +13,5 @@ rule get_primed_region:
         refgen=REF_GEN,
         t=TYPE,
         out=DIR
-    run:
+    script:
         getPrimedRegion.py -o {params.out} {input.bam} {params.refgen} {params.t}
