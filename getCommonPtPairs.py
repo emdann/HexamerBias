@@ -5,12 +5,10 @@ import numpy as np
 import multiprocessing
 import argparse
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get matrix of predicted dg for primer-template complex in single cells \n By Emma Dann")
-argparser.add_argument('sample', type=str, help='Pattern for ptDg files to merge')
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get df of pt-pairs and predicted DeltaG values (run on 10 cores) \n By Emma Dann")
+argparser.add_argument('path', type=str, help='Path for folder with ptDg files to merge')
+argparser.add_argument('-n', type=int, default=10, required=False, help='Minimum number of cells to retain pair.')
 args = argparser.parse_args()
-
-pattern = args.sample
-path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/'
 
 def makeNonInfDic(file):
     '''
@@ -33,10 +31,13 @@ def makeNonInfDic(file):
                 cellDic[t+'-'+p.index[i]][cell] = p[i]
     return(cellDic)
 
-workers = multiprocessing.Pool(8)
-finalCellDic = {}
+path = args.path
+ncells = args.n
 
-for dic in workers.imap_unordered(makeNonInfDic, [ file for file in os.listdir(path) if fnmatch.fnmatch(file, pattern+'*ptDg_qual*')]):
+workers = multiprocessing.Pool(10)
+
+finalCellDic = {}
+for dic in workers.imap_unordered(makeNonInfDic, [ file for file in os.listdir(path)]):
     for pt,celdic in dic.items():
         if pt not in finalCellDic.keys():
             finalCellDic[pt]={}
@@ -44,8 +45,9 @@ for dic in workers.imap_unordered(makeNonInfDic, [ file for file in os.listdir(p
 
 filtDic={}
 for k,v in finalCellDic.items():
-    if len(v)>=10:
+    if len(v) >= ncells:
         filtDic[k] = v
 
-output = path + pattern + 'commonPtPairs_qual_allCells_parallel.csv'
+sample = os.listdir('ptCounts')[0].split('.')[0]
+output = path + '/' + sample + '.commonPtPairs_qual_allCells_parallel.csv'
 pd.DataFrame.from_dict(filtDic).T.to_csv(output)
