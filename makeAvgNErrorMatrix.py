@@ -8,10 +8,7 @@ from hexVSprimed import *
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Find average predicted Delta G from common pt pairs\n By Emma Dann")
 argparser.add_argument('commonPtPairs', type=str, help='File of predicted Dg for common PtPairs')
 argparser.add_argument('numReads', type=str, help='File of predicted Dg for common PtPairs')
-argparser.add_argument('cellab', type=str, help='cell abundance file')
-# argparser.add_argument('output', type=str, help='suffix for output files')
 args = argparser.parse_args()
-
 
 def filterCells(predictedDgFile, numReads):
     '''
@@ -53,7 +50,6 @@ predictedDgFile = args.commonPtPairs
 numReads = args.numReads
 cellAbFile = numReads.split('.numReads.txt')[0] + '.cellAbundance.csv'
 cellAb = pd.read_csv(cellAbFile, index_col=0, compression = findCompr(cellAbFile))
-# cellAb = cellAb.loc[[i for i in cellAb.index if 'N' not in i]] <-- SHOULD NOT BE NECESSARY
 
 # Make predicted Dg tab
 pairsDg = filterCells(predictedDgFile, numReads)
