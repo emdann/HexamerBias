@@ -3,7 +3,7 @@ SAMPLE = 'SvdB11d1-MitoTrackerThird-Satellites-Adult'
 TYPE = 'rna'
 DIR = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing/'
 REFGEN='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa'
-
+CELLS=['cell100', 'cell2']
 # rule all:
 #     input:
 #         # html=expand("fastqc/{sample}_{read}_fastqc.html",sample=SAMPLE, read=READS),
@@ -41,7 +41,7 @@ rule pt_counts:
         bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz',
         primedfa= '{dir}/{sample}.primedreg.fa'
     output:
-        ptCounts='{dir}/ptCounts/{sample}.ptCounts.qualFilt.parallel.csv'
+        ptCounts=expand('{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS)
     threads: 10
     script:
         "cellPrimerTemplTab.py -o {input.bam} {input.primedfa}"
