@@ -58,7 +58,11 @@ def split_pt_dic(templDic):
 def save_ptCounts(cellDic,cellsOI,fasta, cores=10):
     abundanceFile = fasta.strip('.primedreg.fa')+'.cellAbundance.csv'
     tabAb = pd.read_csv(abundanceFile, index_col=0)
-    outpath = '/'.join(fasta.split('/')[:-1]) + '/ptCounts/'
+    path = '/'.join(fasta.split('/')[:-1])
+    if path:
+        outpath = path + '/ptCounts/'
+    else:
+        outpath = './ptCounts/'
     # if not os.path.exists(outpath):
     #     os.makedirs(outpath)
     sample = bamfile.split('/')[-1].split('.')[0]
