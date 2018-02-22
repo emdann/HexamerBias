@@ -6,9 +6,9 @@ REFGEN='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean
 
 rule get_primed_region:
     input:
-        bam=expand('{{sample}}.bam')
+        bam=expand('{sample}.bam')
     output:
-        txt='{{sample}}.primedreg.fa'
+        txt='{sample}.primedreg.fa'
     params:
         refgen=REFGEN,
         t=TYPE,
