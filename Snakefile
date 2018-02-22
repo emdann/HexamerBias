@@ -2,14 +2,15 @@
 SAMPLE = 'SvdB11d1-MitoTrackerThird-Satellites-Adult'
 TYPE = 'rna'
 DIR = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing/'
+REFGEN='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa'
 
 rule compose_merge:
     input:
         bam=expand('{{sample}}.bam')
-        refgen='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa'
     output:
         txt='{{sample}}.primedreg.fa'
     params:
+        refgen=REF_GEN
         type=TYPE
         out=DIR
     run:
