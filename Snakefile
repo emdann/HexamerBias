@@ -10,7 +10,8 @@ rule get_primed_region:
     output:
         txt='{{sample}}.primedreg.fa'
     params:
-        refgen=REF_GEN
+        refgen=REF_GEN,
+        t=TYPE,
         out=DIR
     run:
-        getPrimedRegion.py -o {params.out} {input.bam} {params.refgen} rna
+        getPrimedRegion.py -o {params.out} {input.bam} {params.refgen} {params.t}
