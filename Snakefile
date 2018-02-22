@@ -10,7 +10,7 @@ rule get_primed_region:
     output:
         txt='{{sample}}.primedreg.fa'
     params:
-        refgen=REF_GEN,
+        refgen=REFGEN,
         t=TYPE,
         out=DIR
     script:
