@@ -48,6 +48,6 @@ for k,v in finalCellDic.items():
     if len(v) >= ncells:
         filtDic[k] = v
 
-sample = os.listdir('ptCounts')[0].split('.')[0]
-output = path + '/' + sample + '.commonPtPairs_qual_allCells_parallel.csv'
+sample = os.listdir(path)[0].split('_')[0]
+output = path.strip('predictedDg') + sample + '.commonPtPairs.csv'
 pd.DataFrame.from_dict(filtDic).T.to_csv(output)
