@@ -1,7 +1,7 @@
 
-SAMPLE = 'SvdB11d1-MitoTrackerThird-Satellites-Adult'
+SAMPLE = 'SvdB11d2-MitoTrackerThird-Satellites-Adult'
 TYPE = 'rna'
-DIR = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing/'
+DIR = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2'
 REFGEN = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa'
 CELLS = ['cell' + str(n) for n in range(1,385)]
 
