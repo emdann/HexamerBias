@@ -62,7 +62,7 @@ rule predict_dg:
         ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv',
         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
     output:
-        predictedDg='{{dir}}/predictedDg/{{sample}}_{cell}_ptDg_qual.csv'
+        predictedDg='{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv'
     threads: 10
     script:
         "ptModel.py {input.ptCounts} {input.cellAbundance}"
