@@ -7,7 +7,7 @@ CELLS = ['cell' + str(n) for n in range(1,385)]
 
 rule all:
     input:
-        ptCounts=expand('{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS, sample=SAMPLE, dir=DIR),
+        predictedDg=expand('{{dir}}/predictedDg/{{sample}}_{cell}_ptDg_qual.csv', cell=CELLS),
         numReads=expand('{dir}/{sample}.numReads.txt', sample=SAMPLE, dir=DIR)
         # split_bam=expand("bam/{sample}_{read}_bismark_bt2.bam", sample=SAMPLE, read=READS)
         # bam1=expand("bam/{sample}_1_bismark_bt2.bam", sample=SAMPLE)
@@ -56,3 +56,13 @@ rule pt_counts:
     threads: 10
     script:
         "cellPrimerTemplTab.py -o {input.bam} {input.primedfa}"
+
+rule predict_dg:
+    input:
+        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS),
+        cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
+    output:
+        predictedDg=expand('{{dir}}/predictedDg/{{sample}}_{cell}_ptDg_qual.csv', cell=CELLS)
+    threads: 10
+    script:
+        "ptModel.py {input.ptCounts} {input.cellAbundance}"
