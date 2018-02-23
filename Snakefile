@@ -1,7 +1,7 @@
 
 SAMPLE = 'SvdB11d2-MitoTrackerThird-Satellites-Adult'
 TYPE = 'rna'
-DIR = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2'
+DIR = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/test_snakemake'
 REFGEN = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa'
 CELLS = ['cell' + str(n) for n in range(1,385)]
 
@@ -22,6 +22,7 @@ rule get_primed_region:
         refgen=REFGEN,
         t=TYPE,
         out=DIR
+    threads: 1
     script:
         "getPrimedRegion.py -o {params.out} {input.bam} {params.refgen} {params.t}"
 
@@ -44,6 +45,7 @@ rule num_reads:
         numReads='{dir}/{sample}.numReads.txt'
     params:
         out={dir}
+    threads: 1
     script:
         "numReadsPerCell.py -o {params.out} {input.bam}"
 
@@ -63,6 +65,6 @@ rule predict_dg:
         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
     output:
         predictedDg='{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv'
-    threads: 10
+    threads: 1
     script:
         "ptModel.py {input.ptCounts} {input.cellAbundance}"
