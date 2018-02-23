@@ -8,7 +8,7 @@ CELLS = ['cell' + str(n) for n in range(1,385)]
 rule all:
     input:
         ptCounts=expand('{{dir}}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS, sample=SAMPLE)
-        numReads=expand('{{dir}}/{sample}.numReads.txt', sample=SAMPLE)
+        # numReads=expand('{{dir}}/{sample}.numReads.txt', sample=SAMPLE)
         # split_bam=expand("bam/{sample}_{read}_bismark_bt2.bam", sample=SAMPLE, read=READS)
         # bam1=expand("bam/{sample}_1_bismark_bt2.bam", sample=SAMPLE)
 
