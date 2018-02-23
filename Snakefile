@@ -7,7 +7,7 @@ CELLS = ['cell' + str(n) for n in range(1,385)]
 
 rule all:
     input:
-        predictedDg=expand('{{dir}}/predictedDg/{{sample}}_{cell}_ptDg_qual.csv', cell=CELLS),
+        predictedDg=expand('{dir}/predictedDg/{{sample}}_{cell}_ptDg_qual.csv', cell=CELLS, dir=DIR),
         numReads=expand('{dir}/{sample}.numReads.txt', sample=SAMPLE, dir=DIR)
         # split_bam=expand("bam/{sample}_{read}_bismark_bt2.bam", sample=SAMPLE, read=READS)
         # bam1=expand("bam/{sample}_1_bismark_bt2.bam", sample=SAMPLE)
