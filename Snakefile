@@ -59,7 +59,7 @@ rule pt_counts:
 
 rule predict_dg:
     input:
-        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS),
+        ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv',
         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
     output:
         predictedDg='{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv'
