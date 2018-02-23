@@ -2,14 +2,15 @@
 SAMPLE = 'SvdB11d1-MitoTrackerThird-Satellites-Adult'
 TYPE = 'rna'
 DIR = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing/'
-REFGEN='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa'
-CELLS=['cell100', 'cell2']
-# rule all:
-#     input:
-#         # html=expand("fastqc/{sample}_{read}_fastqc.html",sample=SAMPLE, read=READS),
-#         met_extraction=expand("met_extraction/{sample}_{read}_bismark_bt2.deduplicated.CpG_report.txt.gz", sample=SAMPLE, read=READS)
-#         # split_bam=expand("bam/{sample}_{read}_bismark_bt2.bam", sample=SAMPLE, read=READS)
-#         # bam1=expand("bam/{sample}_1_bismark_bt2.bam", sample=SAMPLE)
+REFGEN = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa'
+CELLS = ['cell' + str(n) for n in range(1,385)]
+
+rule all:
+    input:
+        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS)
+        numReads='{dir}/{sample}.numReads.txt',
+        # split_bam=expand("bam/{sample}_{read}_bismark_bt2.bam", sample=SAMPLE, read=READS)
+        # bam1=expand("bam/{sample}_1_bismark_bt2.bam", sample=SAMPLE)
 
 
 rule get_primed_region:
@@ -40,7 +41,7 @@ rule num_reads:
     input:
         bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz'
     output:
-        cellAbundance='{dir}/{sample}.numReads.txt'
+        numReads='{dir}/{sample}.numReads.txt'
     params:
         out={dir}
     script:
