@@ -52,17 +52,17 @@ rule pt_counts:
         bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz',
         primedfa= '{dir}/{sample}.primedreg.fa'
     output:
-        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS)
+        ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv'
     threads: 10
     script:
         "cellPrimerTemplTab.py -o {input.bam} {input.primedfa}"
 
 rule predict_dg:
     input:
-        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS),
+        ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv',
         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
     output:
-        predictedDg=expand('{{dir}}/predictedDg/{{sample}}_{cell}_ptDg_qual.csv', cell=CELLS)
+        predictedDg='{{dir}}/predictedDg/{{sample}}_{cell}_ptDg_qual.csv'
     threads: 10
     script:
         "ptModel.py {input.ptCounts} {input.cellAbundance}"
