@@ -36,6 +36,16 @@ rule kmer_count:
     script:
         "kmerCounter.py -o {params.out} {input.coutt} {input.refgen}"
 
+rule num_reads:
+    input:
+        bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz'
+    output:
+        cellAbundance='{dir}/{sample}.numReads.txt'
+    params:
+        out={dir}
+    script:
+        "numReadsPerCell.py -o {params.out} {input.bam}"
+
 rule pt_counts:
     input:
         bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz',
