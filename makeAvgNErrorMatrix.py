@@ -10,20 +10,20 @@ argparser.add_argument('commonPtPairs', type=str, help='File of predicted Dg for
 argparser.add_argument('numReads', type=str, help='File of predicted Dg for common PtPairs')
 args = argparser.parse_args()
 
-def filterCells(predictedDgFile, numReads):
+def filter_cells(predictedDgFile, numReads, read_thresh=40000):
     '''
     Finds average of predicted Dg and standard deviation using a selection of cells
     '''
-    nReads = pd.read_csv(numReads, sep=' ', names=['numReads', 'cell'])
+    nReads = pd.read_csv(numReads, sep='\t', dtype=int)
     commonPairs = pd.read_csv(predictedDgFile, sep=',', index_col=0)
-    goodCells = [str(cell.cell) for index,cell in nReads.iterrows() if cell.numReads>=40000]
+    goodCells = [str(cell.cell) for index,cell in nReads.iterrows() if cell.numReads >= read_thresh]
     predictedDgAvg = {}
     for pair,values in commonPairs[goodCells].iterrows():
         mean,sd = np.mean(values),np.std(values)
         predictedDgAvg[pair]={'dg':mean,'sd':sd}
     return(pd.DataFrame(predictedDgAvg).T)
 
-def makePredictedDgMatrix(df, cellAb):
+def make_predictedDg_matrix(df, cellAb):
     '''
     Turns file of pt - predicted Dg to matrix of template on row and primer on column
     Needs cell abundance file to fill in missing pt pairs
@@ -52,8 +52,8 @@ cellAbFile = numReads.split('.numReads.txt')[0] + '.cellAbundance.csv'
 cellAb = pd.read_csv(cellAbFile, index_col=0, compression = findCompr(cellAbFile))
 
 # Make predicted Dg tab
-pairsDg = filterCells(predictedDgFile, numReads)
-dgMat,errMat = makePredictedDgMatrix(pairsDg, cellAb)
+pairsDg = filter_cells(predictedDgFile, numReads)
+dgMat,errMat = make_predictedDg_matrix(pairsDg, cellAb)
 
 outfile = numReads.split('.numReads.txt')[0]
 dgMat.to_csv(outfile + '.dgMat.csv')

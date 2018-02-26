@@ -23,8 +23,8 @@ def get_template_bed(bamfile, type):
 			for r in bam.fetch(until_eof=True):
 				if r.is_read1:
 					bed.append((r.reference_name, r.pos - trim_r1, r.pos - trim_r1 + 6, r.qname, 1))
-				if r.is_read2:
-					bed.append((r.reference_name, r.pos - trim_r2, r.pos - trim_r2 + 6, r.qname, 2))
+				# if r.is_read2:
+				# 	bed.append((r.reference_name, r.pos - trim_r2, r.pos - trim_r2 + 6, r.qname, 2))
 	elif type=='rna':
 		bed=[]
 		with ps.AlignmentFile(bamfile,"rb") as bam:

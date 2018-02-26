@@ -5,8 +5,9 @@ library(RColorBrewer)
 library(nortest)
 library(pheatmap)
 
-loadPtPairs <- function(no){
-  ptPairs <- fread(paste0('mnt/edann/hexamers/rnaseq/mouse/SvdB11d',no,'-MitoTrackerThird-Satellites-AdultcommonPtPairs_qual_allCells_parallel.csv'), header=TRUE, sep=',')
+loadPtPairs <- function(folder){
+  files <- list.files(paste0(folder, "ptCounts"))
+  ptPairs <- fread(paste0('mnt/edann/hexamers/rnaseq/mouse/testing/SvdB11d',no,'-MitoTrackerThird-Satellites-AdultcommonPtPairs_qual_allCells_parallel.csv'), header=TRUE, sep=',')
   colnames(ptPairs) <- c('pt', paste0('cell',colnames(ptPairs[,-1]), '.',no))
   return(ptPairs)
 }

@@ -11,7 +11,7 @@ argparser.add_argument('bam', type=str, help='Bam input')
 argparser.add_argument('primedreg', type=str, help='Fasta input')
 args = argparser.parse_args()
 
-def make_templ_primer_dic(bamfile,templFasta):
+def make_templ_primer_dic(bamfile,templFasta, type='rna'):
     '''
     Makes dictionary of template-primer pairs, removing pairs if the phred score is low
     '''
@@ -21,13 +21,16 @@ def make_templ_primer_dic(bamfile,templFasta):
             seq, name = entry.sequence.upper(), entry.name
             templDic[name]=[seq]
     with ps.AlignmentFile(bamfile,"rb") as bam:
-        for r in bam.fetch(until_eof=True):
-            if r.flag==0 and not any(q<32 for q in r.query_qualities[:6]):
-                templDic[r.qname].append(r.seq[0:6])
-            elif r.flag==0 and any(q<32 for q in r.query_qualities[:6]):
-                templDic.pop(r.qname)
-            # elif r.flag==16:
-            #     templDic.pop(r.qname)
+        if type=='rna':
+            for r in bam.fetch(until_eof=True):
+                if r.flag==0 and not any(q<32 for q in r.query_qualities[:6]):
+                    templDic[r.qname].append(r.seq[0:6])
+                elif r.flag==0 and any(q<32 for q in r.query_qualities[:6]):
+                    templDic.pop(r.qname)
+        if type=='bs':
+            for r in bam.fetch(until_eof=True):
+                if r.is_read1:
+                    templDic[r.qname].append(r.seq[0:6])
     return(templDic)
 
 def make_cell_pt_table(params):
