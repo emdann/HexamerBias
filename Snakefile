@@ -20,7 +20,7 @@ rule get_primed_region:
     output:
         primedfa= '{dir}/{sample}.primedreg.fa'
     params:
-        t=TYPE,
+        t=TYPE
     #     out=DIR
     threads: 1
     script:
