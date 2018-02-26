@@ -15,11 +15,11 @@ args = argparser.parse_args()
 
 def extract_deltaG(templateRow,tempAb):
     '''
-    Extract predicted [log(p) + DeltaG] for row of ptCount table (one template)
+    Extract predicted p* exp(DeltaG) for row of ptCount table (one template)
     ...
     '''
-    dg = np.log(templateRow/(tempAb - templateRow.values.sum()))
-    dg[dg == - np.inf] = -99999
+    dg = templateRow/(tempAb - templateRow.values.sum())
+    # dg[dg == - np.inf] = -99999
     return(dg)
 
 def make_DgMat_per_cell(params):
@@ -38,6 +38,7 @@ def make_DgMat_per_cell(params):
     return(dgMat)
 
 ptMatrix = args.ptmatrix
+# ptMatrix='ptCounts/SvdB11d1-MitoTrackerThird-Satellites-Adult.cell130.ptCounts.qualFilt.parallel.csv'
 cellAbundanceTab = args.cellabcsv
 
 sample = cellAbundanceTab.split('/')[-1].split('.cellAbundance')[0]
