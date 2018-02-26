@@ -19,8 +19,8 @@ rule get_primed_region:
         refgen=REFGEN
     output:
         primedfa= '{dir}/{sample}.primedreg.fa'
-    # params:
-    #     t=TYPE,
+    params:
+        t=TYPE,
     #     out=DIR
     threads: 1
     script:
