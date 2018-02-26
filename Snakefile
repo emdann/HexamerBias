@@ -1,8 +1,8 @@
 
-SAMPLE = 'SvdB11d2-MitoTrackerThird-Satellites-Adult'
-TYPE = 'rna'
-DIR = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/test_snakemake'
-REFGEN = '/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa'
+SAMPLE = "SvdB11d2-MitoTrackerThird-Satellites-Adult"
+TYPE = "rna"
+DIR = "/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/test_snakemake"
+REFGEN = "/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa"
 CELLS = ['cell' + str(n) for n in range(1,385)]
 
 rule all:
@@ -15,16 +15,16 @@ rule all:
 
 rule get_primed_region:
     input:
-        bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz'
+        bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz',
+        refgen=REFGEN
     output:
         primedfa= '{dir}/{sample}.primedreg.fa'
     params:
-        refgen=REFGEN,
         t=TYPE,
         out=DIR
     threads: 1
     script:
-        "getPrimedRegion.py -o {params.out} {input.bam} {params.refgen} {params.t}"
+        "getPrimedRegion.py -o {params.out} {input.bam} {input.refgen} {params.t}"
 
 rule kmer_count:
     input:
