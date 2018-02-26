@@ -33,7 +33,7 @@ rule kmer_count:
     output:
         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
     params:
-        out={dir}
+        out=DIR
     threads: 8
     script:
         "kmerCounter.py -o {params.out} {input.coutt} {input.refgen}"
@@ -44,7 +44,7 @@ rule num_reads:
     output:
         numReads='{dir}/{sample}.numReads.txt'
     params:
-        out={dir}
+        out=DIR
     threads: 1
     script:
         "numReadsPerCell.py -o {params.out} {input.bam}"
