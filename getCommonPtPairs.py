@@ -12,7 +12,7 @@ args = argparser.parse_args()
 
 def makeNonInfDic(file):
     '''
-    Makes a dictionary of pt pairs that have values != -99999 in cell pt dg matrix
+    Makes a dictionary of pt pairs that have values != 0 in cell pt dg matrix
         Input: name of .csv file of predicted deltaG matrix
         Output: dictionary of {pt pair : {cellname : predicted deltaG}}
     '''
@@ -26,7 +26,7 @@ def makeNonInfDic(file):
     for templ in tab.iterrows():
         t,p = templ
         for i in range(len(p)):
-            if p[i] != -99999:
+            if p[i] != 0:
                 cellDic[t+'-'+p.index[i]]={}
                 cellDic[t+'-'+p.index[i]][cell] = p[i]
     return(cellDic)
