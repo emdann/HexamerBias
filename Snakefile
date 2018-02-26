@@ -23,7 +23,7 @@ rule get_primed_region:
         t=TYPE
     #     out=DIR
     threads: 1
-    script:
+    shell:
         "getPrimedRegion.py -o {wildcards.dir} {input.bam} {input.refgen} {params.t}"
 
 rule kmer_count:
