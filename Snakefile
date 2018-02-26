@@ -19,12 +19,12 @@ rule get_primed_region:
         refgen=REFGEN
     output:
         primedfa= '{dir}/{sample}.primedreg.fa'
-    params:
-        t=TYPE,
-        out=DIR
+    # params:
+    #     t=TYPE,
+    #     out=DIR
     threads: 1
     script:
-        "getPrimedRegion.py -o {params.out} {input.bam} {input.refgen} {params.t}"
+        "getPrimedRegion.py -o {wildcards.dir} {input.bam} {input.refgen} {params.t}"
 
 rule kmer_count:
     input:
@@ -32,22 +32,22 @@ rule kmer_count:
         refgen=REFGEN
     output:
         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
-    params:
-        out=DIR
+    # params:
+    #     out=DIR
     threads: 8
     script:
-        "kmerCounter.py -o {params.out} {input.coutt} {input.refgen}"
+        "kmerCounter.py -o {wildcards.dir} {input.coutt} {input.refgen}"
 
 rule num_reads:
     input:
         bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz'
     output:
         numReads='{dir}/{sample}.numReads.txt'
-    params:
-        out=DIR
+    # params:
+    #     out=DIR
     threads: 1
     script:
-        "numReadsPerCell.py -o {params.out} {input.bam}"
+        "numReadsPerCell.py -o {wildcards.dir} {input.bam}"
 
 rule pt_counts:
     input:
