@@ -112,9 +112,9 @@ boxplotPtDg <- function(ptOI, ptTab=ptOrdGcTempl, GCord=TRUE){
 } 
 
 rowHist <- function(row, ptOrdGcTempl){
-  y=as.numeric(ptOrdGcTempl[row,-ncol(ptOrdGcTempl)])
+  y=as.numeric(ptOrdGcTempl[row,])
   par(mfrow=c(1,2), mar=c(5, 4, 4, 2) - 0.1)
-  hist(y, xlab='predictedDg', breaks=15, main = ptOrdGcTempl[row,1], xlim=c(-1,-12))
+  hist(y, xlab='predictedDg', breaks=15, main = ptOrdGcTempl[row,1])
   abline(v = mean(y, na.rm = T), col='red', xpd=F)
   legend('top', 'mean', lty=1, col = 'red', bty='n', xpd=T, inset = c(0,-0.05))
   qqnorm(y)

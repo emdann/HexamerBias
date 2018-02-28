@@ -179,6 +179,7 @@ def fillNsortPTmatrix(ptMat, cellAb):
         newCol = pd.DataFrame(np.nan, index=[primer], columns=ptMat.index).T
         ptMat = pd.concat([ptMat, newCol], axis=1)
     ptMat=ptMat.sort_index(axis=1).sort_index()
+    ptMat=ptMat.fillna(0)
     return(ptMat)
 
 def findCompr(filename):

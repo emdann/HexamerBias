@@ -5,7 +5,7 @@ import collections
 import multiprocessing
 import pandas as pd
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Count kmers in fasta file. By Buys de Barbanson")
-argparser.add_argument('coutt', type=str, help='UMI counts')
+argparser.add_argument('coutc', type=str, help='UMI counts')
 argparser.add_argument('refgen', type=str, help='Fasta file of reference genome')
 argparser.add_argument('-k', type=int, default=6, required=False, help='Kmer size')
 argparser.add_argument('-t', type=int, default=8, required=False, help='Amount of threads to use.')
@@ -45,11 +45,11 @@ def cellKmersAbundance(params):
             umiCountDic+=geneNewDict
     return({cellname:umiCountDic})
 
-coutt = args.coutt
+coutc = args.coutc
 fasta = args.refgen
 
 ## Read files
-countT = pd.read_csv(coutt, sep='\t', index_col=0)
+countT = pd.read_csv(coutc, sep='\t', index_col=0)
 countDic = count_kmers_refgen(fasta)
 
 ## Run on multiple cores
@@ -64,7 +64,7 @@ for cellCounter in workers.imap_unordered(cellKmersAbundance, [ (countDic, count
     else:
         print('Something wrong...')
 
-sample = coutt.split('/')[-1].split('.coutt')[0]
+sample = coutc.split('/')[-1].split('.coutc')[0]
 if args.o:
     outpath = args.o
 else:
