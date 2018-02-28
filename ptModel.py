@@ -28,14 +28,14 @@ def make_DgMat_per_cell(params):
     Make matrix of predicted dg for p-t couples
     Input: tab of template abundance for cell OI, matrix of pt occurrencies
     '''
-cellAb,ptMat = params
-dgMat=pd.DataFrame()
-for temp in cellAb.index:
-    temprow = ptMat[ptMat.index==temp]
-    temprow = temprow.fillna(0)
-    tempAb=cellAb[temp]
-    dg = extract_deltaG(temprow,tempAb)
-    dgMat = dgMat.append(dg)
+    cellAb,ptMat = params
+    dgMat=pd.DataFrame()
+    for temp in cellAb.index:
+        temprow = ptMat[ptMat.index==temp]
+        temprow = temprow.fillna(0)
+        tempAb=cellAb[temp]
+        dg = extract_deltaG(temprow,tempAb)
+        dgMat = dgMat.append(dg)
     return(dgMat)
 
 
@@ -69,8 +69,4 @@ if type=='bs':
     ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
     dgMat = make_DgMat_per_cell((genomeAb, ptMat))
     path = '/'.join(ptMatrix.split('/')[:-1])
-    if path:
-        outpath = path + '/predictedDg/'
-    else:
-        outpath = './predictedDg/'
-    dgMat.to_csv(outpath + sample +'_ptDg_qual.csv')
+    dgMat.to_csv(path + sample +'_ptDg_qual.csv')
