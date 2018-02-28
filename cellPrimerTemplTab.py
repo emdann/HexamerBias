@@ -92,10 +92,6 @@ if type=='bs':
     tabAb = pd.read_csv(abundanceFile, index_col=0, header=None)
     df = make_occurrencies_tbl(templDic)
     path = '/'.join(fasta.split('/')[:-1])
-    if path:
-        outpath = path + '/ptCounts/'
-    else:
-        outpath = './ptCounts/'
     sample = bamfile.split('/')[-1].split('.')[0]
     df = fillNsortPTmatrix(df, tabAb)
-    df.to_csv(outpath + sample + '.ptCounts.qualFilt.parallel.csv')
+    df.to_csv(path + sample + '.ptCounts.qualFilt.parallel.csv')

@@ -56,7 +56,7 @@ def get_template_fasta(bamfile, fi, outpath, type):
 		bedfile = save_bedfile(bed, bamfile, outpath)
 	bed = pbt.BedTool(bedfile)
 	faout = bed.sequence(fi, name=True)
-	faout.save_seqs(bedfile.strip('.bed') + '.fa')
+	faout.save_seqs(bedfile.split('.bed')[0] + '.fa')
 	return(faout)
 
 bamfile = args.bam
