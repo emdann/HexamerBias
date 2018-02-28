@@ -78,7 +78,7 @@ def save_ptCounts(cellDic,cellsOI,fasta, cores=10):
 
 fasta = args.primedreg
 bamfile = args.bam
-type = args.type
+type = args.t
 
 templDic = make_templ_primer_dic(bamfile,fasta, type=type)
 if type=='rna':
