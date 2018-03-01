@@ -80,7 +80,7 @@ if type=='rna':
         print('template','obs', 'exp', 'err', sep='\t') #, file=output)
         for templ in dgMat.iterrows():
             t,DgRow = templ
-            print(t, ptMat.loc[ptMat.index==t].fillna(0).values.sum(), predictCov(cellAb[t],DgRow)) #, propagateError(cellAb[t], errDgMat[t]), sep='\t')#, file=output)
+            print(t, ptMat.loc[ptMat.index==t].fillna(0).values.sum(), predictCov(cellAb[t],DgRow), propagateError(cellAb[t], DgRow, errDgMat.loc[temp]), sep='\t', file=output)
 
 if type=='bs':
     cellAbundanceTab = '/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv'
