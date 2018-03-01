@@ -91,7 +91,7 @@ if type=='bs':
     dgMat = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predictedDg))
     path = '/'.join(ptMatrix.split('/')[:-1])
     with open(path+'predictedCov/'+sample+'.CovPred.qual.txt', 'w') as output:
-        print('template','obs', 'exp', 'err' sep='\t') #, file=output)
+        print('template','obs', 'exp', 'err', sep='\t') #, file=output)
         for templ in dgMat.iterrows():
             t,DgRow = templ
             print(t, ptMat.loc[ptMat.index==t].fillna(0).values.sum(), predictCov(cellAb[t],DgRow)) #, propagateError(cellAb[t], errDgMat[t]), sep='\t')#, file=output)
