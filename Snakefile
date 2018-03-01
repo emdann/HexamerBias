@@ -6,6 +6,7 @@ REFGEN = "/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_cle
 CELLS = ['cell' + str(n) for n in range(1,385)]
 # SCRIPT = "getPrimedRegion.py"
 
+
 rule all:
     input:
         predictedDg=expand('{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv', cell=CELLS, dir=DIR, sample=SAMPLE),
@@ -28,7 +29,7 @@ rule get_primed_region:
 
 rule kmer_count:
     input:
-        coutt='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.coutt.csv',
+        coutc='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.coutc.csv',
         refgen=REFGEN
     output:
         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
@@ -36,7 +37,7 @@ rule kmer_count:
     #     out=DIR
     threads: 8
     script:
-        "kmerCounter.py -o {wildcards.dir} {input.coutt} {input.refgen}"
+        "kmerCounter.py -o {wildcards.dir} {input.coutc} {input.refgen}"
 
 rule num_reads:
     input:
