@@ -19,15 +19,18 @@ def predictCov(t,DgRow):
     '''
     Computes the predicted coverage for random hexamer experiment.
     '''
-    sumRow = sum(np.exp(DgRow).fillna(0))
-    cov = t*sumRow
+    sumChi = sum(np.exp(DgRow))
+    cov = t * (sumChi/(1 + sumChi)) # <--- check
     return(cov)
 
-def propagateError(t,ErrRow):
+def propagateError(t,DgRow,errRow):
     '''
     Propagation of error from standard deviation of avg deltaG
     '''
-    error = np.sqrt(sum(np.square(np.exp(ErrRow)).fillna(0)))
+    sumChi = sum(np.exp(DgRow))
+    errChi = errRow.multiply(np.exp(DgRow))
+    beta = (1 - 2 * sumChi)/np.square(1 - sumChi)
+    error = np.sqrt(sum(beta*errChi)*t)
     return(error)
 
 def setThresh4Dg(dgMat,ptMat,thresh=1):
@@ -35,7 +38,7 @@ def setThresh4Dg(dgMat,ptMat,thresh=1):
     Assuming that if a pt interaction is seen only once then it is an error, the predicted Dg value
     for a pt couple with conc = 1 is set to -99999
     '''
-    dgMat[ptMat <= thresh ] = -99999.0
+    dgMat[ptMat <= thresh ] = -0
     return(dgMat)
 
 def findCompr(filename):
@@ -45,47 +48,50 @@ def findCompr(filename):
         compr='infer'
     return(compr)
 
-path='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/'
-
-predictedDg = args.predDg
 ptMatrix = args.cellPtCount
-errMatrix = predictedDg.split('dgMat.csv')[0]+'errMat.csv'
-sample = predictedDg.split('_')[0]
-cellAbundanceTab = sample + '.cellAbundance.csv'
-thresh=args.t
+predictedDg = args.predDg
+errDg = predictedDg.split('dgMat.csv')[0]+'errMat.csv'
+sample = predictedDg.split('.')[0]
+thresh = args.t
+
+for g in dgMat.iterrows():
+    temp,DgRow=g
+    t=cellAb['99'][temp]
+    print(temp,predictCov(t,DgRow), propagateError(t,DgRow,errMat.loc[temp]), sep='\t')
 
 
-cell = ptMatrix.split('pt')[0].split('cell')[-1]
+if type=='rna':
+    cellAbundanceTab = sample + '.cellAbundance.noN.csv'
+    cell = ptMatrix.split('.ptCounts')[0].split('cell')[-1]
 
-tabAb = pd.read_csv(path+cellAbundanceTab, index_col=0, compression = findCompr(cellAbundanceTab))
-cellAb = tabAb[cell]
-cellAb = cellAb[[i for i in cellAb.index if 'N' not in i]]
+    tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression = findCompr(cellAbundanceTab))
+    cellAb = tabAb[cell]
 
-ptMat = pd.read_csv(path+ptMatrix, compression = findCompr(ptMatrix), index_col=0)
-ptMat = ptMat[[i for i in ptMat.columns if 'N' not in i]]
-ptMat = fillNsortPTmatrix(ptMat, cellAb)
+    ptMat = pd.read_csv(ptMatrix, compression = findCompr(ptMatrix), index_col=0)
 
-errMat = pd.read_csv(path+errMatrix, compression = findCompr(errMatrix), index_col=0)
-errMat = errMat[[i for i in errMat.columns if 'N' not in i]]
-errMat = fillNsortPTmatrix(errMat, cellAb)
+    errDgMat = pd.read_csv(errDg, compression = findCompr(errDg), index_col=0)
+    dgMat = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predictedDg))
+    if thresh:
+        dgMat = setThresh4Dg(dgMat,ptMat,thresh=thresh)
 
+    path = '/'.join(cellAbundanceTab.split('/')[:-1])
+    list=[]
+    with open(path+'predictedCov/'+sample+'.CovPred.'+str(cell)+'.thresh'+str(thresh)+'.qual.txt', 'w') as output:
+        print('template','obs', 'exp', 'err' sep='\t') #, file=output)
+        for templ in dgMat.iterrows():
+            t,DgRow = templ
+            print(t, ptMat.loc[ptMat.index==t].fillna(0).values.sum(), predictCov(cellAb[t],DgRow)) #, propagateError(cellAb[t], errDgMat[t]), sep='\t')#, file=output)
 
-tab = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predictedDg))
-if thresh:
-    tab=setThresh4Dg(tab,ptMat,thresh=thresh)
-
-list=[]
-with open(path+'predictedCov/'+sample+'.CovPred.'+str(cell)+'.thresh'+str(thresh)+'.qual.txt', 'w') as output:
-    print('template','obs', 'exp', 'err' sep='\t') #, file=output)
-for templ in tab.iterrows():
-    t,DgRow = templ
-    # list.append((sum(ptMat[t]), predictCov(cellAb[t],DgRow)))
-    print(t, sum(ptMat[t].fillna(0)), predictCov(cellAb[t],DgRow), propagateError(cellAb[t], errMat[t]), sep='\t')#, file=output)
-# obs = [x for x,y in list]
-# exp = [y for x,y in list]
-#
-# plt.figure(1)
-# plt.plot(obs,exp, 'b.')
-# plt.xlabel('observed coverage')
-# plt.ylabel('predicted coverage')
-# plt.savefig('/hpc/hub_oudenaarden/edann/output/test_obsVSexp_cov_cell194.pdf')
+if type=='bs':
+    cellAbundanceTab = '/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv'
+    tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbundanceTab), header=None)
+    genomeAb = tabAb[1]
+    ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
+    errDgMat = pd.read_csv(errDg, compression = findCompr(errDg), index_col=0)
+    dgMat = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predictedDg))
+    path = '/'.join(ptMatrix.split('/')[:-1])
+    with open(path+'predictedCov/'+sample+'.CovPred.qual.txt', 'w') as output:
+        print('template','obs', 'exp', 'err' sep='\t') #, file=output)
+        for templ in dgMat.iterrows():
+            t,DgRow = templ
+            print(t, ptMat.loc[ptMat.index==t].fillna(0).values.sum(), predictCov(cellAb[t],DgRow)) #, propagateError(cellAb[t], errDgMat[t]), sep='\t')#, file=output)

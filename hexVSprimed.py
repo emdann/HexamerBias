@@ -165,7 +165,7 @@ def computeEntropy(pwm):
         H+=h
     return(H)
 
-def fillNsortPTmatrix(ptMat, cellAb):
+def fillNsortPTmatrix(ptMat, cellAb, fillna=0):
     '''
     Fills matrix of template rows and primer columns with missing values, removes Ns and sorts
     Input: matrix and abundance table (to have all possible hexamers)
@@ -179,7 +179,7 @@ def fillNsortPTmatrix(ptMat, cellAb):
         newCol = pd.DataFrame(np.nan, index=[primer], columns=ptMat.index).T
         ptMat = pd.concat([ptMat, newCol], axis=1)
     ptMat=ptMat.sort_index(axis=1).sort_index()
-    ptMat=ptMat.fillna(0)
+    ptMat=ptMat.fillna(fillna)
     return(ptMat)
 
 def findCompr(filename):
