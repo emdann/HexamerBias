@@ -1,22 +1,20 @@
 from getPrimedRegion import *
 from kmerCounter import *
+from cellPrimerTemplTab import *
 import multiprocessing
-
-
 
 SAMPLE = "SvdB11d2-MitoTrackerThird-Satellites-Adult"
 TYPE = "rna"
 DIR = "/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/test_snakemake"
 REFGEN = "/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa"
 CELLS = ['cell' + str(n) for n in range(1,385)]
-# SCRIPT = "getPrimedRegion.py"
 
 
 rule all:
     input:
-        primedfa = expand('{dir}/{sample}.primedreg.fa', dir=DIR, sample=SAMPLE),
-        cellAbundance = expand('{dir}/{sample}.cellAbundance.noN.csv', dir=DIR, sample=SAMPLE)
-        # predictedDg=expand('{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv', cell=CELLS, dir=DIR, sample=SAMPLE),
+        # primedfa = expand('{dir}/{sample}.primedreg.fa', dir=DIR, sample=SAMPLE),
+        # cellAbundance = expand('{dir}/{sample}.cellAbundance.noN.csv', dir=DIR, sample=SAMPLE)
+        predictedDg=expand('{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv', cell=CELLS, dir=DIR, sample=SAMPLE),
         # numReads=expand('{dir}/{sample}.numReads.txt', sample=SAMPLE, dir=DIR)
         # # split_bam=expand("bam/{sample}_{read}_bismark_bt2.bam", sample=SAMPLE, read=READS)
         # bam1=expand("bam/{sample}_1_bismark_bt2.bam", sample=SAMPLE)
@@ -80,22 +78,59 @@ rule kmer_count:
 #     script:
 #         "numReadsPerCell.py -o {wildcards.dir} {input.bam}"
 #
-# rule pt_counts:
-#     input:
-#         bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz',
-#         primedfa= '{dir}/{sample}.primedreg.fa'
-#     output:
-#         ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS)
-#     threads: 10
-#     script:
-#         "cellPrimerTemplTab.py -o {input.bam} {input.primedfa}"
-#
-# rule predict_dg:
-#     input:
-#         ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv',
-#         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
-#     output:
-#         predictedDg='{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv'
-#     threads: 1
-#     script:
-#         "ptModel.py {input.ptCounts} {input.cellAbundance}"
+rule pt_counts:
+    input:
+        bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz',
+        primedfa= '{dir}/{sample}.primedreg.fa'
+    output:
+        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS)
+    params:
+        type=TYPE
+    threads: 10
+    run:
+        templDic = make_templ_primer_dic({input.bam},{input.primedfa}, type={params.type})
+        if type=='rna':
+            cellDic = split_pt_dic(templDic)
+            highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values()) > 10000]
+            save_ptCounts(cellDic, highcovCells, {input.primedfa})
+
+        # if type=='bs':
+        #     abundanceFile='mm10.cellAbundance.noN.csv'
+        #     tabAb = pd.read_csv(abundanceFile, index_col=0, header=None)
+        #     df = make_occurrencies_tbl(templDic)
+        #     path = '/'.join(fasta.split('/')[:-1])
+        #     sample = bamfile.split('/')[-1].split('.')[0]
+        #     df = fillNsortPTmatrix(df, tabAb)
+        #     df.to_csv(path + sample + '.ptCounts.qualFilt.parallel.csv')
+
+
+rule predict_dg:
+    input:
+        ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv',
+        cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
+    output:
+        predictedDg='{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv'
+    threads: 1
+    run:
+        if type=='rna':
+            sample = {input.cellAbundance}.split('/')[-1].split('.cellAbundance')[0]
+            cell = {input.ptCounts}.split('/')[-1].split('.ptCounts')[0].split('cell')[-1]
+            tabAb = pd.read_csv({input.cellAbundance}, index_col=0, compression=findCompr({input.cellAbundance}))
+            cellAb = tabAb[cell]
+            ptMat = pd.read_csv({input.ptCounts}, compression=findCompr(ptMatrix), index_col=0)
+            dgMat = make_DgMat_per_cell((cellAb, ptMat))
+            path = '/'.join({input.cellAbundance}.split('/')[:-1])
+            if path:
+                outpath = path + '/predictedDg/'
+            else:
+                outpath = './predictedDg/'
+            dgMat.to_csv(outpath + sample + '_cell'+ cell +'_ptDg_qual.csv')
+        #
+        # if type=='bs':
+        #     sample = ptMatrix.split('/')[-1].split('.ptCounts')[0]
+        #     tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbundanceTab), header=None)
+        #     genomeAb = tabAb[1]
+        #     ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
+        #     dgMat = make_DgMat_per_cell((genomeAb, ptMat))
+        #     path = '/'.join(ptMatrix.split('/')[:-1])
+        #     dgMat.to_csv(path + sample +'_ptDg_qual.csv')
