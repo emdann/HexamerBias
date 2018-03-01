@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get hexamers used in fasta file.\n By Emma Dann")
 argparser.add_argument('predDg', type=str, help='Matrix of predicted Dg')
 argparser.add_argument('cellPtCount', type=str, help='Matrix of pt occurrencies in a cell')
-argparser.add_argument('-t', type=int, default=0, required=False, help='Threshold of pt events to predict Dg on')
+argparser.add_argument('-t', type='str', default=0, help='Threshold of pt events to predict Dg on')
 args = argparser.parse_args()
 
 def predictCov(t,DgRow):
