@@ -3,13 +3,6 @@ import argparse
 import os
 import pybedtools as pbt
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Extract position of primer placement from trimmed section of aligned reads. By Emma Dann")
-argparser.add_argument('bam', type=str, help='Input bam file')
-argparser.add_argument('refgen', type=str, help='Fasta of reference genome (needs to be unzipped)')
-argparser.add_argument('type', type=str, help='Original data of bam (bs or rna)')
-argparser.add_argument('-o', type=str, help='path to directory to save output')
-args = argparser.parse_args()
-
 def get_template_bed(bamfile, type):
 	'''
 	Extract positions of template regions for primers of aligned reads in bam.
@@ -58,10 +51,3 @@ def get_template_fasta(bamfile, fi, outpath, type):
 	faout = bed.sequence(fi, name=True)
 	faout.save_seqs(bedfile.split('.bed')[0] + '.fa')
 	return(faout)
-
-bamfile = args.bam
-type = args.type
-fi = args.refgen
-outpath = args.o
-
-get_template_fasta(bamfile, fi, outpath, type)
