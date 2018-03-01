@@ -4,10 +4,11 @@ library(data.table)
 library(ggplot2)
 library(RColorBrewer)
 library(nortest)
+library(ggrepel)
 library(pheatmap)
 
-pred <- read.delim('mnt/edann/hexamers/rnaseq/mouse/predictedCov/SvdB11d1-MitoTrackerThird-Satellites-Adult.CovPred.10.thresh1.qual.txt')
-pred %>% ggplot(., aes(obs, obs-exp, label=template)) + geom_point() + geom_text(cex=2) +
+pred <- read.delim('mnt/edann/hexamers/rnaseq/mouse/testing/predictedCov/SvdB11d1-MitoTrackerThird-Satellites-Adult.CovPred.260.qual.txt')
+pred %>% ggplot(., aes(obs, exp, label=template)) + geom_point() + geom_text(cex=2) +
   xlab('observed coverage') + ylab('predicted coverage') 
   ggsave('AvOwork/output/deltaGprediction/predictedCov_avg_cell30_notbadcor.pdf')
 

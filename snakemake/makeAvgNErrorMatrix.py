@@ -16,7 +16,6 @@ def filter_cells(predictedDgFile, numReads, read_thresh=40000):
     '''
     nReads = pd.read_csv(numReads, sep='\t', dtype=int)
     commonPairs = pd.read_csv(predictedDgFile, sep=',', index_col=0)
-    commonPairs = np.log(commonPairs)
     goodCells = [str(cell.cell) for index,cell in nReads.iterrows() if cell.numReads >= read_thresh]
     predictedDgAvg = {}
     for pair,values in commonPairs[goodCells].iterrows():
@@ -42,14 +41,14 @@ def make_predictedDg_matrix(df, cellAb):
             sdDic[t]={}
         sdDic[t][p] = sd
     ptMat = pd.DataFrame(tabDic)
-    ptMat = fillNsortPTmatrix(ptMat, cellAb, fillna=-99999)
+    ptMat = fillNsortPTmatrix(ptMat, cellAb)
     sdMat = pd.DataFrame(sdDic)
-    sdMat = fillNsortPTmatrix(sdMat, cellAb, fillna=0)
+    sdMat = fillNsortPTmatrix(sdMat, cellAb)
     return((ptMat,sdMat))
 
 predictedDgFile = args.commonPtPairs
 numReads = args.numReads
-cellAbFile = numReads.split('.numReads.txt')[0] + '.cellAbundance.noN.csv'
+cellAbFile = numReads.split('.numReads.txt')[0] + '.cellAbundance.csv'
 cellAb = pd.read_csv(cellAbFile, index_col=0, compression = findCompr(cellAbFile))
 
 # Make predicted Dg tab
