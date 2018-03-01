@@ -72,8 +72,8 @@ if type=='rna':
 
     errDgMat = pd.read_csv(errDg, compression = findCompr(errDg), index_col=0)
     dgMat = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predictedDg))
-    if thresh:
-        dgMat = setThresh4Dg(dgMat,ptMat,thresh=thresh)
+    # if thresh:
+    #     dgMat = setThresh4Dg(dgMat,ptMat,thresh=thresh)
 
 
     list=[]
