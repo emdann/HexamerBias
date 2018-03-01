@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get hexamers used in fasta file.\n By Emma Dann")
 argparser.add_argument('predDg', type=str, help='Matrix of predicted Dg')
 argparser.add_argument('cellPtCount', type=str, help='Matrix of pt occurrencies in a cell')
-argparser.add_argument('-t', type=str, default=0, help='Threshold of pt events to predict Dg on')
+argparser.add_argument('-t', type=str, default=0, help='type (rna or bs)')
 args = argparser.parse_args()
 
 def predictCov(t,DgRow):
@@ -52,17 +52,16 @@ ptMatrix = args.cellPtCount
 predictedDg = args.predDg
 errDg = predictedDg.split('dgMat.csv')[0]+'errMat.csv'
 sample = predictedDg.split('.')[0]
-thresh = args.t
+type = args.t
 
 # for g in dgMat.iterrows():
 #     temp,DgRow=g
 #     t=cellAb['99'][temp]
 #     print(temp,predictCov(t,DgRow), propagateError(t,DgRow,errMat.loc[temp]), sep='\t')
 
-print('Starting!')
+
 
 if type=='rna':
-    print('yaas')
     cellAbundanceTab = sample + '.cellAbundance.noN.csv'
     cell = ptMatrix.split('.ptCounts')[0].split('cell')[-1]
 
@@ -82,7 +81,7 @@ if type=='rna':
         print('template','obs', 'exp', 'err', sep='\t') #, file=output)
         for templ in dgMat.iterrows():
             t,DgRow = templ
-            print(t, ptMat.loc[ptMat.index==t].fillna(0).values.sum(), predictCov(cellAb[t],DgRow), propagateError(cellAb[t], DgRow, errDgMat.loc[temp]), sep='\t', file=output)
+            print(t, ptMat.loc[ptMat.index==t].fillna(0).values.sum(), predictCov(cellAb[t],DgRow), propagateError(cellAb[t], DgRow, errDgMat.loc[temp]), sep='\t') #, file=output)
 
 if type=='bs':
     cellAbundanceTab = '/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv'
