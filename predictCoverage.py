@@ -64,7 +64,7 @@ type = args.t
 if type=='rna':
     cellAbundanceTab = sample + '.cellAbundance.noN.csv'
     cell = ptMatrix.split('.ptCounts')[0].split('cell')[-1]
-
+    path = '/'.join(cellAbundanceTab.split('/')[:-1])
     tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression = findCompr(cellAbundanceTab))
     cellAb = tabAb[cell]
 
@@ -75,7 +75,7 @@ if type=='rna':
     if thresh:
         dgMat = setThresh4Dg(dgMat,ptMat,thresh=thresh)
 
-    path = '/'.join(cellAbundanceTab.split('/')[:-1])
+
     list=[]
     with open(path+'predictedCov/'+sample+'.CovPred.'+str(cell)+'.thresh'+str(thresh)+'.qual.txt', 'w') as output:
         print('template','obs', 'exp', 'err', sep='\t') #, file=output)
