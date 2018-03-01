@@ -59,8 +59,10 @@ thresh = args.t
 #     t=cellAb['99'][temp]
 #     print(temp,predictCov(t,DgRow), propagateError(t,DgRow,errMat.loc[temp]), sep='\t')
 
+print('Starting!')
 
 if type=='rna':
+    print('yaas')
     cellAbundanceTab = sample + '.cellAbundance.noN.csv'
     cell = ptMatrix.split('.ptCounts')[0].split('cell')[-1]
 
