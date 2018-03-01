@@ -6,12 +6,6 @@ import pandas as pd
 import multiprocessing
 import os
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts tables (run on 10 cores) \n By Emma Dann")
-argparser.add_argument('bam', type=str, help='Bam input')
-argparser.add_argument('primedreg', type=str, help='Fasta input')
-argparser.add_argument('-t', type=str, default='rna', required=False, help='Type of bamfile')
-args = argparser.parse_args()
-
 def make_templ_primer_dic(bamfile,templFasta, type='rna'):
     '''
     Makes dictionary of template-primer pairs, removing pairs if the phred score is low
@@ -75,23 +69,3 @@ def save_ptCounts(cellDic,cellsOI,fasta, cores=10):
         for cell,matrix in cellMatrix.items():
             matrix.to_csv(outpath + sample + '.cell' + cell + '.ptCounts.qualFilt.parallel.csv')
     return('')
-
-fasta = args.primedreg
-bamfile = args.bam
-type = args.t
-
-templDic = make_templ_primer_dic(bamfile,fasta, type=type)
-if type=='rna':
-    cellDic = split_pt_dic(templDic)
-    highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values()) > 10000]
-    save_ptCounts(cellDic, highcovCells, fasta)
-
-if type=='bs':
-    # abundanceFile = fasta.strip('.primedreg.fa')+'.cellAbundance.noN.csv'
-    abundanceFile='mm10.cellAbundance.noN.csv'
-    tabAb = pd.read_csv(abundanceFile, index_col=0, header=None)
-    df = make_occurrencies_tbl(templDic)
-    path = '/'.join(fasta.split('/')[:-1])
-    sample = bamfile.split('/')[-1].split('.')[0]
-    df = fillNsortPTmatrix(df, tabAb)
-    df.to_csv(path + sample + '.ptCounts.qualFilt.parallel.csv')
