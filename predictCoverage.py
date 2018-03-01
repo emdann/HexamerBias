@@ -54,10 +54,10 @@ errDg = predictedDg.split('dgMat.csv')[0]+'errMat.csv'
 sample = predictedDg.split('.')[0]
 thresh = args.t
 
-for g in dgMat.iterrows():
-    temp,DgRow=g
-    t=cellAb['99'][temp]
-    print(temp,predictCov(t,DgRow), propagateError(t,DgRow,errMat.loc[temp]), sep='\t')
+# for g in dgMat.iterrows():
+#     temp,DgRow=g
+#     t=cellAb['99'][temp]
+#     print(temp,predictCov(t,DgRow), propagateError(t,DgRow,errMat.loc[temp]), sep='\t')
 
 
 if type=='rna':
@@ -77,7 +77,7 @@ if type=='rna':
     path = '/'.join(cellAbundanceTab.split('/')[:-1])
     list=[]
     with open(path+'predictedCov/'+sample+'.CovPred.'+str(cell)+'.thresh'+str(thresh)+'.qual.txt', 'w') as output:
-        print('template','obs', 'exp', 'err' sep='\t') #, file=output)
+        print('template','obs', 'exp', 'err', sep='\t') #, file=output)
         for templ in dgMat.iterrows():
             t,DgRow = templ
             print(t, ptMat.loc[ptMat.index==t].fillna(0).values.sum(), predictCov(cellAb[t],DgRow)) #, propagateError(cellAb[t], errDgMat[t]), sep='\t')#, file=output)
