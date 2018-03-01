@@ -77,7 +77,7 @@ if type=='rna':
 
 
     list=[]
-    with open(path+'predictedCov/'+sample+'.CovPred.'+str(cell)+'.thresh'+str(thresh)+'.qual.txt', 'w') as output:
+    with open(path+'predictedCov/'+sample+'.CovPred.'+str(cell)+'.qual.txt', 'w') as output:
         print('template','obs', 'exp', 'err', sep='\t') #, file=output)
         for templ in dgMat.iterrows():
             t,DgRow = templ
