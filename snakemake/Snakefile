@@ -111,9 +111,11 @@ rule predict_dg:
         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
     output:
         predictedDg='{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv'
+    params:
+        type=TYPE
     threads: 1
     run:
-        if type=='rna':
+        if params.type=='rna':
             sample = input.cellAbundance.split('/')[-1].split('.cellAbundance')[0]
             cell = input.ptCounts.split('/')[-1].split('.ptCounts')[0].split('cell')[-1]
             tabAb = pd.read_csv(input.cellAbundance, index_col=0, compression=findCompr(input.cellAbundance))
