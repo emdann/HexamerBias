@@ -90,7 +90,7 @@ rule pt_counts:
     threads: 10
     run:
         templDic = make_templ_primer_dic(input.bam,input.primedfa, type=params.type)
-        if type=='rna':
+        if params.type=='rna':
             cellDic = split_pt_dic(templDic)
             highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values()) > 10000]
             save_ptCounts(cellDic, highcovCells, input.primedfa)
