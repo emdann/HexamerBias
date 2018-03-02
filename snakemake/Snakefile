@@ -5,7 +5,7 @@ import multiprocessing
 
 SAMPLE = "SvdB11d2-MitoTrackerThird-Satellites-Adult"
 TYPE = "rna"
-DIR = "/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/test_snakemake"
+DIR = "/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/SvB11d2/"
 REFGEN = "/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa"
 CELLS = ['cell' + str(n) for n in range(1,385)]
 
@@ -28,9 +28,10 @@ rule get_primed_region:
         primedfa= '{dir}/{sample}.primedreg.fa'
     params:
         t=TYPE
+        dir=DIR
     threads: 1
     run:
-        get_template_fasta(input.bam, input.refgen, wildcard.dir, params.t)
+        get_template_fasta(input.bam, input.refgen, params.dir , params.t)
 
 rule kmer_count:
     input:
@@ -43,7 +44,7 @@ rule kmer_count:
     threads: 8
     run:
         countT = pd.read_csv(input.coutc, sep='\t', index_col=0)
-        countDic = count_kmers_refgen(input.fasta)
+        countDic = count_kmers_refgen(input.refgen)
 
         workers = multiprocessing.Pool(threads)
         finalKmerCounts = collections.Counter()
