@@ -93,7 +93,7 @@ rule pt_counts:
         if type=='rna':
             cellDic = split_pt_dic(templDic)
             highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values()) > 10000]
-            save_ptCounts(cellDic, highcovCells, {input.primedfa})
+            save_ptCounts(cellDic, highcovCells, input.primedfa)
 
         # if type=='bs':
         #     abundanceFile='mm10.cellAbundance.noN.csv'
