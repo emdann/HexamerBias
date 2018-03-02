@@ -54,7 +54,7 @@ def split_pt_dic(templDic):
     return(cellDic)
 
 def save_ptCounts(cellDic,cellsOI,fasta, cores=10):
-    abundanceFile = fasta.strip('.primedreg.fa')+'.cellAbundance.csv'
+    abundanceFile = fasta.strip('.primedreg.fa')+'.cellAbundance.noN.csv'
     tabAb = pd.read_csv(abundanceFile, index_col=0)
     path = '/'.join(fasta.split('/')[:-1])
     if path:
