@@ -30,7 +30,7 @@ rule get_primed_region:
         t=TYPE
     threads: 1
     run:
-        get_template_fasta({input.bam}, {input.refgen}, {wildcard.dir}, {params.t})
+        get_template_fasta(input.bam, input.refgen, wildcard.dir, params.t)
 
 rule kmer_count:
     input:
@@ -42,10 +42,10 @@ rule kmer_count:
     #     out=DIR
     threads: 8
     run:
-        countT = pd.read_csv({input.coutc}, sep='\t', index_col=0)
-        countDic = count_kmers_refgen({input.fasta})
+        countT = pd.read_csv(input.coutc, sep='\t', index_col=0)
+        countDic = count_kmers_refgen(input.fasta)
 
-        workers = multiprocessing.Pool({threads})
+        workers = multiprocessing.Pool(threads)
         finalKmerCounts = collections.Counter()
 
         cellDic={}
@@ -56,11 +56,11 @@ rule kmer_count:
             else:
                 print('Something wrong...')
 
-        sample = {input.coutc}.split('/')[-1].split('.coutc')[0]
+        sample = input.coutc.split('/')[-1].split('.coutc')[0]
         if args.o:
             outpath = args.o
         else:
-            outpath = '/'.join({input.refgen}.split('/')[:-1]) + '/'
+            outpath = '/'.join(input.refgen.split('/')[:-1]) + '/'
 
         ab = pd.DataFrame.from_dict(cellDic)
         noN = ab.T[[i for i in ab.index if 'N' not in i and 'Y' not in i]].T
@@ -88,7 +88,7 @@ rule pt_counts:
         type=TYPE
     threads: 10
     run:
-        templDic = make_templ_primer_dic({input.bam},{input.primedfa}, type={params.type})
+        templDic = make_templ_primer_dic(input.bam,input.primedfa, type=params.type)
         if type=='rna':
             cellDic = split_pt_dic(templDic)
             highcovCells = [i for i in cellDic.keys() if len(cellDic[i].values()) > 10000]
@@ -113,13 +113,13 @@ rule predict_dg:
     threads: 1
     run:
         if type=='rna':
-            sample = {input.cellAbundance}.split('/')[-1].split('.cellAbundance')[0]
-            cell = {input.ptCounts}.split('/')[-1].split('.ptCounts')[0].split('cell')[-1]
-            tabAb = pd.read_csv({input.cellAbundance}, index_col=0, compression=findCompr({input.cellAbundance}))
+            sample = input.cellAbundance.split('/')[-1].split('.cellAbundance')[0]
+            cell = input.ptCounts.split('/')[-1].split('.ptCounts')[0].split('cell')[-1]
+            tabAb = pd.read_csv(input.cellAbundance, index_col=0, compression=findCompr(input.cellAbundance))
             cellAb = tabAb[cell]
-            ptMat = pd.read_csv({input.ptCounts}, compression=findCompr(ptMatrix), index_col=0)
+            ptMat = pd.read_csv(input.ptCounts, compression=findCompr(ptMatrix), index_col=0)
             dgMat = make_DgMat_per_cell((cellAb, ptMat))
-            path = '/'.join({input.cellAbundance}.split('/')[:-1])
+            path = '/'.join(input.cellAbundance.split('/')[:-1])
             if path:
                 outpath = path + '/predictedDg/'
             else:
