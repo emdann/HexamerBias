@@ -6,11 +6,14 @@ library(RColorBrewer)
 library(nortest)
 library(ggrepel)
 library(pheatmap)
+options(stringsAsFactors = FALSE)
 
-pred <- read.delim('mnt/edann/hexamers/rnaseq/mouse/testing/predictedCov/SvdB11d1-MitoTrackerThird-Satellites-Adult.CovPred.260.qual.txt')
-pred %>% ggplot(., aes(obs, exp, label=template)) + geom_point() + geom_text(cex=2) +
-  xlab('observed coverage') + ylab('predicted coverage') 
-  ggsave('AvOwork/output/deltaGprediction/predictedCov_avg_cell30_notbadcor.pdf')
+pred <- read.delim('mnt/edann/hexamers/VAN1667prediction/L6.CovPred.qual.txt')
+pred %>% mutate(lab=ifelse(obs > 20000, template, '')) %>%
+  ggplot(., aes(obs, obs-exp)) + geom_point() + geom_text(aes(label=lab),cex=2, nudge_y = 70) +
+  xlab('observed coverage') + ylab('predicted coverage') +
+  # geom_errorbar(aes(ymin=obs-exp-err, ymax=obs-exp+err), width=10) +
+  ggsave('AvOwork/output/deltaGprediction/predictedCov_L6_bs_woah.pdf')
 
 cell2cell.files <- list.files('mnt/edann/hexamers/rnaseq/predictedCov/',pattern =  'gk2a-2.CovPred.+qual', full.names = TRUE)
 cell2avg.files <- list.files('mnt/edann/hexamers/rnaseq/zebrafish/predictedCov/',pattern =  'gk2a-2.40k.', full.names = TRUE)

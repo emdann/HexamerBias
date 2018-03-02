@@ -32,7 +32,7 @@ def save_bedfile(bedlist, bamfile, outpath):
 	'''
 	sample = bamfile.split('/')[-1].split('.')[0]
 	outfile = sample + '.primedreg.bed'
-	with open(outpath + outfile, 'w') as out:
+	with open(outpath +'/'+ outfile, 'w') as out:
 		for line in bedlist:
 			print('\t'.join([str(i) for i in line]), file=out)
 	return(outpath + outfile)
