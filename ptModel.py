@@ -8,7 +8,7 @@ import multiprocessing
 import gzip
 import os
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get matrix of predicted dg for primer-template complex in single cells \n By Emma Dann")
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get matrix of predicted dg for primer-template complex \n By Emma Dann")
 argparser.add_argument('ptmatrix', type=str, help='Bam input')
 argparser.add_argument('cellabcsv', type=str, help='Fasta input')
 argparser.add_argument('type', type=str, help='rna or bs')

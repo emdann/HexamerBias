@@ -3,7 +3,7 @@ import pysam as ps
 import collections
 import argparse
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts table \n By Emma Dann")
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Counts number of reads per cell in scRNA-seq alignment file (from barcode) \n By Emma Dann")
 argparser.add_argument('bam', type=str, help='Bam input')
 argparser.add_argument('-o', type=str, required=False, help='Output directory')
 args = argparser.parse_args()

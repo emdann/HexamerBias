@@ -9,7 +9,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get hexamers used in fasta file.\n By Emma Dann")
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Coverage prediction. \n By Emma Dann")
 argparser.add_argument('predDg', type=str, help='Matrix of predicted Dg')
 argparser.add_argument('cellPtCount', type=str, help='Matrix of pt occurrencies in a cell')
 argparser.add_argument('-t', type=str, default=0, help='type (rna or bs)')
@@ -19,7 +19,7 @@ def predictCov(t,DgRow):
     '''
     Computes the predicted coverage for random hexamer experiment.
     '''
-    sumChi = sum(np.exp(DgRow))
+    sumChi = sum(np.exp(DgRow.fillna(-9999999)))
     cov = t * (sumChi/(1 + sumChi)) # <--- check
     return(cov)
 
@@ -41,12 +41,6 @@ def setThresh4Dg(dgMat,ptMat,thresh=1):
     dgMat[ptMat <= thresh ] = -0
     return(dgMat)
 
-def findCompr(filename):
-    if filename.endswith('gz'):
-        compr='gzip'
-    else:
-        compr='infer'
-    return(compr)
 
 ptMatrix = args.cellPtCount
 predictedDg = args.predDg
@@ -84,15 +78,16 @@ if type=='rna':
             print(t, ptMat.loc[ptMat.index==t].fillna(0).values.sum(), predictCov(cellAb[t],DgRow), propagateError(cellAb[t], DgRow, errDgMat.loc[t]), sep='\t', file=output)
 
 if type=='bs':
-    cellAbundanceTab = '/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv'
-    tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbundanceTab), header=None)
-    genomeAb = tabAb[1]
-    ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
-    errDgMat = pd.read_csv(errDg, compression = findCompr(errDg), index_col=0)
-    dgMat = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predictedDg))
-    path = '/'.join(ptMatrix.split('/')[:-1])
-    with open(path+'predictedCov/'+sample+'.CovPred.qual.txt', 'w') as output:
-        print('template','obs', 'exp', 'err', sep='\t') #, file=output)
-        for templ in dgMat.iterrows():
-            t,DgRow = templ
-            print(t, ptMat.loc[ptMat.index==t].fillna(0).values.sum(), predictCov(cellAb[t],DgRow)) #, propagateError(cellAb[t], errDgMat[t]), sep='\t')#, file=output)
+cellAbundanceTab = '/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv'
+tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbundanceTab), header=None)
+genomeAb = tabAb[1]
+ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
+errDgMat = pd.read_csv(errDg, compression = findCompr(errDg), index_col=0)
+path = '/'.join(ptMatrix.split('/')[:-1])
+dgMat = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predictedDg))
+
+with open('VAN1815_L2.CovPred.qual.txt', 'w') as output:
+    print('template','obs', 'exp', 'err', sep='\t', file=output)
+    for templ in dgMat.iterrows():
+        t,DgRow = templ
+        print(t, ptMat.loc[ptMat.index==t].fillna(0).values.sum(), predictCov(genomeAb[t],DgRow), sep='\t', file=output) #, propagateError(cellAb[t], errDgMat[t]), sep='\t')#, file=output)

@@ -5,6 +5,9 @@ import multiprocessing
 import pandas as pd
 
 def find_kmers(params):
+    '''
+    Count kmer abundance in sequence
+    '''
     string, k, addTo = params
     kmerCounts = collections.Counter() if addTo is None else addTo
     n = len(string)

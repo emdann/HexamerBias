@@ -24,6 +24,26 @@ def filter_cells(predictedDgFile, numReads, read_thresh=40000):
         predictedDgAvg[pair]={'dg':mean,'sd':sd}
     return(pd.DataFrame(predictedDgAvg).T)
 
+def select_cell_matrix(folder, numReads, read_thresh=40000):
+    '''
+    Selects dG tables of cells witj=h right number of reads
+    '''
+    nReads = pd.read_csv(numReads, sep='\t', dtype=int)
+    files = [f for f in os.listdir(folder) if 'ptDg' in f]
+    mats = {}
+    for file in files:
+        sample = file.split('_ptDg_')[0]
+        m = pd.read_csv(dir+file, index_col=0)
+        flatM = np.array(m).flatten()
+        logFlatM = np.log(flatM)
+        mats[sample]=logFlatM
+
+    bigArray = np.array(list(mats.values()))
+    avg = np.nanmean(bigArray, axis=0).reshape((4096,4096))
+    pd.DataFrame(avg, columns=tab.columns, index=tab.index).to_csv('predictedDg.csv')
+
+
+
 def make_predictedDg_matrix(df, cellAb):
     '''
     Turns file of pt - predicted Dg to matrix of template on row and primer on column

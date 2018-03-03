@@ -5,11 +5,6 @@ import numpy as np
 import multiprocessing
 import argparse
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get df of pt-pairs and predicted DeltaG values (run on 10 cores) \n By Emma Dann")
-argparser.add_argument('path', type=str, help='Path for folder with ptDg files to merge')
-argparser.add_argument('-n', type=int, default=10, required=False, help='Minimum number of cells to retain pair.')
-args = argparser.parse_args()
-
 def makeNonInfDic(file):
     '''
     Makes a dictionary of pt pairs that have values != 0 in cell pt dg matrix
