@@ -133,15 +133,16 @@ pdf('AvOwork/output/deltaGprediction/complRows_DgDistribution_niceCl.pdf', onefi
 sapply(complRows, rowHist, ptOrdGcTempl=ptOrdGcTempl[,c('pt',niceCl, 'gccontTempl')])
 dev.off()
 
-# # Predicted deltaG
-# avgDeltaG <- function(ptPairs, no.reads){
-#   ptWithDg <- ptPairs %>% 
-#     select(c('pt', no.reads$cell[no.reads$no.reads > 40000])) %>% 
-#     mutate(predictedDg = apply(.[,-1],1, mean, na.rm=TRUE), 
-#            sd = apply(.[,-1],1, sd, na.rm=TRUE))
-#   predictedDg <- ptWithDg[,c('pt', 'predictedDg', 'sd')]
-#   return(predictedDg)
-#   }
+# Predicted deltaG
+avgDeltaG <- function(ptPairs, no.reads){
+  ptWithDg <- ptPairs %>%
+    select(c('TemplatePrimer_pair', no.reads$cell[no.reads$num.reads > 40000])) %>%
+    mutate(predictedDg = apply(.[,-1],1, mean, na.rm=TRUE),
+           sd = apply(.[,-1],1, sd, na.rm=TRUE),
+           n = length(.[-1]))
+  predictedDg <- ptWithDg[,c('TemplatePrimer_pair', 'predictedDg', 'sd', 'n')]
+  return(predictedDg)
+  }
 # 
 # avgDeltaG(ptPairsZF, no.reads.zf)
 # write.csv(file = 'AvOwork/test_predictedDg_over40kreads.csv',x=pred)

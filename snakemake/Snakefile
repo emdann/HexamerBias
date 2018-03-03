@@ -14,7 +14,8 @@ rule all:
     input:
         # primedfa = expand('{dir}/{sample}.primedreg.fa', dir=DIR, sample=SAMPLE),
         # cellAbundance = expand('{dir}/{sample}.cellAbundance.noN.csv', dir=DIR, sample=SAMPLE)
-        predictedDg=expand('{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv', cell=CELLS, dir=DIR, sample=SAMPLE),
+        # predictedDg=expand('{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv', cell=CELLS, dir=DIR, sample=SAMPLE),
+        commonPt='{dir}/{sample}.commonPtPairs.csv'
         # numReads=expand('{dir}/{sample}.numReads.txt', sample=SAMPLE, dir=DIR)
         # # split_bam=expand("bam/{sample}_{read}_bismark_bt2.bam", sample=SAMPLE, read=READS)
         # bam1=expand("bam/{sample}_1_bismark_bt2.bam", sample=SAMPLE)
@@ -137,3 +138,31 @@ rule predict_dg:
         #     dgMat = make_DgMat_per_cell((genomeAb, ptMat))
         #     path = '/'.join(ptMatrix.split('/')[:-1])
         #     dgMat.to_csv(path + sample +'_ptDg_qual.csv')
+
+rule commonPtPairs:
+    input:
+        dgFiles='{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv'
+    output:
+        commonPt='{dir}/{sample}.commonPtPairs.csv'
+    params:
+        ncells=10
+    threads:
+    run:
+        path = input.path
+        ncells = input.ncells
+        workers = multiprocessing.Pool(threads)
+        finalCellDic = {}
+        for dic in workers.imap_unordered(makeNonInfDic, [ file for file in input.dgFiles]):
+            for pt,celdic in dic.items():
+                if pt not in finalCellDic.keys():
+                    finalCellDic[pt]={}
+                finalCellDic[pt] = dict(finalCellDic[pt],**celdic)
+
+        filtDic={}
+        for k,v in finalCellDic.items():
+            if len(v) >= ncells:
+                filtDic[k] = v
+
+        sample = os.listdir(path)[0].split('_')[0]
+        output = path.strip('predictedDg') + sample + '.commonPtPairs.csv'
+        pd.DataFrame.from_dict(filtDic).T.to_csv(output)

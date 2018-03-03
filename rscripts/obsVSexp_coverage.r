@@ -8,12 +8,14 @@ library(ggrepel)
 library(pheatmap)
 options(stringsAsFactors = FALSE)
 
-pred <- read.delim('mnt/edann/hexamers/VAN1667prediction/L6.CovPred.qual.txt')
-pred %>% mutate(lab=ifelse(obs > 20000, template, '')) %>%
-  ggplot(., aes(obs, obs-exp)) + geom_point() + geom_text(aes(label=lab),cex=2, nudge_y = 70) +
+pred <- read.delim('mnt/edann/hexamers/VAN1667prediction/VAN1815_L2.CovPred.qual.txt')
+pred %>% mutate(lab=ifelse(obs > 10000, template, '')) %>%
+  ggplot(., aes(obs, exp)) + geom_point() +  geom_text_repel(aes(label=lab),cex=2) +
   xlab('observed coverage') + ylab('predicted coverage') +
-  # geom_errorbar(aes(ymin=obs-exp-err, ymax=obs-exp+err), width=10) +
-  ggsave('AvOwork/output/deltaGprediction/predictedCov_L6_bs_woah.pdf')
+  ggtitle("VAN1815_L2 (predicteg DeltaG on VAN1667 average)") + 
+  # xlim(0,2500) + ylim(0,5000)
+  # geom_errorbar(aes(ymin=obs-exp-err, ymax=obs-exp+err), width=10) 
+  ggsave('AvOwork/output/deltaGprediction/predictedCov_VAN1815_L2.pdf')
 
 cell2cell.files <- list.files('mnt/edann/hexamers/rnaseq/predictedCov/',pattern =  'gk2a-2.CovPred.+qual', full.names = TRUE)
 cell2avg.files <- list.files('mnt/edann/hexamers/rnaseq/zebrafish/predictedCov/',pattern =  'gk2a-2.40k.', full.names = TRUE)
