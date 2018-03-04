@@ -5,7 +5,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-dir='/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/'
+dir='/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing/predictedDg/'
 
 files = [f for f in os.listdir(dir) if 'ptDg' in f]
 mats = {}
@@ -17,12 +17,11 @@ for file in files:
     # logFlatM[logFlatM==-np.inf]=-99999
     mats[sample]=logFlatM
 
-np.corrcoef(list(mats.values()))
-np.std(list(mats.values()))
+# np.corrcoef(list(mats.values()))
+# np.std(list(mats.values()))
 
 bigArray = np.array(list(mats.values()))
-sd = np.std(bigArray, axis=0)
-
+# sd = np.std(bigArray, axis=0)
 bigArray[bigArray==-np.inf] = nan
 
 avg = np.nanmean(bigArray, axis=0).reshape((4096,4096))
