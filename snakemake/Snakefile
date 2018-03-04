@@ -140,7 +140,7 @@ rule predict_dg:
 
 rule commonPtPairs:
     input:
-        dgFiles='{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv'
+        dgFiles='{dir}/predictedDg/{file}'
     output:
         commonPt='{dir}/{sample}.commonPtPairs.csv'
     params:
