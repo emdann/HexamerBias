@@ -1,6 +1,8 @@
 from getPrimedRegion import *
 from kmerCounter import *
 from cellPrimerTemplTab import *
+from ptModel import *
+from getCommonPtPairs import *
 import multiprocessing
 import os
 
@@ -148,8 +150,8 @@ rule commonPtPairs:
         ncells=10
     threads: 10
     run:
-        path = input.path
-        ncells = input.ncells
+        path = wildcards.dir
+        ncells = params.ncells
         workers = multiprocessing.Pool(threads)
         finalCellDic = {}
         for dic in workers.imap_unordered(makeNonInfDic, [ file for file in input.dgFiles]):
@@ -163,6 +165,6 @@ rule commonPtPairs:
             if len(v) >= ncells:
                 filtDic[k] = v
 
-        sample = os.listdir(path)[0].split('_')[0]
-        output = path.strip('predictedDg') + sample + '.commonPtPairs.csv'
+        sample = wildcards.sample
+        output = path + '/' + sample + '.commonPtPairs.csv'
         pd.DataFrame.from_dict(filtDic).T.to_csv(output)
