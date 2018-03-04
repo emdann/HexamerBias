@@ -23,5 +23,3 @@ def num_reads_per_cell(bamfile, to_dir = None):
             for cell,num in numReads.items():
                 print(cell, num, sep='\t', file = f)
     return(numReads)
-
-num_reads_per_cell(bamfile, to_dir = outpath)
