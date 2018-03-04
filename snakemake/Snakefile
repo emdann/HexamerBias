@@ -156,7 +156,7 @@ rule predict_dg:
 
 rule commonPtPairs:
     input:
-        dgFiles=expand('{{dir}}/predictedDg/{{sample}}_{cell}_ptDg_qual.csv', cell=CELLS)
+        dgFiles=expand('{{dir}}/predictedDg/{{sample}}_{cell}_ptDg_qual.csv', cell=CELLS),
         highcovCells='{dir}/{sample}.selectedCells.txt'
     output:
         commonPt='{dir}/{sample}.commonPtPairs.csv'
