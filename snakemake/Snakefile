@@ -68,17 +68,17 @@ rule kmer_count:
         print(noN)
         outputTab = noN.to_csv(outpath + '/' + sample +'.cellAbundance.noN.csv')
 
-# rule num_reads:
-#     input:
-#         bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz'
-#     output:
-#         numReads='{dir}/{sample}.numReads.txt'
-#     # params:
-#     #     out=DIR
-#     threads: 1
-#     script:
-#         "numReadsPerCell.py -o {wildcards.dir} {input.bam}"
-#
+rule num_reads:
+    input:
+        bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz'
+    output:
+        numReads='{dir}/{sample}.numReads.txt'
+    # params:
+    #     out=DIR
+    threads: 1
+    script:
+        "numReadsPerCell.py -o {wildcards.dir} {input.bam}"
+
 rule pt_counts:
     input:
         bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz',
@@ -140,7 +140,7 @@ rule predict_dg:
 
 rule commonPtPairs:
     input:
-        dgFiles='{dir}/predictedDg/{file}'
+        dgFiles=expand('{{dir}}/predictedDg/{{sample}}_{cell}_ptDg_qual.csv', cell=[file.split('_')[1] for file in os.listdir('{dir}/predictedDg')])
     output:
         commonPt='{dir}/{sample}.commonPtPairs.csv'
     params:
