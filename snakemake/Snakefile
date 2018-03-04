@@ -189,4 +189,5 @@ rule commonPtPairs:
         output = path + '/' + sample + '.commonPtPairs.csv'
         pd.DataFrame.from_dict(filtDic).T.to_csv(output)
 
+
 ## Add rule that removes the useless ptTables

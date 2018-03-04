@@ -95,6 +95,7 @@ load.cellAbundance <- function(cellAbFile) {
 
 
 cellAbFile="~/mnt/edann/hexamers/rnaseq/mouse/testing/SvdB11d1-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv"
+cellAbundance<- load.cellAbundance(cellAbFile)
 
 cellAb.cells <- cellAbundance[,colnames(corr)]
 transcr.corr <- cor(cellAb.cells)
