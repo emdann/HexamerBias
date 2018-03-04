@@ -25,24 +25,3 @@ def makeNonInfDic(file):
                 cellDic[t+'-'+p.index[i]]={}
                 cellDic[t+'-'+p.index[i]][cell] = p[i]
     return(cellDic)
-
-path = args.path
-ncells = args.n
-
-workers = multiprocessing.Pool(10)
-
-finalCellDic = {}
-for dic in workers.imap_unordered(makeNonInfDic, [ path + '/' + file for file in os.listdir(path)]):
-    for pt,celdic in dic.items():
-        if pt not in finalCellDic.keys():
-            finalCellDic[pt]={}
-        finalCellDic[pt] = dict(finalCellDic[pt],**celdic)
-
-filtDic={}
-for k,v in finalCellDic.items():
-    if len(v) >= ncells:
-        filtDic[k] = v
-
-sample = os.listdir(path)[0].split('_')[0]
-output = path.strip('predictedDg') + sample + '.commonPtPairs.csv'
-pd.DataFrame.from_dict(filtDic).T.to_csv(output)
