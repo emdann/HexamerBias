@@ -145,7 +145,7 @@ rule commonPtPairs:
         commonPt='{dir}/{sample}.commonPtPairs.csv'
     params:
         ncells=10
-    threads:
+    threads: 10
     run:
         path = input.path
         ncells = input.ncells
