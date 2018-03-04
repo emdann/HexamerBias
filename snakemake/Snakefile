@@ -2,6 +2,7 @@ from getPrimedRegion import *
 from kmerCounter import *
 from cellPrimerTemplTab import *
 import multiprocessing
+import os
 
 SAMPLE = "SvdB11d2-MitoTrackerThird-Satellites-Adult"
 TYPE = "rna"
@@ -140,7 +141,7 @@ rule predict_dg:
 
 rule commonPtPairs:
     input:
-        dgFiles=expand('{{dir}}/predictedDg/{{sample}}_{cell}_ptDg_qual.csv', cell=[file.split('_')[1] for file in os.listdir(DIR+'/predictedDg')])
+        dgFiles=glob_wildcards('{{dir}}/predictedDg/{{sample}}_{cell}_ptDg_qual.csv')
     output:
         commonPt='{dir}/{sample}.commonPtPairs.csv'
     params:
