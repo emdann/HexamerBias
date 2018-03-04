@@ -1,6 +1,7 @@
 from getPrimedRegion import *
 from kmerCounter import *
 from cellPrimerTemplTab import *
+from numReadsPerCell import *
 from ptModel import *
 from getCommonPtPairs import *
 import multiprocessing
@@ -77,11 +78,11 @@ rule num_reads:
         bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz'
     output:
         numReads='{dir}/{sample}.numReads.txt'
-    # params:
-    #     out=DIR
+    params:
+        out=DIR
     threads: 1
-    script:
-        "numReadsPerCell.py -o {wildcards.dir} {input.bam}"
+    run:
+        num_reads_per_cell(input.bam, to_dir = params.dir)
 
 rule find_processed_cells:
     input:

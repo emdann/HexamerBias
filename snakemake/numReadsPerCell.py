@@ -3,14 +3,6 @@ import pysam as ps
 import collections
 import argparse
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts table \n By Emma Dann")
-argparser.add_argument('bam', type=str, help='Bam input')
-argparser.add_argument('-o', type=str, required=False, help='Output directory')
-args = argparser.parse_args()
-
-bamfile = args.bam
-outpath = args.o
-
 def num_reads_per_cell(bamfile, to_dir = None):
     '''
     Makes dictionary of number of aligned reads with high quality hexamer
