@@ -121,17 +121,17 @@ rule pt_counts:
         #     df = fillNsortPTmatrix(df, tabAb)
         #     df.to_csv(path + sample + '.ptCounts.qualFilt.parallel.csv')
 
-rule zipPtCounts:
-    input:
-        ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv'
-    output:
-        ptCountsZipped='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv.gz'
-    shell:
-        "gzip {input.ptCounts}"
+# rule zipPtCounts:
+#     input:
+#         ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv'
+#     output:
+#         ptCountsZipped='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv.gz'
+#     shell:
+#         "gzip {input.ptCounts}"
 
 rule predict_dg:
     input:
-        ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv.gz',
+        ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv',
         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
     output:
         predictedDg='{dir}/predictedDg/{sample}_{cell}_ptDg_qual.csv'
