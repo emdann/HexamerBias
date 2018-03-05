@@ -5,11 +5,6 @@ import numpy as np
 import argparse
 from hexVSprimed import *
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Find average predicted Delta G from common pt pairs\n By Emma Dann")
-argparser.add_argument('commonPtPairs', type=str, help='File of predicted Dg for common PtPairs')
-argparser.add_argument('numReads', type=str, help='File of predicted Dg for common PtPairs')
-args = argparser.parse_args()
-
 def filter_cells(predictedDgFile, numReads, read_thresh=40000):
     '''
     Finds average of predicted Dg and standard deviation using a selection of cells
@@ -45,16 +40,3 @@ def make_predictedDg_matrix(df, cellAb):
     sdMat = pd.DataFrame(sdDic)
     sdMat = fillNsortPTmatrix(sdMat, cellAb)
     return((ptMat,sdMat))
-
-predictedDgFile = args.commonPtPairs
-numReads = args.numReads
-cellAbFile = numReads.split('.numReads.txt')[0] + '.cellAbundance.csv'
-cellAb = pd.read_csv(cellAbFile, index_col=0, compression = findCompr(cellAbFile))
-
-# Make predicted Dg tab
-pairsDg = filter_cells(predictedDgFile, numReads)
-dgMat,errMat = make_predictedDg_matrix(pairsDg, cellAb)
-
-outfile = numReads.split('.numReads.txt')[0]
-dgMat.to_csv(outfile + '.dgMat.csv')
-errMat.to_csv(outfile +'.errMat.csv')
