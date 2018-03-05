@@ -96,7 +96,7 @@ rule find_processed_cells:
 rule pt_counts:
     input:
         bam='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.sam.gz',
-        primedfa= '{dir}/{sample}.primedreg.fa'
+        primedfa= '{dir}/{sample}.primedreg.fa',
         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
     output:
         ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS)
