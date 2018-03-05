@@ -199,10 +199,10 @@ rule commonPtPairs:
 
 rule makeAvg:
     input:
-        commonPt='{dir}/{sample}.commonPtPairs.csv'
+        commonPt='{dir}/{sample}.commonPtPairs.csv',
         numReads='{dir}/{sample}.numReads.txt'
     output:
-        avg='{dir}/{sample}.dgMat.csv'
+        avg='{dir}/{sample}.dgMat.csv',
         err='{dir}/{sample}.errMat.csv'
     run:
         cellAbFile = numReads.split('.numReads.txt')[0] + '.cellAbundance.noN.csv'
@@ -218,8 +218,8 @@ rule makeAvg:
 
 rule predictCoverage:
     input:
-        ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv'
-        avg='{dir}/{sample}.dgMat.csv'
+        ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv',
+        avg='{dir}/{sample}.dgMat.csv',
         err='{dir}/{sample}.errMat.csv'
     output:
         predCov='{dir}/predictedCov/{sample}.CovPred.{cell}.qual.txt'
