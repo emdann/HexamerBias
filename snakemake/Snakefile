@@ -40,7 +40,7 @@ rule get_primed_region:
     run:
         get_template_fasta(input.bam, input.refgen, params.dir , params.t)
 
-rule kmer_count:
+rule kmer_count: ## Job never finishes. Why oh why.
     input:
         coutc='/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/{sample}.coutc.csv',
         refgen=REFGEN
@@ -142,7 +142,7 @@ rule predict_dg:
             cell = input.ptCounts.split('/')[-1].split('.ptCounts')[0].split('cell')[-1]
             tabAb = pd.read_csv(input.cellAbundance, index_col=0, compression=findCompr(input.cellAbundance))
             cellAb = tabAb[cell]
-            ptMat = pd.read_csv(input.ptCounts, compression=findCompr(ptMatrix), index_col=0)
+            ptMat = pd.read_csv(input.ptCounts, compression=findCompr(input.ptCounts), index_col=0)
             dgMat = make_DgMat_per_cell((cellAb, ptMat))
             path = '/'.join(input.cellAbundance.split('/')[:-1])
             if path:
