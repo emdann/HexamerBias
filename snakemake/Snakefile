@@ -177,7 +177,7 @@ rule commonPtPairs:
             cells=f.readlines()
         selectedFiles=[]
         for cell in cells:
-            selectedFiles.extend(fnmatch.filter(dgFiles, '*cell'+cell+'*'))
+            selectedFiles.extend(fnmatch.filter(input.dgFiles, '*cell'+cell+'*'))
         workers = multiprocessing.Pool(threads)
         finalCellDic = {}
         for dic in workers.imap_unordered(makeNonInfDic, [ file for file in selectedFiles]):
