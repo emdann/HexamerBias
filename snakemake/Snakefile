@@ -204,7 +204,7 @@ rule makeAvg:
         pairsDg = filter_cells(input.commonPt, input.numReads)
         dgMat,errMat = make_predictedDg_matrix(pairsDg, cellAb)
 
-        outfile = numReads.split('.numReads.txt')[0]
+        outfile = input.numReads.split('.numReads.txt')[0]
         dgMat.to_csv(outfile + '.dgMat.csv')
         errMat.to_csv(outfile +'.errMat.csv')
 
