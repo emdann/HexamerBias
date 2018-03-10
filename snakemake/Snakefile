@@ -220,8 +220,7 @@ rule predictCoverage:
     run:
         if type=='rna':
             cellAbundanceTab = wildcards.sample + '.cellAbundance.noN.csv'
-            cell = wildcard.cell
-            path = wildcard.dir
+            cell = wildcards.cell
             tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression = findCompr(cellAbundanceTab))
             cellAb = tabAb[cell]
 
