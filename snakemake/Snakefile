@@ -71,7 +71,7 @@ rule num_reads:
         out=DIR
     threads: 1
     run:
-        num_reads_per_cell(input.bam, to_dir = params.dir)
+        num_reads_per_cell(input.bam, to_dir = params.out)
 
 rule find_processed_cells:
     input:
