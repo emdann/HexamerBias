@@ -19,7 +19,7 @@ CELLS = ['cell' + str(n) for n in range(1,385)]
 rule all:
     input:
         commonPt = expand('{dir}/{sample}.commonPtPairs.csv', dir=DIR, sample=SAMPLE),
-        predCov = expand('{dir}/predictedCov/{sample}.CovPred.cell{cell}.qual.txt', dir=DIR, sample=SAMPLE, cell=CELLS)
+        predCov = expand('{dir}/predictedCov/{sample}.CovPred.{cell}.qual.txt', dir=DIR, sample=SAMPLE, cell=CELLS)
 
 rule get_primed_region:
     input:
@@ -210,17 +210,17 @@ rule makeAvg:
 
 rule predictCoverage:
     input:
-        ptCounts='{dir}/ptCounts/{sample}.cell{cell}.ptCounts.qualFilt.parallel.csv',
+        ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv',
         avg='{dir}/{sample}.dgMat.csv',
         err='{dir}/{sample}.errMat.csv'
     output:
-        predCov='{dir}/predictedCov/{sample}.CovPred.cell{cell}.qual.txt'
+        predCov='{dir}/predictedCov/{sample}.CovPred.{cell}.qual.txt'
     params:
         t=TYPE
     run:
         if type=='rna':
             cellAbundanceTab = wildcards.sample + '.cellAbundance.noN.csv'
-            cell = wildcards.cell
+            cell = wildcards.cell.split('cell')[1]
             tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression = findCompr(cellAbundanceTab))
             cellAb = tabAb[cell]
 
