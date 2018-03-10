@@ -174,7 +174,7 @@ rule commonPtPairs:
         path = wildcards.dir
         ncells = params.ncells
         with open(input.highcovCells, 'r') as f:
-            cells=f.readlines()
+            cells = [c.strip() for c in f.readlines()]
         selectedFiles=[]
         for cell in cells:
             selectedFiles.extend(fnmatch.filter(input.dgFiles, '*cell'+cell+'*'))

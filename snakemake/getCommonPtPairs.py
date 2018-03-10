@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import multiprocessing
-import argparse
+from hexVSprimed import *
 
 def makeNonInfDic(file):
     '''
@@ -12,11 +12,7 @@ def makeNonInfDic(file):
         Output: dictionary of {pt pair : {cellname : predicted deltaG}}
     '''
     cell = file.split('_cell')[1].split('_')[0]
-    if file.endswith('gz'):
-        compr='gzip'
-    elif file.endswith('csv'):
-        compr='infer'
-    tab = pd.read_csv(file, index_col=0, compression=compr)
+    tab = pd.read_csv(file, index_col=0, compression=findCompr(file))
     cellDic={}
     for templ in tab.iterrows():
         t,p = templ
