@@ -5,6 +5,7 @@ from numReadsPerCell import *
 from ptModel import *
 from getCommonPtPairs import *
 from makeAvgNErrorMatrix import *
+from predictCoverage import *
 import multiprocessing
 import os
 
