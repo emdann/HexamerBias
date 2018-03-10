@@ -205,11 +205,11 @@ rule makeAvg:
         avg='{dir}/{sample}.dgMat.csv',
         err='{dir}/{sample}.errMat.csv'
     run:
-        cellAbFile = numReads.split('.numReads.txt')[0] + '.cellAbundance.noN.csv'
+        cellAbFile = input.numReads.split('.numReads.txt')[0] + '.cellAbundance.noN.csv'
         cellAb = pd.read_csv(cellAbFile, index_col=0, compression = findCompr(cellAbFile))
 
         # Make predicted Dg tab
-        pairsDg = filter_cells(predictedDgFile, numReads)
+        pairsDg = filter_cells(input.commonPt, input.numReads)
         dgMat,errMat = make_predictedDg_matrix(pairsDg, cellAb)
 
         outfile = numReads.split('.numReads.txt')[0]
