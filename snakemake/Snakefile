@@ -19,7 +19,7 @@ CELLS = ['cell' + str(n) for n in range(1,385)]
 rule all:
     input:
         commonPt = expand('{dir}/{sample}.commonPtPairs.csv', dir=DIR, sample=SAMPLE),
-        predCov = expand('{dir}/predictedCov/{sample}.CovPred.{cell}.qual.txt', dir=DIR, sample=SAMPLE, cell=CELLS)
+        predCov = expand('{dir}/predictedCov/{sample}.CovPred.cell{cell}.qual.txt', dir=DIR, sample=SAMPLE, cell=CELLS)
 
 rule get_primed_region:
     input:
@@ -210,11 +210,11 @@ rule makeAvg:
 
 rule predictCoverage:
     input:
-        ptCounts='{dir}/ptCounts/{sample}.{cell}.ptCounts.qualFilt.parallel.csv',
+        ptCounts='{dir}/ptCounts/{sample}.cell{cell}.ptCounts.qualFilt.parallel.csv',
         avg='{dir}/{sample}.dgMat.csv',
         err='{dir}/{sample}.errMat.csv'
     output:
-        predCov='{dir}/predictedCov/{sample}.CovPred.{cell}.qual.txt'
+        predCov='{dir}/predictedCov/{sample}.CovPred.cell{cell}.qual.txt'
     params:
         t=TYPE
     run:
@@ -233,8 +233,8 @@ rule predictCoverage:
 
 
             list=[]
-            with open(wildcards.dir+'/predictedCov/' + wildcards.sample + '.CovPred.'+str(cell)+'.qual.txt', 'w') as output:
-                print('template','obs', 'exp', 'err', sep='\t') #, file=output)
+            with open(wildcards.dir+'/predictedCov/' + wildcards.sample + '.CovPred.cell'+str(cell)+'.qual.txt', 'w') as output:
+                print('template','obs', 'exp', 'err', sep='\t', file=output)
                 for templ in dgMat.iterrows():
                     t,DgRow = templ
                     print(t, ptMat.loc[ptMat.index==t].fillna(0).values.sum(), predictCov(cellAb[t],DgRow), propagateError(cellAb[t], DgRow, errDgMat.loc[t]), sep='\t', file=output)
