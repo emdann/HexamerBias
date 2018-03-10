@@ -43,7 +43,7 @@ def get_template_fasta(bamfile, fi, outpath, type):
 	Saves output fasta file.
 	'''
 	sample = bamfile.split('/')[-1].split('.')[0]
-	bedfile = outpath + sample + '.primedreg.bed'
+	bedfile = outpath + '/' + sample + '.primedreg.bed'
 	if not os.path.exists(bedfile):
 		bed = get_template_bed(bamfile, type=type)
 		bedfile = save_bedfile(bed, bamfile, outpath)
