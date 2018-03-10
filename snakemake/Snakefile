@@ -8,7 +8,6 @@ from makeAvgNErrorMatrix import *
 import multiprocessing
 import os
 
-
 BAMFILE = config['bamfile']
 COUTC = config['coutc']
 SAMPLE = config['sample']
