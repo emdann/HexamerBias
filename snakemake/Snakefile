@@ -16,6 +16,8 @@ TYPE = config['type']
 DIR = config['dir']
 REFGEN = config['refgen']
 CELLS = ['cell' + str(n) for n in range(1,385)]
+CELLS=[cell.strip() for cell in open(DIR + '/' + SAMPLE + '.selectedCells.txt').readlines()]
+
 
 rule all:
     input:
@@ -85,8 +87,6 @@ rule find_processed_cells:
             for cell in numreads[numreads.numReads>10000].cell:
                 print(cell, file=outfile)
 
-# CELLS=[cell.strip() for cell in open(DIR + '/' + SAMPLE + '.selectedCells.txt').readlines()]
-
 rule pt_counts:
     input:
         bam=BAMFILE,
@@ -94,7 +94,7 @@ rule pt_counts:
         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv',
         highcovCells='{dir}/{sample}.selectedCells.txt'
     output:
-        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=[cell.strip() for cell in open(input.highcovCells).readlines()])
+        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS)
     params:
         type=TYPE
     threads: 10
