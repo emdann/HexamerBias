@@ -91,9 +91,10 @@ rule pt_counts:
     input:
         bam=BAMFILE,
         primedfa= '{dir}/{sample}.primedreg.fa',
-        cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
+        cellAbundance='{dir}/{sample}.cellAbundance.noN.csv',
+        highcovCells='{dir}/{sample}.selectedCells.txt'
     output:
-        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=[cell.strip() for cell in open(DIR + '/' + SAMPLE + '.selectedCells.txt').readlines()])
+        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=[cell.strip() for cell in open(input.highcovCells).readlines()])
     params:
         type=TYPE
     threads: 10
