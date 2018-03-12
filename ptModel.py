@@ -9,8 +9,8 @@ import gzip
 import os
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get matrix of predicted dg for primer-template complex \n By Emma Dann")
-argparser.add_argument('ptmatrix', type=str, help='Bam input')
-argparser.add_argument('cellabcsv', type=str, help='Fasta input')
+argparser.add_argument('ptmatrix', type=str, help='ptCounts file')
+argparser.add_argument('cellabcsv', type=str, help='Kmer abundance file')
 argparser.add_argument('type', type=str, help='rna or bs')
 args = argparser.parse_args()
 
@@ -37,8 +37,6 @@ def make_DgMat_per_cell(params):
         dg = extract_deltaG(temprow,tempAb)
         dgMat = dgMat.append(dg)
     return(dgMat)
-
-
 
 ptMatrix = args.ptmatrix
 # ptMatrix='ptCounts/SvdB11d1-MitoTrackerThird-Satellites-Adult.cell130.ptCounts.qualFilt.parallel.csv'
