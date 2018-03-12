@@ -15,7 +15,7 @@ SAMPLE = config['sample']
 TYPE = config['type']
 DIR = config['dir']
 REFGEN = config['refgen']
-CELLS = ['cell' + str(n) for n in range(1,385)]
+# CELLS = ['cell' + str(n) for n in range(1,385)]
 CELLS=[cell.strip() for cell in open(DIR + '/' + SAMPLE + '.selectedCells.txt').readlines()]
 
 
