@@ -1,0 +1,2383 @@
+Building DAG of jobs...
+
+rule get_primed_region:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    jobid: 771
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult
+
+
+rule kmer_count:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.coutt.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    jobid: 386
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell165.ptCounts.qualFilt.parallel.csv
+    jobid: 677
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell165
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell99.ptCounts.qualFilt.parallel.csv
+    jobid: 585
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell99
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell1.ptCounts.qualFilt.parallel.csv
+    jobid: 451
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell1
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell160.ptCounts.qualFilt.parallel.csv
+    jobid: 700
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell160
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell353.ptCounts.qualFilt.parallel.csv
+    jobid: 390
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell353
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell210.ptCounts.qualFilt.parallel.csv
+    jobid: 452
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell210
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell86.ptCounts.qualFilt.parallel.csv
+    jobid: 734
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell86
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell249.ptCounts.qualFilt.parallel.csv
+    jobid: 653
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell249
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell368.ptCounts.qualFilt.parallel.csv
+    jobid: 759
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell368
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell67.ptCounts.qualFilt.parallel.csv
+    jobid: 581
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell67
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell78.ptCounts.qualFilt.parallel.csv
+    jobid: 517
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell78
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell246.ptCounts.qualFilt.parallel.csv
+    jobid: 529
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell246
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell317.ptCounts.qualFilt.parallel.csv
+    jobid: 569
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell317
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell15.ptCounts.qualFilt.parallel.csv
+    jobid: 588
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell15
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell68.ptCounts.qualFilt.parallel.csv
+    jobid: 484
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell68
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell24.ptCounts.qualFilt.parallel.csv
+    jobid: 455
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell24
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell381.ptCounts.qualFilt.parallel.csv
+    jobid: 471
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell381
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell284.ptCounts.qualFilt.parallel.csv
+    jobid: 690
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell284
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell62.ptCounts.qualFilt.parallel.csv
+    jobid: 662
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell62
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell253.ptCounts.qualFilt.parallel.csv
+    jobid: 538
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell253
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell72.ptCounts.qualFilt.parallel.csv
+    jobid: 760
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell72
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell142.ptCounts.qualFilt.parallel.csv
+    jobid: 513
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell142
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell182.ptCounts.qualFilt.parallel.csv
+    jobid: 555
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell182
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell261.ptCounts.qualFilt.parallel.csv
+    jobid: 479
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell261
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell343.ptCounts.qualFilt.parallel.csv
+    jobid: 498
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell343
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell340.ptCounts.qualFilt.parallel.csv
+    jobid: 609
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell340
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell167.ptCounts.qualFilt.parallel.csv
+    jobid: 475
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell167
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell312.ptCounts.qualFilt.parallel.csv
+    jobid: 422
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell312
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell362.ptCounts.qualFilt.parallel.csv
+    jobid: 611
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell362
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell56.ptCounts.qualFilt.parallel.csv
+    jobid: 657
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell56
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell13.ptCounts.qualFilt.parallel.csv
+    jobid: 490
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell13
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell282.ptCounts.qualFilt.parallel.csv
+    jobid: 622
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell282
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell164.ptCounts.qualFilt.parallel.csv
+    jobid: 409
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell164
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell231.ptCounts.qualFilt.parallel.csv
+    jobid: 549
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell231
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell320.ptCounts.qualFilt.parallel.csv
+    jobid: 575
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell320
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell26.ptCounts.qualFilt.parallel.csv
+    jobid: 486
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell26
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell206.ptCounts.qualFilt.parallel.csv
+    jobid: 412
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell206
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell65.ptCounts.qualFilt.parallel.csv
+    jobid: 477
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell65
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell64.ptCounts.qualFilt.parallel.csv
+    jobid: 592
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell64
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell25.ptCounts.qualFilt.parallel.csv
+    jobid: 582
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell25
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell275.ptCounts.qualFilt.parallel.csv
+    jobid: 619
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell275
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell11.ptCounts.qualFilt.parallel.csv
+    jobid: 748
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell11
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell194.ptCounts.qualFilt.parallel.csv
+    jobid: 654
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell194
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell61.ptCounts.qualFilt.parallel.csv
+    jobid: 417
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell61
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell358.ptCounts.qualFilt.parallel.csv
+    jobid: 620
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell358
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell344.ptCounts.qualFilt.parallel.csv
+    jobid: 399
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell344
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell120.ptCounts.qualFilt.parallel.csv
+    jobid: 526
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell120
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell100.ptCounts.qualFilt.parallel.csv
+    jobid: 717
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell100
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell34.ptCounts.qualFilt.parallel.csv
+    jobid: 613
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell34
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell3.ptCounts.qualFilt.parallel.csv
+    jobid: 425
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell3
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell351.ptCounts.qualFilt.parallel.csv
+    jobid: 524
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell351
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell337.ptCounts.qualFilt.parallel.csv
+    jobid: 408
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell337
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell229.ptCounts.qualFilt.parallel.csv
+    jobid: 752
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell229
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell172.ptCounts.qualFilt.parallel.csv
+    jobid: 727
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell172
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell131.ptCounts.qualFilt.parallel.csv
+    jobid: 645
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell131
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell145.ptCounts.qualFilt.parallel.csv
+    jobid: 426
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell145
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell6.ptCounts.qualFilt.parallel.csv
+    jobid: 721
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell6
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell101.ptCounts.qualFilt.parallel.csv
+    jobid: 551
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell101
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell341.ptCounts.qualFilt.parallel.csv
+    jobid: 504
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell341
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell224.ptCounts.qualFilt.parallel.csv
+    jobid: 572
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell224
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell83.ptCounts.qualFilt.parallel.csv
+    jobid: 589
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell83
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell364.ptCounts.qualFilt.parallel.csv
+    jobid: 642
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell364
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell53.ptCounts.qualFilt.parallel.csv
+    jobid: 641
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell53
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell151.ptCounts.qualFilt.parallel.csv
+    jobid: 704
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell151
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell147.ptCounts.qualFilt.parallel.csv
+    jobid: 391
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell147
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell184.ptCounts.qualFilt.parallel.csv
+    jobid: 726
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell184
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell96.ptCounts.qualFilt.parallel.csv
+    jobid: 434
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell96
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell207.ptCounts.qualFilt.parallel.csv
+    jobid: 492
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell207
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell115.ptCounts.qualFilt.parallel.csv
+    jobid: 736
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell115
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell300.ptCounts.qualFilt.parallel.csv
+    jobid: 602
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell300
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell98.ptCounts.qualFilt.parallel.csv
+    jobid: 697
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell98
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell346.ptCounts.qualFilt.parallel.csv
+    jobid: 424
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell346
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell257.ptCounts.qualFilt.parallel.csv
+    jobid: 707
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell257
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell223.ptCounts.qualFilt.parallel.csv
+    jobid: 658
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell223
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell367.ptCounts.qualFilt.parallel.csv
+    jobid: 758
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell367
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell359.ptCounts.qualFilt.parallel.csv
+    jobid: 638
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell359
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell316.ptCounts.qualFilt.parallel.csv
+    jobid: 615
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell316
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell209.ptCounts.qualFilt.parallel.csv
+    jobid: 419
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell209
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell354.ptCounts.qualFilt.parallel.csv
+    jobid: 682
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell354
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell171.ptCounts.qualFilt.parallel.csv
+    jobid: 389
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell171
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell4.ptCounts.qualFilt.parallel.csv
+    jobid: 571
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell4
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell108.ptCounts.qualFilt.parallel.csv
+    jobid: 461
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell108
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell326.ptCounts.qualFilt.parallel.csv
+    jobid: 621
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell326
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell217.ptCounts.qualFilt.parallel.csv
+    jobid: 468
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell217
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell204.ptCounts.qualFilt.parallel.csv
+    jobid: 595
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell204
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell125.ptCounts.qualFilt.parallel.csv
+    jobid: 729
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell125
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell234.ptCounts.qualFilt.parallel.csv
+    jobid: 733
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell234
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell360.ptCounts.qualFilt.parallel.csv
+    jobid: 495
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell360
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell274.ptCounts.qualFilt.parallel.csv
+    jobid: 728
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell274
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell198.ptCounts.qualFilt.parallel.csv
+    jobid: 500
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell198
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell59.ptCounts.qualFilt.parallel.csv
+    jobid: 670
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell59
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell130.ptCounts.qualFilt.parallel.csv
+    jobid: 404
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell130
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell79.ptCounts.qualFilt.parallel.csv
+    jobid: 398
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell79
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell322.ptCounts.qualFilt.parallel.csv
+    jobid: 649
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell322
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell58.ptCounts.qualFilt.parallel.csv
+    jobid: 431
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell58
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell143.ptCounts.qualFilt.parallel.csv
+    jobid: 507
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell143
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell262.ptCounts.qualFilt.parallel.csv
+    jobid: 466
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell262
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell205.ptCounts.qualFilt.parallel.csv
+    jobid: 535
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell205
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell252.ptCounts.qualFilt.parallel.csv
+    jobid: 463
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell252
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell292.ptCounts.qualFilt.parallel.csv
+    jobid: 443
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell292
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell338.ptCounts.qualFilt.parallel.csv
+    jobid: 411
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell338
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell238.ptCounts.qualFilt.parallel.csv
+    jobid: 464
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell238
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell296.ptCounts.qualFilt.parallel.csv
+    jobid: 709
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell296
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell342.ptCounts.qualFilt.parallel.csv
+    jobid: 563
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell342
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell74.ptCounts.qualFilt.parallel.csv
+    jobid: 501
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell74
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell200.ptCounts.qualFilt.parallel.csv
+    jobid: 683
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell200
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell90.ptCounts.qualFilt.parallel.csv
+    jobid: 396
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell90
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell382.ptCounts.qualFilt.parallel.csv
+    jobid: 460
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell382
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell144.ptCounts.qualFilt.parallel.csv
+    jobid: 440
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell144
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell352.ptCounts.qualFilt.parallel.csv
+    jobid: 502
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell352
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell134.ptCounts.qualFilt.parallel.csv
+    jobid: 438
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell134
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell213.ptCounts.qualFilt.parallel.csv
+    jobid: 533
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell213
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell374.ptCounts.qualFilt.parallel.csv
+    jobid: 518
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell374
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell287.ptCounts.qualFilt.parallel.csv
+    jobid: 494
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell287
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell313.ptCounts.qualFilt.parallel.csv
+    jobid: 583
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell313
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell112.ptCounts.qualFilt.parallel.csv
+    jobid: 740
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell112
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell363.ptCounts.qualFilt.parallel.csv
+    jobid: 418
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell363
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell355.ptCounts.qualFilt.parallel.csv
+    jobid: 462
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell355
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell336.ptCounts.qualFilt.parallel.csv
+    jobid: 427
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell336
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell40.ptCounts.qualFilt.parallel.csv
+    jobid: 741
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell40
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell214.ptCounts.qualFilt.parallel.csv
+    jobid: 474
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell214
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell315.ptCounts.qualFilt.parallel.csv
+    jobid: 561
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell315
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell379.ptCounts.qualFilt.parallel.csv
+    jobid: 473
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell379
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell87.ptCounts.qualFilt.parallel.csv
+    jobid: 753
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell87
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell186.ptCounts.qualFilt.parallel.csv
+    jobid: 420
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell186
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell239.ptCounts.qualFilt.parallel.csv
+    jobid: 757
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell239
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell152.ptCounts.qualFilt.parallel.csv
+    jobid: 435
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell152
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell369.ptCounts.qualFilt.parallel.csv
+    jobid: 661
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell369
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell84.ptCounts.qualFilt.parallel.csv
+    jobid: 415
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell84
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell373.ptCounts.qualFilt.parallel.csv
+    jobid: 675
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell373
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell60.ptCounts.qualFilt.parallel.csv
+    jobid: 527
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell60
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell189.ptCounts.qualFilt.parallel.csv
+    jobid: 436
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell189
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell185.ptCounts.qualFilt.parallel.csv
+    jobid: 671
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell185
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell306.ptCounts.qualFilt.parallel.csv
+    jobid: 684
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell306
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell193.ptCounts.qualFilt.parallel.csv
+    jobid: 493
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell193
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell80.ptCounts.qualFilt.parallel.csv
+    jobid: 723
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell80
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell76.ptCounts.qualFilt.parallel.csv
+    jobid: 640
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell76
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell236.ptCounts.qualFilt.parallel.csv
+    jobid: 665
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell236
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell187.ptCounts.qualFilt.parallel.csv
+    jobid: 596
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell187
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell49.ptCounts.qualFilt.parallel.csv
+    jobid: 685
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell49
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell195.ptCounts.qualFilt.parallel.csv
+    jobid: 716
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell195
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell286.ptCounts.qualFilt.parallel.csv
+    jobid: 560
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell286
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell37.ptCounts.qualFilt.parallel.csv
+    jobid: 520
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell37
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell29.ptCounts.qualFilt.parallel.csv
+    jobid: 489
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell29
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell215.ptCounts.qualFilt.parallel.csv
+    jobid: 600
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell215
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell81.ptCounts.qualFilt.parallel.csv
+    jobid: 519
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell81
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell41.ptCounts.qualFilt.parallel.csv
+    jobid: 567
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell41
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell77.ptCounts.qualFilt.parallel.csv
+    jobid: 625
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell77
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell30.ptCounts.qualFilt.parallel.csv
+    jobid: 705
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell30
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell69.ptCounts.qualFilt.parallel.csv
+    jobid: 601
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell69
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell370.ptCounts.qualFilt.parallel.csv
+    jobid: 568
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell370
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell222.ptCounts.qualFilt.parallel.csv
+    jobid: 402
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell222
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell280.ptCounts.qualFilt.parallel.csv
+    jobid: 660
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell280
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell199.ptCounts.qualFilt.parallel.csv
+    jobid: 593
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell199
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell178.ptCounts.qualFilt.parallel.csv
+    jobid: 532
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell178
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell126.ptCounts.qualFilt.parallel.csv
+    jobid: 465
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell126
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell93.ptCounts.qualFilt.parallel.csv
+    jobid: 516
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell93
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell95.ptCounts.qualFilt.parallel.csv
+    jobid: 544
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell95
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell174.ptCounts.qualFilt.parallel.csv
+    jobid: 530
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell174
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell63.ptCounts.qualFilt.parallel.csv
+    jobid: 485
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell63
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell376.ptCounts.qualFilt.parallel.csv
+    jobid: 496
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell376
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell111.ptCounts.qualFilt.parallel.csv
+    jobid: 770
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell111
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell348.ptCounts.qualFilt.parallel.csv
+    jobid: 715
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell348
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell146.ptCounts.qualFilt.parallel.csv
+    jobid: 756
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell146
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell10.ptCounts.qualFilt.parallel.csv
+    jobid: 720
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell10
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell311.ptCounts.qualFilt.parallel.csv
+    jobid: 701
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell311
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell105.ptCounts.qualFilt.parallel.csv
+    jobid: 584
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell105
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell127.ptCounts.qualFilt.parallel.csv
+    jobid: 406
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell127
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell285.ptCounts.qualFilt.parallel.csv
+    jobid: 605
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell285
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell242.ptCounts.qualFilt.parallel.csv
+    jobid: 546
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell242
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell293.ptCounts.qualFilt.parallel.csv
+    jobid: 763
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell293
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell375.ptCounts.qualFilt.parallel.csv
+    jobid: 764
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell375
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell272.ptCounts.qualFilt.parallel.csv
+    jobid: 503
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell272
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell71.ptCounts.qualFilt.parallel.csv
+    jobid: 650
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell71
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell166.ptCounts.qualFilt.parallel.csv
+    jobid: 565
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell166
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell128.ptCounts.qualFilt.parallel.csv
+    jobid: 543
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell128
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell54.ptCounts.qualFilt.parallel.csv
+    jobid: 614
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell54
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell39.ptCounts.qualFilt.parallel.csv
+    jobid: 714
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell39
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell45.ptCounts.qualFilt.parallel.csv
+    jobid: 458
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell45
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell31.ptCounts.qualFilt.parallel.csv
+    jobid: 432
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell31
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell175.ptCounts.qualFilt.parallel.csv
+    jobid: 687
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell175
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell9.ptCounts.qualFilt.parallel.csv
+    jobid: 509
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell9
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell383.ptCounts.qualFilt.parallel.csv
+    jobid: 511
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell383
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell248.ptCounts.qualFilt.parallel.csv
+    jobid: 692
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell248
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell235.ptCounts.qualFilt.parallel.csv
+    jobid: 689
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell235
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell141.ptCounts.qualFilt.parallel.csv
+    jobid: 604
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell141
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell211.ptCounts.qualFilt.parallel.csv
+    jobid: 586
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell211
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell356.ptCounts.qualFilt.parallel.csv
+    jobid: 632
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell356
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell225.ptCounts.qualFilt.parallel.csv
+    jobid: 719
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell225
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell294.ptCounts.qualFilt.parallel.csv
+    jobid: 499
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell294
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell176.ptCounts.qualFilt.parallel.csv
+    jobid: 755
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell176
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell14.ptCounts.qualFilt.parallel.csv
+    jobid: 751
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell14
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell240.ptCounts.qualFilt.parallel.csv
+    jobid: 491
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell240
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell170.ptCounts.qualFilt.parallel.csv
+    jobid: 724
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell170
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell192.ptCounts.qualFilt.parallel.csv
+    jobid: 442
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell192
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell21.ptCounts.qualFilt.parallel.csv
+    jobid: 428
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell21
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell273.ptCounts.qualFilt.parallel.csv
+    jobid: 472
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell273
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell161.ptCounts.qualFilt.parallel.csv
+    jobid: 550
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell161
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell247.ptCounts.qualFilt.parallel.csv
+    jobid: 574
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell247
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell279.ptCounts.qualFilt.parallel.csv
+    jobid: 423
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell279
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell46.ptCounts.qualFilt.parallel.csv
+    jobid: 623
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell46
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell212.ptCounts.qualFilt.parallel.csv
+    jobid: 767
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell212
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell378.ptCounts.qualFilt.parallel.csv
+    jobid: 558
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell378
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell276.ptCounts.qualFilt.parallel.csv
+    jobid: 400
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell276
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell153.ptCounts.qualFilt.parallel.csv
+    jobid: 627
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell153
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell251.ptCounts.qualFilt.parallel.csv
+    jobid: 746
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell251
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell136.ptCounts.qualFilt.parallel.csv
+    jobid: 631
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell136
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell319.ptCounts.qualFilt.parallel.csv
+    jobid: 664
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell319
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell289.ptCounts.qualFilt.parallel.csv
+    jobid: 644
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell289
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell12.ptCounts.qualFilt.parallel.csv
+    jobid: 508
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell12
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell254.ptCounts.qualFilt.parallel.csv
+    jobid: 488
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell254
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell308.ptCounts.qualFilt.parallel.csv
+    jobid: 448
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell308
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell183.ptCounts.qualFilt.parallel.csv
+    jobid: 579
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell183
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell264.ptCounts.qualFilt.parallel.csv
+    jobid: 696
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell264
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell332.ptCounts.qualFilt.parallel.csv
+    jobid: 547
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell332
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell250.ptCounts.qualFilt.parallel.csv
+    jobid: 647
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell250
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell219.ptCounts.qualFilt.parallel.csv
+    jobid: 450
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell219
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell91.ptCounts.qualFilt.parallel.csv
+    jobid: 429
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell91
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell290.ptCounts.qualFilt.parallel.csv
+    jobid: 534
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell290
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell270.ptCounts.qualFilt.parallel.csv
+    jobid: 635
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell270
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell371.ptCounts.qualFilt.parallel.csv
+    jobid: 523
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell371
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell70.ptCounts.qualFilt.parallel.csv
+    jobid: 439
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell70
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell230.ptCounts.qualFilt.parallel.csv
+    jobid: 559
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell230
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell232.ptCounts.qualFilt.parallel.csv
+    jobid: 449
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell232
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell118.ptCounts.qualFilt.parallel.csv
+    jobid: 430
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell118
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell256.ptCounts.qualFilt.parallel.csv
+    jobid: 590
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell256
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell190.ptCounts.qualFilt.parallel.csv
+    jobid: 742
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell190
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell75.ptCounts.qualFilt.parallel.csv
+    jobid: 573
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell75
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell191.ptCounts.qualFilt.parallel.csv
+    jobid: 699
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell191
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell139.ptCounts.qualFilt.parallel.csv
+    jobid: 754
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell139
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell221.ptCounts.qualFilt.parallel.csv
+    jobid: 668
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell221
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell110.ptCounts.qualFilt.parallel.csv
+    jobid: 655
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell110
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell102.ptCounts.qualFilt.parallel.csv
+    jobid: 416
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell102
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell202.ptCounts.qualFilt.parallel.csv
+    jobid: 476
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell202
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell35.ptCounts.qualFilt.parallel.csv
+    jobid: 457
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell35
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell349.ptCounts.qualFilt.parallel.csv
+    jobid: 487
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell349
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell263.ptCounts.qualFilt.parallel.csv
+    jobid: 397
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell263
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell85.ptCounts.qualFilt.parallel.csv
+    jobid: 639
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell85
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell361.ptCounts.qualFilt.parallel.csv
+    jobid: 387
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell361
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell339.ptCounts.qualFilt.parallel.csv
+    jobid: 743
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell339
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell267.ptCounts.qualFilt.parallel.csv
+    jobid: 403
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell267
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell48.ptCounts.qualFilt.parallel.csv
+    jobid: 441
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell48
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell18.ptCounts.qualFilt.parallel.csv
+    jobid: 437
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell18
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell157.ptCounts.qualFilt.parallel.csv
+    jobid: 676
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell157
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell278.ptCounts.qualFilt.parallel.csv
+    jobid: 643
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell278
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell163.ptCounts.qualFilt.parallel.csv
+    jobid: 725
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell163
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell333.ptCounts.qualFilt.parallel.csv
+    jobid: 678
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell333
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell265.ptCounts.qualFilt.parallel.csv
+    jobid: 467
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell265
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell94.ptCounts.qualFilt.parallel.csv
+    jobid: 444
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell94
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell33.ptCounts.qualFilt.parallel.csv
+    jobid: 506
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell33
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell335.ptCounts.qualFilt.parallel.csv
+    jobid: 612
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell335
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell302.ptCounts.qualFilt.parallel.csv
+    jobid: 576
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell302
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell226.ptCounts.qualFilt.parallel.csv
+    jobid: 395
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell226
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell129.ptCounts.qualFilt.parallel.csv
+    jobid: 599
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell129
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell137.ptCounts.qualFilt.parallel.csv
+    jobid: 610
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell137
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell327.ptCounts.qualFilt.parallel.csv
+    jobid: 552
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell327
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell304.ptCounts.qualFilt.parallel.csv
+    jobid: 630
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell304
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell66.ptCounts.qualFilt.parallel.csv
+    jobid: 388
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell66
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell2.ptCounts.qualFilt.parallel.csv
+    jobid: 606
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell2
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell168.ptCounts.qualFilt.parallel.csv
+    jobid: 679
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell168
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell299.ptCounts.qualFilt.parallel.csv
+    jobid: 730
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell299
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell158.ptCounts.qualFilt.parallel.csv
+    jobid: 548
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell158
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell103.ptCounts.qualFilt.parallel.csv
+    jobid: 750
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell103
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell123.ptCounts.qualFilt.parallel.csv
+    jobid: 768
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell123
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell228.ptCounts.qualFilt.parallel.csv
+    jobid: 578
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell228
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell19.ptCounts.qualFilt.parallel.csv
+    jobid: 637
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell19
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell88.ptCounts.qualFilt.parallel.csv
+    jobid: 522
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell88
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell357.ptCounts.qualFilt.parallel.csv
+    jobid: 636
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell357
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell314.ptCounts.qualFilt.parallel.csv
+    jobid: 624
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell314
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell156.ptCounts.qualFilt.parallel.csv
+    jobid: 749
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell156
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell334.ptCounts.qualFilt.parallel.csv
+    jobid: 539
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell334
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell283.ptCounts.qualFilt.parallel.csv
+    jobid: 693
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell283
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell305.ptCounts.qualFilt.parallel.csv
+    jobid: 394
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell305
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell179.ptCounts.qualFilt.parallel.csv
+    jobid: 410
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell179
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell259.ptCounts.qualFilt.parallel.csv
+    jobid: 414
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell259
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell208.ptCounts.qualFilt.parallel.csv
+    jobid: 663
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell208
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell5.ptCounts.qualFilt.parallel.csv
+    jobid: 694
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell5
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell51.ptCounts.qualFilt.parallel.csv
+    jobid: 401
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell51
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell321.ptCounts.qualFilt.parallel.csv
+    jobid: 510
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell321
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell201.ptCounts.qualFilt.parallel.csv
+    jobid: 766
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell201
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell372.ptCounts.qualFilt.parallel.csv
+    jobid: 528
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell372
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell50.ptCounts.qualFilt.parallel.csv
+    jobid: 651
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell50
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell181.ptCounts.qualFilt.parallel.csv
+    jobid: 691
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell181
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell97.ptCounts.qualFilt.parallel.csv
+    jobid: 695
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell97
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell38.ptCounts.qualFilt.parallel.csv
+    jobid: 392
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell38
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell47.ptCounts.qualFilt.parallel.csv
+    jobid: 656
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell47
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell28.ptCounts.qualFilt.parallel.csv
+    jobid: 480
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell28
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell149.ptCounts.qualFilt.parallel.csv
+    jobid: 669
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell149
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell377.ptCounts.qualFilt.parallel.csv
+    jobid: 603
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell377
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell269.ptCounts.qualFilt.parallel.csv
+    jobid: 587
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell269
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell116.ptCounts.qualFilt.parallel.csv
+    jobid: 515
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell116
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell8.ptCounts.qualFilt.parallel.csv
+    jobid: 556
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell8
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell291.ptCounts.qualFilt.parallel.csv
+    jobid: 680
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell291
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell218.ptCounts.qualFilt.parallel.csv
+    jobid: 483
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell218
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell20.ptCounts.qualFilt.parallel.csv
+    jobid: 553
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell20
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell132.ptCounts.qualFilt.parallel.csv
+    jobid: 453
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell132
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell380.ptCounts.qualFilt.parallel.csv
+    jobid: 447
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell380
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell307.ptCounts.qualFilt.parallel.csv
+    jobid: 648
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell307
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell133.ptCounts.qualFilt.parallel.csv
+    jobid: 646
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell133
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell350.ptCounts.qualFilt.parallel.csv
+    jobid: 710
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell350
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell295.ptCounts.qualFilt.parallel.csv
+    jobid: 445
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell295
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell329.ptCounts.qualFilt.parallel.csv
+    jobid: 744
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell329
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell330.ptCounts.qualFilt.parallel.csv
+    jobid: 618
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell330
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell203.ptCounts.qualFilt.parallel.csv
+    jobid: 698
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell203
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell55.ptCounts.qualFilt.parallel.csv
+    jobid: 672
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell55
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell243.ptCounts.qualFilt.parallel.csv
+    jobid: 739
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell243
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell366.ptCounts.qualFilt.parallel.csv
+    jobid: 732
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell366
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell220.ptCounts.qualFilt.parallel.csv
+    jobid: 421
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell220
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell255.ptCounts.qualFilt.parallel.csv
+    jobid: 557
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell255
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell328.ptCounts.qualFilt.parallel.csv
+    jobid: 674
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell328
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell258.ptCounts.qualFilt.parallel.csv
+    jobid: 703
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell258
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell114.ptCounts.qualFilt.parallel.csv
+    jobid: 607
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell114
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell197.ptCounts.qualFilt.parallel.csv
+    jobid: 540
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell197
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell347.ptCounts.qualFilt.parallel.csv
+    jobid: 405
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell347
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell345.ptCounts.qualFilt.parallel.csv
+    jobid: 745
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell345
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell16.ptCounts.qualFilt.parallel.csv
+    jobid: 735
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell16
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell119.ptCounts.qualFilt.parallel.csv
+    jobid: 706
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell119
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell104.ptCounts.qualFilt.parallel.csv
+    jobid: 470
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell104
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell73.ptCounts.qualFilt.parallel.csv
+    jobid: 702
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell73
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell266.ptCounts.qualFilt.parallel.csv
+    jobid: 652
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell266
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell241.ptCounts.qualFilt.parallel.csv
+    jobid: 738
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell241
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell43.ptCounts.qualFilt.parallel.csv
+    jobid: 708
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell43
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell365.ptCounts.qualFilt.parallel.csv
+    jobid: 542
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell365
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell244.ptCounts.qualFilt.parallel.csv
+    jobid: 673
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell244
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell22.ptCounts.qualFilt.parallel.csv
+    jobid: 512
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell22
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell237.ptCounts.qualFilt.parallel.csv
+    jobid: 769
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell237
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell301.ptCounts.qualFilt.parallel.csv
+    jobid: 562
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell301
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell27.ptCounts.qualFilt.parallel.csv
+    jobid: 469
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell27
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell288.ptCounts.qualFilt.parallel.csv
+    jobid: 541
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell288
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell138.ptCounts.qualFilt.parallel.csv
+    jobid: 577
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell138
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell268.ptCounts.qualFilt.parallel.csv
+    jobid: 525
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell268
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell42.ptCounts.qualFilt.parallel.csv
+    jobid: 459
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell42
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell159.ptCounts.qualFilt.parallel.csv
+    jobid: 407
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell159
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell310.ptCounts.qualFilt.parallel.csv
+    jobid: 537
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell310
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell162.ptCounts.qualFilt.parallel.csv
+    jobid: 765
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell162
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell117.ptCounts.qualFilt.parallel.csv
+    jobid: 481
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell117
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell52.ptCounts.qualFilt.parallel.csv
+    jobid: 628
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell52
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell260.ptCounts.qualFilt.parallel.csv
+    jobid: 761
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell260
+
+Terminating processes on user request.
+Complete log: .snakemake/log/2018-02-23T094312.817029.snakemake.log

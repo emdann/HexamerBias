@@ -1,0 +1,3 @@
+Building DAG of jobs...
+MissingRuleException:
+No rule to produce /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d1-MitoTrackerThird-Satellites-Adult.bam (if you use input functions make sure that they don't raise unexpected exceptions).

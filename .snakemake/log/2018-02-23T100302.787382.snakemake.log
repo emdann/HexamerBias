@@ -1,0 +1,642 @@
+Building DAG of jobs...
+
+rule get_primed_region:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    jobid: 388
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult
+
+
+rule pt_counts:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell1.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell2.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell3.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell4.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell5.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell6.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell7.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell8.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell9.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell10.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell11.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell12.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell13.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell14.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell15.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell16.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell17.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell18.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell19.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell20.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell21.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell22.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell23.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell24.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell25.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell26.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell27.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell28.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell29.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell30.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell31.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell32.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell33.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell34.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell35.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell36.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell37.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell38.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell39.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell40.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell41.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell42.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell43.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell44.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell45.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell46.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell47.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell48.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell49.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell50.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell51.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell52.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell53.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell54.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell55.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell56.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell57.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell58.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell59.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell60.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell61.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell62.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell63.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell64.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell65.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell66.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell67.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell68.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell69.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell70.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell71.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell72.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell73.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell74.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell75.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell76.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell77.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell78.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell79.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell80.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell81.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell82.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell83.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell84.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell85.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell86.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell87.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell88.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell89.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell90.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell91.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell92.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell93.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell94.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell95.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell96.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell97.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell98.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell99.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell100.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell101.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell102.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell103.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell104.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell105.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell106.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell107.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell108.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell109.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell110.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell111.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell112.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell113.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell114.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell115.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell116.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell117.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell118.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell119.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell120.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell121.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell122.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell123.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell124.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell125.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell126.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell127.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell128.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell129.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell130.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell131.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell132.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell133.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell134.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell135.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell136.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell137.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell138.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell139.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell140.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell141.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell142.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell143.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell144.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell145.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell146.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell147.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell148.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell149.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell150.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell151.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell152.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell153.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell154.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell155.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell156.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell157.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell158.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell159.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell160.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell161.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell162.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell163.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell164.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell165.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell166.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell167.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell168.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell169.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell170.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell171.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell172.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell173.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell174.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell175.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell176.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell177.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell178.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell179.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell180.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell181.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell182.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell183.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell184.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell185.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell186.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell187.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell188.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell189.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell190.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell191.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell192.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell193.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell194.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell195.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell196.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell197.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell198.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell199.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell200.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell201.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell202.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell203.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell204.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell205.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell206.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell207.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell208.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell209.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell210.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell211.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell212.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell213.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell214.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell215.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell216.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell217.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell218.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell219.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell220.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell221.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell222.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell223.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell224.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell225.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell226.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell227.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell228.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell229.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell230.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell231.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell232.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell233.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell234.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell235.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell236.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell237.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell238.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell239.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell240.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell241.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell242.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell243.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell244.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell245.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell246.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell247.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell248.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell249.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell250.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell251.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell252.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell253.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell254.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell255.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell256.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell257.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell258.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell259.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell260.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell261.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell262.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell263.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell264.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell265.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell266.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell267.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell268.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell269.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell270.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell271.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell272.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell273.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell274.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell275.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell276.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell277.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell278.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell279.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell280.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell281.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell282.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell283.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell284.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell285.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell286.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell287.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell288.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell289.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell290.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell291.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell292.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell293.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell294.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell295.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell296.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell297.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell298.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell299.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell300.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell301.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell302.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell303.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell304.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell305.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell306.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell307.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell308.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell309.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell310.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell311.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell312.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell313.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell314.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell315.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell316.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell317.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell318.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell319.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell320.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell321.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell322.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell323.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell324.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell325.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell326.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell327.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell328.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell329.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell330.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell331.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell332.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell333.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell334.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell335.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell336.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell337.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell338.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell339.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell340.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell341.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell342.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell343.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell344.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell345.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell346.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell347.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell348.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell349.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell350.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell351.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell352.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell353.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell354.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell355.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell356.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell357.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell358.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell359.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell360.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell361.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell362.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell363.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell364.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell365.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell366.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell367.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell368.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell369.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell370.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell371.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell372.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell373.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell374.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell375.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell376.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell377.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell378.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell379.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell380.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell381.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell382.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell383.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell384.ptCounts.qualFilt.parallel.csv
+    jobid: 386
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult
+    threads: 10
+
+
+rule kmer_count:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.coutt.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    jobid: 387
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult
+    threads: 8
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell277.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell277_ptDg_qual.csv
+    jobid: 77
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell277
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell335.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell335_ptDg_qual.csv
+    jobid: 78
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell335
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell257.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell257_ptDg_qual.csv
+    jobid: 83
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell257
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell88.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell88_ptDg_qual.csv
+    jobid: 82
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell88
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell5.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell5_ptDg_qual.csv
+    jobid: 80
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell5
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell48.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell48_ptDg_qual.csv
+    jobid: 81
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell48
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell60.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell60_ptDg_qual.csv
+    jobid: 79
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell60
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell93.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell93_ptDg_qual.csv
+    jobid: 75
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell93
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell112.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell112_ptDg_qual.csv
+    jobid: 76
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell112
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell368.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell368_ptDg_qual.csv
+    jobid: 88
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell368
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell238.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell238_ptDg_qual.csv
+    jobid: 89
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell238
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell222.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell222_ptDg_qual.csv
+    jobid: 87
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell222
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell340.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell340_ptDg_qual.csv
+    jobid: 86
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell340
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell84.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell84_ptDg_qual.csv
+    jobid: 84
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell84
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell289.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell289_ptDg_qual.csv
+    jobid: 85
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell289
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell100.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell100_ptDg_qual.csv
+    jobid: 93
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell100
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell165.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell165_ptDg_qual.csv
+    jobid: 94
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell165
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell259.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell259_ptDg_qual.csv
+    jobid: 91
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell259
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell20.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell20_ptDg_qual.csv
+    jobid: 90
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell20
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell139.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell139_ptDg_qual.csv
+    jobid: 92
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell139
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell81.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell81_ptDg_qual.csv
+    jobid: 97
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell81
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell188.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell188_ptDg_qual.csv
+    jobid: 96
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell188
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell137.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell137_ptDg_qual.csv
+    jobid: 101
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell137
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell64.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell64_ptDg_qual.csv
+    jobid: 100
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell64
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell320.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell320_ptDg_qual.csv
+    jobid: 98
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell320
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell86.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell86_ptDg_qual.csv
+    jobid: 99
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell86
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell314.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell314_ptDg_qual.csv
+    jobid: 95
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell314
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell57.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell57_ptDg_qual.csv
+    jobid: 58
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell57
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell312.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell312_ptDg_qual.csv
+    jobid: 55
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell312
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell35.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell35_ptDg_qual.csv
+    jobid: 53
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell35
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell383.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell383_ptDg_qual.csv
+    jobid: 54
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell383
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell153.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell153_ptDg_qual.csv
+    jobid: 52
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell153
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell11.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell11_ptDg_qual.csv
+    jobid: 51
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell11
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell114.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell114_ptDg_qual.csv
+    jobid: 56
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell114
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell306.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell306_ptDg_qual.csv
+    jobid: 57
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell306
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell126.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell126_ptDg_qual.csv
+    jobid: 63
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell126
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell315.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell315_ptDg_qual.csv
+    jobid: 61
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell315
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell263.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell263_ptDg_qual.csv
+    jobid: 62
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell263
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell140.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell140_ptDg_qual.csv
+    jobid: 65
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell140
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell28.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell28_ptDg_qual.csv
+    jobid: 64
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell28
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell328.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell328_ptDg_qual.csv
+    jobid: 59
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell328
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell313.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell313_ptDg_qual.csv
+    jobid: 60
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell313
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell344.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell344_ptDg_qual.csv
+    jobid: 71
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell344
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell304.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell304_ptDg_qual.csv
+    jobid: 67
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell304
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell380.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell380_ptDg_qual.csv
+    jobid: 68
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell380
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell206.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell206_ptDg_qual.csv
+    jobid: 66
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell206
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell271.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell271_ptDg_qual.csv
+    jobid: 69
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell271
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell324.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell324_ptDg_qual.csv
+    jobid: 70
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell324
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell292.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell292_ptDg_qual.csv
+    jobid: 72
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell292
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell301.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell301_ptDg_qual.csv
+    jobid: 73
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell301
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell272.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell272_ptDg_qual.csv
+    jobid: 74
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell272
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell119.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell119_ptDg_qual.csv
+    jobid: 27
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell119
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell232.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell232_ptDg_qual.csv
+    jobid: 26
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell232
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell25.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell25_ptDg_qual.csv
+    jobid: 28
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell25
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell248.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell248_ptDg_qual.csv
+    jobid: 25
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell248
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell17.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell17_ptDg_qual.csv
+    jobid: 33
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell17
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell148.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell148_ptDg_qual.csv
+    jobid: 32
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell148
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell291.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell291_ptDg_qual.csv
+    jobid: 35
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell291
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell367.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell367_ptDg_qual.csv
+    jobid: 36
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell367
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell143.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell143_ptDg_qual.csv
+    jobid: 34
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell143
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell295.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell295_ptDg_qual.csv
+    jobid: 30
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell295
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell351.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell351_ptDg_qual.csv
+    jobid: 31
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell351
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell142.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell142_ptDg_qual.csv
+    jobid: 29
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell142
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell15.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell15_ptDg_qual.csv
+    jobid: 39
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell15
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell65.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell65_ptDg_qual.csv
+    jobid: 40
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell65
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell58.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell58_ptDg_qual.csv
+    jobid: 42
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell58
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell323.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell323_ptDg_qual.csv
+    jobid: 41
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell323
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell363.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell363_ptDg_qual.csv
+    jobid: 37
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell363
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell216.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell216_ptDg_qual.csv
+    jobid: 38
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell216
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell163.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell163_ptDg_qual.csv
+    jobid: 48
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell163
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell234.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell234_ptDg_qual.csv
+    jobid: 49
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell234
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell348.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell348_ptDg_qual.csv
+    jobid: 50
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell348
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell279.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell279_ptDg_qual.csv
+    jobid: 44
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell279
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell26.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell26_ptDg_qual.csv
+    jobid: 43
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell26
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell251.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell251_ptDg_qual.csv
+    jobid: 46
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell251
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell258.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell258_ptDg_qual.csv
+    jobid: 47
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell258
+    threads: 10
+
+
+rule predict_dg:
+    input: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/ptCounts/SvdB11d2-MitoTrackerThird-Satellites-Adult.cell117.ptCounts.qualFilt.parallel.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2/predictedDg/SvdB11d2-MitoTrackerThird-Satellites-Adult_cell117_ptDg_qual.csv
+    jobid: 45
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/testing2, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult, cell=cell117
+    threads: 10
+
+Terminating processes on user request.
+Complete log: .snakemake/log/2018-02-23T100302.787382.snakemake.log

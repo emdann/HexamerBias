@@ -1,0 +1,4 @@
+Building DAG of jobs...
+WildcardError in line 8 of /hpc/hub_oudenaarden/edann/bin/coverage_bias/Snakefile:
+Wildcards in input files cannot be determined from output files:
+'dir'

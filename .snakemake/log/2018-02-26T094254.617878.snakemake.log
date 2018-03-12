@@ -1,0 +1,26 @@
+Building DAG of jobs...
+Provided cores: 2
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	get_primed_region
+	1
+
+rule get_primed_region:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/test_snakemake/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+    jobid: 0
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/test_snakemake, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult
+
+Error in rule get_primed_region:
+    jobid: 0
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/test_snakemake/SvdB11d2-MitoTrackerThird-Satellites-Adult.primedreg.fa
+
+RuleException:
+WorkflowError in line 27 of /hpc/hub_oudenaarden/edann/bin/coverage_bias/Snakefile:
+URLError: <urlopen error [Errno 2] No such file or directory: '/hpc/hub_oudenaarden/edann/bin/coverage_bias/getPrimedRegion.py -o /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/test_snakemake /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.sam.gz /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa rna'>
+  File "/hpc/hub_oudenaarden/edann/bin/coverage_bias/Snakefile", line 27, in __rule_get_primed_region
+  File "/hpc/local/CentOS7/common/lang/python/3.6.1/lib/python3.6/concurrent/futures/thread.py", line 55, in run
+Will exit after finishing currently running jobs.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2018-02-26T094254.617878.snakemake.log

@@ -1,0 +1,27 @@
+Building DAG of jobs...
+Provided cores: 16
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	kmer_count
+	1
+
+rule kmer_count:
+    input: /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.coutt.csv, /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/test_snakemake/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+    jobid: 0
+    wildcards: dir=/hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/test_snakemake, sample=SvdB11d2-MitoTrackerThird-Satellites-Adult
+    threads: 8
+
+Error in rule kmer_count:
+    jobid: 0
+    output: /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/test_snakemake/SvdB11d2-MitoTrackerThird-Satellites-Adult.cellAbundance.noN.csv
+
+RuleException:
+WorkflowError in line 39 of /hpc/hub_oudenaarden/edann/bin/coverage_bias/Snakefile:
+URLError: <urlopen error [Errno 2] No such file or directory: '/hpc/hub_oudenaarden/edann/bin/coverage_bias/kmerCounter.py -o /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/test_snakemake /hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d2-MitoTrackerThird-Satellites-Adult.coutt.csv /hpc/hub_oudenaarden/edann/hexamers/rnaseq/mouse/mm10_RefSeq_genes_clean_ERCC92_polyA_10_masked_eGFP_Mito.fa'>
+  File "/hpc/hub_oudenaarden/edann/bin/coverage_bias/Snakefile", line 39, in __rule_kmer_count
+  File "/hpc/local/CentOS7/common/lang/python/3.6.1/lib/python3.6/concurrent/futures/thread.py", line 55, in run
+Will exit after finishing currently running jobs.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2018-02-26T094251.422879.snakemake.log

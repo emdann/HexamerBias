@@ -1,0 +1,4 @@
+Building DAG of jobs...
+MissingInputException in line 7 of /hpc/hub_oudenaarden/edann/bin/coverage_bias/Snakefile:
+Missing input files for rule get_primed_region:
+/hpc/hub_oudenaarden/aalemany/emma-adi/mouse/SvdB11d1-MitoTrackerThird-Satellites-Adult.bam

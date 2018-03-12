@@ -1,0 +1,3 @@
+WildcardError in line 11 of /hpc/hub_oudenaarden/edann/bin/coverage_bias/Snakefile:
+No values given for wildcard 'sample'.
+  File "/hpc/hub_oudenaarden/edann/bin/coverage_bias/Snakefile", line 11, in <module>
