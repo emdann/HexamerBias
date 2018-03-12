@@ -85,6 +85,7 @@ rule find_processed_cells:
             for cell in numreads[numreads.numReads>10000].cell:
                 print(cell, file=outfile)
 
+CELLS=[cell.strip() for cell in open(DIR + '/' + SAMPLE + '.selectedCells.txt').readlines()]
 
 rule pt_counts:
     input:
