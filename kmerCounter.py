@@ -11,6 +11,7 @@ args = argparser.parse_args()
 
 def find_kmers(params):
     string, k, addTo = params
+    string = string.upper()
     kmerCounts = collections.Counter() if addTo is None else addTo
     n = len(string)
     for i in range(0, n-k+1):
