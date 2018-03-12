@@ -85,7 +85,7 @@ rule find_processed_cells:
             for cell in numreads[numreads.numReads>10000].cell:
                 print(cell, file=outfile)
 
-CELLS=[cell.strip() for cell in open(DIR + '/' + SAMPLE + '.selectedCells.txt').readlines()]
+# CELLS=[cell.strip() for cell in open(DIR + '/' + SAMPLE + '.selectedCells.txt').readlines()]
 
 rule pt_counts:
     input:
@@ -93,7 +93,7 @@ rule pt_counts:
         primedfa= '{dir}/{sample}.primedreg.fa',
         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv'
     output:
-        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS)
+        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=[cell.strip() for cell in open(DIR + '/' + SAMPLE + '.selectedCells.txt').readlines()])
     params:
         type=TYPE
     threads: 10
