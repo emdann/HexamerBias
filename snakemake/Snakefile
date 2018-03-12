@@ -94,7 +94,7 @@ rule pt_counts:
         cellAbundance='{dir}/{sample}.cellAbundance.noN.csv',
         highcovCells='{dir}/{sample}.selectedCells.txt'
     output:
-        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS)
+        ptCounts=expand('{{dir}}/ptCounts/{{sample}}.cell{cell}.ptCounts.qualFilt.parallel.csv', cell=CELLS)
     params:
         type=TYPE
     threads: 10
