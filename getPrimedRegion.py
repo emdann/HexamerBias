@@ -30,7 +30,7 @@ def get_template_bed(bamfile, type, trim=9):
 		bed=[]
 		with ps.AlignmentFile(bamfile,"rb") as bam:
 			for r in bam.fetch(until_eof=True):
-				bed.append((r.reference_name, r.pos - trim, r.pos - trim + 6, r.qname, 1))
+				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, 1))
 				# if r.is_read2:
 		# 	bed.append((r.reference_name, r.pos - trim_r2, r.pos - trim_r2 + 6, r.qname, 2))
 
