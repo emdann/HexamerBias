@@ -22,7 +22,7 @@ CELLS=[cell.strip() for cell in open(DIR + '/' + SAMPLE + '.selectedCells.txt').
 rule all:
     input:
         commonPt = expand('{dir}/{sample}.commonPtPairs.csv', dir=DIR, sample=SAMPLE),
-        predCov = expand('{dir}/predictedCov/{sample}.CovPred.{cell}.qual.txt', dir=DIR, sample=SAMPLE, cell=CELLS)
+        # predCov = expand('{dir}/predictedCov/{sample}.CovPred.{cell}.qual.txt', dir=DIR, sample=SAMPLE, cell=CELLS)
 
 rule get_primed_region:
     input:
