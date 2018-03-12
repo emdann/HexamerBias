@@ -93,7 +93,7 @@ if type=='rna':
 
 if type=='bs':
     # abundanceFile = fasta.strip('.primedreg.fa')+'.cellAbundance.noN.csv'
-    abundanceFile='mm10.cellAbundance.noN.csv'
+    abundanceFile='danRer10.abundance.csv'
     tabAb = pd.read_csv(abundanceFile, index_col=0, header=None)
     df = make_occurrencies_tbl(templDic)
     path = '/'.join(fasta.split('/')[:-1])

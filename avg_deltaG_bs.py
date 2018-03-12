@@ -2,12 +2,13 @@ import pysam as ps
 import os
 import pandas as pd
 import numpy as np
+from hexVSprimed import *
 
 files = [f for f in os.listdir() if 'ptDg' in f]
 
-dgMat = pd.read_csv(files[0], index_col=0)
+dgMat = pd.read_csv(files[0], index_col=0, compression=findCompr(files[0]))
 for f in files[1:]:
-    df = pd.read_csv(f, index_col=0)
+    df = pd.read_csv(f, index_col=0, compression=findCompr(f))
     dgMat = dgMat + df
 
 avgMat = dgMat/len(files)
