@@ -6,16 +6,16 @@ import pybedtools as pbt
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Extract position of primer placement from trimmed section of aligned reads. By Emma Dann")
 argparser.add_argument('bam', type=str, help='Input bam file')
 argparser.add_argument('refgen', type=str, help='Fasta of reference genome (needs to be unzipped)')
-argparser.add_argument('type', type=str, help='Original data of bam (bs or rna)')
+argparser.add_argument('type', type=str, help='Original data of bam (bs_pe, bs_se or rna)')
 argparser.add_argument('-o', type=str, help='path to directory to save output')
 args = argparser.parse_args()
 
-def get_template_bed(bamfile, type):
+def get_template_bed(bamfile, type, trim=9):
 	'''
 	Extract positions of template regions for primers of aligned reads in bam.
 	For type = 'rna' extracts the first 6 bases of the aligned read
 	'''
-	if type=='bs':
+	if type=='bs_pe':
 		trim_r1=9
 		trim_r2=8
 		bed=[]
@@ -24,7 +24,16 @@ def get_template_bed(bamfile, type):
 				if r.is_read1:
 					bed.append((r.reference_name, r.pos - trim_r1, r.pos - trim_r1 + 6, r.qname, 1))
 				# if r.is_read2:
-				# 	bed.append((r.reference_name, r.pos - trim_r2, r.pos - trim_r2 + 6, r.qname, 2))
+		# 	bed.append((r.reference_name, r.pos - trim_r2, r.pos - trim_r2 + 6, r.qname, 2))
+	if type=='bs_se':
+		trim=10
+		bed=[]
+		with ps.AlignmentFile(bamfile,"rb") as bam:
+			for r in bam.fetch(until_eof=True):
+				bed.append((r.reference_name, r.pos - trim, r.pos - trim + 6, r.qname, 1))
+				# if r.is_read2:
+		# 	bed.append((r.reference_name, r.pos - trim_r2, r.pos - trim_r2 + 6, r.qname, 2))
+
 	elif type=='rna':
 		bed=[]
 		with ps.AlignmentFile(bamfile,"rb") as bam:
