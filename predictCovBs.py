@@ -5,12 +5,12 @@ import numpy as np
 import argparse
 from hexVSprimed import *
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Coverage prediction. \n By Emma Dann")
-argparser.add_argument('predDg', type=str, help='Matrix of predicted Dg')
-argparser.add_argument('predSd', type=str, help='Matrix of predicted Dg standard deviation')
-argparser.add_argument('abundance', type=str, help='template abundance in refgen')
-# argparser.add_argument('cellPtCount', type=str, help='Matrix of pt occurrencies in a cell')
-args = argparser.parse_args()
+# argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Coverage prediction. \n By Emma Dann")
+# argparser.add_argument('predDg', type=str, help='Matrix of predicted Dg')
+# argparser.add_argument('predSd', type=str, help='Matrix of predicted Dg standard deviation')
+# argparser.add_argument('abundance', type=str, help='template abundance in refgen')
+# # argparser.add_argument('cellPtCount', type=str, help='Matrix of pt occurrencies in a cell')
+# args = argparser.parse_args()
 
 def predictCov(t,DgRow):
     '''
