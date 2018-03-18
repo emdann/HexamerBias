@@ -46,18 +46,29 @@ make.cell.corr <- function(ptPairs){
 
 colors <- brewer.pal(3, 'RdBu')[ii]
 
+### Work on RNA seq data
+mm1 <- load.common.pt.file("~/mnt/edann/hexamers/rnaseq/mouse/testing/SvdB11d1-MitoTrackerThird-Satellites-Adult.commonPtPairs.csv")
+mm2 <- load.common.pt.file("~/mnt/edann/hexamers/rnaseq/mouse/SvB11d2/SvdB11d2-MitoTrackerThird-Satellites-Adult.commonPtPairs.csv")
+zf <- load.common.pt.file("~/mnt/edann/hexamers/rnaseq/zebrafish/gk2a-2.commonPtPairs.csv")
+
+mm1 <- load.numReads.file("~/mnt/edann/hexamers/rnaseq/mouse/testing/SvdB11d1-MitoTrackerThird-Satellites-Adult.commonPtPairs.csv")
+
+mm1 <- load.numReads.file("~/mnt/edann/hexamers/rnaseq/mouse/testing/SvdB11d1-MitoTrackerThird-Satellites-Adult.numReads.txt")
+mm2 <- read.delim("~/mnt/edann/hexamers/VAN1667prediction/VAN1667.numReads.txt", header=FALSE, col.names = c('num.reads', 'cell'))
+zf <- read.delim("~/mnt/edann/hexamers/zf_prediction/zebrafishBs.numReads.txt", header=FALSE, col.names = c('num.reads', 'cell'))
+
 n.reads <- num.reads$num.reads[match( colnames(corr), num.reads$cell)]
-anno <- data.frame( `num.reads(x10k)` = as.numeric(cut((n.reads), breaks = c(seq(10000,100000, by=10000), max(n.reads)))),
+anno <- data.frame( `num.reads(x10k)` = as.numeric(cut((n.reads), breaks = c(seq(10000,100000, by=10000), max(n.reads))))
                   sample = gsub(colnames(corr), pattern = '.cell.+', replacement = ''),
                   row.names = colnames(corr)) 
-p <- pheatmap(corr, show_rownames = F, show_colnames = F,
-              #legend_breaks = c(0.5, 0.6, 0.7, 0.8, 0.9, max(corr)), legend_labels=c(0.5, 0.6, 0.7, 0.8, 0.9, 'PCC'),
-              # cellheight=1, cellwidth=2, 
-              border_color = NA ,annotation_row = anno)
-              , annotation_col = anno, annotation_names_row = FALSE, annotation_names_col = FALSE, #annotation_colors = list(sample=sample,no.reads=colors),
-              annotation_legend = TRUE )
-,
-              filename = 'AvOwork/output/deltaGprediction/mousezfcellsCorrDiagonal_qual_heatmap_withAnno.pdf', height = 10, width = 10)
+# anno <- anno %>% mutate(organism = as.factor(ifelse(anno$sample=='gk2a.2', 'zf', 'mouse')))
+pheatmap(corr, show_rownames = F, show_colnames = F,
+              # legend_breaks = c(0.5, 0.6, 0.7, 0.8, 0.9, max(corr)), legend_labels=c(0.5, 0.6, 0.7, 0.8, 0.9, 'PCC'),
+              cellheight=0.6, cellwidth=0.6) ,
+              border_color = NA ,annotation_row = anno,  annotation_col = anno,
+              annotation_names_row = FALSE, annotation_names_col = FALSE, #annotation_colors = list(sample=sample,no.reads=colors),
+              annotation_legend = TRUE,
+              filename = 'AvOwork/output/deltaGprediction/mousezfcellsCorr_qual_heatmap_withAnno_final_allzeros.pdf', height = 12, width = 14)
 
 
 rowHist <- function(row, ptOrdGcTempl){
@@ -105,6 +116,4 @@ ggplot(cors,aes(PCC_Abundance, PCC_DeltaG) ) +
   theme_classic()
 
 ggsave("~/AvOwork/output/deltaGprediction/PCC_abundanceVSDeltaG.pdf")
-
-
 

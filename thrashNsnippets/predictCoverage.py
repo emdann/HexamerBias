@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Coverage prediction. \n By Emma Dann")
 argparser.add_argument('predDg', type=str, help='Matrix of predicted Dg')
+argparser.add_argument('predSd', type=str, help='Matrix of predicted Dg standard deviation')
 argparser.add_argument('cellPtCount', type=str, help='Matrix of pt occurrencies in a cell')
 argparser.add_argument('-t', type=str, default=0, help='type (rna or bs)')
 args = argparser.parse_args()
@@ -86,8 +87,8 @@ errDgMat = pd.read_csv(errDg, compression = findCompr(errDg), index_col=0)
 path = '/'.join(ptMatrix.split('/')[:-1])
 dgMat = pd.read_csv(path+predictedDg, index_col=0, compression = findCompr(predictedDg))
 
-with open('VAN1815_L2.CovPred.qual.txt', 'w') as output:
-    print('template','obs', 'exp', 'err', sep='\t', file=output)
+with open('OUD2086_distal.CovPred.qual.txt', 'w') as output:
+    print('template','obs', 'exp',  sep='\t', file=output)
     for templ in dgMat.iterrows():
         t,DgRow = templ
         print(t, ptMat.loc[ptMat.index==t].fillna(0).values.sum(), predictCov(genomeAb[t],DgRow), sep='\t', file=output) #, propagateError(cellAb[t], errDgMat[t]), sep='\t')#, file=output)
