@@ -13,7 +13,7 @@ def make_Dg_array(dir):
     files = [f for f in os.listdir(dir) if 'ptDg' in f]
     dgArrays = []
     for f in files:
-        df = pd.read_csv(dir + '/' + f, index_col=0)
+        df = pd.read_csv(dir + '/' + f, index_col=0, compression=findCompr(f))
         array = np.ma.log(np.array(df)).reshape((16777216))
         dgArrays.append(array)
     pairNames = []
@@ -61,16 +61,17 @@ def make_deltaG_correlation_matrix(commonPtFiles):
 
 
 # Average and standard deviation
-def compute_avg_deltaG(dgArrays, colnames, colnames_to_keep):
+def compute_std_deltaG(dgArrays, colnames, templateDf):
     '''
-    Compute avg on selected colnames
+    Compute std on selected colnames.
+    Takes in input original ptDg table as template
     '''
-    selectedArrays = []
-    for i in range(len(dgArrays)):
-        if colnames[i] in colnames_to_keep:
-            selectedArrays.append(dgArrays[i])
-    avgMatrix = np.mean(selectedArrays, axis=0)
-    sdMatrix = np.std(dgArrays, axis=0, ddof=1)
+    maskedArray = np.ma.array([f for f in dgArrays])
+    sdMatrix = maskedArray.std(axis=0)
+    stddf = pd.DataFrame(sd.reshape(4096,4096))
+    stddf.columns = templateDf.columns
+    stddf.index = templateDf.index
+    return(stddf)
 
 # s=0
 # for a in dgArrays:
