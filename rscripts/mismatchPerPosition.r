@@ -34,7 +34,7 @@ ggplot(df, aes(x=avgMM, fill=gc)) +
   ggsave('~/AvOwork/output/avgMMdistGC_rna.pdf')
 
 ## Mismatch per position
-tab <- read.csv('~/mnt/edann/hexamers/rnaseq/mmPerPosition.csv', header = 1, row.names = 1)
+tab <- read.csv('~/mnt/edann/hexamers/mismatch/L1_mismatchfreq.csv', header = 1, row.names = 1)
 tab <- tab[!grepl('N', rownames(tab)),]
 melt(t(tab)) %>% ggplot(., aes(Var1, value, fill=Var2)) + geom_bar(stat='identity')
 
@@ -49,11 +49,15 @@ d <- melt(t(freqTab)) %>%
   mutate(pos=as.numeric(gsub(pos, pattern = 'X', replacement = '')), freq=ifelse(is.na(freq),0,freq)) %>%
   arrange(pos) 
 
-ggplot(d, aes(pos, freq, fill=MMtype)) + 
-  geom_bar(stat='identity', size=0, width = 1.2) +
-  labs(x='Position') +
-  ggsave(filename = '~/AvOwork/output/mismatch_per_position_abs_rna.pdf')
+ggplot(d, aes(pos, freq)) + 
+  geom_bar(stat='identity',aes(fill=MMtype), size=0, width = 1) +
+  labs(x='Position', y='# reads') +
+  geom_label(x=15, y=150000, label='Tot. no. of reads = 8245528', cex=5) +
+  theme(axis.title = element_text(size = 20), legend.title = element_text(size=16), legend.text = element_text(size=14)) +
+  ggsave(filename = '~/AvOwork/output/mismatch_per_position_abs_L1.pdf')
 
+# n= 4003987
+  
 ## Mismatch matrix
 mmmatrix <- fread("~/mnt/edann/hexamers/mismatch/L1_R1_primed_seq.original.csv", header = TRUE)
 colnames(mmmatrix)[1]<- 'hex'

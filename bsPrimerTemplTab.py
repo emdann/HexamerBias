@@ -6,7 +6,7 @@ import pandas as pd
 import multiprocessing
 import os
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts tables for bs-seq (run on 10 cores) \n By Emma Dann")
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts tables for bs-seq \n By Emma Dann")
 argparser.add_argument('primerinput', type=str, help='Untrimmed fasta input')
 argparser.add_argument('primedreg', type=str, help='Fasta input of primed region sequences')
 argparser.add_argument('abfile', type=str, help='Csv file of kmer abundance on reference genome')

@@ -50,7 +50,7 @@ def predictCoverage(dgMat, genomeAb, errDgMat=None):
 # cellAbundanceTab = args.abundance
 
 def predict_fromFiles(predictedDg, abundanceTab, predictedSd=None):
-    tabAb = pd.read_csv(abundanceTab, index_col=0, compression=findCompr(cellAbundanceTab), header=None)
+    tabAb = pd.read_csv(abundanceTab, index_col=0, compression=findCompr(abundanceTab), header=None)
     genomeAb = tabAb[1]
     dgMat = pd.read_csv(predictedDg, index_col=0, compression = findCompr(predictedDg))
     if predictedSd:

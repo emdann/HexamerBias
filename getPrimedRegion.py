@@ -10,6 +10,10 @@ argparser.add_argument('type', type=str, help='Original data of bam (bs_pe, bs_s
 argparser.add_argument('-o', type=str, help='path to directory to save output')
 args = argparser.parse_args()
 
+
+## For some reason doesn't complete the fasta file when running everything in one.
+# Consider splitting into two scripts and retesting
+
 def get_template_bed(bamfile, type, trim=9):
 	'''
 	Extract positions of template regions for primers of aligned reads in bam.
@@ -33,7 +37,6 @@ def get_template_bed(bamfile, type, trim=9):
 				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, 1))
 				# if r.is_read2:
 		# 	bed.append((r.reference_name, r.pos - trim_r2, r.pos - trim_r2 + 6, r.qname, 2))
-
 	elif type=='rna':
 		bed=[]
 		with ps.AlignmentFile(bamfile,"rb") as bam:
@@ -55,16 +58,36 @@ def save_bedfile(bedlist, bamfile, outpath):
 
 def get_template_fasta(bamfile, fi, outpath, type):
 	'''
+	Makes fasta file of template sequences from bed file. Calling bedtools from terminal.
+	Saves output fasta file.
+	'''
+	sample = bamfile.split('/')[-1].split('.')[0]
+	bedfile = outpath + sample + '.primedreg.bed'
+	if not os.path.exists(bedfile):
+		print("Saving bed...")
+		bed = get_template_bed(bamfile, type=type)
+		bedfile = save_bedfile(bed, bamfile, outpath)
+		print("Bed saved!")
+	command = "/hpc/hub_oudenaarden/edann/bin/bedtools2/bin/bedtools getfasta -name -fi " + fi + " -bed " + bedfile + " -fo " + bedfile.split('.bed')[0] + '.fa'
+	print("Saving fasta...")
+	os.system(command)
+	print("fasta saved!")
+	return('')
+
+
+def get_template_fasta_pybedtools(bamfile, fi, outpath, type):
+	'''
 	Makes fasta file of template sequences from bed file.
 	Saves output fasta file.
 	'''
+	## For some reason doesn't complete the fasta file when running everything in one.
+	# Consider splitting into two scripts and retesting
 	sample = bamfile.split('/')[-1].split('.')[0]
 	bedfile = outpath + sample + '.primedreg.bed'
 	if not os.path.exists(bedfile):
 		bed = get_template_bed(bamfile, type=type)
 		bedfile = save_bedfile(bed, bamfile, outpath)
 	bed = pbt.BedTool(bedfile)
-	
 	faout = bed.sequence(fi, name=True)
 	faout.save_seqs(bedfile.split('.bed')[0] + '.fa')
 	return(faout)
