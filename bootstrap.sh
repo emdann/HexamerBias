@@ -23,6 +23,9 @@ fi
 
 bin_dir=/hpc/hub_oudenaarden/edann/bin/coverage_bias
 
-python ${bin_dir}/getPrimedRegion.py $bamfile $ref_gen bs_se -o ./
+echo "--- Step 1: get primed region --- "
+python ${bin_dir}/getPrimedRegion.py -o ./ $bamfile $ref_gen bs_se
+echo "--- Step 2: Make pt table --- "
 python ${bin_dir}/bsPrimerTemplTab.py $fasta ${sample}.primedreg.fa $abfile
+echo "--- Step 3: predict delta G --- "
 python ${bin_dir}/ptModel.py ${sample}.ptCounts.qualFilt.parallel.csv $abfile bs
