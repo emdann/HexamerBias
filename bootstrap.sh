@@ -16,7 +16,7 @@ fasta=$3
 abfile=/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz
 sample=$(echo $bamfile | awk '{gsub(/.bam/, ""); print}')
 
-if [ $genome = "mouse" ]
+if [ $refgen = "mouse" ]
 then
     genome=/hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa
 fi
