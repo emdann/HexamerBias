@@ -12,3 +12,16 @@ for f in $(seq 15 5 95);
   qsubl -N subsmp.${f} -pe threaded 9;
   done
 ```
+
+3) Run DeltaF prediction on all subsamples
+```
+for file in VAN1667_[123456789]*.bam;
+  do
+  echo "/hpc/hub_oudenaarden/edann/bin/coverage_bias/run_deltaF_prediction.sh $file mouse VAN1667.fastq.gz" |
+  qsubl -N predDg_${file}; done
+```
+
+4) Make table of predicted coverage for each predicted DeltaF table
+```
+
+```
