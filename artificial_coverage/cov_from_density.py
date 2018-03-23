@@ -75,8 +75,10 @@ def artificial_cov(beds,fasta,density, threads=10, win=100):
     '''
     out_bed=pd.DataFrame()
     for entry in beds:
+        print("Processind entry " + entry)
         covBed = make_bed(entry,fasta,density, threads = threads)
         if win!=0:
+            print("Running average on entry " + entry)
             covBed = running_mean(covBed, win=win)
         out_bed = out_bed.append(covBed)
     return(out_bed)
