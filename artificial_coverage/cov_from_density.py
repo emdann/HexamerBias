@@ -14,15 +14,6 @@ def template_density(covCol, abundance):
     density = df.coverage/df.abundance
     return(density)
 
-
-
-abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz"
-covFile = "predictedCoverage_avgVAN1667.txt"
-abundance = pd.read_csv(abundanceFile, index_col=0, compression=findCompr(abundanceFile), header=None)
-coverage = pd.read_table(covFile, index_col=0, sep='\t',compression=findCompr(covFile))
-covCol = coverage.VAN1815_L2_trim1_R1_bismark_bt2_pe
-
-
 def per_base_cov(params):
     '''
     Compute coverage for seq of interest based on template density
@@ -50,20 +41,33 @@ def make_bed(bedEntry, fasta, threads=10):
     for row in df.iterrows():
         start,cov = row[0],row[1][0]
         covBed.append((chr, start, start+1, cov))
-    return(covBed)
+    return(pd.DataFrame(covBed, columns=['chr','start','end','coverage']))
 
 # with ps.FastxFile(args.fasta) as chr:
 #  	for entry in chr:
 #  		seqs[entry.name] = entry.sequence.upper()
 
-
-def make_coverage_bed(bed, density):
+def running_mean(bed, win=100):
     '''
-    Make coverage track for seq of interest
+    Smoothen out base res artificial coverage
     '''
-with open(outfile, 'w') as out:
-    for bed in covBed:
-         print(bed[0], bed[1], bed[2], bed[3], sep='\t', file=out)
+    bed.coverage = pd.rolling_mean(bed.coverage, window=win)
+    bed = bed.dropna()
+    return(bed)
+
+def save_coverage_bed(bed, outfile):
+    '''
+    Save bed file of artificial coverage.
+    '''
+    with open(outfile, 'w') as out:
+        print(bed.to_string(index=False, header=False), file=out)
+    return('')
 
 
-bedEntry='chr2 74711693 74719329'
+# abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz"
+# covFile = "predictedCoverage_avgVAN1667.txt"
+# abundance = pd.read_csv(abundanceFile, index_col=0, compression=findCompr(abundanceFile), header=None)
+# coverage = pd.read_table(covFile, index_col=0, sep='\t',compression=findCompr(covFile))
+#
+# density = template_density(coverage.exp,abundance)
+# bedEntry='chr6 52229197 52242854'
