@@ -61,17 +61,27 @@ def make_deltaG_correlation_matrix(commonPtFiles):
 
 
 # Average and standard deviation
-def compute_std_deltaG(dgArrays, colnames, templateDf):
+def compute_avg_deltaG(dgArrays, templateDf, compute='avg'):
     '''
     Compute std on selected colnames.
     Takes in input original ptDg table as template
     '''
     maskedArray = np.ma.array([f for f in dgArrays])
-    sdMatrix = maskedArray.std(axis=0)
-    stddf = pd.DataFrame(sd.reshape(4096,4096))
+    if compute=='sd':
+        sdMatrix = maskedArray.std(axis=0)
+    if compute=='avg':
+        sdMatrix = maskedArray.mean(axis=0)
+    stddf = pd.DataFrame(sdMatrix.reshape(4096,4096))
     stddf.columns = templateDf.columns
     stddf.index = templateDf.index
     return(stddf)
+
+def subset_dgArrays(dgArrays, samples):
+    selArray = []
+    for i in range(len(colnames)):
+        if colnames[i] in samples:
+            selArray.append(dgArrays[i])
+    return(selArray)
 
 # s=0
 # for a in dgArrays:
