@@ -14,6 +14,12 @@ def template_density(covCol, abundance):
     density = df.coverage/df.abundance
     return(density)
 
+def splitDataFrameIntoSmaller(df, chunkSize = 10000):
+    listOfDf = list()
+    numberChunks = len(df) // chunkSize + 1
+    for i in range(numberChunks):
+        listOfDf.append(df[i*chunkSize:(i+1)*chunkSize])
+    return listOfDf
 
 def per_base_cov(params):
     '''
@@ -46,13 +52,11 @@ def make_bed(bedEntry, fasta, density, threads=10):
         covBed.append((chr, start, start+1, cov))
     return(pd.DataFrame(covBed, columns=['chr','start','end','coverage']))
 
-
-def running_mean(bed, win=100):
+def collapse_coverage_bed(bed):
     '''
-    Smoothen out base res artificial coverage
+    Collapse base resolution bed file for coverage if the coverage field
+    of consecutive entries is the same
     '''
-    bed.coverage = round(bed.coverage.rolling(window=win).mean(),4) # reducing significant digits to be able to collapse
-    bed = bed.dropna()
     c,s,e,d = bed.iloc[0]
     collapsedBed = pd.DataFrame()
     for entry in bed.iterrows():
@@ -68,6 +72,18 @@ def running_mean(bed, win=100):
     collapsedBed = collapsedBed[['chr','start','end','coverage']]
     return(collapsedBed)
 
+def running_mean(bed, win=100, threads=10):
+    '''
+    Smoothen out base res artificial coverage
+    '''
+    bed.coverage = round(bed.coverage.rolling(window=win).mean(),4) # reducing significant digits to be able to collapse
+    bed = bed.dropna()
+    listBed = splitDataFrameIntoSmaller(bed, chunkSize=100)
+    workers = multiprocessing.Pool(threads)
+    collapsedBed = pd.DataFrame()
+    for mergedBed in workers.map(collapse_coverage_bed, [ bed for bed in listBed]):
+            collapsedBed = df.append(mergedBed)
+    return(mergedBed)
 
 def artificial_cov(beds,fasta,density, threads=10, win=100):
     '''
@@ -79,10 +95,9 @@ def artificial_cov(beds,fasta,density, threads=10, win=100):
         covBed = make_bed(entry,fasta,density, threads = threads)
         if win!=0:
             print("Running average on entry " + entry)
-            covBed = running_mean(covBed, win=win)
+            covBed = running_mean(covBed, win=win, threads=threads)
         out_bed = out_bed.append(covBed)
     return(out_bed)
-
 
 def save_coverage_bed(bed, outfile):
     '''
