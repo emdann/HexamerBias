@@ -14,6 +14,7 @@ def template_density(covCol, abundance):
     density = df.coverage/df.abundance
     return(density)
 
+
 def per_base_cov(params):
     '''
     Compute coverage for seq of interest based on template density
@@ -21,12 +22,14 @@ def per_base_cov(params):
     seq, density = params
     posDic = {k:0 for k in range(len(seq))}
     for i in range(len(seq)-5):
-        d = density[seq[i:i+6]]
-        hexItems = [(k,v) for k,v in posDic.items() if k in range(i,i+6)]
-        posDic.update(map(lambda kv: (kv[0], kv[1] + d), hexItems))
+        if 'N' not in seq[i:i+6]:
+            d = density[seq[i:i+6]]
+            hexItems = [(k,v) for k,v in posDic.items() if k in range(i,i+6)]
+            posDic.update(map(lambda kv: (kv[0], kv[1] + d), hexItems))
     return(pd.DataFrame(posDic, index=[0]).T)
 
-def make_bed(bedEntry, fasta, threads=10):
+
+def make_bed(bedEntry, fasta, density, threads=10):
     '''
 
     '''
@@ -43,17 +46,41 @@ def make_bed(bedEntry, fasta, threads=10):
         covBed.append((chr, start, start+1, cov))
     return(pd.DataFrame(covBed, columns=['chr','start','end','coverage']))
 
-# with ps.FastxFile(args.fasta) as chr:
-#  	for entry in chr:
-#  		seqs[entry.name] = entry.sequence.upper()
 
 def running_mean(bed, win=100):
     '''
     Smoothen out base res artificial coverage
     '''
-    bed.coverage = pd.rolling_mean(bed.coverage, window=win)
+    bed.coverage = round(bed.coverage.rolling(window=win).mean(),4) # reducing significant digits to be able to collapse
     bed = bed.dropna()
-    return(bed)
+    c,s,e,d = bed.iloc[0]
+    collapsedBed = pd.DataFrame()
+    for entry in bed.iterrows():
+        chr,start,end,coverage = entry[1]
+        if coverage == d:
+            c,s,e,d = c,s,end,d
+        else:
+            df = pd.DataFrame({'chr':c,'start':s,'end':e,'coverage':d}, index=[0])
+            collapsedBed = collapsedBed.append(df)
+            c,s,e,d = entry[1]
+    df = pd.DataFrame({'chr':c,'start':s,'end':e,'coverage':d}, index=[0])
+    collapsedBed = collapsedBed.append(df)
+    collapsedBed = collapsedBed[['chr','start','end','coverage']]
+    return(collapsedBed)
+
+
+def artificial_cov(beds,fasta,density, threads=10, win=100):
+    '''
+    Computes artificial coverage with running mean on bed entries
+    '''
+    out_bed=pd.DataFrame()
+    for entry in beds:
+        covBed = make_bed(entry,fasta,density, threads = threads)
+        if win!=0:
+            covBed = running_mean(covBed, win=win)
+        out_bed = out_bed.append(covBed)
+    return(out_bed)
+
 
 def save_coverage_bed(bed, outfile):
     '''
@@ -63,11 +90,5 @@ def save_coverage_bed(bed, outfile):
         print(bed.to_string(index=False, header=False), file=out)
     return('')
 
-
 # abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz"
 # covFile = "predictedCoverage_avgVAN1667.txt"
-# abundance = pd.read_csv(abundanceFile, index_col=0, compression=findCompr(abundanceFile), header=None)
-# coverage = pd.read_table(covFile, index_col=0, sep='\t',compression=findCompr(covFile))
-#
-# density = template_density(coverage.exp,abundance)
-# bedEntry='chr6 52229197 52242854'
