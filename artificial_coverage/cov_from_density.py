@@ -82,7 +82,7 @@ def running_mean(bed, win=100, threads=10):
     workers = multiprocessing.Pool(threads)
     collapsedBed = pd.DataFrame()
     for mergedBed in workers.map(collapse_coverage_bed, [ bed for bed in listBed]):
-            collapsedBed = df.append(mergedBed)
+            collapsedBed = collapsedBed.append(mergedBed)
     return(mergedBed)
 
 def artificial_cov(beds,fasta,density, threads=10, win=100):
