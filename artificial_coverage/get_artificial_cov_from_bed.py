@@ -30,6 +30,6 @@ if outtype=='bedGraph':
     covBed = artificial_cov(beds,refgen,density)
     save_coverage_bed(covBed, outfile = bedFile.split('.bed')[0]+'.artCov.bed')
 if outtype=='bigWig':
-    save_bigWig(beds,refgen_fasta, outfile = bedFile.split('.bed')[0]+'.artCov.bw', threads=args.t)
+    save_bigWig(beds,refgen, outfile = bedFile.split('.bed')[0]+'.artCov.bw', threads=args.t)
 else:
     print('Wrong output file specification: use bigWig or bedGraph')
