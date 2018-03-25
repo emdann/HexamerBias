@@ -60,13 +60,13 @@ def make_BigWig_header(refgen):
         return(chr.split('chr')[1])
     return(sorted(header, key=lambda x: get_chr_num(x[0])))
 
-def add_seq_to_bigWig(seq,chrom,density, bw_with_header, filename, threads=10):
+def add_seq_to_bigWig(seq,chrom,start,density, bw_with_header, filename, threads=10):
     '''
     '''
     workers = multiprocessing.Pool(threads)
-    for posDic in workers.map(per_base_cov, [ (seq,density,start) for seq,start in [(seq[i:i+1099],i) for i in range(0,len(seq),1000)]]):
+    for posDic in workers.map(per_base_cov, [ (seq,density,start+s) for seq,s in [(seq[i:i+1099],i) for i in range(0,len(seq),1000)]]):
             posDic = running_mean_dic(posDic, win=100)
-            bw_with_header.addEntries(chrom, [k for k in posDic.keys()], values=[v for v in posDic.values()], span=1, step=1)
+            bw_with_header.addEntries(chrom, [k for k in posDic.keys()], values=[v for v in posDic.values()], span=1)
     return(bw_with_header)
 
 def save_bigWig(beds,refgen_fasta,density, outfile, threads=10):
@@ -80,7 +80,7 @@ def save_bigWig(beds,refgen_fasta,density, outfile, threads=10):
         chr,start,end = entry.split()
         print('Processing entry ', entry)
         seq = ps.FastaFile(refgen_fasta).fetch(reference=chr, start=int(start), end=int(end)).upper()
-        add_seq_to_bigWig(seq, chr, density, bw, outfile, threads=threads)
+        add_seq_to_bigWig(seq, chr,int(start), density, bw, outfile, threads=threads)
     bw.close()
     return(bw)
 
