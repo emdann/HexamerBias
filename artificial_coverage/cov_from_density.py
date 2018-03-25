@@ -1,6 +1,7 @@
 import pandas as pd
 import pysam as ps
 import numpy as np
+import pyBigWig as pbw
 from hexVSprimed import *
 import multiprocessing
 
@@ -25,15 +26,65 @@ def per_base_cov(params):
     '''
     Compute coverage for seq of interest based on template density
     '''
-    seq, density = params
-    posDic = {k:0 for k in range(len(seq))}
+    seq, density, start = params
+    posDic = {k:np.float64() for k in range(start, start+len(seq))} # Specify to have same type in the end
     for i in range(len(seq)-5):
-        if 'N' not in seq[i:i+6]:
+        if 'N' not in seq[i:i+6]: ## No density on sites with N but the position is there
             d = density[seq[i:i+6]]
-            hexItems = [(k,v) for k,v in posDic.items() if k in range(i,i+6)]
+            hexItems = [(k,v) for k,v in posDic.items() if k in range(start+i,start+i+6)]
             posDic.update(map(lambda kv: (kv[0], kv[1] + d), hexItems))
-    return(pd.DataFrame(posDic, index=[0]).T)
+    return(posDic)
 
+def running_mean_dic(baseCov, win=100):
+    '''
+    Smoothen out base res artificial coverage
+    '''
+    bed = pd.DataFrame(baseCov, index=[0]).T
+    bed.columns=['coverage']
+    bed.coverage = round(bed.coverage.rolling(window=win).mean(),4) # reducing significant digits to be able to collapse
+    bed = bed.dropna()
+    return(bed.to_dict()['coverage'])
+
+
+### Functions to make BigWig ###
+
+def make_BigWig_header(refgen):
+    '''
+    Make header for bigWig file with chromosome length from fasta of refgen
+    '''
+    header=[]
+    with ps.FastxFile(refgen) as f:
+        for entry in f:
+            header.append((entry.name, len(entry.sequence)))
+    def get_chr_num(chr):
+        return(chr.split('chr')[1])
+    return(sorted(header, key=lambda x: get_chr_num(x[0])))
+
+def add_seq_to_bigWig(seq,chrom, bw_with_header, filename, threads=10):
+    '''
+    '''
+    workers = multiprocessing.Pool(threads)
+    for posDic in workers.map(per_base_cov, [ (seq,density,start) for seq,start in [(seq[i:i+1099],i) for i in range(0,len(seq),1000)]]):
+            posDic = running_mean_dic(posDic, win=100)
+            bw_with_header.addEntries(chrom, [k for k in posDic.keys()], values=[v for v in posDic.values()], span=1, step=1)
+    return(bw_with_header)
+
+def save_bigWig(beds,refgen_fasta, outfile, threads=10):
+    '''
+    Input: list of bed entries (str of one line), fasta of reference genme, genome file with chrom sizes
+    Output:
+    '''
+    bw = pbw.open(outfile, 'w')
+    bw.addHeader(make_BigWig_header(refgen_fasta))
+    for entry in beds:
+        chr,start,end = entry.split()
+        print('Processing entry ', entry)
+        seq = ps.FastaFile(refgen_fasta).fetch(reference=chr, start=int(start), end=int(end)).upper()
+        add_seq_to_bigWig(seq, chr, bw, outfile, threads=threads)
+    bw.close()
+    return(bw)
+
+### Functions to make BedGraph ###
 
 def make_bed(bedEntry, fasta, density, threads=10):
     '''
@@ -44,7 +95,7 @@ def make_bed(bedEntry, fasta, density, threads=10):
     workers = multiprocessing.Pool(threads)
     df = pd.DataFrame()
     for baseCov in workers.map(per_base_cov, [ (seq,density) for seq in [seq[i:i+100] for i in range(0,len(seq),100)]]):
-            df = df.append(baseCov)
+            df = df.append(pd.DataFrame(baseCov, index=[0]).T)
     df.index = range(int(start),int(end))
     covBed = []
     for row in df.iterrows():

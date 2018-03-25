@@ -8,12 +8,15 @@ argparser.add_argument('abfile', type=str, help='Csv file of kmer abundance on r
 argparser.add_argument('covfile', type=str, help='predicted coverage file')
 argparser.add_argument('bed', type=str, help='bed of regions OI')
 argparser.add_argument('refgen', type=str, help='Fasta file of reference genome')
+argparser.add_argument('--output', type=str, default='bigWig',help='Format of output file: bedGraph or bigWig')
+argparser.add_argument('-t', type=int, default=10, required=False, help='Amount of threads to use.')
 args = argparser.parse_args()
 
 abundanceFile = args.abfile
 covFile = args.covfile
 refgen = args.refgen
 bedFile = args.bed
+outtype = args.output
 
 # Read files
 abundance = pd.read_csv(abundanceFile, index_col=0, compression=findCompr(abundanceFile), header=None)
@@ -23,5 +26,10 @@ with open(bedFile, 'r') as f:
 
 # Compute artificial coverage
 density = template_density(coverage.exp,abundance)
-covBed = artificial_cov(beds,refgen,density)
-save_coverage_bed(covBed, outfile = bedFile.split('.bed')[0]+'.artCov.bed')
+if outtype=='bedGraph':
+    covBed = artificial_cov(beds,refgen,density)
+    save_coverage_bed(covBed, outfile = bedFile.split('.bed')[0]+'.artCov.bed')
+if outtype=='bigWig':
+    save_bigWig(beds,refgen_fasta, outfile = bedFile.split('.bed')[0]+'.artCov.bw', threads=args.t)
+else:
+    print('Wrong output file specification: use bigWig or bedGraph')
