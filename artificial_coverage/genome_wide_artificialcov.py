@@ -17,7 +17,7 @@ def genome_wide_artificial_coverage(covFile,refgen,abundanceFile, outfile):
     coverage = pd.read_table(covFile, index_col=0, sep='\t',compression=findCompr(covFile))
     density = template_density(coverage.exp,abundance)
     beds = from_refgen_to_bed(refgen)
-    save_bigWig(beds,refgen, outfile = outfile, threads=10)
+    save_bigWig(beds,refgen,density, outfile = outfile, threads=10)
     return('')
 
 abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz"
