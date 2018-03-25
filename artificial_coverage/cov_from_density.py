@@ -60,7 +60,7 @@ def make_BigWig_header(refgen):
         return(chr.split('chr')[1])
     return(sorted(header, key=lambda x: get_chr_num(x[0])))
 
-def add_seq_to_bigWig(seq,chrom, bw_with_header, filename, threads=10):
+def add_seq_to_bigWig(seq,chrom,density, bw_with_header, filename, threads=10):
     '''
     '''
     workers = multiprocessing.Pool(threads)
@@ -69,7 +69,7 @@ def add_seq_to_bigWig(seq,chrom, bw_with_header, filename, threads=10):
             bw_with_header.addEntries(chrom, [k for k in posDic.keys()], values=[v for v in posDic.values()], span=1, step=1)
     return(bw_with_header)
 
-def save_bigWig(beds,refgen_fasta, outfile, threads=10):
+def save_bigWig(beds,refgen_fasta,density, outfile, threads=10):
     '''
     Input: list of bed entries (str of one line), fasta of reference genme, genome file with chrom sizes
     Output:
@@ -80,7 +80,7 @@ def save_bigWig(beds,refgen_fasta, outfile, threads=10):
         chr,start,end = entry.split()
         print('Processing entry ', entry)
         seq = ps.FastaFile(refgen_fasta).fetch(reference=chr, start=int(start), end=int(end)).upper()
-        add_seq_to_bigWig(seq, chr, bw, outfile, threads=threads)
+        add_seq_to_bigWig(seq, chr, density, bw, outfile, threads=threads)
     bw.close()
     return(bw)
 
