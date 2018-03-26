@@ -22,6 +22,9 @@ for file in VAN1667_[123456789]*.bam;
 ```
 
 4) Make table of predicted coverage for each predicted DeltaF table
-```
-
+```python
+from make_cov_prediction_tab import *
+dgFiles = [f for f in os.listdir() if 'ptDg' in f]
+abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz"
+tab = make_cov_prediction_tab(dgFiles, abundanceFile)
 ```
