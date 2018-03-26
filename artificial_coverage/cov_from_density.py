@@ -86,7 +86,7 @@ def add_seq_to_bigWig(seq,chrom,start,density, bw_with_header, filename, smoothF
             bw_with_header.addEntries(chrom, [k for k in posDic.keys()], values=[v for v in posDic.values()], span=1)
     return(bw_with_header)
 
-def save_bigWig(beds,refgen_fasta,density, outfile, threads=10):
+def save_bigWig(beds,refgen_fasta,density, outfile, threads=10, smoothFunction='kernel'):
     '''
     Input: list of bed entries (str of one line), fasta of reference genme, genome file with chrom sizes
     Output:
@@ -97,7 +97,7 @@ def save_bigWig(beds,refgen_fasta,density, outfile, threads=10):
         chr,start,end = entry.split()
         print('Processing entry ', entry)
         seq = ps.FastaFile(refgen_fasta).fetch(reference=chr, start=int(start), end=int(end)).upper()
-        add_seq_to_bigWig(seq, chr,int(start), density, bw, outfile, threads=threads)
+        add_seq_to_bigWig(seq, chr,int(start), density, bw, outfile, amoothFunction=smoothFunction, threads=threads)
     bw.close()
     return(bw)
 
