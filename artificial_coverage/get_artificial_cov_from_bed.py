@@ -20,7 +20,7 @@ outtype = args.output
 
 # Read files
 abundance = pd.read_csv(abundanceFile, index_col=0, compression=findCompr(abundanceFile), header=None)
-coverage = pd.read_csv(covFile, index_col=0, sep='\t',compression=findCompr(covFile))
+coverage = pd.read_csv(covFile, index_col=0,compression=findCompr(covFile))
 with open(bedFile, 'r') as f:
     beds = [line.strip() for line in f.readlines()]
 
