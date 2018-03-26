@@ -28,3 +28,10 @@ def get_even_prob():
     # dtype=[('foo', 'i4'),('bar', 'f4'), ('baz', 'S10')])
     ppm = pd.DataFrame(x, index=["A", "T", "C", "G"])
     return(prob_from_ppm(ppm, seqs))
+
+def get_proportional_coverage(dgTab, genomeAb):
+    '''
+    Compute predicted coverage with primer probabilities proportional to template abundance
+    '''
+    ppm = makePWMtempl(genomeAb)
+    return(predictCoverage(dgTab, genomeAb, primer_ppm=ppm))
