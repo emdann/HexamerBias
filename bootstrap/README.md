@@ -27,4 +27,5 @@ from make_cov_prediction_tab import *
 dgFiles = [f for f in os.listdir() if 'ptDg' in f]
 abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz"
 tab = make_cov_prediction_tab(dgFiles, abundanceFile)
+tab.to_csv('bootstrap_predictedCov.csv')
 ```

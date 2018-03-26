@@ -1,25 +1,12 @@
 import numpy as np
 import pandas as pd
-'''
-Compute the probability for all possible hexamers base on manufacturers concentrations.
-Input: matrix of base concentration per position
-Output: probability for all hexamers
-'''
-
-sequences = list(pd.read_csv(abfile, index_col=0).index)
-
-
-# Make structured array for concentrations
-x = np.array([[0.5,0.25,0.25, 0.25, 0.25, 0.25],
-            [0.0,0.25,0.25, 0.25, 0.25, 0.25],
-            [0.25,0.25,0.25, 0.25, 0.25, 0.25],
-            [0.25,0.25,0.25, 0.25, 0.25, 0.25]  ])
-# dtype=[('foo', 'i4'),('bar', 'f4'), ('baz', 'S10')])
-ppm = pd.DataFrame(x, index=["A", "T", "C", "G"])
+import itertools as it
 
 def prob_from_ppm(ppm, sequences):
     '''
-    Compute probability of each sequence given a positional probability matrix
+    Compute the probability for all possible hexamers based on manufacturers concentrations.
+    Input: matrix of base concentration per position
+    Output: probability for all hexamers
     '''
     seqProb = {}
     for seq in sequences:
@@ -30,3 +17,14 @@ def prob_from_ppm(ppm, sequences):
     seqProbDf = pd.DataFrame(seqProb, index=[0]).T
     seqProbDf.columns=['primerProb']
     return(seqProbDf.sort_values(by=["primerProb"]))
+
+def get_even_prob():
+    seqs = [''.join(i) for i in list(it.product(list("ATCG"),repeat=6))]
+    # Make structured array for concentrations
+    x = np.array([[0.25,0.25,0.25, 0.25, 0.25, 0.25],
+                [0.25,0.25,0.25, 0.25, 0.25, 0.25],
+                [0.25,0.25,0.25, 0.25, 0.25, 0.25],
+                [0.25,0.25,0.25, 0.25, 0.25, 0.25]  ])
+    # dtype=[('foo', 'i4'),('bar', 'f4'), ('baz', 'S10')])
+    ppm = pd.DataFrame(x, index=["A", "T", "C", "G"])
+    return(prob_from_ppm(ppm, seqs))
