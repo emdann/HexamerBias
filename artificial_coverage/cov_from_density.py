@@ -2,6 +2,8 @@ import pandas as pd
 import pysam as ps
 import numpy as np
 import pyBigWig as pbw
+import sys
+from scipy import ndimage
 from hexVSprimed import *
 import multiprocessing
 
@@ -37,12 +39,21 @@ def per_base_cov(params):
 
 def running_mean_dic(baseCov, win=100):
     '''
-    Smoothen out base res artificial coverage
+    Smoothen out base resolution artificial coverage with running average
     '''
     bed = pd.DataFrame(baseCov, index=[0]).T
     bed.columns=['coverage']
     bed.coverage = round(bed.coverage.rolling(window=win).mean(),4) # reducing significant digits to be able to collapse
     bed = bed.dropna()
+    return(bed.to_dict()['coverage'])
+
+def kernel_smoothing(baseCov, sigma=20):
+    '''
+    gaussian kernel smoothing
+    '''
+    bed = pd.DataFrame(baseCov, index=[0]).T
+    bed.columns=['coverage']
+    bed.coverage = ndimage.gaussian_filter1d(bed.coverage, sigma=sigma)
     return(bed.to_dict()['coverage'])
 
 
@@ -60,12 +71,18 @@ def make_BigWig_header(refgen):
         return(chr.split('chr')[1])
     return(sorted(header, key=lambda x: get_chr_num(x[0])))
 
-def add_seq_to_bigWig(seq,chrom,start,density, bw_with_header, filename, threads=10):
+def add_seq_to_bigWig(seq,chrom,start,density, bw_with_header, filename, smoothFunction = 'kernel', threads=10):
     '''
     '''
     workers = multiprocessing.Pool(threads)
     for posDic in workers.map(per_base_cov, [ (seq,density,start+s) for seq,s in [(seq[i:i+1099],i) for i in range(0,len(seq),1000)]]):
-            posDic = running_mean_dic(posDic, win=100)
+            if smoothFunction=='running avg':
+                posDic = running_mean_dic(posDic, win=100)
+            if smoothFunction=='kernel':
+                posDic = kernel_smoothing(posDic, sigma=20)
+            else:
+                print('Unrecognized smoothing function! Please choose "running avg" or "kernel"')
+                return ''
             bw_with_header.addEntries(chrom, [k for k in posDic.keys()], values=[v for v in posDic.values()], span=1)
     return(bw_with_header)
 
@@ -123,7 +140,7 @@ def collapse_coverage_bed(bed):
     collapsedBed = collapsedBed[['chr','start','end','coverage']]
     return(collapsedBed)
 
-def running_mean(bed, win=100, threads=10):
+def running_mean_bed(bed, win=100, threads=10):
     '''
     Smoothen out base res artificial coverage
     '''

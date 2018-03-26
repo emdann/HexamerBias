@@ -23,15 +23,16 @@ python /hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage/get_arti
 
 ## Comparison of artificial and real coverage
 
-Get the real coverage of region to compare
+Get the real pooled coverage in bigWig format
 ```
-bedtools genomecov -ibam /hpc/hub_oudenaarden/edann/crypts_bs/VAN1667/sorted_L1_trim1_R1_bismark_bt2_pe.deduplicated.bam -g /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.genome -bg | awk '$1=="chr6" && $2>52242398 && $3<52242854'
+bamCoverage -b /hpc/hub_oudenaarden/edann/hexamers/bootstrap/VAN1667_100.bam -o VAN1667.cov.bw
 ```
 
 Make 100 bps bins in the bedfile used for artificial coverage
 ```
 bedtools makewindows -b mm10.random.40.bed -w 100 > mm10.random.40.bins.bed
 ```
+
 Put both (or many more) profiles on the same file
 ```
 multiBigwigSummary BED-file --bwfiles sorted_L1_trim1_R1_bismark_bt2_pe.cov.bw mm10.random.40.artCov.bw -o test_multiBigWig.npz --BED mm10.random.40.bins.bed --outRawCounts test_multiBigWig.tab
