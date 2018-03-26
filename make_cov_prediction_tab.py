@@ -4,7 +4,7 @@ import os
 from hexVSprimed import *
 # from avg_deltaG_bs import *
 from predictCovBs import *
-from make_coverage_tab import make_coverage_tab
+# from make_coverage_tab import make_coverage_tab
 
 
 def make_cov_prediction_tab_avg(dir):
@@ -41,6 +41,7 @@ def make_cov_prediction_tab(dGfiles, abundanceTabFile):
     genomeAb = tabAb[1] # Because it needs to be a series
     allPredictions = pd.DataFrame({'template':genomeAb.index})
     for file in dGfiles:
+        print('Processing file ' + file)
         sample = file.split('_ptDg_')[0]
         deltaF = pd.read_csv(file, index_col=0)
         deltaF = np.log(deltaF)

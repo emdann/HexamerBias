@@ -12,11 +12,15 @@ from hexVSprimed import *
 # # argparser.add_argument('cellPtCount', type=str, help='Matrix of pt occurrencies in a cell')
 # args = argparser.parse_args()
 
-def predictCov(t,DgRow):
+def predictCov(t,DgRow, primer=None):
     '''
     Computes the predicted coverage for random hexamer experiment.
+    When using primer concentrations, use directly the exponential (dg tab without log)
     '''
-    sumChi = sum(np.exp(DgRow.fillna(-9999999)))
+    if primer is None:
+        sumChi = sum(np.exp(DgRow.fillna(-9999999)))
+    else:
+        sumChi = sum(np.exp(DgRow).mul(probs.primerProb))
     cov = t * (sumChi/(1 + sumChi)) # <--- check
     return(cov)
 
@@ -30,11 +34,18 @@ def propagateError(t,DgRow,errRow):
     error = np.sqrt(sum(beta*errChi)*t)
     return(error)
 
-def predictCoverage(dgMat, genomeAb, errDgMat=None):
+def predictCoverage(dgMat, genomeAb, errDgMat=None, primer_ppm=None):
+    '''
+    Takes as input the log(Dg)
+    '''
     predictedCov = pd.DataFrame(columns=['template', 'exp', 'err'])
+    if primer_ppm is not None:
+        probs = prob_from_ppm(primer_ppm, list(genomeAb.index))
+    else:
+        probs=None
     for templ in dgMat.iterrows():
         t,DgRow = templ
-        cov = predictCov(genomeAb[t],DgRow)
+        cov = predictCov(genomeAb[t],DgRow, primer=probs)
         if errDgMat:
             err = propagateError(genomeAb[t],DgRow, errDgMat[t])
         else:

@@ -75,15 +75,16 @@ def add_seq_to_bigWig(seq,chrom,start,density, bw_with_header, filename, smoothF
     '''
     '''
     workers = multiprocessing.Pool(threads)
-    for posDic in workers.map(per_base_cov, [ (seq,density,start+s) for seq,s in [(seq[i:i+1099],i) for i in range(0,len(seq),1000)]]):
-            if smoothFunction=='running avg':
+    if smoothFunction=='running avg':
+        for posDic in workers.map(per_base_cov, [ (seq,density,start+s) for seq,s in [(seq[i:i+1099],i) for i in range(0,len(seq),1000)]]):
                 posDic = running_mean_dic(posDic, win=100)
-            if smoothFunction=='kernel':
+    if smoothFunction=='kernel':
+        for posDic in workers.map(per_base_cov, [ (seq,density,start+s) for seq,s in [(seq[i:i+1000],i) for i in range(0,len(seq),1000)]]):
                 posDic = kernel_smoothing(posDic, sigma=20)
-            else:
-                print('Unrecognized smoothing function! Please choose "running avg" or "kernel"')
-                return ''
-            bw_with_header.addEntries(chrom, [k for k in posDic.keys()], values=[v for v in posDic.values()], span=1)
+                bw_with_header.addEntries(chrom, [k for k in posDic.keys()], values=[v for v in posDic.values()], span=1)
+    else:
+        print('Unrecognized smoothing function! Please choose "running avg" or "kernel"')
+        return ''
     return(bw_with_header)
 
 def save_bigWig(beds,refgen_fasta,density, outfile, threads=10, smoothFunction='kernel'):
