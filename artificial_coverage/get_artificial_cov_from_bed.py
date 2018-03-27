@@ -5,7 +5,7 @@ from cov_from_density import *
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts tables for bs-seq \n By Emma Dann")
 argparser.add_argument('abfile', type=str, help='Csv file of kmer abundance on reference genome')
-argparser.add_argument('covfile', type=str, help='predicted coverage file')
+argparser.add_argument('covfile', type=str, help='predicted coverage file (in .csv, template sequences in first column)')
 argparser.add_argument('bed', type=str, help='bed of regions OI')
 argparser.add_argument('refgen', type=str, help='Fasta file of reference genome')
 argparser.add_argument('--output', type=str, default='bigWig',help='Format of output file: bedGraph or bigWig')

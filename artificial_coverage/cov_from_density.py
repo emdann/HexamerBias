@@ -92,14 +92,14 @@ def save_bigWig(beds,refgen_fasta,density, outfile, threads=10, smoothFunction='
     Input: list of bed entries (str of one line), fasta of reference genme, genome file with chrom sizes
     Output:
     '''
-    bw = pbw.open(outfile, 'w')
-    bw.addHeader(make_BigWig_header(refgen_fasta))
-    for entry in beds:
-        chr,start,end = entry.split()
-        print('Processing entry ', entry)
-        seq = ps.FastaFile(refgen_fasta).fetch(reference=chr, start=int(start), end=int(end)).upper()
-        add_seq_to_bigWig(seq, chr,int(start), density, bw, outfile, smoothFunction=smoothFunction, threads=threads)
-    bw.close()
+bw = pbw.open(outfile, 'w')
+bw.addHeader(make_BigWig_header(refgen_fasta))
+for entry in beds:
+    chr,start,end = entry.split()
+    print('Processing entry ', entry)
+    seq = ps.FastaFile(refgen_fasta).fetch(reference=chr, start=int(start), end=int(end)).upper()
+    add_seq_to_bigWig(seq, chr,int(start), density, bw, outfile, smoothFunction=smoothFunction, threads=threads)
+bw.close()
     return(bw)
 
 ### Functions to make BedGraph ###
