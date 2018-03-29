@@ -24,7 +24,7 @@ def from_vec_to_ppm(vector):
     '''
     Transform np.array line of probabilities (every 4 we have one position) in ppm
     '''
-    arr = vector.reshape(4,int(prob_vector.size/4))
+    arr = vector.reshape(4,int(vector.size/4))
     ppm = pd.DataFrame(arr, index=["A", "T", "C", "G"])
     return(ppm)
 
