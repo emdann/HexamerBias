@@ -56,6 +56,15 @@ def kernel_smoothing(baseCov, sigma=20):
     bed.coverage = ndimage.gaussian_filter1d(bed.coverage, sigma=sigma)
     return(bed.to_dict()['coverage'])
 
+def save_intervals(seq,chrom,start,density, threads=10):
+    '''
+    '''
+    intervals = []
+    workers = multiprocessing.Pool(threads)
+    for posDic in workers.map(per_base_cov, [ (seq,density,start+s) for seq,s in [(seq[i:i+1000],i) for i in range(0,len(seq),1000)]]):
+        intervals.extend([(chrom,pos,val) for pos,val in kernel_smoothing(posDic, sigma=20).items()])
+    return(intervals)
+
 
 ### Functions to make BigWig ###
 
@@ -92,14 +101,14 @@ def save_bigWig(beds,refgen_fasta,density, outfile, threads=10, smoothFunction='
     Input: list of bed entries (str of one line), fasta of reference genme, genome file with chrom sizes
     Output:
     '''
-bw = pbw.open(outfile, 'w')
-bw.addHeader(make_BigWig_header(refgen_fasta))
-for entry in beds:
-    chr,start,end = entry.split()
-    print('Processing entry ', entry)
-    seq = ps.FastaFile(refgen_fasta).fetch(reference=chr, start=int(start), end=int(end)).upper()
-    add_seq_to_bigWig(seq, chr,int(start), density, bw, outfile, smoothFunction=smoothFunction, threads=threads)
-bw.close()
+    bw = pbw.open(outfile, 'w')
+    bw.addHeader(make_BigWig_header(refgen_fasta))
+    for entry in beds:
+        chr,start,end = entry.split()
+        print('Processing entry ', entry)
+        seq = ps.FastaFile(refgen_fasta).fetch(reference=chr, start=int(start), end=int(end)).upper()
+        add_seq_to_bigWig(seq, chr,int(start), density, bw, outfile, smoothFunction=smoothFunction, threads=threads)
+    bw.close()
     return(bw)
 
 ### Functions to make BedGraph ###

@@ -39,3 +39,6 @@ multiBigwigSummary BED-file --bwfiles sorted_L1_trim1_R1_bismark_bt2_pe.cov.bw m
 ```
 
 After reading [this](https://bioconductor.org/packages/3.7/bioc/vignettes/similaRpeak/inst/doc/similaRpeak.html) I decided to use Spearman correlation as a metric for profle similarity, which assesses how well the relationship between the two profiles can be described using a monotonic function, detecting regions with possibly similar profiles even if they have different amplitudes.
+
+## Does primer probability proportional to template abundance give even coverage?
+I compute predicted coverage with primer probability proportional to template abundance with the ```get_proportional_coverage``` function in the ```primerProbability``` script.

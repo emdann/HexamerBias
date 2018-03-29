@@ -54,6 +54,18 @@ def predictCoverage(dgMat, genomeAb, errDgMat=None, primer_ppm=None):
         predictedCov = predictedCov.append(rowdf)
     return(predictedCov)
 
+def predictCoverage_setProbs(dgMat, genomeAb, probs):
+    '''
+    Takes aspred input the log(Dg)
+    '''
+    predictedCov = pd.DataFrame(columns=['template', 'exp', 'err'])
+    for templ in dgMat.iterrows():
+        t,DgRow = templ
+        cov = predictCov(genomeAb[t],DgRow, primer=probs)
+        rowdf = pd.DataFrame.from_dict({'template':[t], 'exp':[cov]})
+        predictedCov = predictedCov.append(rowdf)
+    return(predictedCov)
+
 # ptMatrix = args.cellPtCount
 # predictedDg = args.predDg
 # predictedSd = args.predSd
