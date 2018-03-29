@@ -40,6 +40,7 @@ def get_even_prob():
                 [0.25,0.25,0.25, 0.25, 0.25, 0.25]  ])
     # dtype=[('foo', 'i4'),('bar', 'f4'), ('baz', 'S10')])
     ppm = pd.DataFrame(x, index=["A", "T", "C", "G"])
+    seqs = all_hexamers()
     return(prob_from_ppm(ppm, seqs))
 
 def get_proportional_coverage_ppm(dgTab, genomeAb):
