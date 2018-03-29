@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import argparse
+import multiprocessing
 from hexVSprimed import *
 
 # argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Coverage prediction. \n By Emma Dann")
@@ -20,7 +21,7 @@ def predictCov(t,DgRow, primer=None):
     if primer is None:
         sumChi = sum(np.exp(DgRow.fillna(-9999999)))
     else:
-        sumChi = sum(np.exp(DgRow).mul(probs.primerProb))
+        sumChi = sum(np.exp(DgRow).mul(primer.primerProb))
     cov = t * (sumChi/(1 + sumChi)) # <--- check
     return(cov)
 
@@ -54,7 +55,7 @@ def predictCoverage(dgMat, genomeAb, errDgMat=None, primer_ppm=None):
         predictedCov = predictedCov.append(rowdf)
     return(predictedCov)
 
-def predictCoverage_setProbs(dgMat, genomeAb, probs):
+def predictCoverage_setProbs(dgMat, genomeAb, probs): # <--- This should be quicker
     '''
     Takes aspred input the log(Dg)
     '''
@@ -65,6 +66,22 @@ def predictCoverage_setProbs(dgMat, genomeAb, probs):
         rowdf = pd.DataFrame.from_dict({'template':[t], 'exp':[cov]})
         predictedCov = predictedCov.append(rowdf)
     return(predictedCov)
+
+### Making coverage prediction parallel
+def predictCoverage_setProbs_parallel(dgMat, genomeAb, probs, cores=5): # <--- This should be quicker
+    '''
+    Takes aspred input the log(Dg)
+    '''
+    predictedCov = pd.DataFrame(columns=['template', 'exp', 'err'])
+    for rowdf in workers.map(predict_row_coverage, [(t,dgMat) for t,dgMat in dgMat.iterrows()]):
+        predictedCov = predictedCov.append(rowdf)
+    return(predictedCov)
+
+def predict_row_coverage(params):
+    t,dgMat=params
+    cov = predictCov(genomeAb[t],DgRow, primer=probs)
+    rowdf = pd.DataFrame.from_dict({'template':[t], 'exp':[cov]})
+    return(rowDf)
 
 # ptMatrix = args.cellPtCount
 # predictedDg = args.predDg

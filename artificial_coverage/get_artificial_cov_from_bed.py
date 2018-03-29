@@ -35,7 +35,7 @@ else:
     print('Wrong output file specification: use bigWig or bedGraph')
 
 # abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz"
-# covFile = "predictedCov_pooledVAN1667.txt"
+# covFile = "predictedCov_pooledVAN1667.csv"
 # refgen='/hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa'
 #
 # bedFile="/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.random.40.bed"
