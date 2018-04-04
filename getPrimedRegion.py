@@ -109,7 +109,7 @@ def get_strandspecific_template_bed(bamfile, trim=9):
 				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.','+'))
 	return(bed)
 
-def get_strandspedific_template_fasta(bamfile, fi, outpath):
+def get_strandspecific_template_fasta(bamfile, fi, outpath):
 	'''
 	Makes fasta file of template sequences from bed file. Calling bedtools from terminal.
 	Saves output fasta file.
