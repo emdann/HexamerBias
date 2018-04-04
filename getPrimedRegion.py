@@ -6,7 +6,8 @@ import pybedtools as pbt
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Extract position of primer placement from trimmed section of aligned reads. By Emma Dann")
 argparser.add_argument('bam', type=str, help='Input bam file')
 argparser.add_argument('refgen', type=str, help='Fasta of reference genome (needs to be unzipped)')
-argparser.add_argument('type', type=str, help='Original data of bam (bs_pe, bs_se or rna)')
+argparser.add_argument('type', type=str, default='bs_pe',required=False, help='Original data of bam (bs_pe, bs_se or rna)')
+argparser.add_argument('-s', action='store_true', help='require strandedness')
 argparser.add_argument('-o', type=str, help='path to directory to save output')
 args = argparser.parse_args()
 
@@ -92,9 +93,47 @@ def get_template_fasta_pybedtools(bamfile, fi, outpath, type):
 	faout.save_seqs(bedfile.split('.bed')[0] + '.fa')
 	return(faout)
 
+## ---- STRAND SPECIFIC TEMPLATES ----
+def get_strandspecific_template_bed(bamfile, trim=9):
+	'''
+	Extract positions of template regions for primers of aligned reads in bam (se mapped bismark).
+	For type = 'rna' extracts the first 6 bases of the aligned read
+	'''
+	trim=trim
+	bed=[]
+	with ps.AlignmentFile(bamfile,"rb") as bam:
+		for r in bam.fetch(until_eof=True):
+			if r.flag==0:
+				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.','+'))
+			if r.flage==16:
+				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.','+'))
+	return(bed)
+
+def get_strandspedific_template_fasta(bamfile, fi, outpath):
+	'''
+	Makes fasta file of template sequences from bed file. Calling bedtools from terminal.
+	Saves output fasta file.
+	'''
+	sample = bamfile.split('/')[-1].split('.')[0]
+	bedfile = outpath + sample + '.primedreg.bed'
+	if not os.path.exists(bedfile):
+		print("Saving bed...")
+		bed = get_strandspecific_template_bed(bamfile)
+		bedfile = save_bedfile(bed, bamfile, outpath)
+		print("Bed saved!")
+	command = "/hpc/hub_oudenaarden/edann/bin/bedtools2/bin/bedtools getfasta -name -s -fi " + fi + " -bed " + bedfile + " -fo " + bedfile.split('.bed')[0] + '.fa'
+	print("Saving fasta...")
+	os.system(command)
+	print("fasta saved!")
+	return('')
+
 bamfile = args.bam
 type = args.type
 fi = args.refgen
 outpath = args.o
+strandedness = args.s
 
-get_template_fasta(bamfile, fi, outpath, type)
+if strandedness:
+	get_strandspecific_template_fasta(bamfile, fi, outpath)
+else:
+	get_template_fasta(bamfile, fi, outpath, type)

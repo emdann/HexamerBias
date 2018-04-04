@@ -37,7 +37,7 @@ dg.df <- cbind(pred=diag[match(rownames(tabDg), rownames(diag)),], tabDg)
 dg.df <- dg.df %>% mutate(pred=log(pred), template=rownames(dg.df)) 
   # filter(pred==-Inf) %>%
 dg.df %>%
-  filter(!grepl('C|G', template)) %>% 
+  filter(!grepl('C', template)) %>% 
   ggplot(.,aes(pred,freeEn, label=template)) + geom_point() +
   # geom_smooth(method = lm, se = FALSE) +
   xlab('Predicted DeltaG') + ylab('NN DeltaG') +
@@ -61,3 +61,19 @@ ggplot(long.dg.log, aes(template,primer,fill=predicted.Dg)) + geom_tile() +
 ## Here I was trying to see clusters
 pheatmap(noCg.dg.log, cluster_rows = TRUE, cluster_cols = FALSE, breaks = breaks, color = colorRampPalette(brewer.pal(n = 7, name =
                                                                                                                         "YlGnBu"))(100))
+## Assuming conversion
+CH.hex <- rownames(predDg)[grepl(rownames(predDg), pattern='C[^G]')]
+bs.convert <- function(seq){  return(gsub(seq, pattern = 'C', replacement = 'T')) }
+
+df <- data.frame(CH.hex, convDg = sapply(CH.hex, function(seq) predDg[seq, bs.convert(seq)]), nnDg=sapply(CH.hex, function(seq) tabDg[bs.convert(seq),]))
+ggplot(df, aes(log(diag[CH.hex,]), nnDg)) + geom_point() +
+  xlab('deltaG CH template non conv') +
+  ylab('NN delta G conv primer') +
+  theme(axis.title = element_text(size = 18))
+
+
+ggsave("~/AvOwork/output/deltaGprediction/sanity_checks/non_conversion_CH.pdf")
+
+
+
+
