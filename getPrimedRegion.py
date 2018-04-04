@@ -94,18 +94,24 @@ def get_template_fasta_pybedtools(bamfile, fi, outpath, type):
 	return(faout)
 
 ## ---- STRAND SPECIFIC TEMPLATES ----
-def get_strandspecific_template_bed(bamfile, trim=9):
+def get_strandspecific_template_bed(bamfile, trim=9, type='bs_se'):
 	'''
 	Extract positions of template regions for primers of aligned reads in bam (se mapped bismark).
 	For type = 'rna' extracts the first 6 bases of the aligned read
 	'''
 	trim=trim
 	bed=[]
+	if type=='bs_se': # Define flags
+		plus=0
+		minus=16
+	if type=='bs_pe':
+		plus=99
+		minus=83
 	with ps.AlignmentFile(bamfile,"rb") as bam:
 		for r in bam.fetch(until_eof=True):
-			if r.flag==0:
+			if r.flag==plus:
 				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.', '+'))
-			if r.flag==16:
+			if r.flag==minus:
 				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.', '-'))
 	return(bed)
 
