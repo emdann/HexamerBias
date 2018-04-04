@@ -104,9 +104,9 @@ def get_strandspecific_template_bed(bamfile, trim=9):
 	with ps.AlignmentFile(bamfile,"rb") as bam:
 		for r in bam.fetch(until_eof=True):
 			if r.flag==0:
-				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.','+'))
+				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.', '+'))
 			if r.flag==16:
-				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.','+'))
+				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.', '-'))
 	return(bed)
 
 def get_strandspecific_template_fasta(bamfile, fi, outpath):
