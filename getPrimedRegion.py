@@ -115,7 +115,7 @@ def get_strandspecific_template_bed(bamfile, trim=9, type='bs_se'):
 				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.', '-'))
 	return(bed)
 
-def get_strandspecific_template_fasta(bamfile, fi, outpath):
+def get_strandspecific_template_fasta(bamfile, fi, outpath, type):
 	'''
 	Makes fasta file of template sequences from bed file. Calling bedtools from terminal.
 	Saves output fasta file.
@@ -124,7 +124,7 @@ def get_strandspecific_template_fasta(bamfile, fi, outpath):
 	bedfile = outpath + sample + '.primedreg.bed'
 	if not os.path.exists(bedfile):
 		print("Saving bed...")
-		bed = get_strandspecific_template_bed(bamfile)
+		bed = get_strandspecific_template_bed(bamfile, type=type)
 		bedfile = save_bedfile(bed, bamfile, outpath)
 		print("Bed saved!")
 	command = "/hpc/hub_oudenaarden/edann/bin/bedtools2/bin/bedtools getfasta -name -s -fi " + fi + " -bed " + bedfile + " -fo " + bedfile.split('.bed')[0] + '.fa'
@@ -140,6 +140,6 @@ outpath = args.o
 strandedness = args.s
 
 if strandedness:
-	get_strandspecific_template_fasta(bamfile, fi, outpath)
+	get_strandspecific_template_fasta(bamfile, fi, outpath, type)
 else:
 	get_template_fasta(bamfile, fi, outpath, type)
