@@ -1,3 +1,5 @@
+print('whatever2')
+
 import pysam as ps
 import argparse
 import os
