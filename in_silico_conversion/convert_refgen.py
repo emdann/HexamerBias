@@ -1,7 +1,6 @@
-import pandas as pd
 import copy
 import itertools as it
-from Bio.Seq import Seq,MutableSeq,Records
+from Bio.Seq import Seq,MutableSeq
 from Bio import SeqIO
 from Bio.Alphabet import generic_dna
 
