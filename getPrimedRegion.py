@@ -138,6 +138,7 @@ type = args.t
 fi = args.refgen
 outpath = args.o
 strandedness = args.s
+print(strandedness)
 
 if strandedness:
 	print('Finding strand specific templates...')
