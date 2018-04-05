@@ -1,3 +1,4 @@
+#!/usr/bin/python
 print('whatever2')
 
 import pysam as ps
