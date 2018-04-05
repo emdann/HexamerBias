@@ -5,6 +5,9 @@ import argparse
 import pandas as pd
 import multiprocessing
 import os
+from Bio.Seq import Seq,MutableSeq
+from Bio import SeqIO
+from Bio.Alphabet import generic_dna
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts tables for bs-seq \n By Emma Dann")
 argparser.add_argument('primerinput', type=str, help='Untrimmed fasta input')
@@ -14,7 +17,8 @@ args = argparser.parse_args()
 
 def make_templ_primer_dic(primerfile,templFasta):
     '''
-    Makes dictionary of template-primer pairs, removing pairs if the phred score is low
+    Makes dictionary of template-primer pairs. Takes template sequences defined in primedreg.fa and
+    primer sequences is reverse complementary sequence of the first 6 bases of the untrimmed reads.
     '''
     templDic={}
     with ps.FastxFile(templFasta) as templ:
