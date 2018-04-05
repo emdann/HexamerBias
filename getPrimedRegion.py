@@ -1,12 +1,8 @@
 #!/usr/bin/python
-print('whatever2')
-
 import pysam as ps
 import argparse
 import os
 import pybedtools as pbt
-
-print('whatever')
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Extract position of primer placement from trimmed section of aligned reads. By Emma Dann")
 argparser.add_argument('bam', type=str, help='Input bam file')
@@ -16,7 +12,6 @@ argparser.add_argument('-s', action='store_true', help='require strandedness')
 argparser.add_argument('-o', type=str, help='path to directory to save output')
 args = argparser.parse_args()
 
-print('whatever1')
 
 ## For some reason doesn't complete the fasta file when running everything in one.
 # Consider splitting into two scripts and retesting
@@ -139,7 +134,6 @@ def get_strandspecific_template_fasta(bamfile, fi, outpath, type):
 	print("fasta saved!")
 	return('')
 
-print('again')
 
 bamfile = args.bam
 type = args.t
