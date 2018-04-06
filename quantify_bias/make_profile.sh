@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# < 2 ]
+if [ $# -ne 2 ]
 then
     echo "Please, give:"
     echo "1) bamfile"
@@ -12,11 +12,13 @@ source /hpc/hub_oudenaarden/edann/venv2/bin/activate
 bamfile=$1
 bed=$2
 sample=$(echo $bamfile | awk '{gsub(/.bam/, ""); print}')
-regions = $(echo $bed | awk '{gsub(/.bed/, ""); print}')
+regions=$(echo $bed | awk '{gsub(/.bed/, ""); print}')
 ## Make coverage BW
+echo "--- Computing coverage ---"
 bamCoverage -b $bamfile -o ${sample}.bw
 
 ## Make coverage matrix on defined region
+echo "--- Computing matrix ---"
 computeMatrix scale-regions \
   -R  $bed \
   -S ${sample}.bw  \
@@ -26,6 +28,7 @@ computeMatrix scale-regions \
   --outFileNameMatrix ${sample}.mat.tab
 
 ## Plot profile
+echo "--- Plotting profile ---"
 plotProfile -m ${sample}.mat.gz \
               -out ${sample}_${regions}_coverage.png  \
               --numPlotsPerRow 1 \
