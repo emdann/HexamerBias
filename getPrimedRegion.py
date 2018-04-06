@@ -47,6 +47,16 @@ def get_template_bed(bamfile, type, trim=9):
 					bed.append((r.reference_name, r.pos, r.pos + 6, r.qname))
 	return(bed)
 
+def check_bed(bed):
+	'''
+	Checks and removes malformed bed entries (e.g. with start < 0 in chrM)
+	'''
+	checkedBed = []
+	for entry in bed:
+		if entry[1] > 0:
+			checkedBed.append(entry)
+	return(checkedBed)
+
 def save_bedfile(bedlist, bamfile, outpath):
 	'''
 	Saves bedfile to defined output path
@@ -68,6 +78,7 @@ def get_template_fasta(bamfile, fi, outpath, type):
 	if not os.path.exists(bedfile):
 		print("Saving bed...")
 		bed = get_template_bed(bamfile, type=type)
+		bed = check_bed(bed)
 		bedfile = save_bedfile(bed, bamfile, outpath)
 		print("Bed saved!")
 	command = "/hpc/hub_oudenaarden/edann/bin/bedtools2/bin/bedtools getfasta -name -fi " + fi + " -bed " + bedfile + " -fo " + bedfile.split('.bed')[0] + '.fa'
@@ -126,9 +137,11 @@ def get_strandspecific_template_fasta(bamfile, fi, outpath, type):
 	if not os.path.exists(bedfile):
 		print("Saving bed...")
 		bed = get_strandspecific_template_bed(bamfile, type=type)
+		bed = check_bed(bed)
 		bedfile = save_bedfile(bed, bamfile, outpath)
 		print("Bed saved!")
 	command = "/hpc/hub_oudenaarden/edann/bin/bedtools2/bin/bedtools getfasta -name -s -fi " + fi + " -bed " + bedfile + " -fo " + bedfile.split('.bed')[0] + '.fa'
+	## Gives no error if the bedfile is malformed (e.g. in chrM)
 	print("Saving fasta...")
 	os.system(command)
 	print("fasta saved!")
