@@ -88,14 +88,26 @@ def predict_row_coverage(params):
 # predictedSd = args.predSd
 # sample = ptMatrix.split('.')[0]
 # cellAbundanceTab = args.abundance
+def make_log_of_deltaG(dgMat):
+    logDg = np.log(dgMat)
+    logDg[logDg== - np.inf] = -99999
+    return(logDg)
 
-def predict_fromFiles(predictedDg, abundanceTab, predictedSd=None):
+def scale_coverage(abs_coverage):
+    abs_coverage.exp = abs_coverage.exp/abs_coverage.exp.sum()
+    return(abs_coverage)
+
+def predict_fromFiles(predictedDg, abundanceTab, predictedSd=None, log_dg=True):
     tabAb = pd.read_csv(abundanceTab, index_col=0, compression=findCompr(abundanceTab), header=None)
     genomeAb = tabAb[1]
     dgMat = pd.read_csv(predictedDg, index_col=0, compression = findCompr(predictedDg))
+    if log_dg:
+        dgMat = make_log_of_deltaG(dgMat)
     if predictedSd:
         errDgMat = pd.read_csv(predictedSd, compression = findCompr(predictedSd), index_col=0)
-    return(predictCoverage(dgMat, genomeAb, errMat=errDgMat))
+    else:
+        errDgMat=None
+    return(predictCoverage(dgMat, genomeAb, errDgMat=errDgMat))
 
 # with open('predictedCoverage_avgzf.txt', 'w') as output:
 #     # print('template', 'exp','err',  sep='\t', file=output)

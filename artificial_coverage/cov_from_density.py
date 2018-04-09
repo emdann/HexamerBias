@@ -37,6 +37,17 @@ def per_base_cov(params):
             posDic.update(map(lambda kv: (kv[0], kv[1] + d), hexItems))
     return(posDic)
 
+def reverse_strand(params):
+    seq, density, start = params
+    revSeq = str(Seq(seq,generic_dna).reverse_complement())
+    revCov = per_base_cov((revSeq, density,start))
+    adjRevCov = {}
+    revKeys = list(reversed(list(revCov.keys())))
+    vals = list(revCov.values())
+    for i in range(len(revCov)):
+        adjRevCov[revKeys[i]] = vals[i]
+    return(adjRevCov)
+
 def running_mean_dic(baseCov, win=100):
     '''
     Smoothen out base resolution artificial coverage with running average
@@ -65,7 +76,6 @@ def save_intervals(seq,chrom,start,density, threads=10):
         intervals.extend([(chrom,pos,val) for pos,val in kernel_smoothing(posDic, sigma=20).items()])
     return(intervals)
 
-
 ### Functions to make BigWig ###
 
 def make_BigWig_header(refgen):
@@ -80,15 +90,19 @@ def make_BigWig_header(refgen):
         return(chr.split('chr')[1])
     return(sorted(header, key=lambda x: get_chr_num(x[0])))
 
-def add_seq_to_bigWig(seq,chrom,start,density, bw_with_header, filename, smoothFunction = 'kernel', threads=10):
+def add_seq_to_bigWig(seq,chrom,start,density, bw_with_header, filename, strand='+',smoothFunction = 'kernel', threads=10):
     '''
     '''
     workers = multiprocessing.Pool(threads)
+    if strand=='+':
+        fun = per_base_cov
+    else:
+        fun = reverse_strand
     if smoothFunction=='running avg':
-        for posDic in workers.map(per_base_cov, [ (seq,density,start+s) for seq,s in [(seq[i:i+1099],i) for i in range(0,len(seq),1000)]]):
+        for posDic in workers.map(fun, [ (seq,density,start+s) for seq,s in [(seq[i:i+1099],i) for i in range(0,len(seq),1000)]]):
                 posDic = running_mean_dic(posDic, win=100)
     if smoothFunction=='kernel':
-        for posDic in workers.map(per_base_cov, [ (seq,density,start+s) for seq,s in [(seq[i:i+1000],i) for i in range(0,len(seq),1000)]]):
+        for posDic in workers.map(fun, [ (seq,density,start+s) for seq,s in [(seq[i:i+1000],i) for i in range(0,len(seq),1000)]]):
                 posDic = kernel_smoothing(posDic, sigma=20)
                 bw_with_header.addEntries(chrom, [k for k in posDic.keys()], values=[v for v in posDic.values()], span=1)
     else:

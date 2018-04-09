@@ -33,4 +33,4 @@ plotProfile -m ${sample}.mat.gz \
               -out ${sample}_${regions}_coverage.png  \
               --numPlotsPerRow 1 \
               --yAxisLabel "coverage" \
-              --regionsLabel $sample
+              --samplesLabel $sample

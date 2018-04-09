@@ -1,7 +1,7 @@
 #!/bin/bash
 
 bam=$1
-sample=$(echo $bamfile | awk '{gsub(/.bam/, ""); print}')
+sample=$(echo $bam | awk '{gsub(/.bam/, ""); print}')
 path2samtools=/hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.4.1
 
 ${path2samtools}/samtools sort -@ 5  ${bam} -o ${sample}.srt.bam
