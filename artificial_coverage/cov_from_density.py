@@ -108,7 +108,7 @@ def save_intervals(seq,chrom,start,density, threads=10):
         intervals.extend([(chrom,pos,val) for pos,val in kernel_smoothing(posDic, sigma=20).items()])
     return(intervals)
 
-def artificial_cov_bed_entry(bedEntry)
+
 
 ### Functions to make BigWig ###
 
