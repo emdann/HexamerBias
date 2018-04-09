@@ -12,6 +12,24 @@ argparser.add_argument('--output', type=str, default='bigWig',help='Format of ou
 argparser.add_argument('-t', type=int, default=10, required=False, help='Amount of threads to use.')
 args = argparser.parse_args()
 
+def artificial_cov_bed_entry(params):
+    bedEntry,refgen_fasta,density,read_length=params
+    chr,start,end = bedEntry.split()
+    print('Processing entry ', bedEntry)
+    seq = ps.FastaFile(refgen_fasta).fetch(reference=chr, start=int(start), end=int(end)).upper()
+    strandSpecificPosDic = sum_strands_per_base_cov(seq, density, int(start), readLength=read_length)
+    smoothPosDic = kernel_smoothing(strandSpecificPosDic)
+    return(chr,smoothPosDic)
+
+def save_bw_read_extend(beds,refgen_fasta,density, outfile,readLength=10,threads=10):
+    workers = multiprocessing.Pool(threads)
+    bw = pbw.open(outfile, 'w')
+    bw.addHeader(make_BigWig_header(refgen_fasta))
+    for chrom,posDic in workers.map(artificial_cov_bed_entry, [(bed, refgen_fasta, density, readLength) for bed in beds]):
+        # print(chrom)
+        bw.addEntries(chrom, [k for k in posDic.keys()], values=[v for v in posDic.values()], span=1)
+    bw.close()
+
 abundanceFile = args.abfile
 covFile = args.covfile
 refgen = args.refgen
@@ -25,17 +43,5 @@ with open(bedFile, 'r') as f:
     beds = [line.strip() for line in f.readlines()]
 
 # Compute artificial coverage
-density = template_density(coverage.exp,abundance )
-if outtype=='bedGraph':
-    covBed = artificial_cov(beds,refgen,density)
-    save_coverage_bed(covBed, outfile = bedFile.split('.bed')[0]+'.artCov.bed')
-if outtype=='bigWig':
-    save_bigWig(beds,refgen,density, outfile = bedFile.split('.bed')[0]+'.artCov.bw', threads=args.t)
-else:
-    print('Wrong output file specification: use bigWig or bedGraph')
-
-# abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz"
-# covFile = "/hpc/hub_oudenaarden/edann/hexamers/strand_specific/VAN1667_se_predictedcov.csv"
-# refgen='/hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa'
-#
-# bedFile="/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.random.40.bed"
+density = template_density(coverage.exp,abundance)
+save_bw_read_extend(beds,refgen_fasta,density,bedFile.split('.bed')[0]+'.artCov.bw', readLength=75, threads=10)
