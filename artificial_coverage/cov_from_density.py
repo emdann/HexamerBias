@@ -225,13 +225,13 @@ def artificial_cov(beds,fasta,density, threads=10, win=100):
         out_bed = out_bed.append(covBed)
     return(out_bed)
 
-def save_coverage_bed(bed, outfile):
-    '''
-    Save bed file of artificial coverage.
-    '''
-    with open(outfile, 'w') as out:
-        print(bed.to_string(index=False, header=False), file=out)
-    return('')
+# def save_coverage_bed(bed, outfile):
+#     '''
+#     Save bed file of artificial coverage.
+#     '''
+#     with open(outfile, 'w') as out:
+#         print(bed.to_string(index=False, header=False), file=out)
+#     return('')
 
 # abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz"
 # covFile = "predictedCoverage_avgVAN1667.txt"
