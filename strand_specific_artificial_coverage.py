@@ -44,4 +44,4 @@ with open(bedFile, 'r') as f:
 
 # Compute artificial coverage
 density = template_density(coverage.exp,abundance)
-save_bw_read_extend(beds,refgen_fasta,density,bedFile.split('.bed')[0]+'.artCov.bw', readLength=75, threads=10)
+save_bw_read_extend(beds,refgen,density,bedFile.split('.bed')[0]+'.artCov.bw', readLength=75, threads=10)
