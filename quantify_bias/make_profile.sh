@@ -21,6 +21,7 @@ then
 else
     echo "--- Indexing bam file ---"
     /hpc/hub_oudenaarden/edann/bin/coverage_bias/utils/index_bam.sh $bamfile
+    bamfile=$sample.srt.bam
 fi
 
 ## Make coverage BW
@@ -29,7 +30,7 @@ then
   echo "Coverage file ${sample}.bw found"
 else
   echo "--- Computing coverage ---"
-  bamCoverage -b $sample.srt.bam -o ${sample}.bw -p 6
+  bamCoverage -b $bamfile -o ${sample}.bw -p 6
 fi
 
 ## Make coverage matrix on defined region
