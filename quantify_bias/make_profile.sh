@@ -3,7 +3,7 @@
 if [ $# -ne 2 ]
 then
     echo "Please, give:"
-    echo "1) bamfile"
+    echo "1) bamfile (indexed)"
     echo "2) regions of interest (bed or gtf file)"
     exit
 fi
@@ -13,9 +13,19 @@ bamfile=$1
 bed=$2
 sample=$(echo $bamfile | awk '{gsub(/.bam/, ""); print}')
 regions=$(echo $bed | awk '{gsub(/.bed/, ""); print}')
+
+## Index bam file
+if [ -e ${sample}.bai ]
+then
+    echo "Index file ${sample}.bai found"
+else
+    echo "--- Indexing bam file ---"
+    /hpc/hub_oudenaarden/edann/bin/coverage_bias/utils/index_bam.sh $bamfile
+fi
+
 ## Make coverage BW
 echo "--- Computing coverage ---"
-bamCoverage -b $bamfile -o ${sample}.bw
+bamCoverage -b $bamfile -o ${sample}.bw -p 6
 
 ## Make coverage matrix on defined region
 echo "--- Computing matrix ---"
@@ -24,6 +34,7 @@ computeMatrix scale-regions \
   -S ${sample}.bw  \
   -b 3000 -a 3000 \
   --regionBodyLength 5000 --skipZeros \
+  -p 6 \
   -o ${sample}.mat.gz \
   --outFileNameMatrix ${sample}.mat.tab
 
