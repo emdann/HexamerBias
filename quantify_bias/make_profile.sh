@@ -29,7 +29,7 @@ then
   echo "Coverage file ${sample}.bw found"
 else
   echo "--- Computing coverage ---"
-  bamCoverage -b $bamfile -o ${sample}.bw -p 6
+  bamCoverage -b $sample.srt.bam -o ${sample}.bw -p 6
 fi
 
 ## Make coverage matrix on defined region

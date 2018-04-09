@@ -15,7 +15,7 @@ args = argparser.parse_args()
 def artificial_cov_bed_entry(params):
     bedEntry,refgen_fasta,density,read_length=params
     chr,start,end = bedEntry.split()
-    print('Processing entry ', bedEntry)
+    print('Processing entry ', bedEntry, flush=True)
     seq = ps.FastaFile(refgen_fasta).fetch(reference=chr, start=int(start), end=int(end)).upper()
     strandSpecificPosDic = sum_strands_per_base_cov(seq, density, int(start), readLength=read_length)
     smoothPosDic = kernel_smoothing(strandSpecificPosDic)
