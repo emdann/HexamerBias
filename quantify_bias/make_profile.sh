@@ -22,6 +22,7 @@ else
     echo "--- Indexing bam file ---"
     /hpc/hub_oudenaarden/edann/bin/coverage_bias/utils/index_bam.sh $bamfile
     bamfile=$sample.srt.bam
+    sample=$(echo $bamfile | awk '{gsub(/.bam/, ""); print}')
 fi
 
 ## Make coverage BW
