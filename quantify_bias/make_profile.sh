@@ -24,8 +24,13 @@ else
 fi
 
 ## Make coverage BW
-echo "--- Computing coverage ---"
-bamCoverage -b $bamfile -o ${sample}.bw -p 6
+if [ -e ${sample}.bw ]
+then
+  echo "Coverage file ${sample}.bw found"
+else
+  echo "--- Computing coverage ---"
+  bamCoverage -b $bamfile -o ${sample}.bw -p 6
+fi
 
 ## Make coverage matrix on defined region
 echo "--- Computing matrix ---"
