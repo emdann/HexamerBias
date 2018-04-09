@@ -15,9 +15,9 @@ sample=$(echo $bamfile | awk '{gsub(/.bam/, ""); print}')
 regions=$(echo $bed | awk '{gsub(/.bed/, ""); print}')
 
 ## Index bam file
-if [ -e ${sample}.bai ]
+if [ -e ${bamfile}.bai ]
 then
-    echo "Index file ${sample}.bai found"
+    echo "Index file ${bamfile}.bai found"
 else
     echo "--- Indexing bam file ---"
     /hpc/hub_oudenaarden/edann/bin/coverage_bias/utils/index_bam.sh $bamfile
