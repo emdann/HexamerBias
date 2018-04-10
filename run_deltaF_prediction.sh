@@ -6,6 +6,7 @@ then
     echo "1) bamfile"
     echo "2) reference genome"
     echo "3) untrimmed fasta"
+    echo "4) type of mapping (bs_se or bs_pe)"
     exit
 fi
 
@@ -13,6 +14,7 @@ source /hpc/hub_oudenaarden/edann/venv2/bin/activate
 bamfile=$1
 refgen=$2
 fasta=$3
+type=$4
 abfile=/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz
 sample=$(echo $bamfile | sed 's,/,\t,g' | awk '{gsub(/.bam/, ""); print $NF}') 
 
@@ -24,7 +26,7 @@ fi
 bin_dir=/hpc/hub_oudenaarden/edann/bin/coverage_bias
 
 echo "--- Step 1: get primed region --- "
-python ${bin_dir}/getPrimedRegion.py -o ./ -t bs_se -s $bamfile $refgen
+python ${bin_dir}/getPrimedRegion.py -o ./ -t $type -s $bamfile $refgen
 echo "--- Step 2: Make pt table --- "
 python ${bin_dir}/bsPrimerTemplTab.py $fasta ${sample}.primedreg.fa $abfile
 echo "--- Step 3: predict delta G --- "
