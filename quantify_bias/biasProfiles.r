@@ -49,9 +49,10 @@ plot.profile.df <- function(df){
 
 ### BS vs noBS
 pbat.profile <- load.profile('~/mnt/edann/noPreAmp_crypts/PBAT_mm10.profile.txt')
-noBS.profile <-load.profile('~/mnt/edann/noPreAmp_crypts/noBs_profile.txt')
+noBS.profile <-load.profile('~/mnt/edann/noPreAmp_crypts/noBS_noChrUn.profile.txt')
 
 df <- make.df.of.profiles(list(BS=pbat.profile, noBS = noBS.profile))
+plot.profile.df(df)
 
 ## Purified vs non-purified
 purified.profile <- load.profile("~/mnt/edann/hexamers/OUD2086prediction/OUD2086_distal.profile.txt")
@@ -59,6 +60,18 @@ df <- make.df.of.profiles(list(purified=purified.profile))
 
 ## artificial coverage
 artCov.prof <- get.profile.from.matrix('~/mnt/edann/hexamers/strand_specific/artificial_coverage/mm10.random.42.artCov.mat.gz')
-load("~/AvOwork/PBAT_control_coverageprof_refGen.RData")
-df <- make.df.of.profiles(list(artificial_coverage = artCov.prof))
-p <- rbind(df,prof.df) %>% filter(sample!='no.PBAT')
+VAN1667.subsmp.prof <- load.profile('~/mnt/edann/hexamers/strand_specific/VAN1667_se.random42.srt.profile.txt')
+
+df <- make.df.of.profiles(list(artificial_coverage = artCov.prof, VAN1667 = VAN1667.subsmp.prof))
+plot.profile.df(df)
+ggsave("~/AvOwork/output/artificial_coverage/bias_artCovVSVAN1667subsmp.pdf")
+## Hand-mixed profiles
+CP <- load.profile("~/mnt/edann/crypts_bs/VAN2408/CP.profile.txt")
+MP <- load.profile("~/mnt/edann/crypts_bs/VAN2408/MP.profile.txt")
+plot.profile.df(make.df.of.profiles(list(hand.mixed.CP = CP, hand.mixed.MP = MP, machine.mixed = VAN1667.profile)))
+ggsave("~/AvOwork/output/coverage_bias/hadMixVSmachineMix_covprofile.pdf")
+
+## Priming VS ligation
+lig <- load.profile("~/mnt/edann/SRR1769256_chr1.profile.txt")
+prim <- load.profile("~/mnt/edann/VAN1667.chr1.profile.txt")
+plot.profile.df(make.df.of.profiles(list(priming=prim, ligation=lig)))

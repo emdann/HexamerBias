@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# -ne 3 ]
+if [ $# -ne 4 ]
 then
     echo "Please, give:"
     echo "1) bamfile"
@@ -16,7 +16,7 @@ refgen=$2
 fasta=$3
 type=$4
 abfile=/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz
-sample=$(echo $bamfile | sed 's,/,\t,g' | awk '{gsub(/.bam/, ""); print $NF}') 
+sample=$(echo $bamfile | sed 's,/,\t,g' | awk '{gsub(/.bam/, ""); print $NF}')
 
 if [ $refgen = "mouse" ]
 then
