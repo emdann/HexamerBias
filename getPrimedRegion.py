@@ -47,7 +47,7 @@ def get_template_bed(bamfile, type, trim=9):
 					bed.append((r.reference_name, r.pos, r.pos + 6, r.qname))
 	return(bed)
 
-def check_bed(bed):
+def check_bed(bed):	# <---- TEST!!
 	'''
 	Checks and removes malformed bed entries (e.g. with start < 0 in chrM)
 	'''
