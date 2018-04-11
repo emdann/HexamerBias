@@ -28,6 +28,7 @@ def save_bw_read_extend(beds,refgen_fasta,density, outfile,readLength=10,threads
     for chrom,posDic in workers.map(artificial_cov_bed_entry, [(bed, refgen_fasta, density, readLength) for bed in beds]):
         # print(chrom)
         bw.addEntries(chrom, [k for k in posDic.keys()], values=[v for v in posDic.values()], span=1)
+    print('--- Saving BigWig ---', flush=True)
     bw.close()
 
 abundanceFile = args.abfile
@@ -37,11 +38,13 @@ bedFile = args.bed
 outtype = args.output
 
 # Read files
+print('--- Reading input files ---', flush=True)
 abundance = pd.read_csv(abundanceFile, index_col=0, compression=findCompr(abundanceFile), header=None)
 coverage = pd.read_csv(covFile, index_col='template',compression=findCompr(covFile))
 with open(bedFile, 'r') as f:
     beds = [line.strip() for line in f.readlines()]
 
 # Compute artificial coverage
+print('--- Computing density ---', flush=True)
 density = template_density(coverage.exp,abundance)
 save_bw_read_extend(beds,refgen,density,bedFile.split('.bed')[0]+'.artCov.bw', readLength=75, threads=args.t)
