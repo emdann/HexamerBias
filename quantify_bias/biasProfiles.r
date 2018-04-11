@@ -14,10 +14,10 @@ get.profile.from.matrix <- function(file.gz){
   return(profile/sum(profile))
 }
 
-VAN1667.profile <- get.profile.from.matrix("~/mnt/edann/hexamers/VAN1667prediction/artificial_coverage/matrixVAN1667.gz")
-# VAN1667.subset <-get.profile.from.matrix("~/mnt/edann/hexamers/strand_specific/VAN1667_se.random42.srt.mat.gz")
-noPBAT.profile <- get.profile.from.matrix("~/mnt/edann/hexamers/kaester/ERR454965_1_val_1_bismark_bt2.deduplicated.srt.mat.gz")
-# noPBAT.small.profile <- get.profile.from.matrix("~/mnt/edann/hexamers/kaester/ERR454965_1_val_1_bismark_bt2.deduplicated.srt.small.mat.gz")
+# VAN1667.profile <- get.profile.from.matrix("~/mnt/edann/hexamers/VAN1667prediction/artificial_coverage/matrixVAN1667.gz")
+# # VAN1667.subset <-get.profile.from.matrix("~/mnt/edann/hexamers/strand_specific/VAN1667_se.random42.srt.mat.gz")
+# noPBAT.profile <- get.profile.from.matrix("~/mnt/edann/hexamers/kaester/ERR454965_1_val_1_bismark_bt2.deduplicated.srt.mat.gz")
+# # noPBAT.small.profile <- get.profile.from.matrix("~/mnt/edann/hexamers/kaester/ERR454965_1_val_1_bismark_bt2.deduplicated.srt.small.mat.gz")
 
 load.profile <- function(profile.txt){
   profile <- scan(profile.txt)
@@ -30,9 +30,6 @@ make.df.of.profiles <- function(profiles){
     melt(id.vars = c('position'), variable.name='sample')
   return(prof.df)
 }
-# VAN1667.subset.profile.df <- data.frame(position = seq(1,1100),VAN1667.subset = VAN1667.subset)
-profiles <- list(PBAT=VAN1667.profile, no.PBAT=noPBAT.profile)
-prof.df <- make.df.of.profiles(profiles)
 
 plot.profile.df <- function(df){
   ggplot(df, aes(position,value, color=sample)) + 
@@ -55,8 +52,9 @@ df <- make.df.of.profiles(list(BS=pbat.profile, noBS = noBS.profile))
 plot.profile.df(df)
 
 ## Purified vs non-purified
-purified.profile <- load.profile("~/mnt/edann/hexamers/OUD2086prediction/OUD2086_distal.profile.txt")
-df <- make.df.of.profiles(list(purified=purified.profile))
+purified.profile <- load.profile("~/mnt/edann/hexamers/OUD2086prediction/10_R1.profile.txt")
+df <- make.df.of.profiles(list(purified=purified.profile, non.purified=VAN1667.profile))
+plot.profile.df(df)
 
 ## artificial coverage
 artCov.prof <- get.profile.from.matrix('~/mnt/edann/hexamers/strand_specific/artificial_coverage/mm10.random.42.artCov.mat.gz')

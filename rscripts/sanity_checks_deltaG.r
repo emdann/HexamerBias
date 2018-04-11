@@ -27,7 +27,7 @@ getDiag <- function(predDg){
 
 
 ## Concordance of NN model and diagonal
-predDg <- read.csv(gzfile("~/mnt/edann/hexamers/VAN1667prediction/sorted_L1_trim1_R1_bismark_bt2_pe_ptDg_qual.csv.gz"), header = TRUE, row.names = 1)
+predDg <- read.csv("~/mnt/edann/hexamers/strand_specific/VAN1667_se_ptDg_qual.csv", header = TRUE, row.names = 1)
 diag <- getDiag(predDg)
 ## Load tabulated free energy
 tabDg <- read.delim(gzfile("~/mnt/edann/hexamers/rand_hex_deltaG_ions.txt.gz"), sep=' ', header = FALSE, row.names = 1)
@@ -36,21 +36,23 @@ colnames(tabDg) <- 'freeEn'
 dg.df <- cbind(pred=diag[match(rownames(tabDg), rownames(diag)),], tabDg)
 dg.df <- dg.df %>% mutate(pred=log(pred), template=rownames(dg.df)) 
   # filter(pred==-Inf) %>%
-dg.df %>%
+dg.df %>% 
   filter(!grepl('C', template)) %>% 
-  ggplot(.,aes(pred,freeEn, label=template)) + geom_point() +
-  # geom_smooth(method = lm, se = FALSE) +
+  filter(pred!='-Inf') %>% 
+  ggplot(.,aes(pred,freeEn, label=template)) + geom_text(cex=3) +
   xlab('Predicted DeltaG') + ylab('NN DeltaG') +
-  theme(axis.title = element_text(size = 20)) +
-  # geom_text_repel() +
-  xlim(-15,-3) +
-  ylim(min(dg.df$freeEn), max(dg.df$freeEn))
+  theme(axis.title = element_text(size = 20), title = element_text(size=25)) +
+  # ylim(min(dg.df$freeEn), max(dg.df$pred)) +
+  ylim(min(dg.df$freeEn), max(dg.df$freeEn)) +
+  ggtitle('Strand specific DeltaG prediction')
+
+ggsave('~/AvOwork/output/deltaGprediction/sanity_checks/predBsVSnnmodel_noC_strandSpecific.pdf')
 
 ## Simmetry
 noCG.dg <- predDg[!grepl('C|G', rownames(predDg)), !grepl('C|G', colnames(predDg))]
 noCG.dg <- noCG.dg[,match(row.names(noCG.dg), colnames(noCG.dg))] # Same order in cols and rows
 noCg.dg.log <- log(noCG.dg)
-noCg.dg.log[noCg.dg.log==-Inf]<-0
+noCg.dg.log[noCg.dg.log==-Inf]<- -18
 long.dg.log <- noCg.dg.log %>% mutate(template=rownames(noCg.dg.log)) %>% melt(value.name = 'predicted.Dg', variable.name = 'primer') 
 long.dg.log$primer <- factor(long.dg.log$primer, levels = levels(factor(long.dg.log$template)) )
 ggplot(long.dg.log, aes(template,primer,fill=predicted.Dg)) + geom_tile() +
@@ -59,14 +61,15 @@ ggplot(long.dg.log, aes(template,primer,fill=predicted.Dg)) + geom_tile() +
   theme(axis.text.x = element_text(angle=90), axis.title = element_text(size = 20))
 
 ## Here I was trying to see clusters
-pheatmap(noCg.dg.log, cluster_rows = TRUE, cluster_cols = FALSE, breaks = breaks, color = colorRampPalette(brewer.pal(n = 7, name =
+noCg.dg.log.srt <- noCg.dg.log[sort(rownames(noCg.dg.log)),]
+pheatmap(noCg.dg.log, cluster_rows = FALSE, cluster_cols = FALSE, color = colorRampPalette(brewer.pal(n = 7, name =
                                                                                                                         "YlGnBu"))(100))
 ## Assuming conversion
 CH.hex <- rownames(predDg)[grepl(rownames(predDg), pattern='C[^G]')]
 bs.convert <- function(seq){  return(gsub(seq, pattern = 'C', replacement = 'T')) }
 
-df <- data.frame(CH.hex, convDg = sapply(CH.hex, function(seq) predDg[seq, bs.convert(seq)]), nnDg=sapply(CH.hex, function(seq) tabDg[bs.convert(seq),]))
-ggplot(df, aes(log(diag[CH.hex,]), nnDg)) + geom_point() +
+df <- data.frame(CH.hex, non.conv.Dg = sapply(CH.hex, function(seq) predDg[seq, seq]),conv.Dg = sapply(CH.hex, function(seq) predDg[seq, bs.convert(seq)]), nnDg=sapply(CH.hex, function(seq) tabDg[bs.convert(seq),]))
+ggplot(df, aes(log(conv.Dg), nnDg)) + geom_point() +
   xlab('deltaG CH template non conv') +
   ylab('NN delta G conv primer') +
   theme(axis.title = element_text(size = 18))
