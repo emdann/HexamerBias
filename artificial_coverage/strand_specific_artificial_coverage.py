@@ -24,12 +24,20 @@ def artificial_cov_bed_entry(params):
 def save_bw_read_extend(beds,refgen_fasta,density, outfile,readLength=10,threads=10):
     workers = multiprocessing.Pool(threads)
     bw = pbw.open(outfile, 'w')
-    bw.addHeader(make_BigWig_header(refgen_fasta))
-    for chrom,posDic in workers.map(artificial_cov_bed_entry, [(bed, refgen_fasta, density, readLength) for bed in beds]):
-        # print(chrom)
-        bw.addEntries(chrom, [k for k in posDic.keys()], values=[v for v in posDic.values()], span=1)
+    header=make_BigWig_header(refgen)
+    chroms = [e[0] for e in header]
+    bw.addHeader(header)
+    intervals = []
+    for chrom,posDic in workers.imap_unordered(artificial_cov_bed_entry, [(bed, refgen_fasta, density, readLength) for bed in beds]):
+        intervals.extend([(chrom,pos,val) for pos,val in kernel_smoothing(posDic, sigma=20).items()])
     print('--- Saving BigWig ---', flush=True)
+    for chrom in chroms:
+        print('Writing entries from '+ chrom, flush=True)
+        exChr = sorted([i for i in intervals if i[0]==chrom])
+        if len(exChr)>0:
+            bw.addEntries(chrom, [k[1] for k in exChr], values=[k[2] for k in exChr], span=1)
     bw.close()
+    return(intervals)
 
 abundanceFile = args.abfile
 covFile = args.covfile
