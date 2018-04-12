@@ -14,7 +14,6 @@ def template_density(covCol, abundance, S=115000000):
     '''
     df  = pd.concat([abundance, covCol], axis=1, join_axes=[covCol.index])
     df.columns = ['abundance', 'coverage']
-    print(S)
     density = (df.coverage*S)/df.abundance
     return(density)
 
@@ -37,37 +36,6 @@ def per_base_cov(params):
             hexItems = [(k,v) for k,v in posDic.items() if k in range(start+i,start+i+6)]
             posDic.update(map(lambda kv: (kv[0], kv[1] + d), hexItems))
     return(posDic)
-
-def per_base_cov_read_extend(seq, density, start, readLength=0):
-    '''
-    Compute coverage for seq of interest based on template density
-    '''
-    posDic = {k:np.float64() for k in range(start, start+len(seq))} # Specify to have same type in the end
-    for i in range(len(seq)-5):
-        if 'N' not in seq[i:i+6]: ## No density on sites with N but the position is there
-            d = density[seq[i:i+6]]
-            hexItems = [(k,v) for k,v in posDic.items() if k in range(start+i,start+i+6+readLength)]
-            posDic.update(map(lambda kv: (kv[0], kv[1] + d), hexItems))
-    return(posDic)
-
-def reverse_strand_read_extend(seq, density, start, readLength=0):
-    revSeq = str(Seq(seq,generic_dna).reverse_complement())
-    revCov = per_base_cov_read_extend(revSeq, density,start,readLength)
-    adjRevCov = {}
-    revKeys = list(reversed(list(revCov.keys())))
-    vals = list(revCov.values())
-    for i in range(len(revCov)):
-        adjRevCov[revKeys[i]] = vals[i]
-    return(adjRevCov)
-
-def sum_strands_per_base_cov(seq, density, start, readLength=0):
-    plus = per_base_cov_read_extend(seq,density,start,readLength=readLength)
-    minus = reverse_strand_read_extend(seq,density,start,readLength=readLength)
-    strandSum = {}
-    for pos in plus.keys():
-        strandSum[pos] = plus[pos] + minus[pos]
-    return(strandSum)
-
 
 def reverse_strand(params):
     seq, density, start = params
@@ -108,6 +76,36 @@ def save_intervals(seq,chrom,start,density, threads=10):
         intervals.extend([(chrom,pos,val) for pos,val in kernel_smoothing(posDic, sigma=20).items()])
     return(intervals)
 
+### Functions for strand specific artificial coverage
+def per_base_cov_read_extend(seq, density, start, readLength=0):
+    '''
+    Compute coverage for seq of interest based on template density
+    '''
+    posDic = {k:np.float64() for k in range(start, start+len(seq))} # Specify to have same type in the end
+    for i in range(len(seq)-5):
+        if 'N' not in seq[i:i+6]: ## No density on sites with N but the position is there
+            d = density[seq[i:i+6]]
+            hexItems = [(k,v) for k,v in posDic.items() if k in range(start+i,start+i+6+readLength)]
+            posDic.update(map(lambda kv: (kv[0], kv[1] + d), hexItems))
+    return(posDic)
+
+def reverse_strand_read_extend(seq, density, start, readLength=0):
+    revSeq = str(Seq(seq,generic_dna).reverse_complement())
+    revCov = per_base_cov_read_extend(revSeq, density,start,readLength)
+    adjRevCov = {}
+    revKeys = list(reversed(list(revCov.keys())))
+    vals = list(revCov.values())
+    for i in range(len(revCov)):
+        adjRevCov[revKeys[i]] = vals[i]
+    return(adjRevCov)
+
+def sum_strands_per_base_cov(seq, density, start, readLength=0):
+    plus = per_base_cov_read_extend(seq,density,start,readLength=readLength)
+    minus = reverse_strand_read_extend(seq,density,start,readLength=readLength)
+    strandSum = {}
+    for pos in plus.keys():
+        strandSum[pos] = plus[pos] + minus[pos]
+    return(strandSum)
 
 
 ### Functions to make BigWig ###
