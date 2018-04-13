@@ -96,6 +96,50 @@ def run_DE(deltaGfile, abundanceFile, outfile, popsize=20, its=1000, cores=5):
     outdic = {'score':p[0][0], 'mat':p[0][1].tolist()}
     save_output_json(outdic,outfile)
 
-deltaGfile = 'VAN1667_100_ptDg_qual.noPrimers.csv'
+# ----- FAKE!!! -----
+
+def fake_de(fobj, fun_params, seq_len, mut=0.8, crossp=0.7, popsize=6, its=1000, cores=10):
+    '''
+    Testing an implementation of Differential Evolution optimization algorithm starting from
+    even base composition (to make illustrative gif)
+    '''
+    workers = multiprocessing.Pool(cores)
+    seqs,dgMat,genomeAb,target = fun_params
+    x=[0.25,0.25,0.25, 0.25, 0.25, 0.25,0.25,0.25,0.25, 0.25, 0.25, 0.25, 0.25,0.25,0.25, 0.25, 0.25, 0.25,0.25,0.25,0.25, 0.25, 0.25, 0.25  ]
+    pop_denorm = np.array([x,x,x,x,x,x])
+    # pop = np.random.rand(popsize, seq_len*4)  ## Makes the population
+    # pop_denorm = np.vstack([el for el in map(reset_costraints, pop)])
+    fitness = np.asarray(workers.map(fobj, [(ind, seqs,dgMat,genomeAb, target) for ind in pop_denorm])) # <-- takes too long
+    best_idx = np.argmin(fitness)   ## Returns the indices of the minimum values along an axis.
+    best = pop_denorm[best_idx]
+    performanceVal = []
+    performanceMat = []
+    for i in range(its):
+        print("--- Iteration no. "+ str(i)+" ---")
+        for f,trial,j in workers.imap_unordered(de_mutation, [ (fobj,j,pop,fun_params,seq_len,popsize,mut,crossp) for j in range(popsize)]):
+            if f < fitness[j]:
+                fitness[j] = f
+                pop[j] = trial
+            if f < fitness[best_idx]:
+                best_idx = j
+                best = trial
+            print("Best idx: " + str(best_idx))
+        performanceVal.append(fitness[best_idx])
+        performanceMat.append(best)
+    yield performanceVal, np.asarray(performanceMat)
+
+def run_fake_DE(deltaGfile, abundanceFile, outfile, popsize=6, its=1000, cores=5):
+    seqs = all_hexamers()
+    dgMat = pd.read_csv(deltaGfile, index_col=0)
+    abundance = pd.read_csv(abundanceFile, index_col=0, compression=findCompr(abundanceFile), header=None)
+    genomeAb = abundance[1]
+    res = fake_de(coverage_function,(seqs,dgMat,genomeAb,genomeAb), 6, popsize=popsize, its=its, cores=cores)
+    p = list(res)
+    outdic = {'score':p[0][0], 'mat':p[0][1].tolist()}
+    save_output_json(outdic,outfile)
+
+
+deltaGfile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/VAN1667_se_ptDg_qual.noPrimers.csv'
 abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz"
-run_DE(deltaGfile, abundanceFile, 'match_genomeAb.pop20.it1000.json', cores=10)
+# run_DE(deltaGfile, abundanceFile, 'match_genomeAb.pop20.it1000.json', cores=10)
+run_fake_DE(deltaGfile, abundanceFile, '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/fake_match_genomeAb.pop6.it100.json', cores=10)

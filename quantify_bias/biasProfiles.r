@@ -14,7 +14,7 @@ get.profile.from.matrix <- function(file.gz){
   return(profile/sum(profile))
 }
 
-# VAN1667.profile <- get.profile.from.matrix("~/mnt/edann/hexamers/VAN1667prediction/artificial_coverage/matrixVAN1667.gz")
+VAN1667.profile <- load.profile("~/mnt/edann/hexamers/strand_specific/VAN1667.profile.txt")
 # # VAN1667.subset <-get.profile.from.matrix("~/mnt/edann/hexamers/strand_specific/VAN1667_se.random42.srt.mat.gz")
 # noPBAT.profile <- get.profile.from.matrix("~/mnt/edann/hexamers/kaester/ERR454965_1_val_1_bismark_bt2.deduplicated.srt.mat.gz")
 # # noPBAT.small.profile <- get.profile.from.matrix("~/mnt/edann/hexamers/kaester/ERR454965_1_val_1_bismark_bt2.deduplicated.srt.small.mat.gz")
@@ -32,16 +32,18 @@ make.df.of.profiles <- function(profiles){
 }
 
 plot.profile.df <- function(df){
-  ggplot(df, aes(position,value, color=sample)) + 
+  p <-ggplot(df, aes(position,value, color=sample)) + 
     theme_classic() +
-    geom_line() +
+    geom_line(size=2) +
     scale_x_continuous(breaks = c(0,300,800,1100), 
                        labels = c('0' = '-3kb', '300' = 'TSS', '800' = 'TES', '1100' = '+3kb')) +
     xlab('Relative position') + ylab('normalized coverage') +
-    theme(axis.title = element_text(size = 20), 
-          axis.text = element_text(size=10), 
+    theme(axis.title = element_text(size = 30), 
+          axis.text = element_text(size=25), 
           title = element_text(size=22),
-          legend.text = element_text(size=16)) 
+          legend.text = element_text(size=25), 
+          legend.key.size = unit(1,"cm"))
+  return(p)
 }
 
 ### BS vs noBS
@@ -52,12 +54,13 @@ df <- make.df.of.profiles(list(BS=pbat.profile, noBS = noBS.profile))
 plot.profile.df(df)
 
 ## Purified vs non-purified
+VAN1667.profile <- load.profile("~/mnt/edann/hexamers/strand_specific/VAN1667.profile.txt")
 purified.profile <- load.profile("~/mnt/edann/hexamers/OUD2086prediction/10_R1.profile.txt")
 df <- make.df.of.profiles(list(purified=purified.profile, non.purified=VAN1667.profile))
 plot.profile.df(df)
 
 ## artificial coverage
-artCov.prof <- get.profile.from.matrix('~/mnt/edann/hexamers/strand_specific/artificial_coverage/mm10.random.42.artCov.mat.gz')
+artCov.prof <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/mm10.random.42.1000smp.artCov.profile.txt')
 VAN1667.subsmp.prof <- load.profile('~/mnt/edann/hexamers/strand_specific/VAN1667_se.random42.srt.profile.txt')
 
 df <- make.df.of.profiles(list(artificial_coverage = artCov.prof, VAN1667 = VAN1667.subsmp.prof))
@@ -72,4 +75,4 @@ ggsave("~/AvOwork/output/coverage_bias/hadMixVSmachineMix_covprofile.pdf")
 ## Priming VS ligation
 lig <- load.profile("~/mnt/edann/SRR1769256_chr1.profile.txt")
 prim <- load.profile("~/mnt/edann/VAN1667.chr1.profile.txt")
-plot.profile.df(make.df.of.profiles(list(priming=prim, ligation=lig)))
+p <- plot.profile.df(make.df.of.profiles(list(priming=prim, ligation=lig)))

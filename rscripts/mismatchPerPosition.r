@@ -49,15 +49,22 @@ d <- melt(t(freqTab)) %>%
   mutate(pos=as.numeric(gsub(pos, pattern = 'X', replacement = '')), freq=ifelse(is.na(freq),0,freq)) %>%
   arrange(pos) 
 
-filter(d, !grepl(d$MMtype, pattern = 'N->.+')) %>%
+d1 <- filter(d, !grepl(d$MMtype, pattern = 'N->.+')) %>%
   filter(!MMtype %in% c('A->A', 'G->G', 'C->C', 'T->T')) %>%
-  ggplot(., aes(pos, freq)) + 
-  theme_classic() +
-  geom_bar(stat='identity',aes(fill=MMtype), size=0, width = 1) +
-  labs(x='Position', y='# reads') +
-  geom_label(x=16, y=150000, label='Tot. no. of reads = 8245528', cex=5) +
-  scale_fill_discrete(name='Mismatch') +
-  theme(axis.title = element_text(size = 20), legend.title = element_text(size=16), legend.text = element_text(size=14))
+  filter(pos< 60) 
+  
+p <- ggplot(d1, aes(pos, freq)) + 
+    theme_classic() +
+    geom_bar(stat='identity',aes(fill=MMtype), size=0, width = 1) +
+    labs(x='Position', y='# reads') 
+p + geom_label(x=40, y= 120000, label='Tot. no. of reads = 8245528', cex=10) +
+    scale_fill_discrete(name='Mismatch') +
+    theme(axis.title = element_text(size = 30), 
+          axis.text = element_text(size=25), 
+          title = element_text(size=22),
+          legend.title = element_blank(),
+          legend.text = element_text(size=25), 
+          legend.key.size = unit(1,"cm"))
 
 ggsave(filename = '~/AvOwork/output/mismatch_per_position_abs_L1.pdf')
 
