@@ -42,7 +42,7 @@ dg.df.clean <- dg.df %>%
   mutate(lab=ifelse(freeEn< -5 & -pred <10 | freeEn> -5 & -pred >10.5, NA, template))
 
 ggplot(dg.df.clean,aes(freeEn, -pred, label=lab)) + 
-  geom_point() + 
+  geom_point(size=3) + 
   stat_dens2d_filter(geom='text_repel', keep.fraction=0.1) +
   ylab('Predicted DeltaG') + xlab('NN DeltaG') +
   theme_bw() +

@@ -1,6 +1,8 @@
 import numpy as np
 import multiprocessing
 import json
+import sys
+sys.path.insert(0,'/hpc/hub_oudenaarden/edann/bin/coverage_bias/optimization')
 from primerProbability import *
 from predictCovBs import *
 
@@ -19,10 +21,10 @@ def de(fobj, fun_params, seq_len, mut=0.8, crossp=0.7, popsize=20, its=1000, cor
     performanceMat = []
     for i in range(its):
         print("--- Iteration no. "+ str(i)+" ---")
-        for f,trial,j in workers.imap_unordered(de_mutation, [ (fobj,j,pop,fun_params,seq_len,popsize,mut,crossp) for j in range(popsize)]):
+        for f,trial,j in workers.imap_unordered(de_mutation, [ (fobj,j,pop_denorm,fun_params,seq_len,popsize,mut,crossp) for j in range(popsize)]):
             if f < fitness[j]:
                 fitness[j] = f
-                pop[j] = trial
+                pop_denorm[j] = trial
             if f < fitness[best_idx]:
                 best_idx = j
                 best = trial
@@ -116,10 +118,10 @@ def fake_de(fobj, fun_params, seq_len, mut=0.8, crossp=0.7, popsize=6, its=1000,
     performanceMat = []
     for i in range(its):
         print("--- Iteration no. "+ str(i)+" ---")
-        for f,trial,j in workers.imap_unordered(de_mutation, [ (fobj,j,pop,fun_params,seq_len,popsize,mut,crossp) for j in range(popsize)]):
+        for f,trial,j in workers.imap_unordered(de_mutation, [ (fobj,j,pop_denorm,fun_params,seq_len,popsize,mut,crossp) for j in range(popsize)]):
             if f < fitness[j]:
                 fitness[j] = f
-                pop[j] = trial
+                pop_denorm[j] = trial
             if f < fitness[best_idx]:
                 best_idx = j
                 best = trial
