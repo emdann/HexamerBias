@@ -114,3 +114,9 @@ merge(BS.primer.usage, MD.primer.usage, by='primer') %>%
   xlab('BS_Emma') + ylab('VAN2408_MD1')
 
 ggsave("~/AvOwork/handMixed_primer_usage_meVSanna.pdf")
+
+### Compare with total kmer abundance
+abundance <- read.csv(gzfile('~/mnt/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz'), row.names=1, header=FALSE)
+abundance <- abundance %>% mutate(template=rownames(abundance))
+ab.primer.df <- base::merge(abundance,primer.usage.df, by='primer')
+ab.template.df <- base::merge(abundance,template.usage.df, by='template')

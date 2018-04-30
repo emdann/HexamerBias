@@ -1,0 +1,639 @@
+---
+title: "finding_metrics_peaks.Rmd"
+author: "Emma Dann"
+date: "4/17/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Finding the right metric to compare coverage profiles
+I want to compare predicted and real coverage, detecting if peaks are in the same position and if they have comparable amplitude.
+
+```{r message = FALSE, warning=FALSE}
+library(zoo)
+source('~/HexamerBias/artificial_coverage/compare_peaks.r')
+```
+
+Loading the data
+```{r}
+### Load the data (see compare_peaks)
+pred.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/mm10.random.42.1000smp.artCov.bw'
+exp.bw.file <- '~/mnt/edann/hexamers/strand_specific/VAN1667_se.random42.srt.bw'
+
+pred.bw <- import(pred.bw.file, format = 'BigWig')
+ranges <- GRanges(seqnames = pred.bw@seqnames, 
+                  ranges = IRanges(start=pred.bw@ranges@start, 
+                                   end = pred.bw@ranges@start+1))
+# pred.bw <- resize(pred.bw, pred.bw@ranges@width +1)
+exp.bw <- import(exp.bw.file, format = 'BigWig', which = ranges)
+exp.bw.base <- make.base.res.bw(exp.bw)
+
+
+common.bw <- make.predVSexp.range(pred.bw = pred.bw, exp.bw = exp.bw.base)
+norm.common.bw <- normalize.coverage(common.bw)
+```
+<!-- *Make histogram of spearman corr for different chuncks, so you find the ones that correlate better -->
+<!-- Then histogram of max-max ratio* -->
+
+<!-- 1. Divide bw into chunks -->
+<!-- ```{r} -->
+<!-- norm.common.bw <- add.id(norm.common.bw) -->
+<!-- l.norm.common.bw <- split(norm.common.bw, norm.common.bw$id) -->
+<!-- ``` -->
+<!-- 2. Compute distance metrics for all chunks -->
+<!-- ```{r} -->
+<!-- clean.l.norm.common.bw <- l.norm.common.bw[sapply(l.norm.common.bw, length)!=1] ## <-- Solve this! In add.id function -->
+<!-- dist <- lapply(clean.l.norm.common.bw, computeDistance) -->
+<!-- metric.df <- do.call(rbind,dist) -->
+<!-- hist(metric.df$spearman, breaks=100) -->
+<!-- # plot(metric.df$spearman, metric.df$maxmax) -->
+<!-- ```        -->
+
+## The baseline problem
+Is there a reason for this baseline popping up? This skews relative differences between peaks?
+
+1. Normalizing by tot number of events (to make prob distributions)
+2. making a cutoff
+3. chi-square test
+
+## Normalization only on chunk
+```{r}
+common.bw <- add.id(common.bw)
+test.bw <- common.bw[common.bw$id == 'chr2 (4.53436e+07,4.57186e+07]']
+values(test.bw) <- values(test.bw)[1:2]
+norm.test.bw <- normalize.coverage(test.bw)
+```
+Generate a sample of values from the predicted distribution, smoothing both profiles with running avg function
+```{r}
+compute.chi <- function(test.bw, plot=FALSE){
+  values(test.bw) <- values(test.bw)[1:2]
+  norm.test.bw <- normalize.coverage(test.bw)
+  if (!any(is.na(norm.test.bw$pred))) {
+    h <- hist(sample(seq_along(test.bw), size = sum(test.bw$score), replace = TRUE, prob = norm.test.bw$pred), breaks = 1000, plot = FALSE)
+  } else{return(NA)}
+  norm.pred <- h$counts/sum(h$counts)
+  norm.pred <- rep(norm.pred, each=5)
+  smooth.pred <- rollmean(norm.pred, k=30)
+  smooth.exp <- rollmean(norm.test.bw$score, k=30)
+  if (plot) {
+    plot(smooth.exp, col='blue', type='l')
+    lines(smooth.pred)
+    }
+  if (length(smooth.pred[-1])==length(smooth.exp) ) {
+    chi <- chisq.test(smooth.exp, smooth.pred[-1]-0.0005)
+    return(chi$statistic)
+  }else{return(NA)}
+}
+compute.chi(test.bw, plot=TRUE)
+```
+Compute chi for all chunks
+```{r}
+l.common.bw <- split(common.bw, common.bw$id)
+lon.common.bw <- l.common.bw[sapply(l.common.bw, function(x)length(x) >1)]
+chi.stats <- sapply(lon.common.bw, compute.chi)
+```
+
+I wonder if the chi statistic is a good metric for distance of the profiles. For this guy I get a very small distance
+```{r}
+test.bw <- l.common.bw$`chr1 (1.69369e+07,1.70027e+07]`
+values(test.bw) <- values(test.bw)[1:2]
+norm.test.bw <- normalize.coverage(test.bw)
+plot.expVSpred.coverage.track(norm.test.bw)
+```
+
+## Ranking the peaks
+1. Take regions with high spearman correlation
+2. Order peak heights
+3. compare slope of the ordered peak heights
+```{r}
+spear <- sapply(l.norm.common.bw, function(x) cor(x$score, x$pred, method='spearman'))
+see.peak.shift <- function(test.bw2){
+  values(test.bw2) <- values(test.bw2)[1:2]
+  plot.expVSpred.coverage.track(test.bw2)
+  # plot(sort(test.bw2$score, decreasing = TRUE), 
+  #      main=paste(test.bw2@seqnames[1], test.bw2@ranges@start[1]),
+  #      ylab='norm.coverage'
+  #      )
+  # points(sort(test.bw2$pred, decreasing = TRUE), col='red')
+  data.frame(values(normalize.coverage(test.bw2))) %>% arrange(-score) %>% mutate(x=seq_along(test.bw2)) %>%
+  ggplot(.,aes(x,score)) + 
+    geom_point() +
+    geom_point(aes(x,sort(pred, decreasing=TRUE)), color='red') +
+    ggtitle(paste(test.bw2@seqnames[1], test.bw2@ranges@start[1]))  
+}
+```
+
+```{r}
+lapply(l.norm.common.bw[which(spear > 0.8)], see.peak.shift)
+```
+From this I can see that the predicted coverage underestimates the height of the peaks. Could be an effect of 5 rounds of pre-amplification!
+
+```{r}
+df <- data.frame(values(normalize.coverage(test.bw2))) %>% arrange(-score) %>% mutate(x=seq_along(test.bw2))
+df %>% ggplot(., aes(x,score)) +
+  geom_point() +
+  geom_point(aes(y=pred), color='red')
+```
+
+### Genome wide ranking of peaks!!!
+Trying for a subset (50 regions) with high spearman correlation
+```{r}
+l.high.cor.common.bw <- l.common.bw[which(spear>0.4)]
+highcor.common.bw.smp <-unlist(sample(l.high.cor.common.bw, 50))
+values(highcor.common.bw.smp) <- values(highcor.common.bw.smp)[1:2]
+df <- data.frame(values(normalize.coverage(highcor.common.bw.smp))) %>% arrange(-score) %>% mutate(rank.obs=seq_along(highcor.common.bw.smp))
+p <- df %>% ggplot(., aes(rank.obs,score)) +
+  # geom_point() +
+  geom_point(aes(y=pred), color='red') +
+  geom_point()
+p
+```
+Closer look at the predicted values
+```{r}
+p + ylim(0,2e-05)
+```
+Ideally I would like to find a transformation for the expected value. I could fit both to a model of the type
+$$
+y = - a \cdot  log(x) + b
+$$
+where $a_o$ > $a_e$ and $b_o$ > $b_e$.  
+# Fit on observed data
+```{r}
+mod.obs <- lm(score ~  log(rank.obs), data=df)
+plot(df$rank.obs, df$score, ylab='norm. coverage', xlab='peak rank')
+points(df$rank.obs, predict(mod.obs), col='blue')
+summary(mod.exp)
+```
+# Fit on obs data
+```{r}
+mod.exp <- lm(pred ~  log(rank.obs), data=df)
+plot(df$rank.obs, df$pred, ylab='norm. coverage', xlab='peak rank')
+points(df$rank.obs, predict(mod.exp), col='blue')
+summary(mod.exp)
+```
+# Plotting the two models 
+
+```{r}
+plot(df$rank.obs, predict(mod.obs), col='blue')
+points(df$rank.obs, predict(mod.exp), col='red')
+```
+The performance of the model on the expected coverage is not brilliant. Does a linear model fit better? Do I have to filter out some high ranking points?
+```{r}
+mod.obs2 <- lm(pred ~  rank.obs, data=df)
+summary(mod.obs2)
+```
+Linear model is only marginally better in terms of $R^2$. 
+
+# Tentative transformation
+One problem is that for the transformation ideally I need to use the ranking on the predicted values, but the fit seems to work:
+```{r}
+summary(mod.exp)
+df <- df %>% arrange(- pred) %>% mutate(rank.exp = as.numeric(rownames(df))) 
+head(df)
+# ggplot(df, aes(rank.exp,pred)) + geom_point() +
+#   geom_point(aes(x=rank.obs,y=predict(mod.exp)))
+plot(df$rank.obs,predict(mod.exp), col='red')
+points(df$rank.exp,df$pred)
+```
+Trying to fit the ranked values to a log model
+```{r}
+mod.rank.exp <- lm(pred ~ log(rank.exp), data=df)
+summary(mod.rank.exp)
+plot(df$rank.exp,df$pred)
+points(df$rank.exp, predict(mod.rank.exp), col='blue')
+```
+```{r}
+summary(mod.exp)
+```
+How the hell do I transform this?
+```{r}
+for (a in seq(2,5)) {
+  plot(df$rank.obs, df$score)
+  points(df$rank.exp, mod.rank.exp$coefficients[2]*a*log(df$rank.exp) + a*mod.rank.exp$coefficients[1], col='red')
+}
+```
+
+I get it! I have to stretch and translate vertically so 
+$$
+y_o = a \cdot (y_e) - c \\
+y_o = s \cdot (- a \cdot  log(rank_e) + b) - t
+$$
+where $s$ is the stretch parameter and $t$ is the translation
+```{r}
+adj.mod <- lm(predict(mod.obs) ~ predict(mod.rank.exp))
+plot(df$rank.obs, df$score)
+points(df$rank.exp, predict(adj.mod), col='red')
+```
+
+```{r}
+summary(adj.mod)
+```
+Let's then try and fit the rank of the predicted peaks to the observed values
+```{r}
+mod <- lm(score ~ log(rank.exp), data=df)
+summary(mod)
+```
+```{r}
+plot(df$rank.obs, df$score)
+points(df$rank.exp, predict(mod), col='blue')
+```
+(Legit)
+
+This way the prediction that includes positional information works as follows 
+1. Predict normalized density for a position
+2. Assign a rank to each density (in quantiles or something)
+3. Adjust values based on rank
+
+Let's try
+```{r}
+plot(sort(test.bw$score, decreasing=TRUE))
+points(sort(test.bw$pred, decreasing = TRUE), col='red')
+```
+1. Fit model with quantiles
+```{r}
+perc.rank <- function(x) trunc(rank(x))/length(x)
+df <- data.frame(values(normalize.coverage(highcor.common.bw.smp))) %>% arrange(-score) 
+df
+df <- df %>% mutate(quant.pred = 1-perc.rank(pred)) %>% mutate(quant.score = 1-perc.rank(score))
+df$quant.pred[df$quant.pred==0] <- 2.043999e-06
+mod <- lm(score ~ log(quant.pred), data=df)
+summary(mod)
+plot(df$quant.score, df$score)
+points(df$quant.pred, predict(mod), col='red')
+```
+2. Rank predicted densities
+```{r}
+norm.test.bw <- l.norm.common.bw[which(spear > 0.8)][[5]]
+ranked.values <- data.frame(values(norm.test.bw)) %>% mutate(quant.pred = 1-perc.rank(pred))  %>% mutate(quant.score = 1-perc.rank(score))
+values.model <- ranked.values %>% mutate(adj.pred = predict(mod, data.frame(quant.pred = ranked.values$quant.pred)))
+ggplot(values.model, aes(quant.score, score)) +
+  geom_point() +
+  geom_point(aes(quant.pred, pred), color='red') +
+  geom_point(aes(quant.pred, adj.pred), color='blue')
+```
+Here I see that building the model on all the normalized scores might not be ideal. Leads to big overestimation.
+Trying with local normalization (but is it really useful?)
+```{r}
+local.norm.test.bw <- normalize.coverage(test.bw)
+df <- data.frame(values(local.norm.test.bw)) %>% arrange(-score) 
+df <- df %>% mutate(quant.pred = 1-perc.rank(pred)) %>% mutate(quant.score = 1-perc.rank(score))
+df$quant.pred[df$quant.pred==0] <- 1e-10
+mod.loc <- lm(score ~ log(quant.pred), data=df)
+summary(mod.loc)
+plot(df$quant.score, df$score)
+points(df$quant.pred, predict(mod.loc), col='red')
+```
+
+```{r}
+ranked.values <- data.frame(values(local.norm.test.bw)) %>% mutate(quant.pred = 1-perc.rank(pred))  %>% mutate(quant.score = 1-perc.rank(score))
+ranked.values$quant.pred[ranked.values$quant.pred==0] <- NA
+values.model <- ranked.values %>% mutate(adj.pred = predict(mod.loc, data.frame(quant.pred = ranked.values$quant.pred)))
+ggplot(values.model, aes(quant.score, score)) +
+  geom_point() +
+  geom_point(aes(quant.pred, pred), color='red') +
+  geom_point(aes(quant.pred, adj.pred), color='blue')
+```
+
+```{r}
+local.norm.test.bw$adj.pred <- values.model$adj.pred
+plot.expVSpred.coverage.track(local.norm.test.bw)
+cor(local.norm.test.bw$score, local.norm.test.bw$pred, use = 'complete.obs')
+```
+This is kind of nice. Let's make it into a function.
+```{r}
+adjust.prediction <- function(test.bw, plot=FALSE, lm.summary=FALSE){
+  perc.rank <- function(x) trunc(rank(x))/length(x)
+  local.norm.test.bw <- normalize.coverage(test.bw)
+  df <- data.frame(values(local.norm.test.bw)) %>% arrange(-score) 
+  df <- df %>% mutate(quant.pred = 1-perc.rank(pred)) %>% mutate(quant.score = 1-perc.rank(score))
+  df$quant.pred[df$quant.pred==0] <- 1e-10
+  mod.loc <- lm(score ~ log(quant.pred), data=df)
+  s <- summary(mod.loc)
+  if (lm.summary) {
+    print(s)
+  }
+  ranked.values <- data.frame(values(local.norm.test.bw)) %>% mutate(quant.pred = 1-perc.rank(pred))  %>% mutate(quant.score = 1-perc.rank(score))
+  ranked.values$quant.pred[ranked.values$quant.pred==0] <- NA
+  values.model <- ranked.values %>% mutate(adj.pred = predict(mod.loc, data.frame(quant.pred = ranked.values$quant.pred)))
+  if (plot) {
+    cols <- c('real.cov'='black', 'pred.cov'='blue', 'adj.pred.cov'='red')
+    p <- ggplot(values.model, aes(quant.score, score)) +
+      geom_point(aes(color='real.cov')) +
+      geom_point(aes(quant.pred, pred, color='pred.cov')) +
+      geom_line(aes(quant.pred, (adj.pred), color='adj.pred.cov')) +
+      xlab('quantile') + 
+      scale_color_manual(name='', values = cols) +
+      annotate('text', x=0.9, y=max(values.model$score)- (5*max(values.model$score))/100, label=paste('R.sq =',round(s$adj.r.squared,2), '\n'), size=5) +
+      # scale_y_log10() +
+      theme(axis.title = element_text(size = 20), axis.text = element_text(size=10), title = element_text(size=22)) 
+    print(p)
+    }
+  local.norm.test.bw$adj.pred <- values.model$adj.pred
+  return(local.norm.test.bw)
+}
+```
+Testing:
+```{r}
+adj.test <- adjust.prediction(norm.test.bw, plot=TRUE)
+```
+```{r}
+plot.expVSpred.coverage.track(adj.test)
+chisq.test(adj.test$score, adj.test$pred)
+chisq.test(adj.test$score, adj.test$adj.pred)
+```
+```{r}
+## Test on sample
+test.bw <- sample(l.common.bw[which(spear>0.7)],1)[[1]]
+test.bw <- normalize.coverage(test.bw)
+adj.test.ugly <- adjust.prediction(test.bw, plot=TRUE)
+plot.expVSpred.coverage.track(adj.test.ugly)
+```
+```{r}
+ggplot(values.model, aes(quant.score, log(score))) + geom_point()
+```
+## Sampling regions with a high number of observations!
+How did it look before?
+```{r}
+common.bw <- add.id(common.bw)
+l.common.bw <- split(common.bw, common.bw$id)
+mean.score <- sapply(l.common.bw, function(x) mean(x$score))
+```
+
+What threshold should I use
+```{r}
+p <- read.delim('~/mnt/edann/hexamers/strand_specific/VAN1667_se.cov.hist.txt', sep = ' ', header=FALSE, col.names = c('count', 'cov'))
+plot(p$cov, p$count, type='h')
+abline(v=80, col='red')
+```
+
+I have computed artificial coverage selecting random regions with high coverage
+```{bash}
+source /hpc/hub_oudenaarden/edann/venv2/bin/activate; bamCoverage -b /hpc/hub_oudenaarden/edann/crypts_bs/VAN1667/se_mapping/VAN1667_se.bam -o VAN1667_se.bw -p 6 -bs 5000
+bigWigToWig VAN1667.cov.bw VAN1667.cov.wig
+cat VAN1667_se.wig | cut -f 4 | sort -n | uniq -c > VAN1667_se.cov.hist.txt
+```
+
+Load data 
+```{r}
+### Load the data (see compare_peaks)
+pred.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.bw'
+exp.bw.file <- '~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.bedGraph'
+
+pred.bw <- import(pred.bw.file, format = 'BigWig')
+ranges <- GRanges(seqnames = pred.bw@seqnames, 
+                  ranges = IRanges(start=pred.bw@ranges@start, 
+                                   end = pred.bw@ranges@start+1))
+# pred.bw <- resize(pred.bw, pred.bw@ranges@width +1)
+exp.bw <- import(exp.bw.file, format = 'bedGraph', which = ranges)
+exp.bw.base <- make.base.res.bw(exp.bw)
+
+common.bw <- make.predVSexp.range(pred.bw = pred.bw, exp.bw = exp.bw.base)
+common.bw <- add.id(common.bw)
+l.common.bw <- split(common.bw, common.bw$id)
+norm.common.bw <- normalize.coverage(common.bw)
+norm.common.bw <- add.id(norm.common.bw)
+l.norm.common.bw <- split(norm.common.bw, norm.common.bw$id)
+```
+
+Correlations and similarity
+```{r}
+lon.norm.commo <- l.norm.common.bw[sapply(l.norm.common.bw, length)>1]
+spear <- sapply(lon.norm.commo, function(x) cor(x$score, x$pred, method='spearman'))
+pear <- sapply(lon.norm.commo, function(x) cor(x$score, x$pred))
+cossim <- sapply(lon.norm.commo, function(x) cosine(x$score, x$pred))
+spear.rand <- sapply(l.norm.common.bw, function(x) cor(sample(x$score), x$pred, method='spearman'))
+
+hist(spear, breaks=100)
+hist(pear, breaks=100)
+# hist(spear.rand)
+norm.par <- par()
+par(pty='s')
+plot(spear,pear)
+plot(spear, cossim)
+```
+Checking regions with high pearson and low spearman and viceversa
+```{r}
+correlation <- cbind(spear, pear)
+outliar1 <- filter(data.frame(correlation, id = rownames(correlation)), spear>0.6 & pear<0.3)$id
+plot.expVSpred.coverage.track(l.common.bw[outliar1][[1]])
+```
+Very very highly sampled region (maybe something iffy here)
+```{r}
+outliar2 <- filter(data.frame(correlation, id = rownames(correlation)), spear>0.6 & pear<0.4)$id
+plot.expVSpred.coverage.track(l.common.bw[outliar2[2]][[1]])
+```
+What are the maximums and avg coverage of these regions?
+```{r}
+outmax <- sapply(l.common.bw[outliar2], function(x) max(x$score))
+outmean <- sapply(l.common.bw[outliar2], function(x) mean(x$score))
+rand.smp <- sample(l.common.bw, length(outliar2))
+randmax <- sapply(rand.smp, function(x) max(x$score))
+randmean <- sapply(rand.smp, function(x) mean(x$score))
+t <- t.test(outmax,randmax)
+t
+graphics::boxplot(outmax, randmax, varwidth=TRUE, names = c('outliars', 'random'), ylab='max(coverage)', outline=FALSE)
+graphics::boxplot(outmax/outmean, randmax/randmean, varwidth=TRUE, names = c('outliars', 'random'), ylab='max(coverage)', outline=FALSE)
+# legend("topright", legend = c(as.character(t$p.value)))
+graphics::boxplot(sapply(l.common.bw[outliar2], function(x) mean(x$score)), sapply(sample(l.common.bw, length(outliar2)), function(x) mean(x$score)), varwidth=TRUE, names = c('outliars', 'random'), ylab='mean(coverage)')
+```
+What about the other outliars? Where there is high Pearson and lor spearman
+```{r}
+outliar3 <- filter(data.frame(correlation, id = rownames(correlation)), spear<0.4 & pear>0.7)$id
+plot.expVSpred.coverage.track(l.common.bw[outliar3[1]][[1]])
+plot.expVSpred.coverage.track(lon.norm.commo[outliar3[1]][[1]])
+```
+```{r}
+plot.expVSpred.coverage.track(l.common.bw[outliar3[5]][[1]])
+plot.expVSpred.coverage.track(lon.norm.commo[outliar3[5]][[1]])
+```
+Still seems to be a problem of super high peaks in the real coverage
+```{r}
+outmax <- sapply(l.common.bw[outliar3], function(x) max(x$score))
+randmax <- sapply(sample(l.common.bw, length(outliar3)), function(x) max(x$score))
+t <- t.test(outmax,randmax)
+t
+graphics::boxplot(outmax, randmax, varwidth=TRUE, names = c('outliars', 'random'), ylab='max(coverage)')
+```
+Let's try and filter out regions with coverage over a certain thresh
+```{r}
+hist(common.bw$score)
+filt.ixs <- which(sapply(l.common.bw, function(x) max(x$score)<1000))
+spear.filt <- sapply(l.norm.common.bw[filt.ixs], function(x) cor(x$score, x$pred, method='spearman'))
+pear.filt <- sapply(l.norm.common.bw[filt.ixs], function(x) cor(x$score, x$pred))
+correlation.filt <- cbind(spear.filt,pear.filt)
+cor(pear.filt, spear.filt, use = 'pairwise.complete.obs')
+cor(pear, spear, use = 'pairwise.complete.obs')
+par(pty='s')
+plot(pear.filt, spear.filt, xlim=c(-0.4,1), ylim=c(-0.4,1))
+plot(pear, spear, xlim=c(-0.4,1), ylim=c(-0.4,1))
+```
+```{r}
+data.frame(correlation) %>% 
+  mutate(id = rownames(correlation)) %>% 
+  mutate(filt=ifelse(id %in% names(filt.ixs), 'low.max', "high.max")) %>%
+  ggplot(., aes(spear,pear, color=filt)) +
+  geom_point(alpha=0.3) +
+  theme_classic()
+
+filt2.ixs <- which(sapply(l.common.bw, function(x) max(x$score)<700))
+data.frame(correlation) %>% 
+  mutate(id = rownames(correlation)) %>% 
+  mutate(filt=ifelse(id %in% names(filt2.ixs), 'low.max', "high.max")) %>%
+  ggplot(., aes(spear,pear, color=filt)) +
+  geom_point(alpha=0.3) +
+  theme_classic()
+
+spear.filt <- sapply(l.norm.common.bw[filt2.ixs], function(x) cor(x$score, x$pred, method='spearman'))
+pear.filt <- sapply(l.norm.common.bw[filt2.ixs], function(x) cor(x$score, x$pred))
+cor(pear.filt, spear.filt, use = 'pairwise.complete.obs')
+```
+
+But maybe this way I am throwing out many regions that just have overall very high coverage and not a single weird peak. Let's do something with ratio max/mean.
+```{r}
+filt.maxmean.ixs <- which(sapply(l.common.bw, function(x) max(x$score)/mean(x$score)<5))
+data.frame(correlation) %>% 
+  mutate(id = rownames(correlation)) %>% 
+  mutate(filt=ifelse(id %in% names(filt.maxmean.ixs), 'low.max', "high.max")) %>%
+  ggplot(., aes(spear,pear, color=filt)) +
+  geom_point(alpha=0.3) +
+  theme_classic()
+spear.filt.maxmean <- sapply(l.norm.common.bw[filt.maxmean.ixs], function(x) cor(x$score, x$pred, method='spearman'))
+pear.filt.maxmean <- sapply(l.norm.common.bw[filt.maxmean.ixs], function(x) cor(x$score, x$pred))
+cor(pear.filt.maxmean, spear.filt.maxmean, use = 'pairwise.complete.obs')
+```
+Doesn't change that much.
+
+# Does peak adjustment improve correlation?
+```{r}
+filt.clean.l <- l.common.bw[filt2.ixs][sapply(l.common.bw[filt2.ixs], length)>1]
+adj.smp <- lapply(sample(filt.clean.l, 1000), adjust.prediction)
+cor.df <- data.frame(cor = sapply(adj.smp, function(x) cor(x$score, x$pred, use='pairwise.complete.obs')),
+                     spear = sapply(adj.smp, function(x) cor(x$score, x$pred, method='spearman',use='pairwise.complete.obs')), 
+                     adj.cor = sapply(adj.smp, function(x) cor(x$score, x$adj.pred, use='pairwise.complete.obs')))
+cor.df %>% mutate(ID=1:n()) %>%
+  filter(spear>0.5) %>%
+  melt(id.vars='ID', value.name='Pearson_correlation') %>%
+  filter(variable!='spear') %>%
+  ggplot(.,aes(variable, Pearson_correlation , group=ID)) +
+  geom_boxplot(alpha=0.5,aes( group=variable), varwidth = TRUE) +
+  geom_line() +
+  geom_point() 
+```
+Doesn't look very good. Maybe I need to take smaller windows (now 5000 bps)
+```{r}
+prova <- lapply(sample(filt.clean.l, 20), function(reg) lapply(split.region(reg, bps = 1000), adjust.prediction))
+adj.smp <- unlist(prova)
+cor.df <- data.frame(cor = sapply(adj.smp, function(x) cor(x$score, x$pred, use='pairwise.complete.obs')),
+                     spear = sapply(adj.smp, function(x) cor(x$score, x$pred, method='spearman',use='pairwise.complete.obs')), 
+                     adj.cor = sapply(adj.smp, function(x) cor(x$score, x$adj.pred, use='pairwise.complete.obs')))
+cor.df %>% mutate(ID=1:n()) %>%
+  filter(spear>0.5) %>%
+  melt(id.vars='ID', value.name='Pearson_correlation') %>%
+  filter(variable!='spear') %>%
+  ggplot(.,aes(variable, Pearson_correlation , group=ID)) +
+  geom_boxplot(alpha=0.5,aes( group=variable), varwidth = TRUE) +
+  geom_line() +
+  geom_point() 
+
+```
+Maybe not. 
+
+```{r}
+adj <- adjust.prediction(filt.clean.l$`chrX (6.421e+07,6.423e+07]`)
+plot.expVSpred.coverage.track(adj)
+cor(adj$score,adj$pred , method='pearson', use = 'pairwise.complete.obs')
+cor(adj$score,adj$pred , method='spearman', use = 'pairwise.complete.obs')
+cor(adj$score,adj$adj.pred , method='pearson', use = 'pairwise.complete.obs')
+```
+```{r}
+data.frame(values(adj)) %>%
+  arrange(-score) %>%
+  mutate(rank=1:n()) %>%
+  ggplot(.,aes(y=score,x=rank)) +
+  geom_point() +
+  geom_point(aes(y=pred), color='red')
+
+```
+
+What if I smoothen the coverage before the ranking and fitting?
+```{r}
+adjust.prediction.smooth <- function(test.bw, plot=FALSE, lm.summary=FALSE){
+  perc.rank <- function(x) trunc(rank(x))/length(x)
+  local.norm.test.bw <- normalize.coverage(test.bw)
+  df1 <- data.frame(values(local.norm.test.bw)) %>% 
+    mutate(score=ksmooth(1:length(score),score, kernel='normal', bandwidth = 100)$y) 
+  df <- df1 %>% 
+    arrange(-score) %>%
+    mutate(quant.pred = 1-perc.rank(pred)) %>% mutate(quant.score = 1-perc.rank(score))
+  df$quant.pred[df$quant.pred==0] <- 1e-10
+  mod.loc <- lm(score ~ exp(-quant.score), data=df)
+  s <- summary(mod.loc)
+  if (lm.summary) {
+    print(s)
+  }
+  ranked.values <- df1 %>%
+    mutate(quant.pred = 1-perc.rank(pred)) %>% 
+    mutate(quant.score = 1-perc.rank(score))
+  ranked.values$quant.pred[ranked.values$quant.pred==0] <- NA
+  values.model <- ranked.values %>% mutate(adj.pred = predict(mod.loc, data.frame(quant.score = ranked.values$quant.pred)))
+  if (plot) {
+    cols <- c('real.cov'='black', 'pred.cov'='blue', 'adj.pred.cov'='red')
+    p <- ggplot(values.model, aes(quant.score, score)) +
+      geom_point(aes(color='real.cov')) +
+      geom_point(aes(quant.pred, pred, color='pred.cov')) +
+      geom_line(aes(quant.pred, (adj.pred), color='adj.pred.cov')) +
+      xlab('quantile') + 
+      scale_color_manual(name='', values = cols) +
+      annotate('text', x=0.9, y=max(values.model$score)- (5*max(values.model$score))/100, label=paste('R.sq =',round(s$adj.r.squared,2), '\n'), size=5) +
+      # scale_y_log10() +
+      theme(axis.title = element_text(size = 20), axis.text = element_text(size=10), title = element_text(size=22)) 
+    print(p)
+  }
+  local.norm.test.bw$score <- values.model$score
+  local.norm.test.bw$adj.pred <- values.model$adj.pred
+  return(local.norm.test.bw)
+}
+
+plot(values.model$score, type='l')
+```
+YOU DEFINETLY NEED TO CHANGE FIT TO USE THE SMOOTHENED DATA
+```{r}
+adj <- adjust.prediction.smooth(filt.clean.l[[32]], plot=TRUE)
+plot.expVSpred.coverage.track(adj)
+cor(adj$score,adj$pred , method='pearson', use = 'pairwise.complete.obs')
+cor(adj$score,adj$pred , method='spearman', use = 'pairwise.complete.obs')
+cor(adj$score,adj$adj.pred , method='pearson', use = 'pairwise.complete.obs')
+```
+```{r}
+filt.clean.l <- l.common.bw[filt2.ixs][sapply(l.common.bw[filt2.ixs], length)>1]
+adj.smp <- lapply(sample(filt.clean.l, 1000), adjust.prediction.smooth)
+cor.df <- data.frame(cor = sapply(adj.smp, function(x) cor(x$score, x$pred, use='pairwise.complete.obs')),
+                     spear = sapply(adj.smp, function(x) cor(x$score, x$pred, method='spearman',use='pairwise.complete.obs')), 
+                     adj.cor = sapply(adj.smp, function(x) cor(x$score, x$adj.pred, use='pairwise.complete.obs')))
+cor.df %>% mutate(ID=1:n()) %>%
+  filter(spear>0.5) %>%
+  melt(id.vars='ID', value.name='Pearson_correlation') %>%
+  filter(variable!='spear') %>%
+  ggplot(.,aes(variable, Pearson_correlation , group=ID)) +
+  geom_boxplot(alpha=0.5,aes( group=variable), varwidth = TRUE) +
+  geom_line() +
+  geom_point() 
+```
+
+Now it looks like the fitting improves the scores for the points with low correlation and viceversa.
+
+General fit
+```{r}
+ranked.df <- do.call(cbind, sapply(adj.smp, function(x) sort(x$score))) 
+# ranked.df.mean <- apply(ranked.df,1,mean)
+# mutate(data.frame(ranked.df[1:10,]), mean=ranked.df.mean[1:10]) %>%
+  mean.var1 <- melt(ranked.df) %>% group_by(Var1) %>% summarise_all(mean) 
+  melt(ranked.df) %>% 
+    mutate(avg=sapply(Var1, function(x) mean.var1$value[mean.var1$Var1 ==x])) %>%
+    ggplot(.,aes(Var1, value, group=Var2)) + 
+    geom_line() +    
+    geom_line(aes(x=Var1,y=avg), color='red')
+```

@@ -37,15 +37,15 @@ dg.df <- cbind(pred=diag[match(rownames(tabDg), rownames(diag)),], tabDg)
 dg.df <- dg.df %>% mutate(pred=log(pred), template=rownames(dg.df)) 
   # filter(pred==-Inf) %>%
 dg.df.clean <- dg.df %>% 
-  filter(!grepl('C', template)) %>% 
+  # filter(!grepl('C', template)) %>% 
   filter(pred!='-Inf') %>%
   mutate(lab=ifelse(freeEn< -5 & -pred <10 | freeEn> -5 & -pred >10.5, NA, template))
 
-ggplot(dg.df.clean,aes(freeEn, -pred, label=lab)) + 
+ggplot(dg.df.clean,aes(freeEn, -pred, labels=lab)) + 
   geom_point(size=3) + 
-  stat_dens2d_filter(geom='text_repel', keep.fraction=0.1) +
+  # stat_dens2d_filter(geom='text_repel', keep.fraction=0.1) +
   ylab('Predicted DeltaG') + xlab('NN DeltaG') +
-  theme_bw() +
+  theme_bw() 
   theme(axis.title = element_text(size = 30), 
         axis.text = element_text(size=25), 
         title = element_text(size=22)) 

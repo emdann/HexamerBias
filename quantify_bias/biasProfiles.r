@@ -7,6 +7,7 @@ library(ggrepel)
 library(reshape2)
 library(RColorBrewer)
 
+
 get.profile.from.matrix <- function(file.gz){
   mat <- read.table(file.gz, skip = 1)
   profMat <- t(mat[,-c(1:6)])

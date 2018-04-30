@@ -9,16 +9,25 @@ library(pheatmap)
 options(stringsAsFactors = FALSE)
 
 pred <- read.csv('~/mnt/edann/hexamers/strand_specific/VAN1667_se_predictedcov.csv')
-obs <- read.csv('~/mnt/edann/hexamers/strand_specific/L2_trim1_R1_bismark_bt2_pe.obscoverage.csv', col.names = c('template', 'obs'), header=FALSE)
+obs <- read.csv('~/mnt/edann/hexamers/strand_specific/L2_trim1_R1_bismark_bt2.obscoverage.csv', col.names = c('template', 'obs'), header=FALSE)
+cov.df <- merge(obs,pred, by='template') %>%
+  mutate(obs=obs/sum(obs))
 
-cov.df <- data.frame(template=rownames(predicted.cov), obs=observed.cov, exp=predicted.cov$exp, err=predicted.cov$err) %>% 
-  mutate(lab=ifelse( exp > 0.0015 | obs > 0.005, as.character(template), '')) 
-
-plot.obsVSexp.coverage <- function(cov.df){
-  p <- ggplot(cov.df, aes(obs, exp)) + geom_point() +  geom_text_repel(aes(label=lab),cex=4) +
+plot.obsVSexp.coverage <- function(cov.df, exp.lim=0.0015, obs.lim=0.005, res.plot=FALSE){
+  cov.df <- cov.df %>% 
+    mutate(lab=ifelse( exp > exp.lim | obs > obs.lim, as.character(template), ''))
+  if (res.plot) {
+    cov.df <- mutate(cov.df, exp=obs-exp)    
+  }
+  p <- ggplot(cov.df, aes(obs, exp)) + geom_point() + 
+    geom_text_repel(aes(label=lab),cex=4) +
+    theme_classic() +
+    coord_fixed() + # Fixes square plot
     xlab('observed coverage') + ylab('predicted coverage') +
     geom_errorbar(aes(ymin=exp-err, ymax=exp+err)) +
-    theme(axis.title = element_text(size = 20), ) 
+    theme(axis.title = element_text(size = 25), 
+          axis.text = element_text(size=20), 
+          title = element_text(size=22)) 
     # geom_errorbar(aes(ymin=obs-exp-err, ymax=obs-exp+err), width=10) 
   return(p)
 }

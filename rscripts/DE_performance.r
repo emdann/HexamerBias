@@ -7,11 +7,15 @@ library(ggplot2)
 library(ggseqlogo)
 library(RColorBrewer)
 
-json <- '~/match_genomeAb.pop20.it1000.json'
+json <- '~/fake_match_genomeAb.pop6.it100.json'
 opt.output <- fromJSON(json)
 
-prob.mat <- read.csv('~/performance_mat.csv', header=F)
+prob.mat <- read.csv('~/fake_DE.csv', header=T)
+prob.mat <- prob.mat[,-1]
+
 reshape.prob.mat <- function(prob.mat){
+  nuc <- c("A", "T", "C", "G")
+  pos<-seq(1,6)
   colnames(prob.mat) <- as.vector(t(sapply(nuc, function(x) paste0(x,'.',pos))))
   long.prob.mat <- prob.mat %>% mutate(iter=rownames(prob.mat)) %>%
     melt(variable.name = 'nuc.pos', value.name = 'prob') %>% 
@@ -56,10 +60,10 @@ make.matrix.gif.frames <- function(prob.mat, path, name){
 }
 
 long.mat <- reshape.prob.mat(prob.mat)
-l <- lapply(seq(1,10), function(i) plot.iteration(long.mat, i))
+l <- lapply(seq(1,1000), function(i) plot.iteration(long.mat, i))
 # png('~/AvOwork/output/DE_optimization/test_iter_matrix.png')
 for(el in l){
-  png(paste0("~/AvOwork/output/DE_optimization/test_iter", el$data$iter[1], "_matrix.png"))
+  png(paste0("~/AvOwork/output/DE_optimization/DE_iter-", el$data$iter[1], ".png"))
   plot(el)
   dev.off()
 }
