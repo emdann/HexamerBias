@@ -10,7 +10,7 @@ library(rtracklayer)
 # biocLite("Gviz")
 # biocLite("similaRpeak")
 # biocLite('ChIPpeakAnno')
-biocLite('plyranges')
+# biocLite('plyranges')
 library(Gviz)
 library(similaRpeak)
 # library(plyranges)
@@ -86,25 +86,38 @@ normalize.coverage <- function(bw){
 }
 
 ## Trying to plot
-plot.expVSpred.coverage.track <- function(common.bw){
+plot.expVSpred.coverage.track <- function(common.bw, met=NULL){
   gtrack <- GenomeAxisTrack()
   chrom <- as.character(unique(common.bw@seqnames))
   start <- common.bw@ranges@start[1]
   end <- common.bw@ranges@start[length(common.bw@ranges)]
   dtrack <- DataTrack(common.bw, 
                       chromosome=chrom,
-                      name='norm. coverage')
-  plotTracks(list(gtrack,dtrack), 
+                      name='norm. coverage',
+                      groups=colnames(values(common.bw)[sapply(values(common.bw), is.numeric)]),
+                      type='l'
+                      )
+  tracklist <- list(gtrack,dtrack)
+  if (!is.null(met)) {
+    metrack <- DataTrack(met,
+                         chromosome=chrom,
+                         name = 'methylation frac.',
+                         type='gradient',
+                         gradient=RColorBrewer::brewer.pal(5,'RdBu'),
+                         ylim=c(0,100))
+    tracklist <- list(gtrack,dtrack, metrack)
+  }
+  plotTracks(tracklist, 
              from=start, to=end,
-             type='l', 
+             # type=c('h', 'l', ), 
              main=paste0(chrom,':',start,':', end),
-             groups=colnames(values(common.bw)[sapply(values(common.bw), is.numeric)]), 
+             # groups=colnames(values(common.bw)[sapply(values(common.bw), is.numeric)]), 
              legend=TRUE)
 }
 
-plot.subset <-function(bw,chr,start = 0,end = 1000000000000){
+plot.subset <-function(bw,chr,start = 0,end = 1000000000000, met=NULL){
   subset.bw <- subsetByRegion(bw, chr,start,end)
-  plot.expVSpred.coverage.track(subset.bw)
+  plot.expVSpred.coverage.track(subset.bw, met=met)
 }
 
 ### Comparing peak heights
@@ -163,6 +176,7 @@ adjust.prediction <- function(test.bw, plot=FALSE, lm.summary=FALSE){
 
 
 adjust.prediction.exp <- function(test.bw, plot=F){
+  perc.rank <- function(x) trunc(rank(x))/length(x)
   df <- as.data.frame(values(test.bw)) %>% 
     mutate(quant.score = perc.rank(x = score)) %>%
     mutate(quant.pred = perc.rank(x = pred)) 
@@ -182,3 +196,17 @@ adjust.prediction.exp <- function(test.bw, plot=F){
     select(score,pred,adj.pred, id)
   return(test.bw)
   }
+
+get.range.methylation <- function(test.bw, baseres.met){
+  ovs <- findOverlaps(test.bw, baseres.met)
+  meth.prof <- baseres.met[subjectHits(ovs)]
+  values(meth.prof) <- values(meth.prof)$frac
+  # values(test.bw) <- data.frame(values(test.bw)) %>% mutate( met.frac=NA)
+  # values(test.bw)$met.frac[queryHits(ovs)] <- meth.prof$frac
+  return(meth.prof)
+}
+
+get.avg.methylation <- function(test.bw, baseres.met){
+  met <- get.range.methylation(test.bw, baseres.met = baseres.met)$X
+  return(mean(met))
+}

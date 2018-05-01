@@ -10,6 +10,7 @@ argparser.add_argument('bed', type=str, help='bed of regions OI')
 argparser.add_argument('refgen', type=str, help='Fasta file of reference genome')
 argparser.add_argument('--output', type=str, default='bigWig',help='Format of output file: bedGraph or bigWig')
 argparser.add_argument('-t', type=int, default=10, required=False, help='Amount of threads to use.')
+# argparser.add_argument('--numReads', type=int, default=10, required=False, help='Amount of threads to use.')
 args = argparser.parse_args()
 
 def artificial_cov_bed_entry(params):

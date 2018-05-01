@@ -1,5 +1,5 @@
 ---
-title: "Predicted coverage analysis: accuracy and outliars"
+title: 'Predicted coverage analysis: accuracy and outliars'
 output: html_notebook
 ---
 
@@ -48,64 +48,163 @@ l.norm.smooth.common <- lapply(lon.norm.commo, smooth.coverage)
 ```{r}
 test.bw <- sample(l.common.bw,1)[[1]]
 plot.expVSpred.coverage.track(test.bw)
-norm.test.bw <- sample(l.norm.common.bw,1)[[1]]
-plot.expVSpred.coverage.track(norm.test.bw)
-smooth.norm.test.bw <- sample(l.norm.smooth.common,1)[[1]]
-plot.expVSpred.coverage.track(smooth.norm.test.bw)
 ```
 
 ## Correlations and similarity
 Spearman correlation measures if the two profiles have the same modality (so if the ranking is maintained, regarless of amplitude of peaks), while the Pearson correlation measures linear correlation, so it considers amplitude of peaks.
 ```{r}
 spear <- sapply(l.norm.smooth.common, function(x) cor(x$score, x$pred, method='spearman'))
+spear.p <- sapply(l.norm.smooth.common, function(x) cor.test(x$score, x$pred, method='spearman')$p.value)
 pear <- sapply(l.norm.smooth.common, function(x) cor(x$score, x$pred))
+pear.p <- sapply(l.norm.smooth.common, function(x) cor.test(x$score, x$pred)$p.value)
 # cossim <- sapply(lon.norm.commo, function(x) cosine(x$score, x$pred))
 spear.rand <- sapply(l.norm.smooth.common, function(x) cor(sample(x$score), x$pred, method='spearman'))
 pear.rand <- sapply(l.norm.smooth.common, function(x) cor(sample(x$score), x$pred))
-correlation <- data.frame(cbind(spear, pear, spear.rand, pear.rand))
+correlation <- data.frame(cbind(spear,spear.p, pear,pear.p, spear.rand, pear.rand))
+correlation <- mutate(correlation, id=rownames(correlation))
+correlation <- correlation %>% 
+  filter(pear.p<0.05 & spear.p<0.05) %>% 
+  select(-pear.p, -spear.p)# Filter out unsignificant correlations
 ```
 For both metrics the correlation is significantly higher than random.
 ```{r}
-long.correlation <- reshape2::melt(correlation, value.name='coeff') %>%
-  mutate(compare=ifelse(grepl(pattern = 'rand', x = Var2), 'random', 'real'),
-         corr.method=ifelse(grepl(pattern = 'spear', x = Var2), 'Spearman', 'Pearson'))
+long.correlation <- reshape2::melt(correlation,id.vars=c('id'), value.name='coeff', variable.name='method') %>%
+  mutate(compare=ifelse(grepl(pattern = 'rand', x = method), 'random', 'real'),
+         corr.method=ifelse(grepl(pattern = 'spear', x = method), 'Spearman', 'Pearson'))
 ggplot(long.correlation, aes(corr.method,coeff, color=compare)) +
   geom_boxplot() +
   theme_classic()
 ```
+Try again shuffling labels of regions and not values inside the regions:
+```{r}
+# l.rand.pred <- sample(l.norm.smooth.common) 
+l.rand.pred <- sample(lapply(l.norm.smooth.common, function(x) x$pred))
+names(l.rand.pred) <- sample(names(l.rand.pred) )
+rand.pcc <- sapply(correlation$id, function(id) cor(l.norm.smooth.common[id][[1]]$score, l.rand.pred[id][[1]]))
+rand.spear <- sapply(correlation$id, function(id) cor(l.norm.smooth.common[id][[1]]$score, l.rand.pred[id][[1]], method='spearman'))
+boxplot(rand.spear, correlation$spear)
+boxplot(rand.spear)
+```
+
+
+Good concordance between linear correlation (PCC) and ranked correlation (Spearman).
 ```{r}
 correlation %>%
   ggplot(., aes(spear,pear)) +
-  geom_point(alpha=0.3) +
+  geom_point(alpha=0.2) +
   theme_classic() +
-  geom_rug() +
+  geom_rug(alpha=0.2) +
   ylab('Pearson R2') + xlab("Spearman rho")
 ```
-Good concordance between linear correlation and ranked correlation, but let's have a look at the outliars
+
+## Ranking adjustment
+In all the sampled regions we can see there is a baseline and a general underestimation of peaks in the prediction, even though the modalities are usually conserved between predicted and experimental coverage. This means that the ranking are generally the same (--> High spearman Rho).
+
+Plotting ranked values for predicted (red) and experimental (black)
+```{r}
+filt.smooth <- l.norm.smooth.common[filter(correlation, spear>0.5)$id]
+filt.df <- do.call(rbind,lapply(sample(filt.smooth, 100), function(x) values(x)))
+as.data.frame(filt.df) %>% arrange(-score) %>%
+  arrange(-score) %>% mutate(rank.score=1:n()) %>% 
+  arrange(-pred) %>% mutate(rank.pred=1:n()) %>% 
+  ggplot(., aes(rank.score, score)) +
+  geom_point() +
+  geom_point(aes(x=rank.pred,y=pred), color='red')
+```
+N.B. The ranking is not exactly the same for the same basepairs in the same regions!! But it follows the same trend as seen above, so we can assume that the ranking is the same.  
+
+Showing the ranked data we can say that the coverage score of intersection of the two distributions is the baseline value for the predicted coverage (underneath the experimental coverage is practically 0). 
+
+Under the assumption that the ranking is conserved between predicted and experimental coverage score, we can fit an exponential model to the rank of the experimental coverage.
+$$
+cov_{e} = \beta \cdot exp(rank(cov_{e}))\\
+$$
+From the experimental coverage I compute the parameters and then adjust the predicted value by fitting it's rank to the model:
+$$
+adj.cov_p = \beta \cdot exp(rank(cov_p))
+$$
+```{r}
+test.bw <- sample(filt.smooth,1)[[1]]
+perc.rank <- function(x) trunc(rank(x))/length(x)
+df <- as.data.frame(values(test.bw)) %>% 
+  mutate(quant.score = perc.rank(x = score)) %>%
+  mutate(quant.pred = perc.rank(x = pred))
+
+# lm <- lm(score ~ exp(quant.score), data=df)
+# ggplot(df, aes(log(quant.score), log(score))) +
+#   # geom_point() +
+#   geom_line(color='red', aes(y=predict(lm)))
+
+lm2 <- lm(log(score) ~ quant.score, data=subset(df, df$score!=0))
+ggplot(df, aes(quant.score, score)) +
+  geom_point(aes(color='experimental')) + 
+  geom_point(aes(quant.pred, pred, color='predicted')) +
+  geom_line(aes(quant.pred, exp(predict(lm2, data.frame(quant.score=quant.pred))), color='adjusted.predicted')) +
+  ylab('Norm.coverage') + 
+  xlab('quantile') +
+  scale_color_manual(name = '',
+                     values=c('experimental'='black', 'predicted'='red', 'adjusted.predicted'='blue'),
+                     guide = guide_legend(override.aes = list(
+                         linetype = c("solid", rep("blank", 2)),
+                         shape = c(NA, rep(16, 2))))
+                     ) +
+  theme(axis.title = element_text(size = 20), 
+        axis.text = element_text(size=10), 
+        legend.text = element_text(size=16)) 
+
+```
+So the profile after the adjustment looks like this
+```{r}
+adj.smp <- lapply(sample(filt.smooth, 500), adjust.prediction.exp)
+plot.expVSpred.coverage.track(adj.smp[[1]])
+# ad <- adj.smp[[1]]
+# cor(ad$score, ad$pred)
+# cor(ad$score, ad$adj.pred)
+```
+
+
+Does this improve the PCC? The Spearman doesn't change because the ranking is conserved. 
+```{r}
+cor.df <- data.frame(cor = sapply(adj.smp, function(x) cor(x$score, x$pred, use='pairwise.complete.obs')),
+                     spear = sapply(adj.smp, function(x) cor(x$score, x$pred, method='spearman',use='pairwise.complete.obs')), 
+                     adj.cor = sapply(adj.smp, function(x) cor(x$score, x$adj.pred, use='pairwise.complete.obs')),
+                     id=sapply(adj.smp, function(x) x$id[1]))
+cor.df %>%
+  filter(spear>0.5) %>%
+  melt(id.vars='id', value.name='Pearson_correlation') %>%
+  filter(variable!='spear') %>%
+  ggplot(.,aes(variable, Pearson_correlation , group=id)) +
+  geom_boxplot(alpha=0.5,aes( group=variable), varwidth = TRUE) +
+  geom_line() +
+  geom_point() 
+```
+Well not much...
+
+What's the point then? Not sure...
 
 ## Outliars: no correlation
 Find and visualize regions with low spearman correlation
 ```{r}
-outliars.smooth <- l.norm.smooth.common[rownames(correlation)[which(correlation$spear< 0.3)]]
-outliars <- l.norm.common.bw[rownames(correlation)[which(correlation$spear< 0.3)]]
+outliars.smooth <- l.norm.smooth.common[correlation$id[which(correlation$spear< 0.3)]]
+outliars <- l.norm.common.bw[correlation$id[which(correlation$spear< 0.3)]]
 lapply(sample(outliars, 10), plot.expVSpred.coverage.track)
 ```
 Looks like it's an issue of low sampling (low coverage). We can show that the average normalized coverage in regions that have very low spearman correlation (or anti-correlation) is significantly lower.
 ```{r}
 mean.norm.cov <- sapply(l.norm.smooth.common, function(x) mean(x$score))
 # spear.df <- data.frame(spear)
-mean.df <- data.frame(mean.norm.cov)
-cov.cor.df <- merge(correlation, mean.df, by='row.names') %>% 
+mean.df <- data.frame(mean.cov = mean.norm.cov, id=names(mean.norm.cov))
+cov.cor.df <- merge(correlation, mean.df, by='id') %>% 
   filter(!is.na(spear)) %>%
   mutate(spear.group = cut(spear, breaks = seq(-1,1,by = 0.25), include.lowest = TRUE))
 cov.cor.clean <- cov.cor.df %>% mutate(spear.group = cut(spear, breaks = c(-1,seq(0,1,by = 0.25)), include.lowest = TRUE)) 
-pval.df <- compare_means(mean.norm.cov ~ spear.group, data=cov.cor.clean, method='t.test') %>%
+pval.df <- compare_means(mean.cov ~ spear.group, data=cov.cor.clean, method='t.test') %>%
   mutate(y.pos=6e-07)
 ggplot(cov.cor.clean, aes(y=mean.norm.cov, x=spear.group)) +
   geom_boxplot(varwidth = TRUE, 
                outlier.shape = NA, 
                fill=NA) +
-  coord_cartesian(ylim=c(0,1e-06)) +
+  coord_cartesian(ylim=c(0,1.4e-07)) +
   theme_classic() +
   xlab('Spearman corr. coefficient') + ylab('Mean normalized coverage') +
   theme(axis.title = element_text(size = 20), axis.text = element_text(size=10), title = element_text(size=22)) +
@@ -115,7 +214,7 @@ ggplot(cov.cor.clean, aes(y=mean.norm.cov, x=spear.group)) +
                                  levels(cov.cor.clean$spear.group)[c(3,4)]
                                  ), 
               test='t.test',
-              map_signif_level = TRUE, y_position = seq(7e-07, 1e-06, length.out = 4), tip_length = 0.001
+              map_signif_level = TRUE, y_position = seq(1.1e-07, 1.4e-07, length.out = 4), tip_length = 0.001
               ) 
 ```
 # Is average methylation different in poorly correlated regions?
@@ -125,27 +224,29 @@ zcat ../kaester/met_extraction/ERR454965_1_val_1_bismark_bt2.deduplicated.bismar
 ```
 Then I load and add information to the correlation data frame.
 ```{r}
-met.frac.bed <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.metfrac.bed'
-met.frac <- import(met.frac.bed, format='bed')
-colnames(values(met.frac)) <- c('C', 'T')
-add.id(met.frac)
+# met.frac.bed <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.metfrac.bed'
+# met.frac <- import(met.frac.bed, format='bed')
+# colnames(values(met.frac)) <- c('C', 'T')
+# met.frac <- add.id(met.frac)
 
-get.met.frac <- function(test.bw, met.frac.gr){
-  ovs <- findOverlaps(test.bw, met.frac.gr)
-  meth <- as.numeric(met.frac.gr[unique(subjectHits(ovs))]$C)/(as.numeric(met.frac.gr[unique(subjectHits(ovs))]$C)+as.numeric(met.frac.gr[unique(subjectHits(ovs))]$T))
-  return(meth)
-}
+# get.met.frac <- function(test.bw, met.frac.gr){
+#   ovs <- findOverlaps(test.bw, met.frac.gr)
+#   meth <- as.numeric(met.frac.gr[unique(subjectHits(ovs))]$C)/(as.numeric(met.frac.gr[unique(subjectHits(ovs))]$C)+as.numeric(met.frac.gr[unique(subjectHits(ovs))]$T))
+#   return(meth)
+# }
 
-meths <- unlist(sapply(l.common.bw, get.met.frac, met.frac.gr=met.frac))
+meths <- sapply(l.norm.smooth.common, get.avg.methylation, baseres.met=baseres.met)
 df.meths <- data.frame(meths) 
 df.meths <- df.meths %>% mutate(id=rownames(df.meths))
-cov.cor.clean <- cov.cor.clean %>% rename(id=Row.names)
+# cov.cor.clean <- cov.cor.clean %>% rename(id=Row.names)
 chunks.df <- merge(cov.cor.clean, df.meths, by='id')
 head(chunks.df)
 ```
 
 Average methylation doesn't seem to be different in poorly correlated regions.
 ```{r}
+pval.df <- compare_means(meths ~ spear.group, data=chunks.df, method='t.test') %>%
+  mutate(y.pos=6e-07)
 ggplot(chunks.df, aes(y=meths, x=spear.group)) +
   geom_boxplot(varwidth = TRUE, fill=NA) +
   # coord_cartesian(ylim=c(0,7.5e-07)) +
@@ -161,8 +262,8 @@ ggplot(chunks.df, aes(x=meths)) +
 ## Outliars: same ranking, different amplitudes 
 Checking regions with high spearman and low pearson
 ```{r}
-outliar1 <- correlation %>% mutate(id=rownames(correlation)) %>% filter(spear>0.5 & pear<0.3) 
-lapply(l.common.bw[outliar1$id], plot.expVSpred.coverage.track)
+outliar1 <- correlation %>% filter(spear>0.5 & pear<0.3) 
+lapply(l.norm.common.bw[outliar1$id], function(test.bw) plot.expVSpred.coverage.track(test.bw, met= get.range.methylation(test.bw, baseres.met)))
 # plot.expVSpred.coverage.track(l.common.bw[outliar1$id][[1]])
 # plot.expVSpred.coverage.track(l.common.bw[outliar1$id][[2]])
 ```
@@ -183,19 +284,123 @@ graphics::boxplot(outmean, randmean, varwidth=TRUE, names = c('outliars', 'rando
 ```
 Methylation:
 ```{r}
-lapply(l.common.bw[outliar1$id],get.met.frac, met.frac.gr=)
-
+outmet <- sapply(l.norm.smooth.common[outliar1$id], get.avg.methylation, baseres.met=baseres.met)
+randmet <- sapply(rand.smp, get.avg.methylation, baseres.met=baseres.met)
+t.test(outmet, randmet)
+boxplot(outmet, randmet, names=c('outliars', 'random'), ylab='avg. methylation')
 ```
 
-
-
-## Outliars: high Pearson, low spearman (??)
-
+What about methylation?
 ```{r}
-outliar2 <- filter(data.frame(correlation, id = rownames(correlation)), spear<0.5 & pear<0.5)$id
-smp.out <- sample(outliar2,1)
-plot.expVSpred.coverage.track(l.norm.smooth.common[smp.out][[1]])
-plot.expVSpred.coverage.track(l.common.bw[smp.out][[1]])
+plot(density(unlist(sapply(l.norm.smooth.common[outliar1$id], function(x) get.range.methylation(x, baseres.met=baseres.met)$X))), main='Met outliars')
+plot(density(baseres.met$frac), main='Met all')
 ```
-Some regions seem to still be lowly sampled
+Can't see any significant differences here.
+
+## Can I use the ranking adjustment to detect the regions with the different peaks
+```{r}
+better <- cor.df %>% filter(adj.cor > cor) 
+worse <- cor.df %>% filter(adj.cor < cor) 
+```
+Regions with improved PCC
+```{r}
+sapply(sample(adj.smp[better$id],3), function(test.bw) plot.expVSpred.coverage.track(test.bw, met=get.range.methylation(test.bw, baseres.met)))
+```
+Regions with lower PCC
+```{r}
+sapply(sample(adj.smp[worse$id],3), function(test.bw) plot.expVSpred.coverage.track(test.bw, met=get.range.methylation(test.bw, baseres.met)))
+```
+
+
+# How does methylation goes in regions with DeltaPCC < 0?
+Visualize also methylation levels in the genome track.
+Make base resolution met for the sampled regions
+```{bash}
+zcat ../kaester/met_extraction/ERR454965_1_val_1_bismark_bt2.deduplicated.bismark.cov.gz | 
+bedtools intersect -a stdin -b artificial_coverage/highcov.random.42.bed -wo | 
+cut -f 1,2,3,4,5,6 | 
+awk '$6+$5>5' > artificial_coverage/highcov.random.42.metfrac.baseres.filt5.bed
+```
+Load it
+```{r}
+baseres.met.bed <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.metfrac.baseres.filt5.bed'
+baseres.met <- import(baseres.met.bed, format='bedGraph')
+baseres.met@ranges <- resize(baseres.met@ranges, 1)
+colnames(values(baseres.met)) <- c('frac','C', 'T')
+```
+
+Checking correlation between Difference in PCC and average methylation for sampled regions
+```{r}
+worse <- worse %>% mutate(met=sapply(adj.smp[worse$id], get.avg.methylation, baseres.met=baseres.met))
+better <- better %>% mutate(met=sapply(adj.smp[better$id], get.avg.methylation, baseres.met=baseres.met))
+t.test(worse$met, better$met)
+boxplot(worse$met, better$met, var.width=TRUE, outline=FALSE, names=c('worse', 'best'), ylab='avg.met.frac')
+ggplot(rbind(worse, better), aes(met, adj.cor - cor)) + geom_point()
+```
+
+## Does methylation affect the accuracy of the prediction in any way?
+Let's try and visualize the regions that have the higher average methylation.
+```{r}
+top.mets <- l.norm.smooth.common[order(chunks.df$meths, decreasing = TRUE)[1:10]]
+adj.top.mets <- lapply(top.mets, adjust.prediction.exp)
+lapply(adj.top.mets, function(test.bw) plot.expVSpred.coverage.track(test.bw, met= get.range.methylation(test.bw, baseres.met)))
+```
+I can see no evident pattern: in some instances the high methylation regions (in blue) fall in regions with or without peak both in predicted and experimental coverage. No significant difference. This could have something to do with the regions  am sampling but I might just be barking at the wrong tree.
+
+
+
+
+
+## Analysis of one preamp round
+```{r}
+ranges <- GRanges(seqnames = pred.bw@seqnames, 
+                  ranges = IRanges(start=pred.bw@ranges@start, 
+                                   end = pred.bw@ranges@start+1))
+onepreamp.bw <- '~/mnt/edann/noPreAmp_crypts/CG-pbat-1xPA-gDNA-crypts_lmerged_R1_val_1_bismark_bt2_pe.deduplicated.srt.bw'
+exp.onepreamp.bw <- import(exp.bw.file, format = 'bedGraph', which = ranges)
+exp.onepreamp.bw.base <- make.base.res.bw(exp.onepreamp.bw)
+onepreamp.bw <- make.predVSexp.range(pred.bw = pred.bw, exp.bw = exp.onepreamp.bw.base)
+onepreamp.bw <- add.id(onepreamp.bw)
+norm.onepreamp.bw <- normalize.coverage(onepreamp.bw)
+l.norm.onepreamp.bw <- split(norm.onepreamp.bw, norm.onepreamp.bw$id)
+
+spear <- sapply(l.norm.onepreamp.bw, function(x) cor(x$score, x$pred, method='spearman'))
+pear <- sapply(l.norm.onepreamp.bw, function(x) cor(x$score, x$pred))
+plot(pear, spear)
+
+
+corr.onepreamp <- data.frame(cbind(spear,pear))
+corr.onepreamp <- mutate(corr.onepreamp, id=rownames(corr.onepreamp))
+
+correlation %>%
+  ggplot(., aes(spear,pear)) +
+  geom_point(alpha=0.2) +
+  theme_classic() +
+  geom_rug(alpha=0.2) +
+  ylab('Pearson R2') + xlab("Spearman rho") +
+  ggtitle('5 preamp')
+
+corr.onepreamp %>%
+  ggplot(., aes(spear,pear)) +
+  geom_point(alpha=0.2) +
+  theme_classic() +
+  geom_rug(alpha=0.2) +
+  ylab('Pearson R2') + xlab("Spearman rho") +
+  ggtitle('1 preamp')
+
+boxplot(corr.onepreamp$spear, correlation$spear, varwidth=TRUE)
+boxplot(corr.onepreamp$pear, correlation$pear,varwidth=TRUE)
+
+```
+
+
+
+
+## CONCLUSIONS (so far)
+1. I can explain a significant amount of the coverage profile by density of binding
+2. Fluctuations in correlations between predicted and experimental coverage are mainly driven by sampling errors (total coverage in the region). Maybe this has something to do with pre-amplification steps and I can check this in the one pre-amp samples.
+3. Differences in methylation do not seem to affect significantly the coverage profile (experimental or predicted one)
+
+
+
 
