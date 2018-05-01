@@ -98,8 +98,6 @@ def random_ppm(step, n=6):
     return(ppm)
 
 def change_nucleotide_probability(prob_series, base_to_optimize, step=0.25):
-    '''
-    '''
     new_prob = pd.Series(index=["A", "T", "C", "G"]) # avoiding renaming and not reassigning
     new_prob[base_to_optimize] = prob_series[base_to_optimize] + step
     mask = new_prob.index.isin([base_to_optimize])
@@ -116,3 +114,32 @@ def change_nucleotide_probability(prob_series, base_to_optimize, step=0.25):
     for base, prob in zip(bases, probs):
         new_prob[base] = prob
     return(new_prob)
+
+def coverage_prop_to_kmer_abundance(kmerFile, abFile):
+    '''
+    Compute kmer coverage for density proportional to the kmer abundance in regions of interest
+    kmerFile: string
+        path and name of .csv file with kmer abundance for region of interest
+    abFile: string
+        path and name of .csv file with kmer abundance for whole ref genome
+    '''
+    # kmerFile='CTCF.flank.kmers.csv'
+    # abFile = "/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz"
+    abundance = pd.read_csv(abFile, index_col=0, compression=findCompr(abFile), header=None, names=['abTot'])
+    kmers = pd.read_csv(kmerFile, index_col=1, compression=findCompr(kmerFile), header=None, names=['abRegion'])
+    totab = pd.concat([abundance, kmers], axis=1)
+    cov = pd.DataFrame(totab.abTot*totab.abRegion/(totab.abTot*totab.abRegion).sum())
+    # cov.index.name='template'
+    cov.reset_index(inplace=True)
+    cov.columns = ['template', 'exp']
+    return(cov)
+
+def make_de_demonstration(ppm, its=100):
+    performanceMat = pd.DataFrame()
+    for it in range(its):
+        pos = random.choice(range(1,6))
+        base = random.choice('ACTG')
+        ppm[pos] = change_nucleotide_probability(ppm[pos],base, step=0.01)
+        ppmDf = pd.DataFrame(np.array(ppm).T.reshape(1,24))
+        performanceMat = pd.concat([performanceMat,ppmDf])
+        # print(ppm)

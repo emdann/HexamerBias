@@ -86,7 +86,7 @@ normalize.coverage <- function(bw){
 }
 
 ## Trying to plot
-plot.expVSpred.coverage.track <- function(common.bw, met=NULL){
+plot.expVSpred.coverage.track <- function(common.bw, met=NULL, plot=TRUE){
   gtrack <- GenomeAxisTrack()
   chrom <- as.character(unique(common.bw@seqnames))
   start <- common.bw@ranges@start[1]
@@ -107,12 +107,15 @@ plot.expVSpred.coverage.track <- function(common.bw, met=NULL){
                          ylim=c(0,100))
     tracklist <- list(gtrack,dtrack, metrack)
   }
-  plotTracks(tracklist, 
-             from=start, to=end,
-             # type=c('h', 'l', ), 
-             main=paste0(chrom,':',start,':', end),
-             # groups=colnames(values(common.bw)[sapply(values(common.bw), is.numeric)]), 
-             legend=TRUE)
+  if (plot){
+    plotTracks(tracklist, 
+               from=start, to=end,
+               # type=c('h', 'l', ), 
+               main=paste0(chrom,':',start,':', end),
+               # groups=colnames(values(common.bw)[sapply(values(common.bw), is.numeric)]), 
+               legend=TRUE)
+  }
+  return(tracklist)
 }
 
 plot.subset <-function(bw,chr,start = 0,end = 1000000000000, met=NULL){
