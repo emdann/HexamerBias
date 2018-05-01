@@ -9,8 +9,7 @@ I don't think so.
 I will try and map in single-end mode all the samples in VAN1667.
 ```
 for file in L*_R1.fastq.gz; do echo "/hpc/hub_oudenaarden/edann/bin/TrimGalore-0.4.3/trim_galore --clip_R1 9 --three_prime_clip_R1 3 --path_to_cutadapt /hpc/hub_oudenaarden/edann/venv2/bin/cutadapt -o se_mapping/ $file"; done
-/hpc/hub_oudenaarden/bin/software/bismark_v0.16.3/bismark --samtools_path /hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.3.1 --path_to_bowtie /hpc/hub_oudenaarden/bin/software/bowtie2-2.2.9 /hpc/hub_oudenaarden/avo/BS/mm10 $file
-
+echo "/hpc/hub_oudenaarden/bin/software/bismark_v0.16.3/bismark --samtools_path /hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.3.1 --path_to_bowtie /hpc/hub_oudenaarden/bin/software/bowtie2-2.2.9 /hpc/hub_oudenaarden/avo/BS/mm10 $file" | qsub -cwd -N map_L1_R2 -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=50G -l h_cpu=1:00:00
 echo "/hpc/hub_oudenaarden/bin/software/bismark_v0.16.3/deduplicate_bismark --samtools_path /hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.3.1 -s --bam ${file}" | qsubl -N dedup
 
 /hpc/hub_oudenaarden/bin/software/bismark_v0.16.3/bismark_methylation_extractor --samtools_path /hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.3.1 -s --gzip --report --multicore 8 --cytosine_report  --genome_folder /hpc/hub_oudenaarden/avo/BS/mm10 $file

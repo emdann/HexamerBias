@@ -56,4 +56,4 @@ with open(bedFile, 'r') as f:
 # Compute artificial coverage
 print('--- Computing density ---', flush=True)
 density = template_density(coverage.exp,abundance)
-save_bw_read_extend(beds,refgen,density,covFile.split('.csv')[0] + bedFile.split('.bed')[0] + '.artCov.bw', readLength=75, threads=args.t)
+save_bw_read_extend(beds,refgen,density, bedFile.split('.bed')[0] + covFile.split('.csv')[0] + '.artCov.bw', readLength=75, threads=args.t)
