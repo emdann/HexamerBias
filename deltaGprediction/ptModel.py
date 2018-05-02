@@ -19,7 +19,7 @@ def extract_deltaG(templateRow,tempAb):
     Extract predicted p*exp(DeltaG) for row of ptCount table (one template)
     ...
     '''
-    dg = templateRow/(tempAb - templateRow.values.sum())
+    dg = templateRow/((tempAb - templateRow.values.sum())*0.00024) # Takes off primer concentration from the parameter
     # dg[dg == - np.inf] = -9999
     return(dg)
 
@@ -43,22 +43,22 @@ ptMatrix = args.ptmatrix
 cellAbundanceTab = args.cellabcsv
 type=args.type
 
-if type=='rna':
-    sample = cellAbundanceTab.split('/')[-1].split('.cellAbundance')[0]
-    cell = ptMatrix.split('/')[-1].split('.ptCounts')[0].split('cell')[-1]
-    tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbundanceTab))
-    cellAb = tabAb[cell]
-    ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
-
-    dgMat = make_DgMat_per_cell((cellAb, ptMat))
-
-    path = '/'.join(cellAbundanceTab.split('/')[:-1])
-    if path:
-        outpath = path + '/predictedDg/'
-    else:
-        outpath = './predictedDg/'
-
-    dgMat.to_csv(outpath + sample + '_cell'+ cell +'_ptDg_qual.csv')
+# if type=='rna':
+#     sample = cellAbundanceTab.split('/')[-1].split('.cellAbundance')[0]
+#     cell = ptMatrix.split('/')[-1].split('.ptCounts')[0].split('cell')[-1]
+#     tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbundanceTab))
+#     cellAb = tabAb[cell]
+#     ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
+#
+#     dgMat = make_DgMat_per_cell((cellAb, ptMat))
+#
+#     path = '/'.join(cellAbundanceTab.split('/')[:-1])
+#     if path:
+#         outpath = path + '/predictedDg/'
+#     else:
+#         outpath = './predictedDg/'
+#
+#     dgMat.to_csv(outpath + sample + '_cell'+ cell +'_ptDg_qual.csv')
 
 if type=='bs':
     sample = ptMatrix.split('/')[-1].split('.ptCounts')[0]
