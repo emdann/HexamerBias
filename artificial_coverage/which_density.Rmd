@@ -98,4 +98,21 @@ ctcf.track <- DataTrack(ctcf,
                         name = 'methylation frac.',
                         type='gradient')
 ```
+## Real artificial coverage 
+```{r}
+ctcf.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank.propCov.artCov.bw'
 
+ctcf.bw <- import(ctcf.bw.file, format = 'BigWig')
+ranges <- GRanges(seqnames = ctcf.bw@seqnames, 
+                  ranges = IRanges(start=ctcf.bw@ranges@start, 
+                                   end = ctcf.bw@ranges@start+1))
+norm.bw <- import(norm.bw.file, format = 'BigWig', which = ranges)
+```
+
+```{r}
+predcov.bw <- make.predVSexp.range(ctcf.bw, norm.bw)
+colnames(values(predcov.bw)) <- c('ctcf','norm')
+predcov.bw <- add.id(predcov.bw)
+l.predcov.bw <- split(predcov.bw, predcov.bw$id)
+predcov.bw
+```

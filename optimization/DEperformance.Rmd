@@ -1,0 +1,23 @@
+---
+title: "DE performance"
+output: html_notebook
+---
+```{r message = FALSE, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+library(ggrepel)
+library(reshape2)
+library(rtracklayer)
+source('~/HexamerBias/artificial_coverage/compare_peaks.r')
+```
+## Performance of test function
+Searches for the matrix with the higher probability of having a CGCGCG primer (only one solution). Minimizes 1-p(CGCGCG)
+```{r}
+test.perf <- read.csv('~/mnt/edann/hexamers/strand_specific/test_function.performance.csv', header = FALSE, col.names = c('it','score'))
+head(test.perf)
+```
+
+```{r}
+ggplot(test.perf, aes(it,score)) +
+  geom_line()
+```
