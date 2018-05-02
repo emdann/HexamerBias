@@ -23,7 +23,7 @@ then
     refgen=/hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa
 fi
 
-bin_dir=/hpc/hub_oudenaarden/edann/bin/coverage_bias
+bin_dir=/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction
 
 echo "--- Step 1: get primed region --- "
 python ${bin_dir}/getPrimedRegion.py -o ./ -t $type -s $bamfile $refgen
