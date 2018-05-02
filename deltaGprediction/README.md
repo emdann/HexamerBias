@@ -3,4 +3,4 @@ Computes predicted $\Delta$G for hexamer binding energy from sequencing reads. F
 
 Use ```run_deltaF_prediction``` which runs the python scripts as described in workflow:
 
-![](DeltaGprediction_workflow.pdf)
+![workflow](DeltaGprediction_workflow.001.png)
