@@ -16,6 +16,8 @@ args = argparser.parse_args()
 ## For some reason doesn't complete the fasta file when running everything in one.
 # Consider splitting into two scripts and retesting
 
+
+## ---- NOT STRAND SPECIFIC !! Scroll down ----
 def get_template_bed(bamfile, type, trim=9):
 	'''
 	Extract positions of template regions for primers of aligned reads in bam.
