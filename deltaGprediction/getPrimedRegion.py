@@ -3,6 +3,7 @@ import pysam as ps
 import argparse
 import os
 import pybedtools as pbt
+import re
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Extract position of primer placement from trimmed section of aligned reads. By Emma Dann")
 argparser.add_argument('bam', type=str, help='Input bam file')
@@ -12,9 +13,6 @@ argparser.add_argument('-s', action='store_true', help='require strandedness')
 argparser.add_argument('-o', type=str, help='path to directory to save output')
 args = argparser.parse_args()
 
-
-## For some reason doesn't complete the fasta file when running everything in one.
-# Consider splitting into two scripts and retesting
 
 
 ## ---- NOT STRAND SPECIFIC !! Scroll down ----
@@ -123,10 +121,11 @@ def get_strandspecific_template_bed(bamfile, trim=9, type='bs_se'):
 		minus=83
 	with ps.AlignmentFile(bamfile,"rb") as bam:
 		for r in bam.fetch(until_eof=True):
-			if r.flag==plus:
-				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.', '+'))
-			if r.flag==minus:
-				bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.', '-'))
+			if not bool(re.search("[^a-zA-Z]", r.qqual[0:6])): # Filter for sequencing quality
+				if r.flag==plus:
+					bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.', '+'))
+				if r.flag==minus:
+					bed.append((r.reference_name, r.pos+1 - trim, r.pos+1 - trim + 6, r.qname, '.', '-'))
 	return(bed)
 
 def get_strandspecific_template_fasta(bamfile, fi, outpath, type):
@@ -139,8 +138,8 @@ def get_strandspecific_template_fasta(bamfile, fi, outpath, type):
 	if not os.path.exists(bedfile):
 		print("Saving bed...")
 		bed = get_strandspecific_template_bed(bamfile, type=type)
-		bed = check_bed(bed)
-		bedfile = save_bedfile(bed, bamfile, outpath)
+		checkedBed = check_bed(bed)
+		bedfile = save_bedfile(checkedBed, bamfile, outpath)
 		print("Bed saved!")
 	command = "/hpc/hub_oudenaarden/edann/bin/bedtools2/bin/bedtools getfasta -name -s -fi " + fi + " -bed " + bedfile + " -fo " + bedfile.split('.bed')[0] + '.fa'
 	## Gives no error if the bedfile is malformed (e.g. in chrM)
