@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# < 1 ]
+if [ "$#" < "1" ]
 then
     echo "Please, give:"
     echo "1) Fasta file of reference genome"
@@ -10,7 +10,7 @@ then
 fi
 
 genome=$1
-threads=${2:-8} 
+threads=${2:-8}
 
 organism=$(echo $refgen | sed 's,.*/,,g' | sed 's/.fa//')
 bin_dir=/hpc/hub_oudenaarden/edann/bin/coverage_bias/utils
