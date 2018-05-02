@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# < 1 ] 
+if [ $# < 1 ]
 then
     echo "Please, give:"
     echo "1) Fasta file of reference genome"
