@@ -1,0 +1,101 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r message = FALSE, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+library(ggrepel)
+library(reshape2)
+library(rtracklayer)
+source('~/HexamerBias/artificial_coverage/compare_peaks.r')
+```
+
+#### DENSITY FOR TARGETED SEQUENCING
+Suppose we want to capture CTCF sites.
+```{bash}
+cat ../annotations_bed/CTCF_intestine_mm10.srt.bed |    
+bedtools flank -i stdin -g ../../genomes/mm10/mm10.genome -b 500 | 
+cut -f 1,2,3,4 |  
+bedtools groupby -g 1,4 -c 2,3 -o min,max | 
+awk '{print $1, $3, $4}' | 
+tr ' ' '\t' > CTCF.flank.bed
+
+bedtools getfasta -fi /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa -bed CTCF.flank.bed -fo CTCF.flank.fa
+```
+
+I assume that having a probability density proportional to the kmer abundance in the region of interest would boost coverage in that particular region. But is this true?
+
+1. Counting kmers in the regions flanking CTCF sites 
+```{bash}
+/hpc/hub_oudenaarden/edann/bin/coverage_bias/kmerCounter.py CTCF.flank.fa > CTCF.flank.kmers.txt
+tail -n+2 CTCF.flank.kmers.txt > CTCF.flank.kmers.tab
+cat CTCF.flank.kmers.tab | tail -n+2 | tr '\t' ','> CTCF.flank.kmers.csv
+```
+
+2. Correlating with total kmer abundance in the genome
+```{r}
+CTCF.kmers <- read.table('~/mnt/edann/hexamers/strand_specific/CTCF.flank.kmers.tab', header = TRUE, col.names = c('abundance.ctcf', 'kmer'))
+mm10.kmers <- read.csv(gzfile('~/mnt/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz'), header=FALSE, col.names = c('kmer','abundance.tot'))
+head(mm10.kmers)
+head(CTCF.kmers)
+abtab <- merge(CTCF.kmers, mm10.kmers, by='kmer')
+abtab <- abtab %>% 
+  mutate(frac.ctcf = abundance.ctcf/sum(abundance.ctcf)*100, 
+         frac.tot = abundance.tot/sum(as.numeric(abundance.tot))*100) %>%
+  mutate(ratio.ctcf.tot = frac.ctcf/frac.tot) %>% 
+  arrange(-ratio.ctcf.tot)
+head(abtab)                  
+```
+G and C rich sequences are overreppresented compared to the total genome abundance.
+```{r}
+abtab$kmer <- factor(abtab$kmer, levels=abtab$kmer)  
+abtab[1:50,] %>%
+  ggplot(., aes(x=kmer,y=ratio.ctcf.tot, label=kmer)) + 
+  geom_bar(stat = 'identity') +
+  coord_flip()
+  # geom_text(cex=2, nudge_y = 1000)
+```
+3. Compute coverage for density proportional to the kmer abundance in the flanks of CTCF sites, with function ```coverage_prop_to_kmer_abundance``` in module ```optimization/primerProbability```
+
+4. Compute predicted coverage profile with computed binding events
+```
+echo "source /hpc/hub_oudenaarden/edann/venv2/bin/activate; python /hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage/strand_specific_artificial_coverage.py /hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz CTCF.flank.propCov.csv artificial_coverage/highcov.random.42.bed /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa -t 10" | qsub -cwd -N artcov_CTCF -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=80G -l h_cpu=10:00:00
+```
+I did a test with 5 regions in chromosome 1
+```{r}
+norm.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.bw'
+ctcf.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/CTCF_flank.highcov.random.42.test.artCov.bw'
+
+ctcf.bw <- import(ctcf.bw.file, format = 'BigWig')
+ranges <- GRanges(seqnames = ctcf.bw@seqnames, 
+                  ranges = IRanges(start=ctcf.bw@ranges@start, 
+                                   end = ctcf.bw@ranges@start+1))
+norm.bw <- import(norm.bw.file, format = 'BigWig', which = ranges)
+```
+
+
+```{r}
+predcov.bw <- make.predVSexp.range(ctcf.bw, norm.bw)
+colnames(values(predcov.bw)) <- c('ctcf','norm')
+predcov.bw <- add.id(predcov.bw)
+l.predcov.bw <- split(predcov.bw, predcov.bw$id)
+```
+
+```{r}
+plot.expVSpred.coverage.track(l.predcov.bw[[3]])
+plot.expVSpred.coverage.track(l.predcov.bw[[6]])
+```
+Well things seem to change a lot!
+Where are the CTCF sites?
+```{r}
+ctcf.bed <- '~/mnt/edann/hexamers/annotations_bed/CTCF_intestine_mm10.srt.bed'
+ctcf<- import(ctcf.bed, format = 'bed')
+cov.track <- plot.expVSpred.coverage.track(l.predcov.bw[[6]], plot = FALSE)
+cov.track
+ctcf.track <- DataTrack(ctcf,
+                        chromosome=chrom,
+                        name = 'methylation frac.',
+                        type='gradient')
+```
+
