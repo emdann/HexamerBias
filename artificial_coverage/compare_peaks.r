@@ -213,3 +213,13 @@ get.avg.methylation <- function(test.bw, baseres.met){
   met <- get.range.methylation(test.bw, baseres.met = baseres.met)$X
   return(mean(met))
 }
+
+plot.cov.wAnnotation <- function(test.bw, anno.gr){
+  test.ovs <- findOverlaps(test.bw, anno.gr)
+  p <- plot.expVSpred.coverage.track(normalize.coverage(test.bw), plot = FALSE)
+  anno.track <- AnnotationTrack(anno.gr[subjectHits(test.ovs)],
+                                name='CTCF')
+  plotTracks(list(p[[1]], p[[2]], anno.track),
+             main=unique(test.bw$id))
+}
+

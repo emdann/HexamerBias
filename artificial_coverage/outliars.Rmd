@@ -264,8 +264,8 @@ Checking regions with high spearman and low pearson
 ```{r}
 outliar1 <- correlation %>% filter(spear>0.5 & pear<0.3) 
 lapply(l.norm.common.bw[outliar1$id], function(test.bw) plot.expVSpred.coverage.track(test.bw, met= get.range.methylation(test.bw, baseres.met)))
-# plot.expVSpred.coverage.track(l.common.bw[outliar1$id][[1]])
-# plot.expVSpred.coverage.track(l.common.bw[outliar1$id][[2]])
+plot.expVSpred.coverage.track(l.common.bw[outliar1$id][[1]])
+plot.expVSpred.coverage.track(l.common.bw[outliar1$id][[2]])
 ```
 Very very highly sampled region (maybe something iffy here)
 What are the maximums and avg coverage of these regions?
@@ -347,11 +347,8 @@ lapply(adj.top.mets, function(test.bw) plot.expVSpred.coverage.track(test.bw, me
 ```
 I can see no evident pattern: in some instances the high methylation regions (in blue) fall in regions with or without peak both in predicted and experimental coverage. No significant difference. This could have something to do with the regions  am sampling but I might just be barking at the wrong tree.
 
-
-
-
-
 ## Analysis of one preamp round
+(To be continued with the real data)
 ```{r}
 ranges <- GRanges(seqnames = pred.bw@seqnames, 
                   ranges = IRanges(start=pred.bw@ranges@start, 

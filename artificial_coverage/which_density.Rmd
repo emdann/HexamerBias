@@ -92,11 +92,9 @@ Where are the CTCF sites?
 ctcf.bed <- '~/mnt/edann/hexamers/annotations_bed/CTCF_intestine_mm10.srt.bed'
 ctcf<- import(ctcf.bed, format = 'bed')
 cov.track <- plot.expVSpred.coverage.track(l.predcov.bw[[6]], plot = FALSE)
-cov.track
+ctcf
 ctcf.track <- DataTrack(ctcf,
-                        chromosome=chrom,
-                        name = 'methylation frac.',
-                        type='gradient')
+                        chromosome=chrom)
 ```
 ## Real artificial coverage 
 ```{r}
@@ -116,3 +114,62 @@ predcov.bw <- add.id(predcov.bw)
 l.predcov.bw <- split(predcov.bw, predcov.bw$id)
 predcov.bw
 ```
+```{r}
+plot.expVSpred.coverage.track(normalize.coverage(l.predcov.bw[[2]]))
+```
+```{r}
+ctcf.ovs <- findOverlaps(predcov.bw,ctcf)
+ctcf.cov <- predcov.bw[queryHits(ctcf.ovs)]
+regionsWctcf <- ctcf.cov$id
+```
+```{r}
+test.bw <- l.predcov.bw[sample(regionsWctcf,1)][[1]]
+lapply(sample(regionsWctcf,10), function(x) plot.cov.wAnnotation(l.predcov.bw[x][[1]], ctcf))
+```
+Is the difference in predicted coverage around CTCF sites significant using the density proportional to the kmer abundance around CTCF sites?
+```{r}
+ctcf.cov <- predcov.bw[queryHits(ctcf.ovs)]
+t.test(ctcf.cov$ctcf, ctcf.cov$norm)
+as.data.frame(values(ctcf.cov)) %>% 
+  rename(prop.CTCF.kmers=ctcf,
+         normal=norm) %>%
+  melt(id.vars='id', value.name='predicted.cov', variable.name='density') %>%
+# pval.df <- compare_means(mean.cov ~ spear.group, data=cov.cor.clean, method='t.test') %>%
+#   mutate(y.pos=6e-07)
+ggplot(., aes(density,predicted.cov)) +
+  geom_boxplot() +
+  theme_classic() +
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size=14), title = element_text(size=22))
+```
+Is it significantly higher than the real coverage I get with equal amounts of primers?
+```{r}
+exp.bw.file <- '~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.bedGraph'
+exp.bw <- import(exp.bw.file, format = 'bedGraph', which = ranges)
+exp.bw.base <- make.base.res.bw(exp.bw)
+ctcfreal.bw <- make.predVSexp.range(exp.bw = ctcf.bw, pred.bw = exp.bw.base)
+colnames(mcols(ctcfreal.bw)) <- c('CTCF.cov','real.cov')
+ctcfreal.bw  <- add.id(ctcfreal.bw )
+ctcfreal.bw
+```
+```{r}
+real.ovs <- findOverlaps(ctcfreal.bw, ctcf)
+real.cov <- normalize.coverage(ctcfreal.bw[queryHits(real.ovs)])
+t.test(real.cov$real.cov, ctcf.cov$norm, alternative = 'less')
+
+as.data.frame(values(real.cov)) %>% 
+  # rename(prop.CTCF.kmers=ctcf,
+         # normal=norm) %>%
+  melt(id.vars='id', value.name='predicted.cov', variable.name='density') %>%
+# pval.df <- compare_means(mean.cov ~ spear.group, data=cov.cor.clean, method='t.test') %>%
+#   mutate(y.pos=6e-07)
+ggplot(., aes(density,predicted.cov)) +
+  geom_boxplot() +
+  theme_classic() +
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size=14), title = element_text(size=22))
+```
+Fair enough.
+
+# Questions:
+* How to reduce off target effects?
+* 
+
