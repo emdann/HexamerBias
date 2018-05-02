@@ -22,19 +22,24 @@ def find_kmers(params):
         kmerCounts[ string[i:i+k] ] += 1
     return kmerCounts
 
-workers = multiprocessing.Pool(8)
+strand=args.s
+threads=args.t
+k=args.k
+fasta=args.fasta
+
+workers = multiprocessing.Pool(threads)
 finalKmerCounts = collections.Counter()
 
-with pysam.FastxFile(args.fasta) as f:
-    if args.s=='+':
-        for kmerCounts in workers.imap_unordered(find_kmers, [ (str(entry.sequence), args.k, None) for entry in f]):
+with pysam.FastxFile(fasta) as f:
+    if strand=='+':
+        for kmerCounts in workers.imap_unordered(find_kmers, [ (str(entry.sequence), k, None) for entry in f]):
             finalKmerCounts+=kmerCounts
-    if args.s=='-':
-        for kmerCounts in workers.imap_unordered(find_kmers, [ (str(Seq(entry.sequence, generic_dna).reverse_complement()), args.k, None) for entry in f]):
+    elif strand=='-':
+        for kmerCounts in workers.imap_unordered(find_kmers, [ (str(Seq(entry.sequence, generic_dna).reverse_complement()), k, None) for entry in f]):
             finalKmerCounts+=kmerCounts
     else:
         print("Wrong strand specification (use + or -)")
 
-print("kmer\tabundance")
-for abundance, kmer in finalKmerCounts.most_common():
-    print(f"{kmer}\t{abundance}")
+# print("kmer\tabundance")
+for kmer,abundance in finalKmerCounts.most_common():
+    print(f"{kmer},{abundance}")
