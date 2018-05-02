@@ -2,5 +2,5 @@
 Random hexamer bias analysis
 ***
 ## Contents
-* deltaGprediction: scripts for prediction of binding energies from sequencing data
-* artificial_coverage: scripts for building and analyzing predicted coverage profiles
+* __deltaGprediction__: scripts for prediction of binding energies from sequencing data
+* __artificial_coverage__: scripts for building and analyzing predicted coverage profiles
