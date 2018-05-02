@@ -10,7 +10,7 @@ then
 fi
 
 genome=$1
-threads=${2:-8}
+threads=${2:-8} 
 
 organism=$(echo $refgen | sed 's,.*/,,g' | sed 's/.fa//')
 bin_dir=/hpc/hub_oudenaarden/edann/bin/coverage_bias/utils
