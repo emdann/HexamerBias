@@ -127,22 +127,6 @@ def run_DE(deltaGfile, abundanceFile, outfileprefix, popsize=20, its=1000, cores
     # outdic = {'score':p[0][0], 'mat':p[0][1].tolist()}
     # save_output_json(outdic,outfile)
 
-# x = np.array([[0.25,0.25,0.25, 0.25, 0.25, 0.25],
-#             [0.25,0.25,0.25, 0.25, 0.25, 0.25],
-#             [0.25,0.25,0.25, 0.25, 0.25, 0.25],
-#             [0.25,0.25,0.25, 0.25, 0.25, 0.25]  ])
-
-
-# def fobj(x):
-#     '''
-#     Function for testing DE optimization
-#     '''
-#
-#   value = 0
-#   for i in range(len(x)):
-#       value += x[i]**2
-#   return value / len(x)
-
 deltaGfile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/VAN1667_se_ptDg_qual.noPrimers.csv'
 abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv"
 # run_DE(deltaGfile, abundanceFile, 'match_genomeAb.pop20.it1000.json', cores=10)
