@@ -62,32 +62,8 @@ abtab[1:50,] %>%
 ```
 echo "source /hpc/hub_oudenaarden/edann/venv2/bin/activate; python /hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage/strand_specific_artificial_coverage.py /hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz CTCF.flank.propCov.csv artificial_coverage/highcov.random.42.bed /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa -t 10" | qsub -cwd -N artcov_CTCF -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=80G -l h_cpu=10:00:00
 ```
-I did a test with 5 regions in chromosome 1
-```{r}
-norm.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.bw'
-ctcf.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/CTCF_flank.highcov.random.42.test.artCov.bw'
 
-ctcf.bw <- import(ctcf.bw.file, format = 'BigWig')
-ranges <- GRanges(seqnames = ctcf.bw@seqnames, 
-                  ranges = IRanges(start=ctcf.bw@ranges@start, 
-                                   end = ctcf.bw@ranges@start+1))
-norm.bw <- import(norm.bw.file, format = 'BigWig', which = ranges)
-```
-
-
-```{r}
-predcov.bw <- make.predVSexp.range(ctcf.bw, norm.bw)
-colnames(values(predcov.bw)) <- c('ctcf','norm')
-predcov.bw <- add.id(predcov.bw)
-l.predcov.bw <- split(predcov.bw, predcov.bw$id)
-```
-
-```{r}
-plot.expVSpred.coverage.track(l.predcov.bw[[3]])
-plot.expVSpred.coverage.track(l.predcov.bw[[6]])
-```
-Well things seem to change a lot!
-Where are the CTCF sites?
+## Where are the CTCF sites?
 ```{r}
 ctcf.bed <- '~/mnt/edann/hexamers/annotations_bed/CTCF_intestine_mm10.srt.bed'
 ctcf<- import(ctcf.bed, format = 'bed')
@@ -99,6 +75,7 @@ ctcf.track <- DataTrack(ctcf,
 ## Real artificial coverage 
 ```{r}
 ctcf.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank.propCov.artCov.bw'
+norm.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.bw'
 
 ctcf.bw <- import(ctcf.bw.file, format = 'BigWig')
 ranges <- GRanges(seqnames = ctcf.bw@seqnames, 
@@ -140,6 +117,12 @@ ggplot(., aes(density,predicted.cov)) +
   geom_boxplot() +
   theme_classic() +
   theme(axis.title = element_text(size = 20), axis.text = element_text(size=14), title = element_text(size=22))
+
+ggplot(predcov.bw, aes(density,predicted.cov)) +
+  geom_boxplot() +
+  theme_classic() +
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size=14), title = element_text(size=22))
+
 ```
 Is it significantly higher than the real coverage I get with equal amounts of primers?
 ```{r}

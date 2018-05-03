@@ -19,9 +19,9 @@ def predictCov(t,DgRow, primer=None):
     When using primer concentrations, use directly the exponential (dg tab without log)
     '''
     if primer is None:
-        sumChi = sum(np.exp(DgRow.fillna(-9999999)))
+        sumChi = sum(DgRow)
     else:
-        sumChi = sum(np.exp(DgRow).mul(primer.primerProb))
+        sumChi = sum(DgRow.mul(primer.primerProb))
     cov = t * (sumChi/(1 + sumChi)) # <--- check
     return(cov)
 
@@ -35,29 +35,39 @@ def propagateError(t,DgRow,errRow):
     error = np.sqrt(sum(beta*errChi)*t)
     return(error)
 
-def predictCoverage(dgMat, genomeAb, errDgMat=None, primer_ppm=None):
+def predict_row_coverage(params):
     '''
-    Takes as input the log(Dg)
+    Predicts coverage fraction of template row (Scaled DeltaG matrix!! Already exponential!!)
     '''
-    predictedCov = pd.DataFrame(columns=['template', 'exp', 'err'])
-    if primer_ppm is not None:
-        probs = prob_from_ppm(primer_ppm, list(genomeAb.index))
-    else:
-        probs=None
-    for templ in dgMat.iterrows():
-        t,DgRow = templ
-        cov = predictCov(genomeAb[t],DgRow, primer=probs)
-        if errDgMat:
-            err = propagateError(genomeAb[t],DgRow, errDgMat[t])
-        else:
-            err = np.nan
-        rowdf = pd.DataFrame.from_dict({'template':[t], 'exp':[cov], 'err':[err]})
-        predictedCov = predictedCov.append(rowdf)
-    return(predictedCov)
+    t,dgMat=params
+    cov = predictCov(genomeAb[t],DgRow, primer=probs)
+    rowdf = pd.DataFrame.from_dict({'template':[t], 'exp':[cov]})
+    return(rowDf)
+
+# def predictCoverage(dgMat, genomeAb, errDgMat=None, primer_ppm=None):
+#     '''
+#     Takes as input the log(Dg)
+#     '''
+#     predictedCov = pd.DataFrame(columns=['template', 'exp', 'err'])
+#     if primer_ppm is not None:
+#         probs = prob_from_ppm(primer_ppm, list(genomeAb.index))
+#     else:
+#         probs=None
+#     for templ in dgMat.iterrows():
+#         t,DgRow = templ
+#         cov = predictCov(genomeAb[t],DgRow, primer=probs)
+#         if errDgMat:
+#             err = propagateError(genomeAb[t],DgRow, errDgMat[t])
+#         else:
+#             err = np.nan
+#         rowdf = pd.DataFrame.from_dict({'template':[t], 'exp':[cov], 'err':[err]})
+#         predictedCov = predictedCov.append(rowdf)
+#     return(predictedCov)
 
 def predictCoverage_setProbs(dgMat, genomeAb, probs): # <--- This should be quicker
     '''
-    Takes aspred input the log(Dg)
+    Computes predicted coverage fraction for each kmer.
+    Scaled DeltaG matrix!! Already exponential!!
     '''
     predictedCov = pd.DataFrame(columns=['template', 'exp', 'err'])
     for templ in dgMat.iterrows():
@@ -68,20 +78,15 @@ def predictCoverage_setProbs(dgMat, genomeAb, probs): # <--- This should be quic
     return(predictedCov)
 
 ### Making coverage prediction parallel
-def predictCoverage_setProbs_parallel(dgMat, genomeAb, probs, cores=5): # <--- This should be quicker
-    '''
-    Takes aspred input the log(Dg)
-    '''
-    predictedCov = pd.DataFrame(columns=['template', 'exp', 'err'])
-    for rowdf in workers.map(predict_row_coverage, [(t,dgMat) for t,dgMat in dgMat.iterrows()]):
-        predictedCov = predictedCov.append(rowdf)
-    return(predictedCov)
+# def predictCoverage_setProbs_parallel(dgMat, genomeAb, probs, cores=5): # <--- This should be quicker
+#     '''
+#     Takes aspred input the log(Dg)
+#     '''
+#     predictedCov = pd.DataFrame(columns=['template', 'exp', 'err'])
+#     for rowdf in workers.map(predict_row_coverage, [(t,dgMat) for t,dgMat in dgMat.iterrows()]):
+#         predictedCov = predictedCov.append(rowdf)
+#     return(predictedCov)
 
-def predict_row_coverage(params):
-    t,dgMat=params
-    cov = predictCov(genomeAb[t],DgRow, primer=probs)
-    rowdf = pd.DataFrame.from_dict({'template':[t], 'exp':[cov]})
-    return(rowDf)
 
 # ptMatrix = args.cellPtCount
 # predictedDg = args.predDg

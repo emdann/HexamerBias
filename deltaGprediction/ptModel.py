@@ -17,18 +17,22 @@ args = argparser.parse_args()
 def extract_deltaG(templateRow,tempAb):
     '''
     Extract predicted p*exp(DeltaG) for row of ptCount table (one template)
-    ...
+        templateRow: row of primer template counts for a certain template
+        tempAb: genomic abundance of template
     '''
     dg = templateRow/((tempAb - templateRow.values.sum())*0.00024) # Takes off primer concentration from the parameter
     # dg[dg == - np.inf] = -9999
     return(dg)
 
-def make_DgMat_per_cell(params):
+def make_DgMat_per_cell(cellAb,ptMat,S):
     '''
-    Make matrix of predicted dg for p-t couples
-    Input: tab of template abundance for cell OI, matrix of pt occurrencies
+    Make matrix of predicted dg for p-t couples, scaled by tot number of reads
+    Input:
+        tab of template abundance in genome,
+        matrix of pt occurrencies,
+        scaling factor (no. of reads)
     '''
-    cellAb,ptMat = params
+    # cellAb,ptMat,S = params
     dgMat=pd.DataFrame()
     for temp in cellAb.index:
         temprow = ptMat[ptMat.index==temp]
@@ -36,7 +40,8 @@ def make_DgMat_per_cell(params):
         tempAb=cellAb[temp]
         dg = extract_deltaG(temprow,tempAb)
         dgMat = dgMat.append(dg)
-    return(dgMat)
+    dgMatScaled = dgMat/S
+    return(dgMatScaled)
 
 ptMatrix = args.ptmatrix
 # ptMatrix='ptCounts/SvdB11d1-MitoTrackerThird-Satellites-Adult.cell130.ptCounts.qualFilt.parallel.csv'
@@ -65,6 +70,6 @@ if type=='bs':
     tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbundanceTab), header=None)
     genomeAb = tabAb[1]
     ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
-    dgMat = make_DgMat_per_cell((genomeAb, ptMat))
+    dgMat = make_DgMat_per_cell(genomeAb, ptMat, ptMat.sum().sum())
     path = '/'.join(ptMatrix.split('/')[:-1])
     dgMat.to_csv(path + sample +'_ptDg_qual.csv')
