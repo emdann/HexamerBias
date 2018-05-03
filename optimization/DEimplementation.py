@@ -11,30 +11,30 @@ def de(fobj, fun_params, seq_len, mut=0.8, crossp=0.7, popsize=20, its=1000, cor
     Testing an implementation of Differential Evolution optimization algorithm
     '''
     workers = multiprocessing.Pool(cores)
-seqs,dgMat,genomeAb,target = fun_params
-pop = np.random.rand(popsize, seq_len*4)  ## Makes the population
-pop_denorm = np.vstack([el for el in map(reset_costraints, pop)])
-print(pop_denorm)
-fitness = np.asarray(workers.map(fobj, [(ind, seqs,dgMat,genomeAb, target) for ind in pop_denorm])) # <-- takes too long
-best_idx = np.argmin(fitness)   ## Returns the indices of the minimum values along an axis.
-best = pop_denorm[best_idx]
-performanceVal = []
-performanceMat = []
-for i in range(its):
-    print("--- Iteration no. "+ str(i)+" ---")
-    for f,trial,j in workers.imap_unordered(de_mutation, [ (fobj,j,pop_denorm,fun_params,seq_len,popsize,mut,crossp) for j in range(popsize)]):
-        if f < fitness[j]:
-            fitness[j] = f
-            pop_denorm[j] = trial
-        if f < fitness[best_idx]:
-            best_idx = j
-            best = trial
-        print("Best score: ")
-        print(round(fitness[best_idx],6))
-        print(from_vec_to_ppm(best))
-        print(pop_denorm.sum())
-    performanceVal.append(fitness[best_idx])
-    performanceMat.append(best)
+    seqs,dgMat,genomeAb,target = fun_params
+    pop = np.random.rand(popsize, seq_len*4)  ## Makes the population
+    pop_denorm = np.vstack([el for el in map(reset_costraints, pop)])
+    print(pop_denorm)
+    fitness = np.asarray(workers.map(fobj, [(ind, seqs,dgMat,genomeAb, target) for ind in pop_denorm])) # <-- takes too long
+    best_idx = np.argmin(fitness)   ## Returns the indices of the minimum values along an axis.
+    best = pop_denorm[best_idx]
+    performanceVal = []
+    performanceMat = []
+    for i in range(its):
+        print("--- Iteration no. "+ str(i)+" ---")
+        for f,trial,j in workers.imap_unordered(de_mutation, [ (fobj,j,pop_denorm,fun_params,seq_len,popsize,mut,crossp) for j in range(popsize)]):
+            if f < fitness[j]:
+                fitness[j] = f
+                pop_denorm[j] = trial
+            if f < fitness[best_idx]:
+                best_idx = j
+                best = trial
+            print("Best score: ")
+            print(round(fitness[best_idx],6))
+            print(from_vec_to_ppm(best))
+            print(pop_denorm.sum())
+        performanceVal.append(fitness[best_idx])
+        performanceMat.append(best)
     yield performanceVal, np.asarray(performanceMat)
 
 def de_mutation(params):
@@ -89,6 +89,14 @@ def coverage_function(params):
     rho = pd.concat([coverage.exp, target], axis=1).corr(method='spearman')
     return(1-rho['exp'][1])
 
+def format_performance_matrix(performanceMat):
+    performanceDf = pd.DataFrame()
+    for vec in performanceMat:
+        itDf = pd.DataFrame(vec)
+        performanceDf = performanceDf.append(itDf, ignore_index=True)
+    performanceDf.columns = [nuc+'.'+str(pos) for nuc,pos in list(it.product("ATCG",range(1,7)))]
+    return(performanceDf)
+
 def save_output_json(outdic, filename):
     '''
     Save output of optimization
@@ -96,32 +104,28 @@ def save_output_json(outdic, filename):
     with open(filename, 'w') as f:
         print(json.dumps(outdic), file=f)
 
-def run_DE(deltaGfile, abundanceFile, outfile, popsize=20, its=1000, cores=5):
+def save_de_output(outlist, fileprefix):
+    '''
+    Save output of optimization
+    '''
+    with open(fileprefix+'.DE.rho.txt', 'w') as f:
+        for score in outlist[0][0]:
+            print(score, file=f)
+    performanceMat = outlist[0][1]
+    performanceDf = format_performance_matrix(performanceMat)
+    performanceDf.to_csv(fileprefix+'.DE.matrix.csv')
+    return('Output saved!')
+
+def run_DE(deltaGfile, abundanceFile, outfileprefix, popsize=20, its=1000, cores=5):
     seqs = all_hexamers()
     dgMat = pd.read_csv(deltaGfile, index_col=0)
     abundance = pd.read_csv(abundanceFile, index_col=0, compression=findCompr(abundanceFile), header=None)
     genomeAb = abundance[1]
     res = de(coverage_function,(seqs,dgMat,genomeAb,genomeAb), 6, popsize=popsize, its=its, cores=cores)
-    p = list(res)
-    outdic = {'score':p[0][0], 'mat':p[0][1].tolist()}
-    save_output_json(outdic,outfile)
-
-def test_run_DE(deltaGfile, abundanceFile, outfile, popsize=20, its=1000, cores=5):
-    seqs = all_hexamers()
-    dgMat = pd.read_csv(deltaGfile, index_col=0)
-    abundance = pd.read_csv(abundanceFile, index_col=0, compression=findCompr(abundanceFile), header=None)
-    genomeAb = abundance[1]
-    res = de(test_function,(seqs,dgMat,genomeAb,genomeAb), 6, popsize=popsize, its=its, cores=cores)
-    p = list(res)
-    outdic = {'score':p[0][0], 'mat':p[0][1].tolist()}
-    save_output_json(outdic,outfile)
-
-v = [4.06370236e-01,   4.95208399e-01,   7.78553938e-02,   2.05659708e-02,
-    2.98244251e-01,   3.97181697e-01,   1.63449400e-02 ,  2.88229112e-01,
-    2.62861922e-01,   2.81419613e-01,   1.94012767e-01,   2.61705698e-01,
-    1.02104125e-02,   3.10116913e-01,   3.56567935e-01 ,  3.23104740e-01,
-    1.77942005e-01,   2.72796410e-01,   3.18884996e-01  , 2.30376589e-01,
-    4.09875372e-02,   3.32336390e-01,   1.57275286e-01  , 4.69400786e-01]
+    outlist = list(res)
+    save_de_output(outlist, outfileprefix)
+    # outdic = {'score':p[0][0], 'mat':p[0][1].tolist()}
+    # save_output_json(outdic,outfile)
 
 # x = np.array([[0.25,0.25,0.25, 0.25, 0.25, 0.25],
 #             [0.25,0.25,0.25, 0.25, 0.25, 0.25],
@@ -140,6 +144,6 @@ v = [4.06370236e-01,   4.95208399e-01,   7.78553938e-02,   2.05659708e-02,
 #   return value / len(x)
 
 deltaGfile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/VAN1667_se_ptDg_qual.noPrimers.csv'
-abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz"
+abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv"
 # run_DE(deltaGfile, abundanceFile, 'match_genomeAb.pop20.it1000.json', cores=10)
 run_DE(deltaGfile, abundanceFile, '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/fake_match_genomeAb.pop6.it100.json', popsize=6, its=100, cores=1)

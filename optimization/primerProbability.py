@@ -134,12 +134,12 @@ def coverage_prop_to_kmer_abundance(kmerFile, abFile):
     cov.columns = ['template', 'exp']
     return(cov)
 
-def make_de_demonstration(ppm, its=100):
-    performanceMat = pd.DataFrame()
-    for it in range(its):
-        pos = random.choice(range(1,6))
-        base = random.choice('ACTG')
-        ppm[pos] = change_nucleotide_probability(ppm[pos],base, step=0.01)
-        ppmDf = pd.DataFrame(np.array(ppm).T.reshape(1,24))
-        performanceMat = pd.concat([performanceMat,ppmDf])
-        # print(ppm)
+# def make_de_demonstration(ppm, its=100):
+#     performanceMat = pd.DataFrame()
+#     for it in range(its):
+#         pos = random.choice(range(1,6))
+#         base = random.choice('ACTG')
+#         ppm[pos] = change_nucleotide_probability(ppm[pos],base, step=0.01)
+#         ppmDf = pd.DataFrame(np.array(ppm).T.reshape(1,24))
+#         performanceMat = pd.concat([performanceMat,ppmDf])
+#         # print(ppm)
