@@ -28,10 +28,9 @@ def de(fobj, fun_params, seq_len, mut=0.8, crossp=0.7, popsize=20, its=1000, cor
             if f < fitness[best_idx]:
                 best_idx = j
                 best = trial
-            print("Best score: ", flush=True)
-            print(round(fitness[best_idx],6), flush=True)
-            print(from_vec_to_ppm(best), flush=True)
-            print(pop_denorm.sum(), flush=True)
+                print("Best score: ", flush=True)
+                print(round(fitness[best_idx],6), flush=True)
+                print(from_vec_to_ppm(best), flush=True)
         performanceVal.append(fitness[best_idx])
         performanceMat.append(best)
     yield performanceVal, np.asarray(performanceMat)

@@ -78,8 +78,8 @@ normalize.coverage <- function(bw){
   bw.norm <- bw
   for (col in colnames(values(bw)[sapply(values(bw), is.numeric)])) {
     # bw.norm@elementMetadata[col][[1]] <- bw.norm@elementMetadata[col][[1]]/mean(bw.norm@elementMetadata[col][[1]])
-    bw.norm@elementMetadata[col][[1]] <- bw.norm@elementMetadata[col][[1]]/sum(bw.norm@elementMetadata[col][[1]])
-    # bw.norm@elementMetadata[col][[1]] <- (bw.norm@elementMetadata[col][[1]] - mean(bw.norm@elementMetadata[col][[1]]))/sd(bw.norm@elementMetadata[col][[1]])
+    # bw.norm@elementMetadata[col][[1]] <- bw.norm@elementMetadata[col][[1]]/sum(bw.norm@elementMetadata[col][[1]])
+    bw.norm@elementMetadata[col][[1]] <- (bw.norm@elementMetadata[col][[1]] - mean(bw.norm@elementMetadata[col][[1]], na.rm=TRUE))/sd(bw.norm@elementMetadata[col][[1]], na.rm=TRUE)
     # bw.norm@elementMetadata[col][[1]] <- bw.norm@elementMetadata[col][[1]] +2
     # bw.norm@elementMetadata[col][[1]] <- (bw.norm@elementMetadata[col][[1]] - min(bw.norm@elementMetadata[col][[1]]))/(max(bw.norm@elementMetadata[col][[1]])-min(bw.norm@elementMetadata[col][[1]]))
       }
@@ -224,3 +224,26 @@ plot.cov.wAnnotation <- function(test.bw, anno.gr){
              main=unique(test.bw$id))
 }
 
+nice.plotTrack <- function(test.bw, labels=c('Experimental ', 'Predicted')){
+  chrom <- gsub(test.bw$id[1],pattern = ' \\(.+\\]', replacement = '')
+  long.df <- as.data.frame(values(test.bw)) %>% 
+    select(-id) %>%
+    mutate(genomic.coord=test.bw@ranges@start) %>%
+    melt(id.vars='genomic.coord', variable.name='sample', value.name='norm.coverage')
+  
+  p <- ggplot(long.df, aes(genomic.coord, norm.coverage, group=sample, color=sample)) +
+    geom_line(size=2,linetype=1) +
+    xlab("Genomic coordinates") +
+    ylab('Norm. coverage (zscore)') +
+    ggtitle(paste0(chrom, ':', as.character(min(long.df$genomic.coord)),":", as.character(max(long.df$genomic.coord)))) +
+    theme_bw() +
+    scale_color_discrete(labels=labels) +
+    theme(axis.title = element_text(size = 20), 
+          axis.text = element_text(size=14), 
+          plot.title = element_text(size=30, hjust=0.5), 
+          legend.text=element_text(size=24),
+          legend.position = 'bottom',
+          legend.title = element_blank())
+  return(p)
+  }
+  
