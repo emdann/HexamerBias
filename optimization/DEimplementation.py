@@ -14,14 +14,13 @@ def de(fobj, fun_params, seq_len, mut=0.8, crossp=0.7, popsize=20, its=1000, cor
     seqs,dgMat,genomeAb,target = fun_params
     pop = np.random.rand(popsize, seq_len*4)  ## Makes the population
     pop_denorm = np.vstack([el for el in map(reset_costraints, pop)])
-    print(pop_denorm)
     fitness = np.asarray(workers.map(fobj, [(ind, seqs,dgMat,genomeAb, target) for ind in pop_denorm])) # <-- takes too long
     best_idx = np.argmin(fitness)   ## Returns the indices of the minimum values along an axis.
     best = pop_denorm[best_idx]
     performanceVal = []
     performanceMat = []
     for i in range(its):
-        print("--- Iteration no. "+ str(i)+" ---")
+        print("--- Iteration no. "+ str(i)+" ---", flush=True)
         for f,trial,j in workers.imap_unordered(de_mutation, [ (fobj,j,pop_denorm,fun_params,seq_len,popsize,mut,crossp) for j in range(popsize)]):
             if f < fitness[j]:
                 fitness[j] = f
@@ -29,10 +28,10 @@ def de(fobj, fun_params, seq_len, mut=0.8, crossp=0.7, popsize=20, its=1000, cor
             if f < fitness[best_idx]:
                 best_idx = j
                 best = trial
-            print("Best score: ")
-            print(round(fitness[best_idx],6))
-            print(from_vec_to_ppm(best))
-            print(pop_denorm.sum())
+            print("Best score: ", flush=True)
+            print(round(fitness[best_idx],6), flush=True)
+            print(from_vec_to_ppm(best), flush=True)
+            print(pop_denorm.sum(), flush=True)
         performanceVal.append(fitness[best_idx])
         performanceMat.append(best)
     yield performanceVal, np.asarray(performanceMat)
