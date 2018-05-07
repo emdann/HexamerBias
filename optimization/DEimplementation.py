@@ -2,9 +2,14 @@ import numpy as np
 import multiprocessing
 import json
 import sys
+import argparse
 sys.path.insert(0,'/hpc/hub_oudenaarden/edann/bin/coverage_bias/optimization')
 from primerProbability import *
 from predictCovBs import *
+
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts tables for bs-seq \n By Emma Dann")
+argparser.add_argument('prefix', type=str, help='prefix of output file')
+args = argparser.parse_args()
 
 def de(fobj, fun_params, seq_len, mut=0.8, crossp=0.7, popsize=20, its=1000, cores=10):
     '''
@@ -125,7 +130,10 @@ def run_DE(deltaGfile, abundanceFile, outfileprefix, popsize=20, its=1000, cores
     # outdic = {'score':p[0][0], 'mat':p[0][1].tolist()}
     # save_output_json(outdic,outfile)
 
+
+outdir = '/hpc/hub_oudenaarden/edann/hexamers/DEotimization/even_cov/'
 deltaGfile = '/hpc/hub_oudenaarden/edann/crypts_bs/VAN2408/CM1_tr2_R1_bismark_bt2_ptDg_qual.csv'
 abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv"
+outprefix=args.prefix
 # run_DE(deltaGfile, abundanceFile, 'match_genomeAb.pop20.it1000.json', cores=10)
-run_DE(deltaGfile, abundanceFile, '/hpc/hub_oudenaarden/edann/hexamers/DEotimization/even_cov/test_VAN2408_CM1', popsize=20, its=1000, cores=10)
+run_DE(deltaGfile, abundanceFile, outdir+outprefix, popsize=20, its=1000, cores=10)
