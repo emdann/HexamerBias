@@ -123,15 +123,17 @@ def coverage_prop_to_kmer_abundance(kmerFile, abFile):
     abFile: string
         path and name of .csv file with kmer abundance for whole ref genome
     '''
-    # kmerFile='CTCF.flank.kmers.csv'
+    # kmerFile='CTCF.flank200.kmers.csv'
     # abFile = "/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz"
     abundance = pd.read_csv(abFile, index_col=0, compression=findCompr(abFile), header=None, names=['abTot'])
-    kmers = pd.read_csv(kmerFile, index_col=1, compression=findCompr(kmerFile), header=None, names=['abRegion'])
+    kmers = pd.read_csv(kmerFile, index_col=0, compression=findCompr(kmerFile), header=None, names=['abRegion'])
     totab = pd.concat([abundance, kmers], axis=1)
     cov = pd.DataFrame(totab.abTot*totab.abRegion/(totab.abTot*totab.abRegion).sum())
-    # cov.index.name='template'
+        # cov.index.name='template'
+    # cov = pd.DataFrame((totab.abTot*totab.abRegion)/sum(totab.abRegion))
     cov.reset_index(inplace=True)
     cov.columns = ['template', 'exp']
+    cov.index=cov.template
     return(cov)
 
 # def make_de_demonstration(ppm, its=100):

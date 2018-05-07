@@ -43,12 +43,13 @@ make.base.res.bw <- function(bw){
 }
 
 
-make.predVSexp.range <- function(pred.bw, exp.bw){
+make.predVSexp.range <- function(pred.bw, exp.bw, pred.name='pred', exp.name='score'){
   ranges <- subsetByOverlaps(exp.bw,pred.bw)
   hits <- findOverlaps(exp.bw, pred.bw)
   idx <- subjectHits(hits)
   values <- DataFrame(pred = pred.bw$score[idx])
   mcols(ranges) <- c(mcols(ranges), values)
+  colnames(mcols(ranges)) <- c(exp.name, pred.name)
   return(ranges)
 } 
 

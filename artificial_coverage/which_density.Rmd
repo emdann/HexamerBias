@@ -8,6 +8,7 @@ library(ggplot2)
 library(ggrepel)
 library(reshape2)
 library(rtracklayer)
+library(shiny)
 source('~/HexamerBias/artificial_coverage/compare_peaks.r')
 ```
 
@@ -37,8 +38,6 @@ cat CTCF.flank.kmers.tab | tail -n+2 | tr '\t' ','> CTCF.flank.kmers.csv
 ```{r}
 CTCF.kmers <- read.table('~/mnt/edann/hexamers/strand_specific/CTCF.flank.kmers.tab', header = TRUE, col.names = c('abundance.ctcf', 'kmer'))
 mm10.kmers <- read.csv(gzfile('~/mnt/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz'), header=FALSE, col.names = c('kmer','abundance.tot'))
-head(mm10.kmers)
-head(CTCF.kmers)
 abtab <- merge(CTCF.kmers, mm10.kmers, by='kmer')
 abtab <- abtab %>% 
   mutate(frac.ctcf = abundance.ctcf/sum(abundance.ctcf)*100, 
@@ -60,17 +59,16 @@ abtab[1:50,] %>%
 
 4. Compute predicted coverage profile with computed binding events
 ```
-echo "source /hpc/hub_oudenaarden/edann/venv2/bin/activate; python /hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage/strand_specific_artificial_coverage.py /hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz CTCF.flank.propCov.csv artificial_coverage/highcov.random.42.bed /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa -t 10" | qsub -cwd -N artcov_CTCF -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=80G -l h_cpu=10:00:00
+echo "source /hpc/hub_oudenaarden/edann/venv2/bin/activate; python /hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage/strand_specific_artificial_coverage.py /hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz CTCF.flank200.coverage.csv artificial_coverage/highcov.random.42.bed /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa -t 10" | qsub -cwd -N artcov_CTCF -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=80G -l h_cpu=10:00:00
 ```
 
 ## Where are the CTCF sites?
 ```{r}
 ctcf.bed <- '~/mnt/edann/hexamers/annotations_bed/CTCF_intestine_mm10.srt.bed'
 ctcf<- import(ctcf.bed, format = 'bed')
-cov.track <- plot.expVSpred.coverage.track(l.predcov.bw[[6]], plot = FALSE)
-ctcf
-ctcf.track <- DataTrack(ctcf,
-                        chromosome=chrom)
+# cov.track <- plot.expVSpred.coverage.track(l.predcov.bw[[6]], plot = FALSE)
+# ctcf.track <- DataTrack(ctcf,
+#                        chromosome=chrom)
 ```
 ## Real artificial coverage 
 ```{r}
@@ -85,31 +83,25 @@ norm.bw <- import(norm.bw.file, format = 'BigWig', which = ranges)
 ```
 
 ```{r}
-predcov.bw <- make.predVSexp.range(ctcf.bw, norm.bw)
-colnames(values(predcov.bw)) <- c('ctcf','norm')
+predcov.bw <- make.predVSexp.range(pred.bw = ctcf.bw, exp.bw = norm.bw, pred.name = 'CTCF.prop', exp.name = 'normal' )
 predcov.bw <- add.id(predcov.bw)
 l.predcov.bw <- split(predcov.bw, predcov.bw$id)
-predcov.bw
 ```
-```{r}
-plot.expVSpred.coverage.track(normalize.coverage(l.predcov.bw[[2]]))
-```
+
 ```{r}
 ctcf.ovs <- findOverlaps(predcov.bw,ctcf)
 ctcf.cov <- predcov.bw[queryHits(ctcf.ovs)]
 regionsWctcf <- ctcf.cov$id
 ```
 ```{r}
-test.bw <- l.predcov.bw[sample(regionsWctcf,1)][[1]]
 lapply(sample(regionsWctcf,10), function(x) plot.cov.wAnnotation(l.predcov.bw[x][[1]], ctcf))
 ```
 Is the difference in predicted coverage around CTCF sites significant using the density proportional to the kmer abundance around CTCF sites?
 ```{r}
 ctcf.cov <- predcov.bw[queryHits(ctcf.ovs)]
-t.test(ctcf.cov$ctcf, ctcf.cov$norm)
+t.test(ctcf.cov$CTCF.prop, ctcf.cov$normal)
 as.data.frame(values(ctcf.cov)) %>% 
-  rename(prop.CTCF.kmers=ctcf,
-         normal=norm) %>%
+  rename(prop.CTCF.kmers=CTCF.prop) %>%
   melt(id.vars='id', value.name='predicted.cov', variable.name='density') %>%
 # pval.df <- compare_means(mean.cov ~ spear.group, data=cov.cor.clean, method='t.test') %>%
 #   mutate(y.pos=6e-07)
@@ -117,12 +109,6 @@ ggplot(., aes(density,predicted.cov)) +
   geom_boxplot() +
   theme_classic() +
   theme(axis.title = element_text(size = 20), axis.text = element_text(size=14), title = element_text(size=22))
-
-ggplot(predcov.bw, aes(density,predicted.cov)) +
-  geom_boxplot() +
-  theme_classic() +
-  theme(axis.title = element_text(size = 20), axis.text = element_text(size=14), title = element_text(size=22))
-
 ```
 Is it significantly higher than the real coverage I get with equal amounts of primers?
 ```{r}
@@ -150,9 +136,150 @@ ggplot(., aes(density,predicted.cov)) +
   theme_classic() +
   theme(axis.title = element_text(size = 20), axis.text = element_text(size=14), title = element_text(size=22))
 ```
-Fair enough.
+
+Wops. 
+
+## Smaller flank
+
+```{bash}
+cat ../annotations_bed/CTCF_intestine_mm10.srt.bed |    
+bedtools flank -i stdin -g ../../genomes/mm10/mm10.genome -b 100 | 
+cut -f 1,2,3,4 |  
+bedtools groupby -g 1,4 -c 2,3 -o min,max | 
+awk '{print $1, $3, $4}' | 
+tr ' ' '\t' > CTCF.flank200.bed
+
+bedtools getfasta -fi /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa -bed CTCF.flank200.bed -fo CTCF.flank200.fa
+
+/hpc/hub_oudenaarden/edann/bin/coverage_bias/kmerCounter.py CTCF.flank200.fa > CTCF.flank200.kmers.txt
+tail -n+2 CTCF.flank200.kmers.txt > CTCF.flank200.kmers.tab
+cat CTCF.flank200.kmers.tab | tail -n+2 | tr '\t' ','> CTCF.flank200.kmers.csv
+```
+
+```{r}
+CTCF.kmers <- read.csv('~/mnt/edann/hexamers/strand_specific/CTCF.flank200.kmers.tab', header = FALSE, col.names = c( 'kmer', 'abundance.ctcf'))
+abtab <- merge(CTCF.kmers, mm10.kmers, by='kmer')
+abtab <- abtab %>% 
+  mutate(frac.ctcf = abundance.ctcf/sum(abundance.ctcf)*100, 
+         frac.tot = abundance.tot/sum(as.numeric(abundance.tot))*100) %>%
+  mutate(ratio.ctcf.tot = frac.ctcf/frac.tot) %>% 
+  arrange(-ratio.ctcf.tot)
+head(abtab)                  
+```
+G and C rich sequences are overreppresented compared to the total genome abundance.
+```{r}
+abtab$kmer <- factor(abtab$kmer, levels=abtab$kmer)  
+abtab[1:50,] %>%
+  ggplot(., aes(x=kmer,y=ratio.ctcf.tot, label=kmer)) + 
+  geom_bar(stat = 'identity') +
+  coord_flip()
+  # geom_text(cex=2, nudge_y = 1000)
+```
+More imbalance towards CG rich sequences
+
 
 # Questions:
 * How to reduce off target effects?
-* 
+
+
+## How much does a small change in primer concentration affect the total coverage profile?
+Compute the predicted coverage for little changes in base composition in one base (see ```artCov_primer_variation.py``` in folder ```artificial_coverage```)
+```{r}
+multicov <- read.csv('~/mnt/edann/hexamers/strand_specific/test_multicov_pos1.csv', header=TRUE)
+colnames(multicov)[c(1:2,11,20,29)] <- c('genomic.coord', 'A_frac0.25', 'T_frac0.25', 'C_frac0.25', 'G_frac0.25')
+head(multicov)
+```
+Normalize 
+```{r}
+multicov <- data.frame(multicov[1], apply(multicov[-1],2,function(x) x/sum(x)))
+head(multicov)
+```
+
+```{r}
+long.multicov <- melt(multicov, id.vars='genomic.coord', variable.name='frac', value.name='predicted.cov') %>%
+          mutate(fraction = as.numeric(gsub(frac, pattern='.+_frac', replacement = '')),
+                 base = gsub(frac, pattern='_frac.+', replacement = ''))
+long.multicov %>% 
+  filter(base=='C') %>%
+  ggplot(., aes(genomic.coord, predicted.cov, group=fraction, color=fraction)) +
+  geom_line() +
+  theme_bw() +
+  # ylim(0, 0.00040) +
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size=10), title = element_text(size=22), legend.text=element_text(size=14)) 
+```
+## Shiny app
+Same thing but interactive!
+```{r, echo = FALSE}
+shinyApp(
+  ui = fluidPage(
+      sidebarLayout(
+        sidebarPanel(
+              sliderInput("frac", label="Fraction in position 1", min = 0.25, max = 1.05, value = 0.25, step=0.1, animate = TRUE),
+              selectInput('nuc', 'Base', choices = c('A', 'T', 'C','G')),
+              radioButtons("normalize", label = "Normalize", choices = c('None', 'Standard (z-score)', 'Sum', 'Mean'), selected='None', width='30%')
+        )
+      ,
+        mainPanel(
+              plotOutput('covprofile')
+        )
+      )
+  ),
+  
+  server = function(input, output) {
+      
+    filter.data <- reactive({
+      df <- long.multicov %>% 
+        filter(base==input$nuc) %>%
+        filter(fraction<=input$frac & fraction > input$frac-0.1)
+      return(df)
+      })
+    
+    zscore.normalize.data <- reactive({
+      df <- filter.data()
+          df <- mutate(df, predicted.cov=(predicted.cov-mean(predicted.cov))/sd(predicted.cov))
+          return(df)
+      })
+    
+    output$covprofile <- renderPlot({
+      if (input$normalize=='Standard (z-score)'){
+        df <- zscore.normalize.data()
+        ymax <- 3
+        ymin <- -3
+      } else if (input$normalize=='Sum') {
+        df <- filter.data()
+        df <- mutate(df, predicted.cov=predicted.cov/sum(predicted.cov))
+        ymin <- 0
+        ymax <- 0.00040
+      } else if (input$normalize=='Mean') {
+        df <- filter.data()
+        df <- mutate(df, predicted.cov=predicted.cov/mean(predicted.cov))
+        ymin <- 0
+        ymax <- 2.5
+      }
+        else {
+        df <- filter.data()
+        ymax <- 10
+        ymin <- 0
+      }
+      cols <- brewer.pal(4,'Spectral')
+      names(cols) <- c('A', 'T', 'C','G')
+      df %>%
+        ggplot(., aes(genomic.coord, predicted.cov)) +
+        geom_area(size=2, fill=cols[input$nuc], alpha=0.7, linetype=1) +
+        ylim(ymin, ymax) +
+        xlab("Genomic coordinates") +
+        ylab('Predicted coverage') +
+        theme_bw() +
+        theme(axis.title = element_text(size = 20), 
+              axis.text = element_text(size=10), 
+              title = element_text(size=22), 
+              legend.text=element_text(size=14)) 
+    })    
+    
+  }
+)
+```
+
+
+
 

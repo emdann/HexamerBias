@@ -21,14 +21,12 @@ or use functions in Rscript ```biasProfiles.r```
 
 One liner to get average over columns (ready to plot in R)
 ```
-zcat matrix.gz |
+zcat highcov.random.42CTCF.flank200.coverage.artCov.CTCF.mat.gz  |
   awk '{for (i=1;i<=NF;i++) if (i>=7) printf("%s ", $i); print ""}' | # Removes first 6 cols
   awk '{ for(i=1;i<=NF;i++) {total[i]+=$i ;} }
   END {
      for(i=1;i<=NF;i++) printf "%f ",total[i]/NR ;
-     printf "\n" ;
-   }'
-  > profile.txt
+     printf "\n" }' >  highcov.random.42CTCF.flank200.coverage.artCov.CTCF.profile.txt
 ```
 
 ## Comparison with non-PBAT BS-seq

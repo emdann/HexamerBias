@@ -1,22 +1,16 @@
 ### Plot optimization performance
 # install.packages('jsonlite')
-library(jsonlite)
+# library(jsonlite)
 library(reshape2)
 library(dplyr)
 library(ggplot2)
 library(ggseqlogo)
 library(RColorBrewer)
 
-json <- '~/fake_match_genomeAb.pop6.it100.json'
-opt.output <- fromJSON(json)
-
-prob.mat <- read.csv('~/fake_DE.csv', header=T)
-prob.mat <- prob.mat[,-1]
-
 reshape.prob.mat <- function(prob.mat){
-  nuc <- c("A", "T", "C", "G")
-  pos<-seq(1,6)
-  colnames(prob.mat) <- as.vector(t(sapply(nuc, function(x) paste0(x,'.',pos))))
+  # nuc <- c("A", "T", "C", "G")
+  # pos<-seq(1,6)
+  # colnames(prob.mat) <- as.vector(t(sapply(seq(1,6), function(pos) paste0(nuc,'.',pos))))
   long.prob.mat <- prob.mat %>% mutate(iter=rownames(prob.mat)) %>%
     melt(variable.name = 'nuc.pos', value.name = 'prob') %>% 
     mutate(nuc=substr(nuc.pos,1,1), pos=substr(nuc.pos,3,3)) %>%
@@ -59,21 +53,11 @@ make.matrix.gif.frames <- function(prob.mat, path, name){
   }
 }
 
-long.mat <- reshape.prob.mat(prob.mat)
-l <- lapply(seq(1,1000), function(i) plot.iteration(long.mat, i))
-# png('~/AvOwork/output/DE_optimization/test_iter_matrix.png')
-for(el in l){
-  png(paste0("~/AvOwork/output/DE_optimization/DE_iter-", el$data$iter[1], ".png"))
-  plot(el)
-  dev.off()
-}
-
 make.rho.df <- function(opt.output){
   rho.df <- data.frame(iteration = seq_along(opt.output$score),rho = 1-opt.output$score)
   return(rho.df)
 }
 
-ggplot(rho.df, aes(iteration,rho)) + geom_line(color='red') + theme_classic()
 
 ## Compare best & target
 

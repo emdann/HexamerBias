@@ -127,7 +127,7 @@ def run_DE(deltaGfile, abundanceFile, outfileprefix, popsize=20, its=1000, cores
     # outdic = {'score':p[0][0], 'mat':p[0][1].tolist()}
     # save_output_json(outdic,outfile)
 
-deltaGfile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/VAN1667_se_ptDg_qual.noPrimers.csv'
+deltaGfile = '/hpc/hub_oudenaarden/edann/crypts_bs/VAN2408/CM1_tr2_R1_bismark_bt2_ptDg_qual.csv'
 abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv"
 # run_DE(deltaGfile, abundanceFile, 'match_genomeAb.pop20.it1000.json', cores=10)
-run_DE(deltaGfile, abundanceFile, '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/fake_match_genomeAb.pop6.it100.json', popsize=6, its=100, cores=1)
+run_DE(deltaGfile, abundanceFile, '/hpc/hub_oudenaarden/edann/hexamers/DEotimization/even_cov/test_VAN2408_CM1', popsize=20, its=1000, cores=10)

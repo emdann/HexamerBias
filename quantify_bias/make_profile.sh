@@ -45,6 +45,16 @@ computeMatrix scale-regions \
   -o ${sample}.mat.gz \
   --outFileNameMatrix ${sample}.mat.tab
 
+computeMatrix reference-point \
+  -R  $bed \
+  -S ${sample}.bw  \
+  --referencePoint center \
+  -b 3000 -a 3000 \
+  --skipZeros \
+  -p 6 \
+  -o ${sample}.CTCF.mat.gz \
+  --outFileNameMatrix ${sample}.CTCF.mat.tab
+
 ## Plot profile
 echo "--- Plotting profile ---"
 plotProfile -m ${sample}.mat.gz \

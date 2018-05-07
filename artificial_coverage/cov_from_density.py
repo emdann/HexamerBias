@@ -12,9 +12,9 @@ def template_density(covCol, abundance, S=115000000):
     '''
     Compute density (C/T) for each template sequence, giving a scaling factor S (num. of reads)
     '''
-    df  = pd.concat([abundance, covCol], axis=1, join_axes=[covCol.index])
-    df.columns = ['abundance', 'coverage']
-    density = (df.coverage*S)/df.abundance
+df  = pd.concat([abundance, covCol], axis=1, join_axes=[covCol.index])
+df.columns = ['abundance', 'coverage']
+density = (df.coverage*S)/df.abundance
     return(density)
 
 def splitDataFrameIntoSmaller(df, chunkSize = 10000):
@@ -106,6 +106,15 @@ def sum_strands_per_base_cov(seq, density, start, readLength=0):
     for pos in plus.keys():
         strandSum[pos] = plus[pos] + minus[pos]
     return(strandSum)
+
+def artificial_cov_bed_entry(params):
+    bedEntry,refgen_fasta,density,read_length=params
+    chr,start,end = bedEntry.split()
+    print('Processing entry ', bedEntry, flush=True)
+    seq = ps.FastaFile(refgen_fasta).fetch(reference=chr, start=int(start), end=int(end)).upper()
+    strandSpecificPosDic = sum_strands_per_base_cov(seq, density, int(start), readLength=read_length)
+    smoothPosDic = kernel_smoothing(strandSpecificPosDic)
+    return(chr,smoothPosDic)
 
 
 ### Functions to make BigWig ###

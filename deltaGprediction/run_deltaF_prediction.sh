@@ -15,7 +15,7 @@ bamfile=$1
 refgen=$2
 fasta=$3
 type=$4
-abfile=/hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz
+abfile=/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv
 sample=$(echo $bamfile | sed 's,/,\t,g' | awk '{gsub(/\..+/, ""); print $NF}')
 
 if [ $refgen = "mouse" ]
