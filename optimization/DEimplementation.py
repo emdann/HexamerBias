@@ -26,10 +26,12 @@ def de(fobj, fun_params, seq_len,openlog, mut=0.8, crossp=0.7, popsize=20, its=1
     best = pop_denorm[best_idx]
     print("Best score: ", file=openlog)
     print(round(fitness[best_idx],6), file=openlog)
+    openlog.flush()
     performanceVal = []
     performanceMat = []
     for i in range(its):
         print("--- Iteration no. "+ str(i)+" ---", file=openlog)
+        openlog.flush()
         for f,trial,j in workers.imap_unordered(de_mutation, [ (fobj,j,pop_denorm,fun_params,seq_len,popsize,mut,crossp) for j in range(popsize)]):
             if f < fitness[j]:
                 fitness[j] = f
@@ -40,6 +42,7 @@ def de(fobj, fun_params, seq_len,openlog, mut=0.8, crossp=0.7, popsize=20, its=1
                 print("Best score: ", file=openlog)
                 print(round(fitness[best_idx],6), file=openlog)
                 print(from_vec_to_ppm(best), file=openlog)
+                openlog.flush()
         performanceVal.append(fitness[best_idx])
         performanceMat.append(best)
     yield performanceVal, np.asarray(performanceMat)
@@ -143,13 +146,14 @@ outdir = '/hpc/hub_oudenaarden/edann/hexamers/DEoptimization/even_cov/'
 deltaGfile = '/hpc/hub_oudenaarden/edann/crypts_bs/VAN2408/CM1_tr2_R1_bismark_bt2_ptDg_qual.csv'
 abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv"
 
-logf = open(outdir + outprefix + "DE.log.txt",'a',0)
+logf = open(outdir + outprefix + "DE.log.txt",'w')
 print("--- DE OPTIMIZATION ---", file=logf)
 print("Delta G file: " + deltaGfile, file=logf)
 print("Reference genome: " + abundanceFile, file=logf)
 print("Population size: " + str(popsize), file=logf)
 print("Number of iterations: " + str(its), file=logf)
 print("------------------------", file=logf)
+logf.flush()
 
 run_DE(deltaGfile, abundanceFile, outdir+outprefix,openlog=logf, popsize=popsize, its=its, cores=10)
 logf.close()
