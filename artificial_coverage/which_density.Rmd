@@ -59,7 +59,7 @@ abtab[1:50,] %>%
 
 4. Compute predicted coverage profile with computed binding events
 ```
-echo "source /hpc/hub_oudenaarden/edann/venv2/bin/activate; python /hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage/strand_specific_artificial_coverage.py /hpc/hub_oudenaarden/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz CTCF.flank200.coverage.csv artificial_coverage/highcov.random.42.bed /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa -t 10" | qsub -cwd -N artcov_CTCF -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=80G -l h_cpu=10:00:00
+echo "source /hpc/hub_oudenaarden/edann/venv2/bin/activate; python /hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage/strand_specific_artificial_coverage.py /hpc/hub_oudenaarden/edann/genomes_kmers/mm10.kmerAbundance.csv CTCF.flank60.coverage.csv artificial_coverage/highcov.random.42.bed /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa -t 10" | qsub -cwd -N artcov_CTCF -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=80G -l h_cpu=10:00:00
 ```
 
 ## Where are the CTCF sites?
@@ -72,7 +72,7 @@ ctcf<- import(ctcf.bed, format = 'bed')
 ```
 ## Real artificial coverage 
 ```{r}
-ctcf.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank.propCov.artCov.bw'
+ctcf.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank60.ratio.coverage.artCov.bw'
 norm.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.bw'
 
 ctcf.bw <- import(ctcf.bw.file, format = 'BigWig')
@@ -85,6 +85,7 @@ norm.bw <- import(norm.bw.file, format = 'BigWig', which = ranges)
 ```{r}
 predcov.bw <- make.predVSexp.range(pred.bw = ctcf.bw, exp.bw = norm.bw, pred.name = 'CTCF.prop', exp.name = 'normal' )
 predcov.bw <- add.id(predcov.bw)
+norm.predcov.bw <- normalize.coverage(predcov.bw)
 l.predcov.bw <- split(predcov.bw, predcov.bw$id)
 ```
 
@@ -93,12 +94,13 @@ ctcf.ovs <- findOverlaps(predcov.bw,ctcf)
 ctcf.cov <- predcov.bw[queryHits(ctcf.ovs)]
 regionsWctcf <- ctcf.cov$id
 ```
+The profiles are very similar but in some cases the proportional one is higher at CTCF sites.
 ```{r}
 lapply(sample(regionsWctcf,10), function(x) plot.cov.wAnnotation(l.predcov.bw[x][[1]], ctcf))
 ```
 Is the difference in predicted coverage around CTCF sites significant using the density proportional to the kmer abundance around CTCF sites?
 ```{r}
-ctcf.cov <- predcov.bw[queryHits(ctcf.ovs)]
+ctcf.cov <- norm.predcov.bw[queryHits(ctcf.ovs)]
 t.test(ctcf.cov$CTCF.prop, ctcf.cov$normal)
 as.data.frame(values(ctcf.cov)) %>% 
   rename(prop.CTCF.kmers=CTCF.prop) %>%
@@ -106,9 +108,22 @@ as.data.frame(values(ctcf.cov)) %>%
 # pval.df <- compare_means(mean.cov ~ spear.group, data=cov.cor.clean, method='t.test') %>%
 #   mutate(y.pos=6e-07)
 ggplot(., aes(density,predicted.cov)) +
-  geom_boxplot() +
+  geom_boxplot(varwidth = TRUE) +
   theme_classic() +
   theme(axis.title = element_text(size = 20), axis.text = element_text(size=14), title = element_text(size=22))
+
+random.cov <- sample(norm.predcov.bw, 290)
+t.test(random.cov$CTCF.prop, random.cov$normal)
+as.data.frame(values(random.cov)) %>% 
+  rename(prop.CTCF.kmers=CTCF.prop) %>%
+  melt(id.vars='id', value.name='predicted.cov', variable.name='density') %>%
+# pval.df <- compare_means(mean.cov ~ spear.group, data=cov.cor.clean, method='t.test') %>%
+#   mutate(y.pos=6e-07)
+ggplot(., aes(density,predicted.cov)) +
+  geom_boxplot(varwidth = TRUE) +
+  theme_classic() +
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size=14), title = element_text(size=22))
+
 ```
 Is it significantly higher than the real coverage I get with equal amounts of primers?
 ```{r}
@@ -143,21 +158,19 @@ Wops.
 
 ```{bash}
 cat ../annotations_bed/CTCF_intestine_mm10.srt.bed |    
-bedtools flank -i stdin -g ../../genomes/mm10/mm10.genome -b 100 | 
+bedtools flank -i stdin -g ../../genomes/mm10/mm10.genome -b 30 | 
 cut -f 1,2,3,4 |  
 bedtools groupby -g 1,4 -c 2,3 -o min,max | 
 awk '{print $1, $3, $4}' | 
-tr ' ' '\t' > CTCF.flank200.bed
+tr ' ' '\t' > CTCF.flank60.bed
 
-bedtools getfasta -fi /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa -bed CTCF.flank200.bed -fo CTCF.flank200.fa
+bedtools getfasta -fi /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa -bed CTCF.flank60.bed -fo CTCF.flank60.fa
 
-/hpc/hub_oudenaarden/edann/bin/coverage_bias/kmerCounter.py CTCF.flank200.fa > CTCF.flank200.kmers.txt
-tail -n+2 CTCF.flank200.kmers.txt > CTCF.flank200.kmers.tab
-cat CTCF.flank200.kmers.tab | tail -n+2 | tr '\t' ','> CTCF.flank200.kmers.csv
+/hpc/hub_oudenaarden/edann/bin/coverage_bias/utils/kmerCounter.py CTCF.flank60.fa > CTCF.flank60.kmers.csv
 ```
 
 ```{r}
-CTCF.kmers <- read.csv('~/mnt/edann/hexamers/strand_specific/CTCF.flank200.kmers.tab', header = FALSE, col.names = c( 'kmer', 'abundance.ctcf'))
+CTCF.kmers <- read.csv('~/mnt/edann/hexamers/strand_specific/CTCF.flank60.kmers.csv', header = FALSE, col.names = c( 'kmer', 'abundance.ctcf'))
 abtab <- merge(CTCF.kmers, mm10.kmers, by='kmer')
 abtab <- abtab %>% 
   mutate(frac.ctcf = abundance.ctcf/sum(abundance.ctcf)*100, 
@@ -169,11 +182,18 @@ head(abtab)
 G and C rich sequences are overreppresented compared to the total genome abundance.
 ```{r}
 abtab$kmer <- factor(abtab$kmer, levels=abtab$kmer)  
-abtab[1:50,] %>%
+abtab[1:70,] %>%
   ggplot(., aes(x=kmer,y=ratio.ctcf.tot, label=kmer)) + 
   geom_bar(stat = 'identity') +
   coord_flip()
   # geom_text(cex=2, nudge_y = 1000)
+
+abtab %>% arrange(-abundance.tot) %>% .[1:1000,] %>%
+  ggplot(., aes(x=kmer,y=ratio.ctcf.tot, label=kmer)) + 
+  geom_bar(stat = 'identity') +
+  coord_flip()
+  # geom_text(cex=2, nudge_y = 1000)
+
 ```
 More imbalance towards CG rich sequences
 

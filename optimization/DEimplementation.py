@@ -6,6 +6,9 @@ import argparse
 sys.path.insert(0,'/hpc/hub_oudenaarden/edann/bin/coverage_bias/optimization')
 from primerProbability import *
 from predictCovBs import *
+sys.path.insert(0,'/hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage')
+from cov_from_density import *
+
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts tables for bs-seq \n By Emma Dann")
 argparser.add_argument('prefix', type=str, help='prefix of output file')
@@ -13,10 +16,15 @@ argparser.add_argument('--popsize', type=int, default=20, help='Population size 
 argparser.add_argument('--its', type=int, default=300, help='No. of iterations')
 args = argparser.parse_args()
 
-def de(fobj, fun_params, seq_len,openlog, mut=0.8, crossp=0.7, popsize=20, its=1000, cores=10):
+def de(fobj, fun_params, seq_len,openlog=None, mut=0.8, crossp=0.7, popsize=20, its=1000, cores=10):
     '''
     Testing an implementation of Differential Evolution optimization algorithm
     '''
+    if openlog:
+        logfile=openlog
+    else:
+        logfile=sys.stdout
+    print("HERE WE GO!!", file=logfile)
     workers = multiprocessing.Pool(cores)
     seqs,dgMat,genomeAb,target = fun_params
     pop = np.random.rand(popsize, seq_len*4)  ## Makes the population
@@ -25,24 +33,27 @@ def de(fobj, fun_params, seq_len,openlog, mut=0.8, crossp=0.7, popsize=20, its=1
     best_idx = np.argmin(fitness)   ## Returns the indices of the minimum values along an axis.
     best = pop_denorm[best_idx]
     print("Best score: ", file=openlog)
-    print(round(fitness[best_idx],6), file=openlog)
-    openlog.flush()
+    print(round(fitness[best_idx],6), file=logfile)
+    if openlog:
+        openlog.flush()
     performanceVal = []
     performanceMat = []
     for i in range(its):
-        print("--- Iteration no. "+ str(i)+" ---", file=openlog)
-        openlog.flush()
+        print("--- Iteration no. "+ str(i)+" ---", file=logfile)
+        if openlog:
+            openlog.flush()
         for f,trial,j in workers.imap_unordered(de_mutation, [ (fobj,j,pop_denorm,fun_params,seq_len,popsize,mut,crossp) for j in range(popsize)]):
             if f < fitness[j]:
                 fitness[j] = f
                 pop_denorm[j] = trial
             if f < fitness[best_idx]:
                 best_idx = j
-                best = trial
-                print("Best score: ", file=openlog)
-                print(round(fitness[best_idx],6), file=openlog)
-                print(from_vec_to_ppm(best), file=openlog)
-                openlog.flush()
+                best = pop_denorm[j]
+                print("Best score: ", file=logfile)
+                print(round(fitness[best_idx],6), file=logfile)
+                print(from_vec_to_ppm(best), file=logfile)
+                if openlog:
+                    openlog.flush()
         performanceVal.append(fitness[best_idx])
         performanceMat.append(best)
     yield performanceVal, np.asarray(performanceMat)
@@ -96,14 +107,36 @@ def coverage_function(params):
     primer_prob = prob_from_ppm(ppm, seqs)
     coverage = predictCoverage_setProbs(dgMat, genomeAb, primer_prob)
     coverage.index=coverage.template
-    rho = pd.concat([coverage.exp, target], axis=1).corr(method='spearman')
+    rho = pd.concat([coverage.exp, target], axis=1).corr(method='spearman') ## <--- IS THIS EVEN RIGHT?
     return(1-rho['exp'][1])
+
+def mean_field_density(kmerCounts, density):
+    '''
+    From kmer abundance of regions we want to maximize, compute total coverage density
+    multiplying kmer abundance by density.
+    '''
+    df = pd.concat([kmerCounts, density], axis=1)
+    mul=df[1]*df[0]
+    return(mul.sum())
+
+def new_coverage_function(params):
+    '''
+    Minimize total density in regions of interest. Target is kmer counts for region of interest
+    '''
+    prob_vec, seqs, dgMat, abundance, target = params
+    ppm = from_vec_to_ppm(prob_vec)
+    primer_prob = prob_from_ppm(ppm, seqs)
+    coverage = predictCoverage_setProbs(dgMat, abundance[1], primer_prob)
+    coverage.index=coverage.template
+    # print('Coverage computed')
+    density = template_density(coverage.exp,abundance)
+    return(-mean_field_density(target, density))
 
 def format_performance_matrix(performanceMat):
     performanceDf = pd.DataFrame()
     for vec in performanceMat:
         itDf = pd.DataFrame(vec)
-        performanceDf = pd.concat([performanceDf, itDf], axis=1,ignore_index=True)
+        performanceDf = pd.concat([performanceDf,itDf],axis=1,ignore_index=True)
     performanceDf=performanceDf.T
     performanceDf.columns = [nuc+'.'+str(pos) for nuc,pos in list(it.product("ATCG",range(1,7)))]
     return(performanceDf)
@@ -138,6 +171,17 @@ def run_DE(deltaGfile, abundanceFile, outfileprefix, openlog, popsize=20, its=10
     # outdic = {'score':p[0][0], 'mat':p[0][1].tolist()}
     # save_output_json(outdic,outfile)
 
+def run_new_DE(deltaGfile, abundanceFile, kmerFile, outfileprefix, openlog, popsize=20, its=1000, cores=5):
+    seqs = all_hexamers()
+    dgMat = pd.read_csv(deltaGfile, index_col=0)
+    abundance = pd.read_csv(abundanceFile, index_col=0, compression=findCompr(abundanceFile), header=None)
+    targetKmers = pd.read_csv(kmerFile, index_col=0, header=None)
+    res = de(new_coverage_function,(seqs,dgMat,abundance,targetKmers), 6,openlog=None, popsize=popsize, its=its, cores=cores)
+    outlist = list(res)
+    save_de_output(outlist, outfileprefix)
+    # outdic = {'score':p[0][0], 'mat':p[0][1].tolist()}
+    # save_output_json(outdic,outfile)
+
 outprefix=args.prefix
 popsize=args.popsize
 its=args.its
@@ -145,15 +189,18 @@ its=args.its
 outdir = '/hpc/hub_oudenaarden/edann/hexamers/DEoptimization/even_cov/'
 deltaGfile = '/hpc/hub_oudenaarden/edann/crypts_bs/VAN2408/CM1_tr2_R1_bismark_bt2_ptDg_qual.csv'
 abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv"
+kmerFile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/CTCF.flank60.kmersTot.csv'
 
 logf = open(outdir + outprefix + "DE.log.txt",'w')
 print("--- DE OPTIMIZATION ---", file=logf)
 print("Delta G file: " + deltaGfile, file=logf)
 print("Reference genome: " + abundanceFile, file=logf)
+print("Target regions: " + kmerFile)
 print("Population size: " + str(popsize), file=logf)
 print("Number of iterations: " + str(its), file=logf)
 print("------------------------", file=logf)
 logf.flush()
 
-run_DE(deltaGfile, abundanceFile, outdir+outprefix,openlog=logf, popsize=popsize, its=its, cores=10)
+run_new_DE(deltaGfile, abundanceFile, kmerFile, outdir+outprefix,openlog=logf, popsize=popsize, its=its, cores=10)
+# run_DE(deltaGfile, abundanceFile, outdir+outprefix,openlog=logf, popsize=popsize, its=its, cores=10)
 logf.close()

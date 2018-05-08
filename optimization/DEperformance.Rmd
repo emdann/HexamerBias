@@ -21,3 +21,57 @@ head(test.perf)
 ggplot(test.perf, aes(it,score)) +
   geom_line()
 ```
+
+### Test of real function
+Functions for reshaping and plotting are in DE_performance.r
+```{r}
+opt.dir <- '~/mnt/edann/hexamers/DEoptimization/even_cov/'
+matrix.files <- list.files(opt.dir, pattern = 'matrix.csv', full.names = TRUE)
+performance.mat <- read.csv(matrix.files[1], row.names = 1)
+head(performance.mat)
+```
+
+```{r}
+long.mat <- reshape.prob.mat(performance.mat)
+head(long.mat)
+max(long.mat$iter)
+```
+
+```{r}
+l <- lapply(seq(1,3), function(i) plot.iteration(long.mat, i))
+# png('~/AvOwork/output/DE_optimization/test_iter_matrix.png')
+for(el in l){
+  # png(paste0("~/AvOwork/output/DE_optimization/DE_iter-", el$data$iter[1], ".png"))
+  plot(el)
+  # dev.off()
+}
+```
+
+### MIN RHO OF DIFFERENT TESTS
+```{r}
+plot.optimization.score <- function(score.files){
+  score.df <- as.data.frame(sapply(score.files, function(x) scan(x)))
+  colnames(score.df) <- gsub(pattern = '.+even_|_pop.+', replacement = '',colnames(score.df))
+  long.rho <- score.df %>%
+    mutate(it=as.numeric(rownames(score.df))) %>%
+    melt(id.vars='it', variable.name='test', value.name='rho') 
+  head(long.rho)
+  p <- long.rho %>%
+    ggplot(., aes(it,rho, group=test, color=test)) +
+    geom_line() +
+    xlab('iteration') +
+    ylab('best score')
+  return(p)
+  }
+```
+
+```{r}
+rho.files <- list.files(opt.dir, pattern='_pop20_its300.DE.rho.txt', full.names = TRUE)
+plot.optimization.score(rho.files) +
+  ggtitle('Pop.size=20')
+
+rho.files <- list.files(opt.dir, pattern='_pop10_its300.DE.rho.txt', full.names = TRUE)
+plot.optimization.score(rho.files) +
+  ggtitle('Pop.size=10')
+
+```
