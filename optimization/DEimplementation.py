@@ -151,5 +151,5 @@ print("Population size: " + str(popsize), file=logf)
 print("Number of iterations: " + str(its), file=logf)
 print("------------------------", file=logf)
 
-run_DE(deltaGfile, abundanceFile, outdir+outprefix,openlog=logf, popsize=popsize, its=its, cores=1)
+run_DE(deltaGfile, abundanceFile, outdir+outprefix,openlog=logf, popsize=popsize, its=its, cores=10)
 logf.close()
