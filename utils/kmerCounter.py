@@ -37,8 +37,13 @@ with pysam.FastxFile(fasta) as f:
     elif strand=='-':
         for kmerCounts in workers.imap_unordered(find_kmers, [ (str(Seq(entry.sequence, generic_dna).reverse_complement()), k, None) for entry in f]):
             finalKmerCounts+=kmerCounts
+    elif strand=='both':
+        for kmerCounts in workers.imap_unordered(find_kmers, [ (str(entry.sequence), k, None) for entry in f]):
+            finalKmerCounts+=kmerCounts
+        for kmerCounts in workers.imap_unordered(find_kmers, [ (str(Seq(entry.sequence, generic_dna).reverse_complement()), k, None) for entry in f]):
+            finalKmerCounts+=kmerCounts
     else:
-        print("Wrong strand specification (use + or -)")
+        print("Wrong strand specification (use '+' or '-' or 'both')")
 
 # print("kmer\tabundance")
 for kmer,abundance in finalKmerCounts.most_common():
