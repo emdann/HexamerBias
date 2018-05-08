@@ -9,9 +9,11 @@ from predictCovBs import *
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts tables for bs-seq \n By Emma Dann")
 argparser.add_argument('prefix', type=str, help='prefix of output file')
+argparser.add_argument('--popsize', type=int, default=20, help='Population size (no. of matrixes to start with)')
+argparser.add_argument('--its', type=int, default=300, help='No. of iterations')
 args = argparser.parse_args()
 
-def de(fobj, fun_params, seq_len, mut=0.8, crossp=0.7, popsize=20, its=1000, cores=10):
+def de(fobj, fun_params, seq_len,openlog, mut=0.8, crossp=0.7, popsize=20, its=1000, cores=10):
     '''
     Testing an implementation of Differential Evolution optimization algorithm
     '''
@@ -22,10 +24,12 @@ def de(fobj, fun_params, seq_len, mut=0.8, crossp=0.7, popsize=20, its=1000, cor
     fitness = np.asarray(workers.map(fobj, [(ind, seqs,dgMat,genomeAb, target) for ind in pop_denorm])) # <-- takes too long
     best_idx = np.argmin(fitness)   ## Returns the indices of the minimum values along an axis.
     best = pop_denorm[best_idx]
+    print("Best score: ", file=openlog)
+    print(round(fitness[best_idx],6), file=openlog)
     performanceVal = []
     performanceMat = []
     for i in range(its):
-        print("--- Iteration no. "+ str(i)+" ---", flush=True)
+        print("--- Iteration no. "+ str(i)+" ---", file=openlog)
         for f,trial,j in workers.imap_unordered(de_mutation, [ (fobj,j,pop_denorm,fun_params,seq_len,popsize,mut,crossp) for j in range(popsize)]):
             if f < fitness[j]:
                 fitness[j] = f
@@ -33,9 +37,9 @@ def de(fobj, fun_params, seq_len, mut=0.8, crossp=0.7, popsize=20, its=1000, cor
             if f < fitness[best_idx]:
                 best_idx = j
                 best = trial
-                print("Best score: ", flush=True)
-                print(round(fitness[best_idx],6), flush=True)
-                print(from_vec_to_ppm(best), flush=True)
+                print("Best score: ", file=openlog)
+                print(round(fitness[best_idx],6), file=openlog)
+                print(from_vec_to_ppm(best), file=openlog)
         performanceVal.append(fitness[best_idx])
         performanceMat.append(best)
     yield performanceVal, np.asarray(performanceMat)
@@ -96,7 +100,8 @@ def format_performance_matrix(performanceMat):
     performanceDf = pd.DataFrame()
     for vec in performanceMat:
         itDf = pd.DataFrame(vec)
-        performanceDf = performanceDf.append(itDf, ignore_index=True)
+        performanceDf = pd.concat([performanceDf, itDf], axis=1,ignore_index=True)
+    performanceDf=performanceDf.T
     performanceDf.columns = [nuc+'.'+str(pos) for nuc,pos in list(it.product("ATCG",range(1,7)))]
     return(performanceDf)
 
@@ -119,21 +124,32 @@ def save_de_output(outlist, fileprefix):
     performanceDf.to_csv(fileprefix+'.DE.matrix.csv')
     return('Output saved!')
 
-def run_DE(deltaGfile, abundanceFile, outfileprefix, popsize=20, its=1000, cores=5):
+def run_DE(deltaGfile, abundanceFile, outfileprefix, openlog, popsize=20, its=1000, cores=5):
     seqs = all_hexamers()
     dgMat = pd.read_csv(deltaGfile, index_col=0)
     abundance = pd.read_csv(abundanceFile, index_col=0, compression=findCompr(abundanceFile), header=None)
     genomeAb = abundance[1]
-    res = de(coverage_function,(seqs,dgMat,genomeAb,genomeAb), 6, popsize=popsize, its=its, cores=cores)
+    res = de(coverage_function,(seqs,dgMat,genomeAb,genomeAb), 6,openlog=openlog, popsize=popsize, its=its, cores=cores)
     outlist = list(res)
     save_de_output(outlist, outfileprefix)
     # outdic = {'score':p[0][0], 'mat':p[0][1].tolist()}
     # save_output_json(outdic,outfile)
 
+outprefix=args.prefix
+popsize=args.popsize
+its=args.its
 
-outdir = '/hpc/hub_oudenaarden/edann/hexamers/DEotimization/even_cov/'
+outdir = '/hpc/hub_oudenaarden/edann/hexamers/DEoptimization/even_cov/'
 deltaGfile = '/hpc/hub_oudenaarden/edann/crypts_bs/VAN2408/CM1_tr2_R1_bismark_bt2_ptDg_qual.csv'
 abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv"
-outprefix=args.prefix
-# run_DE(deltaGfile, abundanceFile, 'match_genomeAb.pop20.it1000.json', cores=10)
-run_DE(deltaGfile, abundanceFile, outdir+outprefix, popsize=20, its=1000, cores=10)
+
+logf = open(outdir + outprefix + "DE.log.txt",'w')
+print("--- DE OPTIMIZATION ---", file=logf)
+print("Delta G file: " + deltaGfile, file=logf)
+print("Reference genome: " + abundanceFile, file=logf)
+print("Population size: " + str(popsize), file=logf)
+print("Number of iterations: " + str(its), file=logf)
+print("------------------------", file=logf)
+
+run_DE(deltaGfile, abundanceFile, outdir+outprefix,openlog=logf, popsize=popsize, its=its, cores=1)
+logf.close()
