@@ -38,10 +38,10 @@ with pysam.FastxFile(fasta) as f:
         for kmerCounts in workers.imap_unordered(find_kmers, [ (str(Seq(entry.sequence, generic_dna).reverse_complement()), k, None) for entry in f]):
             finalKmerCounts+=kmerCounts
     elif strand=='both':
-        for kmerCountsPlus in workers.imap_unordered(find_kmers, [ (str(entry.sequence), k, None) for entry in f]):
+        for kmerCountsPlus in workers.imap_unordered(find_kmers, [ (str(entry.sequence), k, None) for entry in f] + [ (str(Seq(entry.sequence, generic_dna).reverse_complement()), k, None) for entry in f]):
             finalKmerCounts+=kmerCountsPlus
-        for kmerCountsMinus in workers.imap_unordered(find_kmers, [ (str(Seq(entry.sequence, generic_dna).reverse_complement()), k, None) for entry in f]):
-            finalKmerCounts+=kmerCountsMinus
+        # for kmerCountsMinus in workers.imap_unordered(find_kmers, [ (str(Seq(entry.sequence, generic_dna).reverse_complement()), k, None) for entry in f]):
+        #     finalKmerCounts+=kmerCountsMinus
     else:
         print("Wrong strand specification (use '+' or '-' or 'both')")
 
