@@ -176,7 +176,7 @@ def run_new_DE(deltaGfile, abundanceFile, kmerFile, outfileprefix, openlog, pops
     dgMat = pd.read_csv(deltaGfile, index_col=0)
     abundance = pd.read_csv(abundanceFile, index_col=0, compression=findCompr(abundanceFile), header=None)
     targetKmers = pd.read_csv(kmerFile, index_col=0, header=None)
-    res = de(new_coverage_function,(seqs,dgMat,abundance,targetKmers), 6,openlog=None, popsize=popsize, its=its, cores=cores)
+    res = de(new_coverage_function,(seqs,dgMat,abundance,targetKmers), 6,openlog=openlog, popsize=popsize, its=its, cores=cores)
     outlist = list(res)
     save_de_output(outlist, outfileprefix)
     # outdic = {'score':p[0][0], 'mat':p[0][1].tolist()}
@@ -201,6 +201,6 @@ print("Number of iterations: " + str(its), file=logf)
 print("------------------------", file=logf)
 logf.flush()
 
-run_new_DE(deltaGfile, abundanceFile, kmerFile, outdir+outprefix,openlog=logf, popsize=popsize, its=its, cores=10)
+run_new_DE(deltaGfile, abundanceFile, kmerFile, outdir+outprefix, openlog=logf, popsize=popsize, its=its, cores=10)
 # run_DE(deltaGfile, abundanceFile, outdir+outprefix,openlog=logf, popsize=popsize, its=its, cores=10)
 logf.close()
