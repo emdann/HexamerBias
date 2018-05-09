@@ -65,13 +65,36 @@ plot.optimization.score <- function(score.files){
   }
 ```
 
+With bigger population size I get better scores and if the algorithm gets stuck in a local minimum it happens after more iterations.
 ```{r}
-rho.files <- list.files(opt.dir, pattern='_pop20_its300.DE.rho.txt', full.names = TRUE)
-plot.optimization.score(rho.files) +
-  ggtitle('Pop.size=20')
+rho.files.10 <- list.files(opt.dir, pattern='_pop10_its300.DE.rho.txt', full.names = TRUE)
+rho.files.20 <- list.files(opt.dir, pattern='_pop20_its300.DE.rho.txt', full.names = TRUE)
+rho.files.30 <- list.files(opt.dir, pattern='_pop30_its300.DE.rho.txt', full.names = TRUE)
 
-rho.files <- list.files(opt.dir, pattern='_pop10_its300.DE.rho.txt', full.names = TRUE)
-plot.optimization.score(rho.files) +
+plot.optimization.score(rho.files.10) +
   ggtitle('Pop.size=10')
 
+plot.optimization.score(rho.files.20) +
+  ggtitle('Pop.size=20')
+
+plot.optimization.score(rho.files.30) +
+  ggtitle('Pop.size=30')
+
+```
+## Test on new optimization: maximizing density in region of interest
+```{r}
+matrix.files <- list.files(opt.dir, pattern = '.+minimize.+matrix.csv', full.names = TRUE)
+performance.mat <- read.csv("~/mnt/edann/hexamers/DEoptimization/even_cov/test_minimize_no3.DE.matrix.csv", row.names = 1)
+performance.mat
+```
+```{r}
+score.ctcf.files <- list.files(opt.dir, pattern = '.+ctcf.+rho.txt', full.names = TRUE)
+plot.optimization.score(score.ctcf.files)
+```
+```{r}
+matrix.ctcf.files <- list.files(opt.dir, pattern = '.+ctcf.+matrix', full.names = TRUE)
+performance.mat <- 
+long.mat <- reshape.prob.mat(performance.mat)
+plot.iteration(long.mat,1)
+plot.iteration(long.mat,9)
 ```
