@@ -2,7 +2,7 @@
 import pandas as pd
 import argparse
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Count kmers in fasta file. By Buys de Barbanson")
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Compute FC between kmers abundance of region of interest and random regions in genome. By Emma Dann")
 argparser.add_argument('kmersROI', type=str, help='path to file of kmer abundance in regions of interest')
 argparser.add_argument('kmersRandom', type=str, help='path to file of kmer abundance in random regions')
 args = argparser.parse_args()

@@ -179,3 +179,5 @@ plot.refpoint.profile.df(CTCF.df) +
   guides(color=guide_legend(nrow=2,byrow=TRUE)) 
 
 ggsave("~/AvOwork/output/coverage_bias/CTCFsites_propflank60VSnormal_covprofile_zscore.pdf")
+
+

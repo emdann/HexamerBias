@@ -123,4 +123,21 @@ plot.refpoint.profile.df(bestmat.df)
                                
                               
 ```
+## Optimizing density of enriched kmers
+Not total abundance
+
+1. Popsize = 20
+```{r}
+opt.dir <- '~/mnt/edann/hexamers/DEoptimization/ctcf_cov/'
+score.ctcf.files <- list.files(opt.dir, pattern = '.+ctcf_kmersFC.+pop20.+rho.txt', full.names = TRUE)
+plot.optimization.score(score.ctcf.files) +
+  theme(legend.title = element_blank())
+```
+1. Popsize = 30
+```{r}
+opt.dir <- '~/mnt/edann/hexamers/DEoptimization/ctcf_cov/'
+score.ctcf.files <- list.files(opt.dir, pattern = '.+ctcf_kmersFC.+pop30.+rho.txt', full.names = TRUE)
+plot.optimization.score(score.ctcf.files) +
+  theme(legend.title = element_blank())
+```
 
