@@ -53,10 +53,5 @@ def coverage_best_matrix(mats, dgMat, abundance):
 
 kmerFile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/CTCF.flank60.kmersTot.csv'
 # outdir='/'.join(kmerFile.split('/')[:-1])
-targetKmers = pd.read_csv(kmerFile, index_col=0, header=None)
+
 randomKmerFile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/CTCF.flank60.randomize.kmersTot.csv'
-randomKmers = pd.read_csv(randomKmerFile, index_col=0, header=None)
-enrichKmers = pd.concat([randomKmers, targetKmers], axis=1)
-enrichKmers.columns = ['random','target']
-foldChange = np.log2(enrichKmers.target/enrichKmers.random).dropna()
-foldChange.to_csv(kmerFile.strip('kmersTot.csv')+'.kmersFC.csv')
