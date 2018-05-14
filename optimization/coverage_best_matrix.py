@@ -23,7 +23,8 @@ def coverage_best_matrix(mats, dgMat, abundance):
     coverage = predictCoverage_setProbs(dgMat, abundance[1], primer_prob)
     return(coverage)
 
-matrixFile = args.sample+'.DE.matrix.csv'
+sample=args.sample
+matrixFile = sample +'.DE.matrix.csv'
 deltaGfile = '/hpc/hub_oudenaarden/edann/crypts_bs/VAN2408/CM1_tr2_R1_bismark_bt2_ptDg_qual.csv'
 abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv"
 
