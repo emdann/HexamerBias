@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# -ne 1 ]
+if [ $# -ne 2 ]
 then
     echo "Please, give:"
     echo "1) bedfile of regions of interest"
