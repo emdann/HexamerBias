@@ -238,10 +238,10 @@ nice.plotTrack <- function(test.bw, labels=c('Experimental ', 'Predicted')){
     ggtitle(paste0(chrom, ':', as.character(min(long.df$genomic.coord)),":", as.character(max(long.df$genomic.coord)))) +
     theme_bw() +
     scale_color_discrete(labels=labels) +
-    theme(axis.title = element_text(size = 20), 
-          axis.text = element_text(size=14), 
+    theme(axis.title = element_text(size = 28), 
+          axis.text = element_text(size=18), 
           plot.title = element_text(size=30, hjust=0.5), 
-          legend.text=element_text(size=24),
+          legend.text=element_text(size=25),
           legend.position = 'bottom',
           legend.title = element_blank())
   return(p)

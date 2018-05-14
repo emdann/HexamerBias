@@ -159,14 +159,23 @@ p + geom_vline(xintercept = 300, color='red') +
 ggsave("~/AvOwork/output/coverage_bias/CTCFsites_proportionalVSnormal_covprofile_zscore.pdf")
 
 ## Smaller flank
-CTCF.pred.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.CTCF.profile.txt', normalize = FALSE)[280:320]
-CTCF.pred.prop <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank200.coverage.artCov.CTCF.profile.txt', normalize = FALSE)[280:320]
-CTCF.exp <- load.profile('~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.CTCF.profile.txt', normalize = FALSE)[200:400]
+CTCF.pred.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.CTCF.profile.txt')
+CTCF.pred.prop <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank60.coverage.artCov.CTCF.profile.txt')
+CTCF.pred.propratio <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank60.ratio.coverage.artCov.CTCF.profile.txt')
+CTCF.exp <- load.profile('~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.CTCF.profile.txt')
 
 z.pred.norm <- (CTCF.pred.norm-mean(CTCF.pred.norm))/sd(CTCF.pred.norm)
 z.pred.prop <- (CTCF.pred.prop-mean(CTCF.pred.prop))/sd(CTCF.pred.prop)
 
-CTCF.df <- make.df.of.profiles(list(predicted.norm=z.pred.norm,
-                                    predicted.prop=z.pred.prop))
+CTCF.df <- make.df.of.profiles(list(predicted.prop=CTCF.pred.prop,
+                                    predicted.prop.ratio=CTCF.pred.propratio,
+                                    experimental=CTCF.exp))
 
- plot.profile.df(CTCF.df)
+plot.refpoint.profile.df(CTCF.df) +
+  geom_vline(xintercept = 300, color='red') +
+  ylab('coverage (Z-score)') +
+  scale_color_discrete(labels=c("density from kmer count", 'density from enriched kmers', 'experimental')) +
+  theme(legend.position = 'bottom') +
+  guides(color=guide_legend(nrow=2,byrow=TRUE)) 
+
+ggsave("~/AvOwork/output/coverage_bias/CTCFsites_propflank60VSnormal_covprofile_zscore.pdf")

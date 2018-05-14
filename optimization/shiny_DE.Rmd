@@ -1,0 +1,64 @@
+---
+title: "Visualizing optimization performance"
+author: "Emma Dann"
+date: "5/9/2018"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source('~/HexamerBias/rscripts/DE_performance.r')
+```
+
+```{r}
+dir <- "/Users/user/mnt/edann/hexamers/DEoptimization/ctcf_cov/"
+samples <- gsub(pattern = '.DE.+', replacement = '',list.files(dir)[grep(list.files(dir), pattern = 'matrix')])
+```
+## Visualize optimization output
+```{r, echo=FALSE}
+shinyApp(
+  ui = fluidPage(
+      sidebarLayout(
+        sidebarPanel(
+              selectInput("sample", label='Select sample', choices = samples),
+              sliderInput("it", label="Iteration", min = 1, max = 100, value = 1, animate = animationOptions(interval = 300, loop = F))
+        )
+      ,
+        mainPanel(
+              plotOutput('probmat'),
+              plotOutput('score')
+        )
+      )
+  ),
+  
+  server = function(input, output) {
+
+    load.mats <- reactive({
+      sample.name <- input$sample
+      scores <- scan(paste0(dir,sample.name,'.DE.rho.txt'))
+      performance.mat <- read.csv(paste0(dir,sample.name,'.DE.matrix.csv'), row.names = 1)
+      return(list(scorefile=paste0(dir,sample.name,'.DE.rho.txt'), scores=scores, mats=reshape.prob.mat(performance.mat)))
+    })      
+
+    output$score <- renderPlot({
+      out <- load.mats()
+      plot.optimization.score(out$scorefile) +
+        geom_point(x=input$it, y=out$scores[input$it], shape=4, color='blue', size=3)
+    })
+    
+    output$probmat <- renderPlot({
+      out <- load.mats()
+      plot.iteration(out$mats, input$it)
+    })
+    
+  }
+)
+```
+
+
+
+

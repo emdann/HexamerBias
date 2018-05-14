@@ -8,6 +8,7 @@ library(ggplot2)
 library(ggrepel)
 library(reshape2)
 library(rtracklayer)
+library(shiny)
 source('~/HexamerBias/artificial_coverage/compare_peaks.r')
 ```
 ## Performance of test function
@@ -48,22 +49,6 @@ for(el in l){
 ```
 
 ### MIN RHO OF DIFFERENT TESTS
-```{r}
-plot.optimization.score <- function(score.files){
-  score.df <- as.data.frame(sapply(score.files, function(x) scan(x)))
-  colnames(score.df) <- gsub(pattern = '.+even_|_pop.+', replacement = '',colnames(score.df))
-  long.rho <- score.df %>%
-    mutate(it=as.numeric(rownames(score.df))) %>%
-    melt(id.vars='it', variable.name='test', value.name='rho') 
-  head(long.rho)
-  p <- long.rho %>%
-    ggplot(., aes(it,rho, group=test, color=test)) +
-    geom_line() +
-    xlab('iteration') +
-    ylab('best score')
-  return(p)
-  }
-```
 
 With bigger population size I get better scores and if the algorithm gets stuck in a local minimum it happens after more iterations.
 ```{r}
@@ -83,18 +68,59 @@ plot.optimization.score(rho.files.30) +
 ```
 ## Test on new optimization: maximizing density in region of interest
 ```{r}
+opt.dir <- '~/mnt/edann/hexamers/DEoptimization/ctcf_cov/'
 matrix.files <- list.files(opt.dir, pattern = '.+minimize.+matrix.csv', full.names = TRUE)
-performance.mat <- read.csv("~/mnt/edann/hexamers/DEoptimization/even_cov/test_minimize_no3.DE.matrix.csv", row.names = 1)
+performance.mat <- read.csv("~/mnt/edann/hexamers/DEoptimization/even_cov/test1_ctcf.DE.matrix.csv", row.names = 1)
 performance.mat
+plot.iteration(reshape.prob.mat(performance.mat),1)
+plot.iteration(reshape.prob.mat(performance.mat),99)
+
 ```
 ```{r}
 score.ctcf.files <- list.files(opt.dir, pattern = '.+ctcf.+rho.txt', full.names = TRUE)
-plot.optimization.score(score.ctcf.files)
+plot.optimization.score(score.ctcf.files) 
 ```
 ```{r}
 matrix.ctcf.files <- list.files(opt.dir, pattern = '.+ctcf.+matrix', full.names = TRUE)
-performance.mat <- 
+matrix.ctcf.files
+performance.mat <- read.csv(matrix.ctcf.files[4], row.names = 1)
 long.mat <- reshape.prob.mat(performance.mat)
-plot.iteration(long.mat,1)
-plot.iteration(long.mat,9)
+head(performance.mat)
+nrow(performance.mat)
+lapply(matrix.ctcf.files, function(mat) 
+  plot.iteration(reshape.prob.mat(read.csv(mat, row.names = 1)),99) +
+    ggtitle(gsub(mat, pattern = '.+//', replacement = '')))
 ```
+
+Test4 is so weird! Best score and ends with all Ts!!
+```{r}
+performance.mat <- read.csv(matrix.ctcf.files[5], row.names = 1)
+long.mat <- reshape.prob.mat(performance.mat)
+lapply(c(1,10,20,50,70,99),function(it) plot.iteration(long.mat, it))
+```
+
+# What does the profile full of Ts look like?
+```{r}
+bestmat.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42test1_ctcf_bestMat.coverage.artCov.bw'
+exp.bw.file <- '~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.bedGraph'
+
+bestmat.bw <- import(bestmat.bw.file, format = 'BigWig')
+ranges <- GRanges(seqnames = pred.bw@seqnames, 
+                  ranges = IRanges(start=pred.bw@ranges@start, 
+                                   end = pred.bw@ranges@start+1))
+exp.bw <- import(exp.bw.file, format = 'bedGraph', which = ranges)
+```
+# Average coverage on CTCF sites
+```{r}
+bestmat.prof.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank60.ratio.coverage.artCov.CTCF.profile.txt')
+CTCF.pred.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.CTCF.profile.txt')
+CTCF.pred.prop <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank60.coverage.artCov.CTCF.profile.txt')
+
+bestmat.df <- make.df.of.profiles(list(best.matrix=bestmat.prof.norm,
+                                       prediction.even=CTCF.pred.norm,
+                                       prediction.proportional=CTCF.pred.prop))
+plot.refpoint.profile.df(bestmat.df)
+                               
+                              
+```
+

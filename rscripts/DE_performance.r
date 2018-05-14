@@ -13,7 +13,9 @@ reshape.prob.mat <- function(prob.mat){
   # colnames(prob.mat) <- as.vector(t(sapply(seq(1,6), function(pos) paste0(nuc,'.',pos))))
   long.prob.mat <- prob.mat %>% mutate(iter=rownames(prob.mat)) %>%
     melt(variable.name = 'nuc.pos', value.name = 'prob') %>% 
-    mutate(nuc=substr(nuc.pos,1,1), pos=substr(nuc.pos,3,3)) %>%
+    mutate(nuc=substr(nuc.pos,1,1), 
+           pos=substr(nuc.pos,3,3),
+           iter=as.numeric(iter)+1) %>%
     select(iter,prob,nuc,pos)
   # long.prob.mat$nuc <- factor(long.prob.mat$nuc, levels=c('A', 'T', 'C', 'G'))
   return(long.prob.mat)  
@@ -58,6 +60,21 @@ make.rho.df <- function(opt.output){
   return(rho.df)
 }
 
+plot.optimization.score <- function(score.files){
+  score.df <- as.data.frame(sapply(score.files, function(x) scan(x)))
+  colnames(score.df) <- gsub(pattern = '.+/|.DE.rho.txt', replacement = '',colnames(score.df))
+  long.rho <- score.df %>%
+    mutate(it=as.numeric(rownames(score.df))) %>%
+    melt(id.vars='it', variable.name='test', value.name='rho') 
+  head(long.rho)
+  p <- long.rho %>%
+    ggplot(., aes(it,rho, group=test, color=test)) +
+    geom_line(size=2) +
+    xlab('iteration') +
+    ylab('best score') +
+    theme(axis.title = element_text(size = 20), axis.text = element_text(size=10), title = element_text(size=22)) 
+  return(p)
+}
 
 ## Compare best & target
 

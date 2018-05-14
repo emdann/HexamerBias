@@ -121,7 +121,9 @@ def mean_field_density(kmerCounts, density):
 
 def new_coverage_function(params):
     '''
-    Minimize total density in regions of interest. Target is kmer counts for region of interest
+    Minimize total density in regions of interest.
+    Target is kmer counts for region of interest or ratio of terget over random kmer counts
+    (to minimize off target)
     '''
     prob_vec, seqs, dgMat, abundance, target = params
     ppm = from_vec_to_ppm(prob_vec)
@@ -189,7 +191,7 @@ its=args.its
 outdir = '/hpc/hub_oudenaarden/edann/hexamers/DEoptimization/ctcf_cov/'
 deltaGfile = '/hpc/hub_oudenaarden/edann/crypts_bs/VAN2408/CM1_tr2_R1_bismark_bt2_ptDg_qual.csv'
 abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv"
-kmerFile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/CTCF.flank60.kmersTot.csv'
+kmerFile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/CTCF.flank60.kmersFC.csv'
 
 logf = open(outdir + outprefix + "DE.log.txt",'w')
 print("--- DE OPTIMIZATION ---", file=logf)
