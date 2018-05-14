@@ -9,11 +9,10 @@ from predictCovBs import *
 sys.path.insert(0,'/hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage')
 from cov_from_density import *
 
-scoreFile='test6_ctcf.DE.rho.txt'
-matrixFile='test6_ctcf.DE.matrix.csv'
-deltaGfile = '/hpc/hub_oudenaarden/edann/crypts_bs/VAN2408/CM1_tr2_R1_bismark_bt2_ptDg_qual.csv'
-abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv"
-
+# scoreFile='test10_ctcf_kmersFC_pop30_its100.DE.rho.txt'
+# matrixFile='test10_ctcf_kmersFC_pop30_its100.DE.matrix.csv'
+# deltaGfile = '/hpc/hub_oudenaarden/edann/crypts_bs/VAN2408/CM1_tr2_R1_bismark_bt2_ptDg_qual.csv'
+# abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv"
 
 def read_score_file(scoreFile):
     scores=[]
@@ -25,9 +24,6 @@ def read_score_file(scoreFile):
 def read_matrix_file(matrixFile):
     matTab = pd.read_csv(matrixFile, index_col=0)
     return(matTab)
-
-probVec = np.array(mats.iloc[1])
-
 
 def test_DE_output(mats, scores, deltaGfile, abundanceFile, kmerFile):
     seqs = all_hexamers()
@@ -51,7 +47,7 @@ def coverage_best_matrix(mats, dgMat, abundance):
     coverage = predictCoverage_setProbs(dgMat, abundance[1], primer_prob)
     return(coverage)
 
-kmerFile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/CTCF.flank60.kmersTot.csv'
-# outdir='/'.join(kmerFile.split('/')[:-1])
-
-randomKmerFile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/CTCF.flank60.randomize.kmersTot.csv'
+# kmerFile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/CTCF.flank60.kmersTot.csv'
+# # outdir='/'.join(kmerFile.split('/')[:-1])
+#
+# randomKmerFile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/CTCF.flank60.randomize.kmersTot.csv'
