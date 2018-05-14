@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+import pandas as pd
+import argparse
+
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Count kmers in fasta file. By Buys de Barbanson")
+argparser.add_argument('kmersROI', type=str, help='path to file of kmer abundance in regions of interest')
+argparser.add_argument('kmersRandom', type=str, help='path to file of kmer abundance in random regions')
+args = argparser.parse_args()
+
+def compute_kmers_FC(kmerFile, randomKmerFile, save_csv=True):
+    '''
+    Compute log2(FC) between kmer count in regions of interest and random regions
+    to be used for DE optimization
+    Input:
+        kmerFile: path to file of kmer abundance in regions of interest
+        randomKmerFile: path to file of kmer abundance in random regions
+        save_csv: logical for wheather the csv of kmers should be saved in same folder as kmerFile
+    '''
+    targetKmers = pd.read_csv(kmerFile, index_col=0, header=None)
+    randomKmers = pd.read_csv(randomKmerFile, index_col=0, header=None)
+    enrichKmers = pd.concat([randomKmers, targetKmers], axis=1)
+    enrichKmers.columns = ['random','target']
+    foldChange = np.log2(enrichKmers.target/enrichKmers.random).dropna()
+    if save_csv:
+        foldChange.to_csv(kmerFile.strip('kmersTot.csv')+'.kmersFC.csv')
+    return(foldChange)
+
+compute_kmers_FC(args.kmersROI, args.kmersRandom, save_csv=True)
