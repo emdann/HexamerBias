@@ -9,7 +9,6 @@ from predictCovBs import *
 sys.path.insert(0,'/hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage')
 from cov_from_density import *
 
-
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts tables for bs-seq \n By Emma Dann")
 argparser.add_argument('prefix', type=str, help='prefix of output file')
 argparser.add_argument('--popsize', type=int, default=20, help='Population size (no. of matrixes to start with)')
@@ -108,7 +107,7 @@ def coverage_function(params):
     primer_prob = prob_from_ppm(ppm, seqs)
     coverage = predictCoverage_setProbs(dgMat, genomeAb, primer_prob)
     coverage.index=coverage.template
-    density = template_density(coverage.exp,abundance)
+    density = template_density(coverage.exp,genomeAb)
     rho = pd.concat([density, target], axis=1).corr(method='spearman') ## <--- IS THIS EVEN RIGHT?
     return(1-rho[0][1])
 
