@@ -106,10 +106,11 @@ def coverage_function(params):
     ppm = from_vec_to_ppm(prob_vec)
     primer_prob = prob_from_ppm(ppm, seqs)
     coverage = predictCoverage_setProbs(dgMat, genomeAb, primer_prob)
-    coverage.index=coverage.template
     density = template_density(coverage.exp,genomeAb)
-    rho = pd.concat([density, target], axis=1).corr(method='spearman') ## <--- IS THIS EVEN RIGHT?
-    return(1-rho[0][1])
+    density.name='dens'
+    target.name='tar'
+    rho = pd.concat([density, target], axis=1).corr(method='spearman')
+    return(1-rho['dens']['tar']) ### <- SOMETHING WRONG HERE
 
 def mean_field_density(kmerCounts, density):
     '''
@@ -131,7 +132,7 @@ def new_coverage_function(params):
     primer_prob = prob_from_ppm(ppm, seqs)
     coverage = predictCoverage_setProbs(dgMat, abundance[1], primer_prob)
     coverage.index=coverage.template
-    # print('Coverage computed')
+        # print('Coverage computed')
     density = template_density(coverage.exp,abundance)
     return(-mean_field_density(target, density))
 
