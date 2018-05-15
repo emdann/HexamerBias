@@ -23,7 +23,7 @@ def compute_kmers_FC(kmerFile, randomKmerFile, save_csv=True):
     enrichKmers.columns = ['random','target']
     foldChange = np.log2(enrichKmers.target/enrichKmers.random).dropna()
     if save_csv:
-        foldChange.to_csv(kmerFile.strip('kmersTot.csv')+'.kmersFC.csv')
+        foldChange.to_csv(kmerFile.rstrip('.kmersTot.csv')+'.kmersFC.csv')
     return(foldChange)
 
 compute_kmers_FC(args.kmersROI, args.kmersRandom, save_csv=True)
