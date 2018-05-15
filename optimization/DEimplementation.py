@@ -191,7 +191,7 @@ outprefix=args.prefix
 popsize=args.popsize
 its=args.its
 
-outdir = '/hpc/hub_oudenaarden/edann/hexamers/DEoptimization/ctcf_cov/'
+outdir = '/hpc/hub_oudenaarden/edann/hexamers/DEoptimization/even_cov/'
 deltaGfile = '/hpc/hub_oudenaarden/edann/crypts_bs/VAN2408/CM1_tr2_R1_bismark_bt2_ptDg_qual.csv'
 abundanceFile = "/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv"
 kmerFile = '/hpc/hub_oudenaarden/edann/hexamers/strand_specific/CTCF.flank60.kmersFC.csv'
