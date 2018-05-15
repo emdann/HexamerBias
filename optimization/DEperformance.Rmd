@@ -133,10 +133,17 @@ score.ctcf.files <- list.files(opt.dir, pattern = '.+ctcf_kmersFC.+pop20.+rho.tx
 plot.optimization.score(score.ctcf.files) +
   theme(legend.title = element_blank())
 ```
-1. Popsize = 30
+2. Popsize = 30, 100 iterations
 ```{r}
 opt.dir <- '~/mnt/edann/hexamers/DEoptimization/ctcf_cov/'
-score.ctcf.files <- list.files(opt.dir, pattern = '.+ctcf_kmersFC.+pop30.+rho.txt', full.names = TRUE)
+score.ctcf.files <- list.files(opt.dir, pattern = '.+ctcf_kmersFC.+pop30_its100.+rho.txt', full.names = TRUE)
+plot.optimization.score(score.ctcf.files) +
+  theme(legend.title = element_blank())
+```
+2. Popsize = 30, 100 iterations
+```{r}
+opt.dir <- '~/mnt/edann/hexamers/DEoptimization/ctcf_cov/'
+score.ctcf.files <- list.files(opt.dir, pattern = '.+ctcf_kmersFC.+pop30_its200.+rho.txt', full.names = TRUE)
 plot.optimization.score(score.ctcf.files) +
   theme(legend.title = element_blank())
 ```

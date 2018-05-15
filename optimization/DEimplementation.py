@@ -28,6 +28,7 @@ def de(fobj, fun_params, seq_len,openlog=None, mut=0.8, crossp=0.7, popsize=20, 
     workers = multiprocessing.Pool(cores)
     seqs,dgMat,genomeAb,target = fun_params
     pop = np.random.rand(popsize, seq_len*4)  ## Makes the population
+    startingPop=format_performance_matrix(pop)
     pop_denorm = np.vstack([el for el in map(reset_costraints, pop)])
     fitness = np.asarray(workers.map(fobj, [(ind, seqs,dgMat,genomeAb, target) for ind in pop_denorm])) # <-- takes too long
     best_idx = np.argmin(fitness)   ## Returns the indices of the minimum values along an axis.
@@ -56,7 +57,7 @@ def de(fobj, fun_params, seq_len,openlog=None, mut=0.8, crossp=0.7, popsize=20, 
                     openlog.flush()
         performanceVal.append(fitness[best_idx])
         performanceMat.append(best)
-    yield performanceVal, np.asarray(performanceMat)
+    yield performanceVal, np.asarray(performanceMat), startingPop
 
 def de_mutation(params):
     '''
@@ -107,8 +108,9 @@ def coverage_function(params):
     primer_prob = prob_from_ppm(ppm, seqs)
     coverage = predictCoverage_setProbs(dgMat, genomeAb, primer_prob)
     coverage.index=coverage.template
-    rho = pd.concat([coverage.exp, target], axis=1).corr(method='spearman') ## <--- IS THIS EVEN RIGHT?
-    return(1-rho['exp'][1])
+    density = template_density(coverage.exp,abundance)
+    rho = pd.concat([density, target], axis=1).corr(method='spearman') ## <--- IS THIS EVEN RIGHT?
+    return(1-rho[0][1])
 
 def mean_field_density(kmerCounts, density):
     '''
@@ -160,6 +162,8 @@ def save_de_output(outlist, fileprefix):
     performanceMat = outlist[0][1]
     performanceDf = format_performance_matrix(performanceMat)
     performanceDf.to_csv(fileprefix+'.DE.matrix.csv')
+    originalPop=outlist[0][2]
+    originalPop.to_csv(fileprefix+'.DE.originalPop.csv')
     return('Output saved!')
 
 def run_DE(deltaGfile, abundanceFile, outfileprefix, openlog, popsize=20, its=1000, cores=5):
@@ -203,6 +207,6 @@ print("Number of iterations: " + str(its), file=logf)
 print("------------------------", file=logf)
 logf.flush()
 
-run_new_DE(deltaGfile, abundanceFile, kmerFile, outdir+outprefix, openlog=logf, popsize=popsize, its=its, cores=10)
-# run_DE(deltaGfile, abundanceFile, outdir+outprefix,openlog=logf, popsize=popsize, its=its, cores=10)
+# run_new_DE(deltaGfile, abundanceFile, kmerFile, outdir+outprefix, openlog=logf, popsize=popsize, its=its, cores=10)
+run_DE(deltaGfile, abundanceFile, outdir+outprefix,openlog=logf, popsize=popsize, its=its, cores=10)
 logf.close()
