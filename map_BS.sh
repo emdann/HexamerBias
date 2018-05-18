@@ -40,7 +40,6 @@ else
   then
     refgen=${refgen_dir}/zebrafish_gene_models/danRer10_clean.fa
   else [[ "$refgen" == "WBcel235" ]]
-  then
     refgen=${refgen_dir}/cel_gene_models/WBcel235.fa
   fi
   echo "Refgen: $refgen"
