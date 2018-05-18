@@ -35,7 +35,7 @@ else
     refgen=${refgen_dir}/human_gene_models/hg19_clean.fa
   elif [[ "$refgen" == "mm10" ]]
   then
-    refgen=${refgen_dir}/mouse_gene_models/mm10_clean.fa
+    refgen=${refgen_dir}/mouse_gene_models/mm10.fa
   elif [[ "$refgen" == "danRer10" ]]
   then
     refgen=${refgen_dir}/zebrafish_gene_models/danRer10_clean.fa
