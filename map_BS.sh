@@ -31,6 +31,7 @@ then
 else
   echo "sample=$(echo $file | awk '{gsub(/.fastq.gz/, ""); print}'); ${path_2_trimgalore}/trim_galore --clip_R1 9 --three_prime_clip_R1 3 --path_to_cutadapt ${path_2_cutadapt} -o $outdir $file" | \
       qsubl -N trim_${sample}
+fi
 
 echo "---- Mapping! ----"
 if [["$type" == "BS"]]
@@ -40,6 +41,7 @@ then
 else
   echo "${path_2_bwa}/bwa mem -t 10 $refgen ${sample}_trimmed.fq.gz | ${path_2_samtools}/samtools view -bS - > ${sample}.bam" | \
       qsub -cwd -N map_${sample} -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=50G -l h_cpu=1:00:00 -hold_jid trim_${sample}
+fi
 
 echo "---- Deduplicating! ----"
 echo "${path_2_bismark}/deduplicate_bismark --samtools_path ${path_2_samtools} -s --bam ${sample}_trimmed_bismark_bt2.bam" | //
