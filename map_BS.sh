@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# -ne 3 ]
+if [ $# -ne 4 ]
 then
     echo "Please, give:"
     echo "1) fastq.gz file"
