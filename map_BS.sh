@@ -30,16 +30,16 @@ then
   echo "Refgen folder: $refgen_dir"
 else
   refgen_dir=/hpc/hub_oudenaarden/gene_models
-  if [[ "$refgen" == "hg19"]]
+  if [[ "$refgen" == "hg19" ]]
   then
     refgen=${refgen_dir}/human_gene_models/hg19_clean.fa
-  elif [[ "$refgen" == "mm10"]]
+  elif [[ "$refgen" == "mm10" ]]
   then
     refgen=${refgen_dir}/mouse_gene_models/mm10_clean.fa
-  elif [[ "$refgen" == "danRer10"]]
+  elif [[ "$refgen" == "danRer10" ]]
   then
     refgen=${refgen_dir}/zebrafish_gene_models/danRer10_clean.fa
-  else [[ "$refgen" == "WBcel235"]]
+  else [[ "$refgen" == "WBcel235" ]]
   then
     refgen=${refgen_dir}/cel_gene_models/WBcel235.fa
   fi
