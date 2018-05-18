@@ -68,10 +68,10 @@ echo "---- Mapping! ----"
 if [[ "$type" == "BS" ]]
 then
   echo "${path_2_bismark}/bismark --samtools_path ${path_2_samtools} --path_to_bowtie ${path_2_bowtie} --multicore 10 --non_directional $refgen_dir ${sample}_trimmed.fq.gz" | \
-      qsub -cwd -N map_${sample} -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=50G -l h_cpu=1:00:00 -hold_jid trim_${sample}
+      qsub -cwd -N map_${sample} -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=50G -l h_cpu=10:00:00 -hold_jid trim_${sample}
 else
   echo "${path_2_bwa}/bwa mem -t 10 $refgen ${sample}_trimmed.fq.gz | ${path_2_samtools}/samtools view -bS - > ${sample}.bam" | \
-      qsub -cwd -N map_${sample} -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=50G -l h_cpu=1:00:00 -hold_jid trim_${sample}
+      qsub -cwd -N map_${sample} -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=50G -l h_cpu=10:00:00 -hold_jid trim_${sample}
 fi
 
 echo "---- Deduplicating! ----"
