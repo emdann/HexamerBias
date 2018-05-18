@@ -4,7 +4,7 @@ if [ $# -ne 4 ]
 then
     echo "Please, give:"
     echo "1) fastq.gz file"
-    echo "2) reference genome folder"
+    echo "2) reference genome (mm10, hg19, danRer10, WBcel235)"
     echo "3) Type of data (BS or noBS)"
     echo "3) output directory"
     exit
@@ -24,6 +24,28 @@ path_2_cutadapt=/hpc/hub_oudenaarden/edann/venv2/bin/cutadapt
 path_2_trimgalore=/hpc/hub_oudenaarden/edann/bin/TrimGalore-0.4.3
 path_2_bwa=/hpc/hub_oudenaarden/bin/software/bwa-0.7.10
 
+if [[ "$type" == "BS" ]]
+then
+  refgen_dir=/hpc/hub_oudenaarden/avo/BS/${refgen}
+  echo "Refgen folder: $refgen_dir"
+else
+  refgen_dir=/hpc/hub_oudenaarden/gene_models
+  if [[ "$refgen" == "hg19"]]
+  then
+    refgen=${refgen_dir}/human_gene_models/hg19_clean.fa
+  elif [[ "$refgen" == "mm10"]]
+  then
+    refgen=${refgen_dir}/mouse_gene_models/mm10_clean.fa
+  elif [[ "$refgen" == "danRer10"]]
+  then
+    refgen=${refgen_dir}/zebrafish_gene_models/danRer10_clean.fa
+  else [[ "$refgen" == "WBcel235"]]
+  then
+    refgen=${refgen_dir}/cel_gene_models/WBcel235.fa
+  fi
+  echo "Refgen: $refgen"
+fi
+
 echo "---- Trimming! ----"
 if [ -e ${sample}_trimmed.fq.gz ]
 then
@@ -36,7 +58,7 @@ fi
 echo "---- Mapping! ----"
 if [[ "$type" == "BS" ]]
 then
-  echo "${path_2_bismark}/bismark --samtools_path ${path_2_samtools} --path_to_bowtie  $refgen ${sample}_trimmed.fq.gz" | \
+  echo "${path_2_bismark}/bismark --samtools_path ${path_2_samtools} --path_to_bowtie  $refgen_dir ${sample}_trimmed.fq.gz" | \
       qsub -cwd -N map_${sample} -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=50G -l h_cpu=1:00:00 -hold_jid trim_${sample}
 else
   echo "${path_2_bwa}/bwa mem -t 10 $refgen ${sample}_trimmed.fq.gz | ${path_2_samtools}/samtools view -bS - > ${sample}.bam" | \
