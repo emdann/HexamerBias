@@ -112,16 +112,30 @@ exp.bw <- import(exp.bw.file, format = 'bedGraph', which = ranges)
 ```
 # Average coverage on CTCF sites
 ```{r}
-bestmat.prof.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank60.ratio.coverage.artCov.CTCF.profile.txt')
-CTCF.pred.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.CTCF.profile.txt')
-CTCF.pred.prop <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank60.coverage.artCov.CTCF.profile.txt')
+bestmat.prof.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42test1_ctcf_bestMat.coverage.artCov.CTCF.profile.txt', normalize = F)
+bestmatTT.prof.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42test6_ctcf_bestmat.coverage.artCov.CTCF.profile.txt', normalize = F)
+CTCF.pred.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.CTCF.profile.txt', normalize = F)
 
-bestmat.df <- make.df.of.profiles(list(best.matrix=bestmat.prof.norm,
-                                       prediction.even=CTCF.pred.norm,
-                                       prediction.proportional=CTCF.pred.prop))
-plot.refpoint.profile.df(bestmat.df)
-                               
-                              
+not.norm.bestmat.df <- make.df.of.profiles(list(polyT=bestmatTT.prof.norm,
+                                       best.matrix2=bestmat.prof.norm,
+                                       prediction.even=CTCF.pred.norm
+                                       # prediction.proportional=CTCF.pred.prop
+                                       )
+                                  )
+
+bestmat.prof.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42test1_ctcf_bestMat.coverage.artCov.CTCF.profile.txt')
+bestmatTT.prof.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42test6_ctcf_bestmat.coverage.artCov.CTCF.profile.txt')
+CTCF.pred.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.CTCF.profile.txt')
+
+norm.bestmat.df <- make.df.of.profiles(list(polyT=bestmatTT.prof.norm,
+                                       best.matrix2=bestmat.prof.norm,
+                                       prediction.even=CTCF.pred.norm
+                                       # prediction.proportional=CTCF.pred.prop
+                                       )
+                                  )
+
+plot.refpoint.profile.df(not.norm.bestmat.df)
+plot.refpoint.profile.df(norm.bestmat.df)
 ```
 ## Optimizing density of enriched kmers
 Not total abundance
@@ -143,8 +157,126 @@ plot.optimization.score(score.ctcf.files) +
 2. Popsize = 30, 100 iterations
 ```{r}
 opt.dir <- '~/mnt/edann/hexamers/DEoptimization/ctcf_cov/'
-score.ctcf.files <- list.files(opt.dir, pattern = '.+ctcf_kmersFC.+pop30_its200.+rho.txt', full.names = TRUE)
+score.ctcf.files <- list.files(opt.dir, pattern = '.+ctcf_kmersFC.+pop.+rho.txt', full.names = TRUE)
 plot.optimization.score(score.ctcf.files) +
   theme(legend.title = element_blank())
 ```
+Load coverage profiles around CTCF sites
+```{r}
+prof.files <- list.files(paste0(opt.dir,'predicted_cov_bestmat'), pattern = 'profile.txt', full.names = T)
+profiles <- lapply(prof.files, load.profile)
+names(profiles) <- gsub(prof.files, pattern = '.+500reg|.bestMat.+profile.txt', replacement = '')
+df <- make.df.of.profiles(profiles)
+
+best.scores <- sapply(score.ctcf.files, function(x) rev.default(scan(x))[1])
+names(best.scores) <- gsub(names(best.scores), pattern = '.+/|.DE.+.txt', replacement = '')
+df.wScores <- df %>% mutate(score=best.scores[match(df$sample, names(best.scores))])
+df.wScores %>% 
+  filter(sample!='test1_ctcf_kmersFC_pop30_its100') %>% 
+  filter(sample!="test10_ctcf_kmersFC_pop30_its100") %>% 
+  plot.refpoint.profile.df(., color = 'score') +
+  guides(color = guide_colorbar(barwidth = 20, barheight = 1))
+```
+
+
+Not normalized 
+```{r}
+profiles <- lapply(prof.files, load.profile, normalize=F)
+names(profiles) <- gsub(prof.files, pattern = '.+500reg|.bestMat.+profile.txt', replacement = '')
+df <- make.df.of.profiles(profiles)
+
+best.scores <- sapply(score.ctcf.files, function(x) rev.default(scan(x))[1])
+names(best.scores) <- gsub(names(best.scores), pattern = '.+/|.DE.+.txt', replacement = '')
+df.wScores <- df %>% mutate(score=best.scores[match(df$sample, names(best.scores))])
+df.wScores %>% 
+  filter(sample!='test1_ctcf_kmersFC_pop30_its100') %>% 
+  filter(sample!="test10_ctcf_kmersFC_pop30_its100") %>% 
+  plot.refpoint.profile.df(., color = 'score') +
+  guides(color = guide_colorbar(barwidth = 20, barheight = 1))
+```
+## Look at the coverage profiles in a set of regions for the best matrixes
+```{r}
+df.wScores %>% arrange(score) %>% head(.)
+pred.bw.file <- '~/mnt/edann/hexamers/DEoptimization/ctcf_cov/predicted_cov_bestmat/highcov.random.42.500regtest9_ctcf_kmersFC_pop30_its200.bestMat.coverage.artCov.bw'
+pred.bw <- import(pred.bw.file, format = 'BigWig')
+best.bw <- add.id(pred.bw)
+norm.best.bw <- normalize.coverage(best.bw)
+l.best.bw <- split(norm.best.bw, best.bw$id)
+plot.expVSpred.coverage.track(l.best.bw[[2]])
+```
+
+```{r}
+ctcf.bed <- '~/mnt/edann/hexamers/annotations_bed/CTCF_intestine_mm10.srt.bed'
+ctcf<- import(ctcf.bed, format = 'bed')
+
+ctcf.ovs <- findOverlaps(norm.best.bw,ctcf)
+ctcf.cov <- norm.best.bw[queryHits(ctcf.ovs)]
+regionsWctcf <- ctcf.cov$id
+```
+
+```{r}
+lapply(sample(regionsWctcf,10), function(x) plot.cov.wAnnotation(l.best.bw[x][[1]], ctcf))
+```
+Compare with even primer probability predicted coverage
+```{r}
+even.bw <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.bw'
+ranges <- GRanges(seqnames = pred.bw@seqnames, 
+                  ranges = IRanges(start=pred.bw@ranges@start, 
+                                   end = pred.bw@ranges@start+1))
+exp.bw <- import(even.bw, format = 'BigWig', which = ranges)
+common.bw <- make.predVSexp.range(pred.bw, exp.bw, pred.name = 'CTCFspecific', exp.name = 'even')
+norm.common.bw<- normalize.coverage(common.bw)
+norm.common.bw <- add.id(norm.common.bw)
+l.comon.bw <- split(norm.common.bw, norm.common.bw$id)
+plot.expVSpred.coverage.track(l.comon.bw[[2]])
+
+ctcf.ovs <- findOverlaps(norm.common.bw,ctcf)
+ctcf.cov <- norm.common.bw[queryHits(ctcf.ovs)]
+regionsWctcf <- ctcf.cov$id
+```
+
+```{r}
+lapply(sample(regionsWctcf,10), function(x) plot.cov.wAnnotation(l.comon.bw[x][[1]], ctcf))
+```
+```{r}
+even.prof <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.CTCF.profile.txt')
+ctcf.prof <- load.profile('~/mnt/edann/hexamers/DEoptimization/ctcf_cov/predicted_cov_bestmat/highcov.random.42.500regtest9_ctcf_kmersFC_pop30_its200.bestMat.coverage.artCov.CTCF.profile.txt')
+df <- make.df.of.profiles(list(
+  CTCF=ctcf.prof,
+  even=even.prof
+))
+plot.refpoint.profile.df(df)
+```
+But here I am comparing noisy data (500 regions) and not noisy data (5000 regions)
+
+### EVEN COVERAGE
+```{r}
+opt.dir <- '~/mnt/edann/hexamers/DEoptimization/even_cov/'
+score.even.files <- list.files(opt.dir, pattern = '.+even_pop30_its100.+rho.txt', full.names = TRUE)
+plot.optimization.score(score.even.files) +
+  theme(legend.title = element_blank())
+```
+
+# Variability in the initial population
+```{r}
+original.pop.good <- read.csv(paste0(opt.dir, 'test5_even_pop30_its100.DE.originalPop.csv'), row.names = 1)
+original.pop.bad <- read.csv(paste0(opt.dir, 'test1_even_pop30_its100.DE.originalPop.csv'), row.names = 1)
+
+boxplot(as.vector(cor(t(original.pop.bad))), as.vector(cor(t(original.pop.good))), ylab='correlation between vectors', names=c('bad', 'good'))
+```
+Doesn't seem to play a major role.
+
+Visualizing in another way
+```{r}
+originalpop.even.files <- list.files(opt.dir, pattern = '.+even_pop30_its100.+originalPop.csv', full.names = TRUE)
+pops <- lapply(originalpop.even.files,function(x) read.csv(x, row.names = 1) %>% reshape.prob.mat %>% mutate(p=paste0(nuc,'.',pos), name=gsub(x, pattern = '.+/|.DE.+', replacement = '')) )
+mean.pops <- do.call(rbind,pops)
+mean.pops %>% group_by(name,nuc) %>% summarise(avg=mean(prob)) %>%
+  ggplot(., aes(nuc, avg, group=name, color=name)) +
+    facet_grid(name~.) +
+    geom_line() +
+    # ylim(0,1) + 
+    xlab('nucleotide')
+```
+Nope.
 

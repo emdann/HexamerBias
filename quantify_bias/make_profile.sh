@@ -2,10 +2,10 @@
 
 if [ $# -ne 2 ]
 then
-    echo "Please, give:"
-    echo "1) bamfile (indexed)"
-    echo "2) regions of interest (bed or gtf file)"
-    exit
+  echo "Please, give:"
+  echo "1) bamfile (indexed)"
+  echo "2) regions of interest (bed or gtf file)"
+  exit
 fi
 
 source /hpc/hub_oudenaarden/edann/venv2/bin/activate
