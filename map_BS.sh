@@ -30,11 +30,11 @@ then
   echo "${sample}_trimmed.fq.gz found"
 else
   echo "sample=$(echo $file | awk '{gsub(/.fastq.gz/, ""); print}'); ${path_2_trimgalore}/trim_galore --clip_R1 9 --three_prime_clip_R1 3 --path_to_cutadapt ${path_2_cutadapt} -o $outdir $file" | \
-      qsubl -N trim_${sample}
+      qsub -cwd -N trim_${sample} -l h_rt=10:00:00 -l h_vmem=20G -l h_cpu=1:00:00
 fi
 
 echo "---- Mapping! ----"
-if [["$type" == "BS"]]
+if [[ "$type" == "BS" ]]
 then
   echo "${path_2_bismark}/bismark --samtools_path ${path_2_samtools} --path_to_bowtie  $refgen ${sample}_trimmed.fq.gz" | \
       qsub -cwd -N map_${sample} -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=50G -l h_cpu=1:00:00 -hold_jid trim_${sample}
@@ -45,4 +45,4 @@ fi
 
 echo "---- Deduplicating! ----"
 echo "${path_2_bismark}/deduplicate_bismark --samtools_path ${path_2_samtools} -s --bam ${sample}_trimmed_bismark_bt2.bam" | //
-    qsubl -N dedup_${sample} -hold_jid map_${sample}
+    qsubl -N dedup_${sample} -l h_rt=10:00:00 -l h_vmem=20G -l h_cpu=1:00:00 -hold_jid map_${sample}
