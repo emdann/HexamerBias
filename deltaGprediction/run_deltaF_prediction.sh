@@ -17,7 +17,7 @@ fasta=$3
 type=$4
 sample=$(echo $bamfile | sed 's,/,\t,g' | awk '{gsub(/\..+/, ""); print $NF}')
 genome=$(echo $refgen | sed 's,/,\t,g' | awk '{gsub(/\..+/, ""); print $NF}')
-abundance_dir='/hpc/hub_oudenaarden/edann/hexamers/genome_kmers'
+abundance_dir='/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers'
 abfile=${abundance_dir}/${genome}.kmerAbundance.csv
 
 bin_dir=/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction
