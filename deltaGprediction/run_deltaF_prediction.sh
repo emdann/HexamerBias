@@ -4,7 +4,7 @@ if [ $# -ne 4 ]
 then
     echo "Please, give:"
     echo "1) bamfile"
-    echo "2) reference genome"
+    echo "2) reference genome (mm10, hg38, danRer10, WBcel235)"
     echo "3) untrimmed fasta"
     echo "4) type of mapping (bs_se or bs_pe)"
     exit
@@ -15,13 +15,10 @@ bamfile=$1
 refgen=$2
 fasta=$3
 type=$4
-abfile=/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv
 sample=$(echo $bamfile | sed 's,/,\t,g' | awk '{gsub(/\..+/, ""); print $NF}')
-
-if [ $refgen = "mouse" ]
-then
-    refgen=/hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa
-fi
+genome = $(echo $refgen | sed 's,/,\t,g' | awk '{print $NF}')
+abundanceDir='/hpc/hub_oudenaarden/edann/hexamers/genome_kmers'
+abfile=${abundance_dir}/${genome}.kmerAbundance.csv
 
 bin_dir=/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction
 
