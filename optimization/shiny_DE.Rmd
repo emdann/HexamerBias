@@ -15,8 +15,8 @@ source('~/HexamerBias/rscripts/DE_performance.r')
 ```
 
 ```{r}
-dir <- "/Users/user/mnt/edann/hexamers/DEoptimization/ctcf_cov/"
-samples <- gsub(pattern = '.DE.+', replacement = '',list.files(dir)[grep(list.files(dir), pattern = 'matrix')])
+dir <- "/Users/user/mnt/edann/hexamers/DEoptimization/even_cov/"
+samples <- gsub(pattern = '.DE.+', replacement = '',list.files(dir)[grep(list.files(dir), pattern = 'pop.+matrix')])
 ```
 ## Visualize optimization output
 ```{r, echo=FALSE}
@@ -25,7 +25,7 @@ shinyApp(
       sidebarLayout(
         sidebarPanel(
               selectInput("sample", label='Select sample', choices = samples),
-              sliderInput("it", label="Iteration", min = 1, max = 100, value = 1, animate = animationOptions(interval = 300, loop = F))
+              sliderInput("it", label="Iteration", min = 1, max = 200, value = 1, animate = animationOptions(interval = 300, loop = F))
         )
       ,
         mainPanel(

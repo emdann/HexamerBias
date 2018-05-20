@@ -239,21 +239,57 @@ regionsWctcf <- ctcf.cov$id
 lapply(sample(regionsWctcf,10), function(x) plot.cov.wAnnotation(l.comon.bw[x][[1]], ctcf))
 ```
 ```{r}
+wCTCF <- norm.common.bw[norm.common.bw$id %in% regionsWctcf]
+woCTCF <- norm.common.bw[!norm.common.bw$id %in% regionsWctcf]
+boxplot(wCTCF$even, wCTCF$CTCFspecific,woCTCF$even, woCTCF$CTCFspecific, outline=F, varwidth=TRUE)
+```
+
+```{r}
 even.prof <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.CTCF.profile.txt')
-ctcf.prof <- load.profile('~/mnt/edann/hexamers/DEoptimization/ctcf_cov/predicted_cov_bestmat/highcov.random.42.500regtest9_ctcf_kmersFC_pop30_its200.bestMat.coverage.artCov.CTCF.profile.txt')
+ctcf.prof <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42test9_ctcf_kmersFC_pop30_its200.bestMat.coverage.artCov.CTCF.profile.txt')
 df <- make.df.of.profiles(list(
   CTCF=ctcf.prof,
   even=even.prof
 ))
 plot.refpoint.profile.df(df)
 ```
-But here I am comparing noisy data (500 regions) and not noisy data (5000 regions)
+# Trying loading the whole matrix (halp)
+```{r}
+tab <- read.table(gzfile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42test9_ctcf_kmersFC_pop30_its200.bestMat.coverage.artCov.CTCF.mat.gz'), skip = 1)
+colnames(tab) <- c('chr', 'start', 'end', 'id', 'len', 'strand', seq(1,600))
+tab.even <- read.table(gzfile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.mat.gz'), skip = 1)
+colnames(tab.even) <- c('chr', 'start', 'end', 'id', 'len', 'strand', seq(1,600))
+```
+ 
+```{r}
+tab %>% select(-c(chr,start,end,len, strand)) %>% 
+  melt(id.vars=c('id'), variable.name='position', value.name='coverage') %>%
+  group_by(id) %>% mutate(zscore=(coverage-mean(coverage, na.rm=T))/sd(coverage, na.rm=T)) %>%
+  ungroup() %>% 
+  group_by(position) %>% 
+  summarise(avg=mean(zscore, na.rm=T)) %>%
+  ggplot(., aes(as.numeric(position), avg)) +
+    geom_line()
+
+tab.even %>% select(-c(chr,start,end,len, strand)) %>% 
+  melt(id.vars=c('id'), variable.name='position', value.name='coverage') %>%
+  group_by(id) %>% mutate(zscore=(coverage-mean(coverage, na.rm=T))/sd(coverage, na.rm=T)) %>%
+  ungroup() %>% 
+  group_by(position) %>% 
+  summarise(avg=mean(zscore, na.rm=T)) %>%
+  ggplot(., aes(as.numeric(position), avg)) +
+    geom_line()
+```
+
 
 ### EVEN COVERAGE
 ```{r}
 opt.dir <- '~/mnt/edann/hexamers/DEoptimization/even_cov/'
-score.even.files <- list.files(opt.dir, pattern = '.+even_pop30_its100.+rho.txt', full.names = TRUE)
-plot.optimization.score(score.even.files) +
+score.even.files.100 <- list.files(opt.dir, pattern = '.+even_pop30_its100.+rho.txt', full.names = TRUE)
+score.even.files.200 <- list.files(opt.dir, pattern = '.+even_pop30_its200.+rho.txt', full.names = TRUE)
+plot.optimization.score(score.even.files.100) +
+  theme(legend.title = element_blank())
+plot.optimization.score(score.even.files.200) +
   theme(legend.title = element_blank())
 ```
 
@@ -268,15 +304,56 @@ Doesn't seem to play a major role.
 
 Visualizing in another way
 ```{r}
-originalpop.even.files <- list.files(opt.dir, pattern = '.+even_pop30_its100.+originalPop.csv', full.names = TRUE)
+originalpop.even.files <- list.files(opt.dir, pattern = '.+even_pop30_its200.+originalPop.csv', full.names = TRUE)
 pops <- lapply(originalpop.even.files,function(x) read.csv(x, row.names = 1) %>% reshape.prob.mat %>% mutate(p=paste0(nuc,'.',pos), name=gsub(x, pattern = '.+/|.DE.+', replacement = '')) )
 mean.pops <- do.call(rbind,pops)
 mean.pops %>% group_by(name,nuc) %>% summarise(avg=mean(prob)) %>%
   ggplot(., aes(nuc, avg, group=name, color=name)) +
-    facet_grid(name~.) +
+    # facet_grid(name~.) +
     geom_line() +
     # ylim(0,1) + 
     xlab('nucleotide')
 ```
-Nope.
+This is interesting: less Cs in the ones that end up having a higher score
+
+```{r}
+pred.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42test2_even_pop30_its200.bestMat.coverage.artCov.bw'
+exp.bw.file <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.bw'
+
+pred.bw <- import(pred.bw.file, format = 'BigWig')
+ranges <- GRanges(seqnames = pred.bw@seqnames, 
+                  ranges = IRanges(start=pred.bw@ranges@start, 
+                                   end = pred.bw@ranges@start+1))
+exp.bw <- import(exp.bw.file, format = 'BigWig', which = ranges)
+common.bw <- make.predVSexp.range(pred.bw, exp.bw, pred.name = 'CTCFspecific', exp.name = 'even')
+norm.common.bw<- normalize.coverage(common.bw)
+norm.common.bw <- add.id(norm.common.bw)
+l.comon.bw <- split(norm.common.bw, norm.common.bw$id)
+```
+
+```{r}
+clean.common.bw <- l.comon.bw[which(sapply(l.common.bw, length)==4999)]
+lapply(sample(clean.common.bw,10), nice.plotTrack, labels=c('Even primer conc', 'Optimized primer conc'))
+```
+Looks good, more noisy than not optimized data.
+
+Profile
+```{r}
+opt1.prof <- load.matrix('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42test2_even_pop30_its200.bestMat.coverage.artCov.mat.gz')
+opt2.prof <- load.matrix('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42test5_even_pop30_its200.bestMat.coverage.artCov.mat.gz')
+norm.prof <- load.matrix('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.mat.gz')
+# exp.prof <- load.matrix('~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.mat.gz')
+
+df <- make.df.of.profiles(list(
+  optimized1.p=opt1.prof,
+  optimized2.p=opt2.prof,
+  even.p=norm.prof
+))
+plot.genes.profile.df(df)
+ggsave('~/AvOwork/output/DE_optimization/even_optimization.pdf')
+
+```
+# Trying loading the whole matrix (halp)
+
+
 

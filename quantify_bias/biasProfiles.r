@@ -29,6 +29,21 @@ load.profile <- function(profile.txt, normalize=TRUE, method='zscore'){
   }
   }
 
+load.matrix <- function(mat.file.gz){
+  tab <- read.table(gzfile(mat.file.gz), skip = 1)
+  colnames(tab)[1:6] <- c('chr', 'start', 'end', 'id', 'len', 'strand')
+  tab <- tab %>% select(-c(chr,start,end,len, strand)) %>% 
+    melt(id.vars=c('id'), variable.name='position', value.name='coverage') %>%
+    group_by(id) %>% mutate(zscore=(coverage-mean(coverage, na.rm=T))/sd(coverage, na.rm=T)) %>%
+    ungroup() %>% 
+    group_by(position) %>% 
+    summarise(avg=mean(zscore, na.rm=T)) %>%
+    mutate(position=as.numeric(position))
+  return(tab$avg)
+  }
+
+
+
 make.df.of.profiles <- function(profiles){
   prof.df <- data.frame(profiles) %>%
     mutate(position = seq(1,n())) %>%
@@ -65,13 +80,18 @@ gg_color_hue <- function(n) {
   hcl(h = hues, l = 65, c = 100)[1:n]
 }
 
-plot.refpoint.profile.df <- function(df, center='CTCF sites'){
+plot.refpoint.profile.df <- function(df, center='CTCF sites', color='sample'){
   breaks <- seq(0,max(df$position), length.out = 3)
   print(breaks)
   names(breaks) <- c('-3kb', center, '+3kb')
-  p <-ggplot(df, aes(position,value, color=sample)) + 
-    theme_classic() +
-    geom_line(size=2) +
+  if (color=='score'){
+    p <-ggplot(df, aes(position,value, group=sample, color=score)) +
+      geom_line(size=2)
+  } else {
+    p <-ggplot(df, aes(position,value, color=sample)) +
+      geom_line(size=2) 
+  }
+  p <- p + theme_classic() +
     scale_x_continuous(breaks = breaks,
                        labels = names(breaks)) +
     xlab('Relative position') + ylab('normalized coverage') +
