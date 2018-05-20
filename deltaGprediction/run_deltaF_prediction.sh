@@ -16,7 +16,7 @@ refgen=$2
 fasta=$3
 type=$4
 sample=$(echo $bamfile | sed 's,/,\t,g' | awk '{gsub(/\..+/, ""); print $NF}')
-genome = $(echo $refgen | sed 's,/,\t,g' | awk '{print $NF}')
+genome=$(echo $refgen | sed 's,/,\t,g' | awk '{print $NF}')
 abundanceDir='/hpc/hub_oudenaarden/edann/hexamers/genome_kmers'
 abfile=${abundance_dir}/${genome}.kmerAbundance.csv
 
