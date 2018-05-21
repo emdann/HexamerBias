@@ -113,7 +113,7 @@ def get_strandspecific_template_bed(bamfile, trim=9, type='bs_se'):
 	'''
 	trim=trim
 	bed=[]
-	if type=='bs_se': # Define flags
+	if type=='bs_se' or type=='no_bs': # Define flags
 		plus=0
 		minus=16
 	if type=='bs_pe':

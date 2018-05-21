@@ -6,7 +6,7 @@ then
     echo "1) bamfile"
     echo "2) reference genome (mm10, hg38, danRer10, WBcel235)"
     echo "3) untrimmed fasta"
-    echo "4) type of mapping (bs_se or bs_pe)"
+    echo "4) type of mapping (bs_se or bs_pe or no_bs)"
     exit
 fi
 
@@ -21,11 +21,14 @@ abundance_dir='/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers'
 abfile=${abundance_dir}/${genome}.kmerAbundance.csv
 
 bin_dir=/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction
-
-echo "--- Step 1: get primed region --- "
-python ${bin_dir}/getPrimedRegion.py -o ./ -t $type -s $bamfile $refgen
+if [ -e ${sample}.primedreg.fa ]
+then
+    echo "Fasta of template regions found!"
+else
+  echo "--- Step 1: get primed region --- "
+  python ${bin_dir}/getPrimedRegion.py -o ./ -t $type -s $bamfile $refgen
 echo "--- Step 2: Make pt table --- "
-python ${bin_dir}/bsPrimerTemplTab.py $fasta ${sample}.primedreg.fa $abfile
+python ${bin_dir}/bsPrimerTemplTab.py -t $type $fasta ${sample}.primedreg.fa $abfile
 echo "--- Step 3: predict delta G --- "
 python ${bin_dir}/ptModel.py ${sample}.ptCounts.qualFilt.parallel.csv $abfile bs
 
