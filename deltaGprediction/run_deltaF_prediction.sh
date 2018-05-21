@@ -21,12 +21,15 @@ abundance_dir='/hpc/hub_oudenaarden/edann/hexamers/genomes_kmers'
 abfile=${abundance_dir}/${genome}.kmerAbundance.csv
 
 bin_dir=/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction
+
 if [ -e ${sample}.primedreg.fa ]
 then
     echo "Fasta of template regions found!"
 else
   echo "--- Step 1: get primed region --- "
   python ${bin_dir}/getPrimedRegion.py -o ./ -t $type -s $bamfile $refgen
+fi
+
 echo "--- Step 2: Make pt table --- "
 python ${bin_dir}/bsPrimerTemplTab.py -t $type $fasta ${sample}.primedreg.fa $abfile
 echo "--- Step 3: predict delta G --- "
