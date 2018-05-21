@@ -37,5 +37,5 @@ python ${bin_dir}/ptModel.py ${sample}.ptCounts.qualFilt.parallel.csv $abfile bs
 
 rm ${sample}.primedreg.fa
 rm ${sample}.primedreg.bed
-gzip ${sample}.ptCounts.qualFilt.parallel.csv
-gzip ${sample}_ptDg_qual.csv
+# gzip ${sample}.ptCounts.qualFilt.parallel.csv
+# gzip ${sample}_ptDg_qual.csv

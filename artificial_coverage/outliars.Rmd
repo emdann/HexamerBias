@@ -47,7 +47,7 @@ l.norm.smooth.common <- lapply(lon.norm.commo, smooth.coverage)
 ## Plotting genomic regions
 ```{r}
 test.bw <- sample(l.common.bw,1)[[1]]
-plot.expVSpred.coverage.track(test.bw)
+plot.expVSpred.coverage.track(smooth.coverage(normalize.coverage(test.bw)))
 ```
 
 ## Correlations and similarity
@@ -200,11 +200,11 @@ cov.cor.df <- merge(correlation, mean.df, by='id') %>%
 cov.cor.clean <- cov.cor.df %>% mutate(spear.group = cut(spear, breaks = c(-1,seq(0,1,by = 0.25)), include.lowest = TRUE)) 
 pval.df <- compare_means(mean.cov ~ spear.group, data=cov.cor.clean, method='t.test') %>%
   mutate(y.pos=6e-07)
-ggplot(cov.cor.clean, aes(y=mean.norm.cov, x=spear.group)) +
+ggplot(cov.cor.clean, aes(y=mean.cov, x=spear.group)) +
   geom_boxplot(varwidth = TRUE, 
                outlier.shape = NA, 
                fill=NA) +
-  coord_cartesian(ylim=c(0,1.4e-07)) +
+  coord_cartesian(ylim=c(-1,2)) +
   theme_classic() +
   xlab('Spearman corr. coefficient') + ylab('Mean normalized coverage') +
   theme(axis.title = element_text(size = 20), axis.text = element_text(size=10), title = element_text(size=22)) +
@@ -214,8 +214,9 @@ ggplot(cov.cor.clean, aes(y=mean.norm.cov, x=spear.group)) +
                                  levels(cov.cor.clean$spear.group)[c(3,4)]
                                  ), 
               test='t.test',
-              map_signif_level = TRUE, y_position = seq(1.1e-07, 1.4e-07, length.out = 4), tip_length = 0.001
-              ) 
+              map_signif_level = TRUE, y_position = seq(1.1, 1.7, length.out = 4), tip_length = 0.001
+              ) +
+  ggsave("~/AvOwork/output/artificial_coverage/outliers_coverage_highcov_zscore.pdf")
 ```
 # Is average methylation different in poorly correlated regions?
 I first to get the methylation fraction of each region 
@@ -397,6 +398,109 @@ boxplot(corr.onepreamp$pear, correlation$pear,varwidth=TRUE)
 1. I can explain a significant amount of the coverage profile by density of binding
 2. Fluctuations in correlations between predicted and experimental coverage are mainly driven by sampling errors (total coverage in the region). Maybe this has something to do with pre-amplification steps and I can check this in the one pre-amp samples.
 3. Differences in methylation do not seem to affect significantly the coverage profile (experimental or predicted one)
+
+
+### Trying Z-score normalization
+Normalization
+```{r}
+norm.common.bw <- normalize.coverage(common.bw)
+norm.common.bw <- add.id(norm.common.bw)
+```
+Splitting into GRanges lists for mapping functions
+```{r}
+l.common.bw <- split(common.bw, common.bw$id) 
+l.norm.common.bw <- split(norm.common.bw, norm.common.bw$id)
+lon.norm.commo <- l.norm.common.bw[sapply(l.norm.common.bw, length)==4999] ## Remove ranges of length 1 (something to fix in add.id)
+```
+Kernel smoothing of normalized coverage
+```{r}
+l.norm.smooth.common <- lapply(lon.norm.commo, smooth.coverage)
+```
+
+## Plotting genomic regions
+```{r}
+test.bw <- sample(l.norm.smooth.common,1)[[1]]
+plot.expVSpred.coverage.track(smooth.coverage(test.bw))
+plot.expVSpred.coverage.track(smooth.coverage(normalize.coverage(test.bw)))
+```
+Trying correlation normalizing over all regions
+```{r}
+spear <- sapply(l.norm.smooth.common, function(x) cor(x$score, x$pred, method='spearman'))
+pear <- sapply(l.norm.smooth.common, function(x) cor(x$score, x$pred))
+# cossim <- sapply(lon.norm.commo, function(x) cosine(x$score, x$pred))
+spear.rand <- sapply(l.norm.smooth.common, function(x) cor(sample(x$score), x$pred, method='spearman'))
+pear.rand <- sapply(l.norm.smooth.common, function(x) cor(sample(x$score), x$pred))
+correlation <- data.frame(cbind(spear, pear, spear.rand, pear.rand))
+correlation <- mutate(correlation, id=rownames(correlation))
+long.correlation <- reshape2::melt(correlation,id.vars=c('id'), value.name='coeff', variable.name='method') %>%
+  mutate(compare=ifelse(grepl(pattern = 'rand', x = method), 'random', 'real'),
+         corr.method=ifelse(grepl(pattern = 'spear', x = method), 'Spearman', 'Pearson'))
+ggplot(long.correlation, aes(corr.method,coeff, color=compare)) +
+  geom_boxplot() +
+  theme_classic()
+
+```
+
+Trying correlation normalizing each regions
+```{r}
+lon.commo <- l.common.bw[sapply(l.common.bw, length)==4999] ## Remove ranges of length 1 (something to fix in add.id)
+single.norm.common.bw <- lapply(lon.commo, function(x) smooth.coverage(normalize.coverage(x)))
+spear <- sapply(single.norm.common.bw, function(x) cor(x$score, x$pred, method='spearman'))
+pear <- sapply(single.norm.common.bw, function(x) cor(x$score, x$pred))
+# cossim <- sapply(lon.norm.commo, function(x) cosine(x$score, x$pred))
+spear.rand <- sapply(l.norm.smooth.common, function(x) cor(sample(x$score), x$pred, method='spearman'))
+pear.rand <- sapply(l.norm.smooth.common, function(x) cor(sample(x$score), x$pred))
+correlation <- data.frame(cbind(spear, pear, spear.rand, pear.rand))
+correlation <- mutate(correlation, id=rownames(correlation))
+long.correlation <- reshape2::melt(correlation,id.vars=c('id'), value.name='coeff', variable.name='method') %>%
+  mutate(compare=ifelse(grepl(pattern = 'rand', x = method), 'random', 'real'),
+         corr.method=ifelse(grepl(pattern = 'spear', x = method), 'Spearman', 'Pearson'))
+ggplot(long.correlation, aes(corr.method,coeff, color=compare)) +
+  geom_boxplot() +
+  theme_classic()
+
+## To show 
+long.correlation %>% 
+  filter(corr.method=='Spearman') %>%
+  mutate(compare=ifelse(compare=='real', 'Predicted\nVS\nExperimental', "Predicted\nVS\nRandom")) %>%
+  ggplot(., aes(compare, coeff)) +
+  geom_boxplot(alpha=0.2) +
+  theme_classic() +
+  ylab("Spearman corr. coefficient") +
+  xlab('') +
+  theme(axis.title = element_text(size = 30), 
+          axis.text = element_text(size=23), 
+          plot.title = element_text(size=30, hjust=0.5), 
+          legend.text=element_text(size=24),
+          legend.position = 'bottom',
+          legend.title = element_blank()) +
+  ggsave("~/AvOwork/output/artificial_coverage/Spear_realVSrandom.pdf")
+
+```
+It's the same. Good.
+But it looks much better when normalizing over one region! Cherry picking some nice plots
+```{r}
+lowspear.id <- correlation %>% filter(spear<0.5) %>% .$id
+smp <- l.norm.smooth.common[sample(lowspear.id,1)]
+p <- plot.expVSpred.coverage.track(smp[[1]])
+```
+
+Plotting ranked values for predicted (red) and experimental (black)
+```{r}
+filt.smooth <- l.norm.smooth.common[filter(correlation, spear>0.5)$id]
+filt.df <- do.call(rbind,lapply(sample(filt.smooth, 100), function(x) values(x)))
+smp <- filt.df[sample(seq_along(filt.df$score),8000),]
+as.data.frame(smp) %>% arrange(-score) %>%
+  arrange(-score) %>% mutate(rank.score=1:n()) %>% 
+  arrange(-pred) %>% mutate(rank.pred=1:n()) %>% 
+  ggplot(., aes(rank.score, score)) +
+    geom_point(aes(x=rank.score,y=pred), color='red') +
+    geom_point() +
+    ylab('Z-score') + xlab('Rank') 
+  
+```
+So maybe I was just normalizing the wrong way. Nice to see this.
+
 
 
 
