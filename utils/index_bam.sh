@@ -3,6 +3,7 @@
 bam=$1
 sample=$(echo $bam | awk '{gsub(/.bam/, ""); print}')
 path2samtools=/hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.4.1
+sort_order=$(${path2samtools}/samtools view -H $bam | head -1 | cut -f 3 )
 
 if [[ $sort_order =~ 'unsorted' ]] ;
 then
