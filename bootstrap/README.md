@@ -8,16 +8,16 @@ samtools cat crypts_bs/VAN1667/sorted_L*.bam > VAN1667.bam
 ```
 for f in $(seq 15 5 95);
   do
-  echo "/hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.4.1/samtools view -s 0.$f  -o VAN1667.$f.bam -@ 8 VAN1667.bam" |
+  echo "/hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.4.1/samtools view -s 0.$f  -o ${sample}_$f.bam -@ 8 ${sample}.bam" |
   qsubl -N subsmp.${f} -pe threaded 9;
   done
 ```
 
 3) Run DeltaF prediction on all subsamples
 ```
-for file in VAN1667_[123456789]*.bam;
+for file in *.bam;
   do
-  echo "/hpc/hub_oudenaarden/edann/bin/coverage_bias/run_deltaF_prediction.sh $file mouse VAN1667.fastq.gz" |
+  echo "/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction/run_deltaF_prediction.sh $file $refgen $fasta $type" |
   qsubl -N predDg_${file}; done
 ```
 

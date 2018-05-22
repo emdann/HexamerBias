@@ -12,7 +12,7 @@ for file in L*_R1.fastq.gz; do echo "/hpc/hub_oudenaarden/edann/bin/TrimGalore-0
 echo "/hpc/hub_oudenaarden/bin/software/bismark_v0.16.3/bismark --samtools_path /hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.3.1 --path_to_bowtie /hpc/hub_oudenaarden/bin/software/bowtie2-2.2.9 /hpc/hub_oudenaarden/avo/BS/mm10 $file" | qsub -cwd -N map_L1_R2 -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=50G -l h_cpu=1:00:00
 echo "/hpc/hub_oudenaarden/bin/software/bismark_v0.16.3/deduplicate_bismark --samtools_path /hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.3.1 -s --bam ${file}" | qsubl -N dedup
 
-/hpc/hub_oudenaarden/bin/software/bismark_v0.16.3/bismark_methylation_extractor --samtools_path /hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.3.1 -s --gzip --report --multicore 8 --cytosine_report  --genome_folder /hpc/hub_oudenaarden/avo/BS/mm10 $file
+/hpc/hub_oudenaarden/bin/software/bismark_v0.16.3/bismark_methylation_extractor --samtools_path /hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.3.1 -s --gzip --report --multicore 8 --cytosine_report  --genome_folder ${refgen_dir} $file
 ```
 Merge bam files
 ```
