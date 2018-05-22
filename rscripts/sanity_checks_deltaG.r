@@ -10,15 +10,25 @@ library(RColorBrewer)
 
 loadDgMatrix <- function(file, compression='gzip'){
   if (compression=='gzip') {
-    tab <- fread(paste('zcat',file), sep = ',', header=TRUE)
+    # tab <- fread(paste('zcat',file), sep = ',', header=TRUE)
+    tab <- read_csv(file) ## <---- WON'T KEEP ROWNAMES!
   }else{
     tab <- fread(file, sep = ',', header=TRUE) 
   }
-p <- as.matrix(tab[,-1])
-rownames(p)<- tab$V1
-logMat <- log(p)
-return(logMat)
+  p <- as.matrix(tab[,-1])
+  rownames(p)<- tab$V1
+  logMat <- log(p)
+  return(logMat)
   }
+
+make_pair_df <- function(dgMat){
+  pairDf <- dgMat %>% 
+    melt(value.name = 'dG') %>% 
+    mutate(ptPair=paste0(Var1,'.',Var2)) %>% 
+    select(ptPair, dG)
+  return(pairDf)
+}
+
 
 getDiag <- function(predDg){
   diag <- data.frame(predicted.deltaG = sapply(rownames(predDg), function(hex) predDg[hex,hex]))
