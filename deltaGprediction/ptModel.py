@@ -14,13 +14,13 @@ argparser.add_argument('cellabcsv', type=str, help='Kmer abundance file')
 argparser.add_argument('type', type=str, help='rna or bs')
 args = argparser.parse_args()
 
-def extract_deltaG(templateRow,tempAb):
+def extract_deltaG(templateRow,tempAb, totKmers, S):
     '''
     Extract predicted p*exp(DeltaG) for row of ptCount table (one template)
         templateRow: row of primer template counts for a certain template
         tempAb: genomic abundance of template
     '''
-    dg = templateRow/((tempAb - templateRow.values.sum())*0.00024) # Takes off primer concentration from the parameter
+    dg = (templateRow/S)/(((tempAb - templateRow.values.sum())/totKmers)*0.00024) # Takes off primer concentration from the parameter
     # dg[dg == - np.inf] = -9999
     return(dg)
 
@@ -32,16 +32,15 @@ def make_DgMat_per_cell(cellAb,ptMat,S):
         matrix of pt occurrencies,
         scaling factor (no. of reads)
     '''
-    # cellAb,ptMat,S = params
+    totTempl = cellAb.sum()
     dgMat=pd.DataFrame()
     for temp in cellAb.index:
         temprow = ptMat[ptMat.index==temp]
         temprow = temprow.fillna(0)
         tempAb=cellAb[temp]
-        dg = extract_deltaG(temprow,tempAb)
+        dg = extract_deltaG(temprow,tempAb, totTempl, S)
         dgMat = dgMat.append(dg)
-    dgMatScaled = dgMat/S
-    return(dgMatScaled)
+    return(dgMat)
 
 ptMatrix = args.ptmatrix
 # ptMatrix='ptCounts/SvdB11d1-MitoTrackerThird-Satellites-Adult.cell130.ptCounts.qualFilt.parallel.csv'
