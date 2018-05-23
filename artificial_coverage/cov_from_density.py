@@ -128,7 +128,10 @@ def make_BigWig_header(refgen):
         for entry in f:
             header.append((entry.name, len(entry.sequence)))
     def get_chr_num(chr):
-        return(chr.split('chr')[1])
+        if 'chr' in chr:
+            return(chr.split('chr')[1])
+        else:
+            return(chr)
     return(sorted(header, key=lambda x: get_chr_num(x[0])))
 
 def add_seq_to_bigWig(seq,chrom,start,density, bw_with_header, filename, strand='+',smoothFunction = 'kernel', threads=10):
