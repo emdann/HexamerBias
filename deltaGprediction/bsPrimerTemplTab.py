@@ -51,4 +51,4 @@ df = make_occurrencies_tbl(templDic)
 path = '/'.join(fasta.split('/')[:-1])
 sample = fasta.split('/')[-1].split('.')[0]
 df = fillNsortPTmatrix(df, tabAb)
-df.to_csv(path + sample + '.ptCounts.qualFilt.parallel.csv')
+df.to_csv(path + sample + '.ptCounts.qualFilt.csv')
