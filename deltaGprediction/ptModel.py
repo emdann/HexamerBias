@@ -71,5 +71,5 @@ if type=='bs':
     genomeAb = tabAb[1]
     ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
     dgMat = make_DgMat_per_cell(genomeAb, ptMat, ptMat.sum().sum())
-    path = '/'.join(ptMatrix.split('/')[:-1]) + "/"
+    path = '/'.join(ptMatrix.split('/')[:-1]) 
     dgMat.to_csv(path +sample +'_ptDg_qual' + args.suff + '.csv')
