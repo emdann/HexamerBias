@@ -12,6 +12,7 @@ argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHel
 argparser.add_argument('ptmatrix', type=str, help='ptCounts file')
 argparser.add_argument('cellabcsv', type=str, help='Kmer abundance file')
 argparser.add_argument('type', type=str, help='rna or bs')
+argparser.add_argument('--suff', type=str,default="", help='additional suffix to output name')
 args = argparser.parse_args()
 
 def extract_deltaG(templateRow,tempAb, totKmers, S):
@@ -71,4 +72,4 @@ if type=='bs':
     ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
     dgMat = make_DgMat_per_cell(genomeAb, ptMat, ptMat.sum().sum())
     path = '/'.join(ptMatrix.split('/')[:-1])
-    dgMat.to_csv(path + sample +'_ptDg_qual.csv')
+    dgMat.to_csv(path + sample +'_ptDg_qual' + args.suff + '.csv')
