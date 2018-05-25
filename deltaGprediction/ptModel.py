@@ -11,7 +11,7 @@ import os
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get matrix of predicted dg for primer-template complex \n By Emma Dann")
 argparser.add_argument('ptmatrix', type=str, help='ptCounts file')
 argparser.add_argument('cellabcsv', type=str, help='Kmer abundance file')
-argparser.add_argument('type', type=str, help='rna or bs')
+argparser.add_argument('--filt', type=int, default=0, help='filter out counts under filt')
 argparser.add_argument('--suff', type=str,default="", help='additional suffix to output name')
 args = argparser.parse_args()
 
@@ -43,33 +43,25 @@ def make_DgMat_per_cell(cellAb,ptMat,S):
         dgMat = dgMat.append(dg)
     return(dgMat)
 
+def filter_lowCounts(ptMat,t):
+    '''
+    Change to zero if pt count is less than t
+    '''
+    filtPtMat=ptMat.copy()
+    filtPtMat[filtPtMat<t]=0
+    return(filtPtMat)
+
 ptMatrix = args.ptmatrix
 # ptMatrix='ptCounts/SvdB11d1-MitoTrackerThird-Satellites-Adult.cell130.ptCounts.qualFilt.parallel.csv'
 cellAbundanceTab = args.cellabcsv
-type=args.type
+filt=args.filt
 
-# if type=='rna':
-#     sample = cellAbundanceTab.split('/')[-1].split('.cellAbundance')[0]
-#     cell = ptMatrix.split('/')[-1].split('.ptCounts')[0].split('cell')[-1]
-#     tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbundanceTab))
-#     cellAb = tabAb[cell]
-#     ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
-#
-#     dgMat = make_DgMat_per_cell((cellAb, ptMat))
-#
-#     path = '/'.join(cellAbundanceTab.split('/')[:-1])
-#     if path:
-#         outpath = path + '/predictedDg/'
-#     else:
-#         outpath = './predictedDg/'
-#
-#     dgMat.to_csv(outpath + sample + '_cell'+ cell +'_ptDg_qual.csv')
-
-if type=='bs':
-    sample = ptMatrix.split('/')[-1].split('.ptCounts')[0]
-    tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbundanceTab), header=None)
-    genomeAb = tabAb[1]
-    ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
-    dgMat = make_DgMat_per_cell(genomeAb, ptMat, ptMat.sum().sum())
-    path = '/'.join(ptMatrix.split('/')[:-1]) 
-    dgMat.to_csv(path +sample +'_ptDg_qual' + args.suff + '.csv')
+# if type=='bs':
+sample = ptMatrix.split('/')[-1].split('.ptCounts')[0]
+tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbundanceTab), header=None)
+genomeAb = tabAb[1]
+ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
+filtPtPat = filter_lowCounts(ptMat, filt)
+dgMat = make_DgMat_per_cell(genomeAb, filtPtMat, filtPtMat.sum().sum())
+path = '/'.join(ptMatrix.split('/')[:-1])
+dgMat.to_csv(path +sample +'_ptDg_qual' + args.suff + '.csv')

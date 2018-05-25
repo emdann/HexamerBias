@@ -33,7 +33,7 @@ fi
 echo "--- Step 2: Make pt table --- "
 python ${bin_dir}/bsPrimerTemplTab.py -t $type $fasta ${sample}.primedreg.fa $abfile
 echo "--- Step 3: predict delta G --- "
-python ${bin_dir}/ptModel.py ${sample}.ptCounts.qualFilt.parallel.csv $abfile bs
+python ${bin_dir}/ptModel.py ${sample}.ptCounts.qualFilt.csv $abfile 
 
 rm ${sample}.primedreg.fa
 rm ${sample}.primedreg.bed
