@@ -88,6 +88,7 @@ normalize.coverage <- function(bw){
 
 ## Trying to plot
 plot.expVSpred.coverage.track <- function(common.bw, met=NULL, plot=TRUE){
+  options(ucscChromosomeNames=FALSE)
   gtrack <- GenomeAxisTrack()
   chrom <- as.character(unique(common.bw@seqnames))
   start <- common.bw@ranges@start[1]
@@ -142,6 +143,11 @@ split.region <- function(gr, bps=100){
 smooth.coverage <- function(gr, bandwith=100){
   gr$score <- ksmooth(1:length(gr$score), gr$score, kernel='normal', bandwidth = 100)$y
   return(gr)
+}
+
+trim.edges <- function(gr, trim=100){
+  trimmed.gr <- gr[100:length(gr)-100,]
+  return(trimmed.gr)
 }
 
 adjust.prediction <- function(test.bw, plot=FALSE, lm.summary=FALSE){
