@@ -61,7 +61,7 @@ sample = ptMatrix.split('/')[-1].split('.ptCounts')[0]
 tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbundanceTab), header=None)
 genomeAb = tabAb[1]
 ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
-filtPtPat = filter_lowCounts(ptMat, filt)
+filtPtMat = filter_lowCounts(ptMat, filt)
 dgMat = make_DgMat_per_cell(genomeAb, filtPtMat, filtPtMat.sum().sum())
 path = '/'.join(ptMatrix.split('/')[:-1])
 dgMat.to_csv(path +sample +'_ptDg_qual' + args.suff + '.csv')
