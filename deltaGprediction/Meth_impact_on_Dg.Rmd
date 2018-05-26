@@ -1,0 +1,77 @@
+---
+title: "Impact of BS conversion on DeltaG"
+output: html_notebook
+---
+```{r}
+library(purrr)
+source('~/HexamerBias/rscripts/sanity_checks_deltaG.r')
+```
+
+```{r}
+human.noBS.Dg <- loadDgMatrix('~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-humanAPKS-noBS-1preAmp-handMix_lmerged_R1_ptDg_qual.csv', compression = 'none')
+human.noBS.pair <- make_pair_df(human.noBS.Dg)
+
+human.BS.Dg <- loadDgMatrix('~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-humanAPKS-withBS-1preAmp-handMix_lmerged_R1_trimmed_bismark_bt2_ptDg_qual.csv', compression = 'none')
+human.BS.pair <- make_pair_df(human.BS.Dg)
+```
+
+Check correlation of primer-template DeltaGs in common between BS converted and non-BS converted
+```{r}
+human.noBS.noinf <- filter(human.noBS.pair, !is.infinite(dG))
+human.BS.noinf <- filter(human.BS.pair, !is.infinite(dG))
+
+common.bs <- inner_join(celePair.noinf, cel.BS.noinf, by='ptPair', suffix=c('.noBS', '.BS'))
+common.diag.bs <- getDiag.pair(common.bs)
+
+gc.cont <- function(str){
+  nucs <- c("A", "C", "G", "T")
+  a <- table(strsplit(str, ''))
+  empty <- nucs[!nucs %in% names(a)]
+  full.a <- c(a, rep(0,length(empty)))
+  names(full.a) <- c(names(a), empty) 
+  gc.cont <- sum(full.a[c('G', 'C')])/sum(full.a)
+  return(gc.cont)
+  }
+
+common.diag.bs.gc <- common.diag.bs %>%
+  mutate(gc.cont=sapply(substr(ptPair,1,6), gc.cont)) 
+common.diag.bs.gc %>%
+  # filter(gc.cont==0) %>%
+ggplot(., aes(dG.noBS, dG.BS, color=gc.cont)) +
+  geom_point(alpha=0.6) +
+  scale_color_gradient2(midpoint = 0.5) 
+```
+
+Correlation of methylation between species
+```{r}
+zf.BS.Dg <- loadDgMatrix('~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-zfishTotal-withBS-1preAmp-handMix_lmerged_R1_trimmed_bismark_bt2_ptDg_qual.csv', compression = 'none')
+zf.BS.pair <- make_pair_df(zf.BS.Dg)
+
+cel.BS.Dg <- loadDgMatrix('~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-CeleTotal-withBS-1preAmp-handMix_lmerged_R1_trimmed_bismark_bt2_ptDg_qual.csv', compression = 'none')
+cel.BS.pair <- make_pair_df(cel.BS.Dg)
+```
+```{r}
+zf.BS.noinf <- filter(zf.BS.pair, !is.infinite(dG))
+cel.BS.noinf <- filter(cel.BS.pair, !is.infinite(dG))
+
+common <- inner_join(cel.BS.noinf, human.BS.noinf, by='ptPair', suffix=c('.BS.cel', '.BS.human'))
+common <- inner_join(common, zf.BS.noinf, by='ptPair')
+common <- rename(common, dG.BS.zf=dG)
+common.diag <- getDiag.pair(common)
+common.diag.gc <- common.diag %>%
+  mutate(gc.cont=sapply(substr(ptPair,1,6), gc.cont)) %>%
+  mutate(label=sapply(ptPair, function(pt) ifelse(grepl(pt, pattern = 'GC|CG'), 'wCG', 'noCG'))) 
+
+ggplot(common.diag.gc, aes(dG.BS.cel, dG.BS.zf, color=label)) +
+  geom_point(alpha=0.7)
+ggplot(common.diag.gc, aes(dG.BS.cel, dG.BS.human, color=label)) +
+  geom_point(alpha=0.7)
+ggplot(common.diag.gc, aes(dG.BS.human, dG.BS.zf, color=label)) +
+  geom_point(alpha=0.7)
+```
+So cool!!
+```{r}
+cor(common.diag.gc$dG.BS.cel, common.diag.gc$dG.BS.human)
+cor(common.diag.gc$dG.BS.cel, common.diag.gc$dG.BS.zf)
+cor(common.diag.gc$dG.BS.human, common.diag.gc$dG.BS.zf)
+```

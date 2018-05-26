@@ -353,7 +353,23 @@ plot.genes.profile.df(df)
 ggsave('~/AvOwork/output/DE_optimization/even_optimization.pdf')
 
 ```
-# Trying loading the whole matrix (halp)
 
+Make gif for optimization
+```{r}
+dir <- "/Users/user/mnt/edann/hexamers/DEoptimization/even_cov/"
+prob.mat <- read.csv(paste0(dir, 'test5_even_pop30_its200', '.DE.matrix.csv'), row.names = 1)
+long.prob.mat <- reshape.prob.mat(prob.mat)
+for (it in seq(1,200, by = 3)) {
+  plot.iteration(long.prob.mat, it)
+  ggsave(paste0("~/AvOwork/output/DE_optimization/opt_even2/DE_even_opt2_it",it,".png"))
+}
+```
 
+```{r}
+plot.optimization.score(paste0(dir, 'test2_even_pop30_its200', '.DE.rho.txt')) +
+  theme(legend.position="none") +
+  ggsave("~/AvOwork/output/DE_optimization/score_test2_even_pop30_its200.pdf")
+plot.iteration(long.prob.mat, 200)
+  ggsave(paste0("~/AvOwork/output/DE_optimization/DE_even_opt2_it",200,".pdf"))
+```
 

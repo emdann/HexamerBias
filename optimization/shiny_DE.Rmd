@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+library(shiny)
 source('~/HexamerBias/rscripts/DE_performance.r')
 ```
 

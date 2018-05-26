@@ -145,8 +145,8 @@ smooth.coverage <- function(gr, bandwith=100){
   return(gr)
 }
 
-trim.edges <- function(gr, trim=100){
-  trimmed.gr <- gr[100:length(gr)-100,]
+trim.edges <- function(gr, trim=200){
+  trimmed.gr <- gr[trim:length(gr)-100,]
   return(trimmed.gr)
 }
 

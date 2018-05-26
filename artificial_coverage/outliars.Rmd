@@ -459,7 +459,6 @@ ggplot(long.correlation, aes(corr.method,coeff, color=compare)) +
   geom_boxplot() +
   theme_classic()
 
-## To show 
 long.correlation %>% 
   filter(corr.method=='Spearman') %>%
   mutate(compare=ifelse(compare=='real', 'Predicted\nVS\nExperimental', "Predicted\nVS\nRandom")) %>%

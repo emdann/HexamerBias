@@ -35,6 +35,10 @@ getDiag <- function(predDg){
   return(diag)
   }
 
+getDiag.pair <- function(Dg.pair){
+  diag <- Dg.pair[substr(Dg.pair$ptPair,1,6)==substr(Dg.pair$ptPair,8,13),]
+  return(diag)
+}
 
 # ## Concordance of NN model and diagonal
 # predDg <- read.csv("~/mnt/edann/hexamers/strand_specific/VAN1667_se_ptDg_qual.csv", header = TRUE, row.names = 1)
