@@ -77,6 +77,9 @@ def save_intervals(seq,chrom,start,density, threads=10):
     return(intervals)
 
 ### Functions for strand specific artificial coverage
+def BS_conversion():
+
+
 def per_base_cov_read_extend(seq, density, start, readLength=0):
     '''
     Compute coverage for seq of interest based on template density
@@ -99,7 +102,7 @@ def reverse_strand_read_extend(seq, density, start, readLength=0):
         adjRevCov[revKeys[i]] = vals[i]
     return(adjRevCov)
 
-def sum_strands_per_base_cov(seq, density, start, readLength=0):
+def sum_strands_per_base_cov(seq, density, start, bs='no', readLength=0):
     plus = per_base_cov_read_extend(seq,density,start,readLength=readLength)
     minus = reverse_strand_read_extend(seq,density,start,readLength=readLength)
     strandSum = {}
@@ -108,13 +111,14 @@ def sum_strands_per_base_cov(seq, density, start, readLength=0):
     return(strandSum)
 
 def artificial_cov_bed_entry(params):
-    bedEntry,refgen_fasta,density,read_length=params
+    bedEntry,refgen_fasta,density,read_length,bs=params
     chr,start,end = bedEntry.split()
     print('Processing entry ', bedEntry, flush=True)
     seq = ps.FastaFile(refgen_fasta).fetch(reference=chr, start=int(start), end=int(end)).upper()
-    strandSpecificPosDic = sum_strands_per_base_cov(seq, density, int(start), readLength=read_length)
+    strandSpecificPosDic = sum_strands_per_base_cov(seq, density, int(start), bs=bs, readLength=read_length)
     smoothPosDic = kernel_smoothing(strandSpecificPosDic)
     return(chr,smoothPosDic)
+
 
 
 ### Functions to make BigWig ###

@@ -106,7 +106,7 @@ def get_template_fasta_pybedtools(bamfile, fi, outpath, type):
 	return(faout)
 
 ## ---- STRAND SPECIFIC TEMPLATES ----
-def get_strandspecific_template_bed(bamfile, trim=9, type='bs_se'):
+def get_strandspecific_template_bed(bamfile, trim=6, type='bs_se'):
 	'''
 	Extract positions of template regions for primers of aligned reads in bam (se mapped bismark).
 	For type = 'rna' extracts the first 6 bases of the aligned read

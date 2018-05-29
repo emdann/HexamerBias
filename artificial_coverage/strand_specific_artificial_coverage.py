@@ -8,19 +8,20 @@ argparser.add_argument('abfile', type=str, help='Csv file of kmer abundance on r
 argparser.add_argument('covfile', type=str, help='predicted coverage file (in .csv, template sequences in first column)')
 argparser.add_argument('bed', type=str, help='bed of regions OI')
 argparser.add_argument('refgen', type=str, help='Fasta file of reference genome')
+argparser.add_argument('--BS', type=str, default='no',help='BS conversion mode')
 argparser.add_argument('--output', type=str, default='bigWig',help='Format of output file: bedGraph or bigWig')
 argparser.add_argument('-t', type=int, default=10, required=False, help='Amount of threads to use.')
 # argparser.add_argument('--numReads', type=int, default=10, required=False, help='Amount of threads to use.')
 args = argparser.parse_args()
 
-def save_bw_read_extend(beds,refgen_fasta,density, outfile,readLength=10,threads=10):
+def save_bw_read_extend(beds,refgen_fasta,density, outfile,bs='no',readLength=10,threads=10):
     workers = multiprocessing.Pool(threads)
     bw = pbw.open(outfile, 'w')
     header=make_BigWig_header(refgen)
     chroms = [e[0] for e in header]
     bw.addHeader(header)
     intervals = []
-    for chrom,posDic in workers.imap_unordered(artificial_cov_bed_entry, [(bed, refgen_fasta, density, readLength) for bed in beds]):
+    for chrom,posDic in workers.imap_unordered(artificial_cov_bed_entry, [(bed, refgen_fasta, density, readLength,bs) for bed in beds]):
         intervals.extend([(chrom,pos,val) for pos,val in kernel_smoothing(posDic, sigma=20).items()])
     print('--- Saving BigWig ---', flush=True)
     for chrom in chroms:
@@ -36,6 +37,7 @@ covFile = args.covfile
 refgen = args.refgen
 bedFile = args.bed
 outtype = args.output
+bs=args.BS
 
 # Read files
 print('--- Reading input files ---', flush=True)
@@ -47,4 +49,4 @@ with open(bedFile, 'r') as f:
 # Compute artificial coverage
 print('--- Computing density ---', flush=True)
 density = template_density(coverage.exp,abundance)
-save_bw_read_extend(beds,refgen,density, bedFile.split('.bed')[0] + covFile.split('.csv')[0] + '.artCov.bw', readLength=75, threads=args.t)
+save_bw_read_extend(beds,refgen,density, bedFile.split('.bed')[0] + covFile.split('.csv')[0] + '.artCov.bw',bs=bs, readLength=75, threads=args.t)
