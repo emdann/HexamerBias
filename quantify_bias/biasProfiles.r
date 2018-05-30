@@ -54,7 +54,7 @@ make.df.of.profiles <- function(profiles){
 plot.genes.profile.df <- function(df, big.labels=FALSE){
   p <-ggplot(df, aes(position,value, color=sample)) + 
     theme_classic() +
-    geom_line(size=2) +
+    geom_line(size=2, alpha=0.5) +
     scale_x_continuous(breaks = c(0,300,800,1100), 
                        labels = c('0' = '-3kb', '300' = 'TSS', '800' = 'TES', '1100' = '+3kb')) +
     xlab('Relative position') + ylab('normalized coverage') +
@@ -86,10 +86,10 @@ plot.refpoint.profile.df <- function(df, center='CTCF sites', color='sample'){
   names(breaks) <- c('-3kb', center, '+3kb')
   if (color=='score'){
     p <-ggplot(df, aes(position,value, group=sample, color=score)) +
-      geom_line(size=2)
+      geom_line(size=2, alpha=0.5)
   } else {
     p <-ggplot(df, aes(position,value, color=sample)) +
-      geom_line(size=2) 
+      geom_line(size=2, alpha=0.5) 
   }
   p <- p + theme_classic() +
     scale_x_continuous(breaks = breaks,
@@ -104,102 +104,102 @@ plot.refpoint.profile.df <- function(df, center='CTCF sites', color='sample'){
           legend.position = "bottom")
   return(p)
 }
+# 
+# ### BS vs noBS
+# pbat.profile <- load.profile('~/mnt/edann/noPreAmp_crypts/PBAT_mm10.profile.txt')
+# noBS.profile <-load.profile('~/mnt/edann/noPreAmp_crypts/noBS_noChrUn.profile.txt')
+# 
+# df <- make.df.of.profiles(list(BS=pbat.profile, noBS = noBS.profile))
+# plot.genes.profile.df(df)
+# 
+# ## Purified vs non-purified
+# VAN1667.profile <- load.matrix("~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.mat.gz")
+# purified.profile <- load.profile("~/mnt/edann/hexamers/OUD2086prediction/10_R1.profile.txt")
+# pcc <- round(cor(VAN1667.profile, purified.profile), 3)
+# df <- make.df.of.profiles(list(non.purified=VAN1667.profile, purified=purified.profile))
+# plot.genes.profile.df(df, big.labels = TRUE) +
+#   annotate('text',x=900, y=5.9, label=paste('PCC =', pcc), size=15) +
+#   ylab('Coverage (Z-score)') +
+#   scale_color_discrete(labels=c('purified'='Std. extraction', 'non.purified'='Trizol extraction')) +
+#   # theme(legend.position = "bottom",
+#   #       plot.title = element_text(hjust = 0.5, size=33),
+#   #       ) +
+#   ggtitle('Impact of genome accessibility') +
+#   
+# ggsave('~/AvOwork/formatted_figs/accessibility_bias.png')
+# 
+# ## artificial coverage
+# artCov.prof <- load.matrix('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.mat.gz')
+# VAN1667.subsmp.prof <- load.matrix('~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.mat.gz')
+# pcc <- round(cor(artCov.prof, VAN1667.subsmp.prof), 3)
+# 
+# df <- make.df.of.profiles(list(experimental = VAN1667.subsmp.prof, predicted = artCov.prof ))
+# plot.genes.profile.df(df, big.labels = T) +
+#   annotate('text',x=800, y=2, label=paste('PCC =', pcc), size=10) +
+#   ylab('Coverage (Z-score)') 
+# ggsave("~/AvOwork/output/artificial_coverage/bias_artCovVSVAN1667subsmp_zscore.pdf")
+# 
+# ## Hand-mixed profiles
+# CP <- load.matrix("~/mnt/edann/crypts_bs/VAN2408/CP.srt.mat.gz")
+# MP <- load.matrix("~/mnt/edann/crypts_bs/VAN2408/MP.srt.mat.gz")
+# p <- plot.genes.profile.df(make.df.of.profiles(list(hand.mixed.CP = CP, hand.mixed.MP = MP)))
+# p + ylab('coverage (Z-score)')
+# ggsave("~/AvOwork/output/coverage_bias/hadMixVSmachineMix_covprofile_zscore.pdf")
 
-### BS vs noBS
-pbat.profile <- load.profile('~/mnt/edann/noPreAmp_crypts/PBAT_mm10.profile.txt')
-noBS.profile <-load.profile('~/mnt/edann/noPreAmp_crypts/noBS_noChrUn.profile.txt')
-
-df <- make.df.of.profiles(list(BS=pbat.profile, noBS = noBS.profile))
-plot.genes.profile.df(df)
-
-## Purified vs non-purified
-VAN1667.profile <- load.matrix("~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.mat.gz")
-purified.profile <- load.profile("~/mnt/edann/hexamers/OUD2086prediction/10_R1.profile.txt")
-pcc <- round(cor(VAN1667.profile, purified.profile), 3)
-df <- make.df.of.profiles(list(non.purified=VAN1667.profile, purified=purified.profile))
-plot.genes.profile.df(df, big.labels = TRUE) +
-  annotate('text',x=900, y=5.9, label=paste('PCC =', pcc), size=15) +
-  ylab('Coverage (Z-score)') +
-  scale_color_discrete(labels=c('purified'='Std. extraction', 'non.purified'='Trizol extraction')) +
-  # theme(legend.position = "bottom",
-  #       plot.title = element_text(hjust = 0.5, size=33),
-  #       ) +
-  ggtitle('Impact of genome accessibility') +
-  
-ggsave('~/AvOwork/formatted_figs/accessibility_bias.png')
-
-## artificial coverage
-artCov.prof <- load.matrix('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.mat.gz')
-VAN1667.subsmp.prof <- load.matrix('~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.mat.gz')
-pcc <- round(cor(artCov.prof, VAN1667.subsmp.prof), 3)
-
-df <- make.df.of.profiles(list(experimental = VAN1667.subsmp.prof, predicted = artCov.prof ))
-plot.genes.profile.df(df, big.labels = T) +
-  annotate('text',x=800, y=2, label=paste('PCC =', pcc), size=10) +
-  ylab('Coverage (Z-score)') 
-ggsave("~/AvOwork/output/artificial_coverage/bias_artCovVSVAN1667subsmp_zscore.pdf")
-
-## Hand-mixed profiles
-CP <- load.matrix("~/mnt/edann/crypts_bs/VAN2408/CP.srt.mat.gz")
-MP <- load.matrix("~/mnt/edann/crypts_bs/VAN2408/MP.srt.mat.gz")
-p <- plot.genes.profile.df(make.df.of.profiles(list(hand.mixed.CP = CP, hand.mixed.MP = MP, machine.mixed = VAN1667.profile))) 
-p + ylab('coverage (Z-score)') 
-ggsave("~/AvOwork/output/coverage_bias/hadMixVSmachineMix_covprofile_zscore.pdf")
-
-## Priming VS ligation
-# lig <- load.profile("~/mnt/edann/SRR1769256_chr1.profile.txt")
-lig <- load.matrix("~/mnt/edann/SRR1769256_chr1.mat.gz")
-# prim <- load.profile("~/mnt/edann/VAN1667.chr1.profile.txt")
-prim <- load.matrix("~/mnt/edann/VAN1667.chr1.profile.txt")
-pcc <- round(cor(lig, VAN1667.profile), 3)
-p <- plot.genes.profile.df(make.df.of.profiles(list(ligation=lig, priming=VAN1667.profile)), big.labels = T) +
-  ylab('coverage (Z-score)') 
-cols <- gg_color_hue(2)
-my.cols <- c(gg_color_hue(7)[7], cols[2])
-names(my.cols) <- unique(p$data$sample)
-p  +  annotate('text',x=900, y=1.5, label=paste('PCC =', pcc), size=15) +
-  # scale_color_manual(values=cols)
-  scale_color_manual(values =my.cols,
-                     labels=c('ligation'='Ligation\n(Farlik et al. 2014)', 
-                              'priming'='Random priming')) +
-  ggtitle('Impact of WGA method') 
-ggsave('~/AvOwork/formatted_figs/wga_bias.png')
-ggsave("~/AvOwork/output/coverage_bias/ligationVSpriming_covprofile_zscore.pdf")
-
-## Reference point profile (CTCF)
-CTCF.pred.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.CTCF.profile.txt')
-CTCF.pred.prop <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank200.coverage.artCov.CTCF.profile.txt')
-CTCF.exp <- load.profile('~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.CTCF.profile.txt')
-
-CTCF.df <- make.df.of.profiles(list(predicted.norm=CTCF.pred.norm,
-                                    predicted.prop=CTCF.pred.prop,  
-                                    experimental=CTCF.exp))
-                               
-p <- plot.refpoint.profile.df(CTCF.df)
-p + geom_vline(xintercept = 300, color='red') +
-  ylab('coverage (Z-score)') 
-ggsave("~/AvOwork/output/coverage_bias/CTCFsites_proportionalVSnormal_covprofile_zscore.pdf")
-
-## Smaller flank
-CTCF.pred.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.CTCF.profile.txt')
-CTCF.pred.prop <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank60.coverage.artCov.CTCF.profile.txt')
-CTCF.pred.propratio <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank60.ratio.coverage.artCov.CTCF.profile.txt')
-CTCF.exp <- load.profile('~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.CTCF.profile.txt')
-
-z.pred.norm <- (CTCF.pred.norm-mean(CTCF.pred.norm))/sd(CTCF.pred.norm)
-z.pred.prop <- (CTCF.pred.prop-mean(CTCF.pred.prop))/sd(CTCF.pred.prop)
-
-CTCF.df <- make.df.of.profiles(list(predicted.prop=CTCF.pred.prop,
-                                    predicted.prop.ratio=CTCF.pred.propratio,
-                                    experimental=CTCF.exp))
-
-plot.refpoint.profile.df(CTCF.df) +
-  geom_vline(xintercept = 300, color='red') +
-  ylab('coverage (Z-score)') +
-  scale_color_discrete(labels=c("density from kmer count", 'density from enriched kmers', 'experimental')) +
-  theme(legend.position = 'bottom') +
-  guides(color=guide_legend(nrow=2,byrow=TRUE)) 
-
-ggsave("~/AvOwork/output/coverage_bias/CTCFsites_propflank60VSnormal_covprofile_zscore.pdf")
-
-
+# ## Priming VS ligation
+# # lig <- load.profile("~/mnt/edann/SRR1769256_chr1.profile.txt")
+# lig <- load.matrix("~/mnt/edann/SRR1769256_chr1.mat.gz")
+# # prim <- load.profile("~/mnt/edann/VAN1667.chr1.profile.txt")
+# prim <- load.matrix("~/mnt/edann/VAN1667.chr1.profile.txt")
+# pcc <- round(cor(lig, VAN1667.profile), 3)
+# p <- plot.genes.profile.df(make.df.of.profiles(list(ligation=lig, priming=VAN1667.profile)), big.labels = T) +
+#   ylab('coverage (Z-score)') 
+# cols <- gg_color_hue(2)
+# my.cols <- c(gg_color_hue(7)[7], cols[2])
+# names(my.cols) <- unique(p$data$sample)
+# p  +  annotate('text',x=900, y=1.5, label=paste('PCC =', pcc), size=15) +
+#   # scale_color_manual(values=cols)
+#   scale_color_manual(values =my.cols,
+#                      labels=c('ligation'='Ligation\n(Farlik et al. 2014)', 
+#                               'priming'='Random priming')) +
+#   ggtitle('Impact of WGA method') 
+# ggsave('~/AvOwork/formatted_figs/wga_bias.png')
+# ggsave("~/AvOwork/output/coverage_bias/ligationVSpriming_covprofile_zscore.pdf")
+# 
+# ## Reference point profile (CTCF)
+# CTCF.pred.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.CTCF.profile.txt')
+# CTCF.pred.prop <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank200.coverage.artCov.CTCF.profile.txt')
+# CTCF.exp <- load.profile('~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.CTCF.profile.txt')
+# 
+# CTCF.df <- make.df.of.profiles(list(predicted.norm=CTCF.pred.norm,
+#                                     predicted.prop=CTCF.pred.prop,  
+#                                     experimental=CTCF.exp))
+#                                
+# p <- plot.refpoint.profile.df(CTCF.df)
+# p + geom_vline(xintercept = 300, color='red') +
+#   ylab('coverage (Z-score)') 
+# ggsave("~/AvOwork/output/coverage_bias/CTCFsites_proportionalVSnormal_covprofile_zscore.pdf")
+# 
+# ## Smaller flank
+# CTCF.pred.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.CTCF.profile.txt')
+# CTCF.pred.prop <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank60.coverage.artCov.CTCF.profile.txt')
+# CTCF.pred.propratio <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank60.ratio.coverage.artCov.CTCF.profile.txt')
+# CTCF.exp <- load.profile('~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.CTCF.profile.txt')
+# 
+# z.pred.norm <- (CTCF.pred.norm-mean(CTCF.pred.norm))/sd(CTCF.pred.norm)
+# z.pred.prop <- (CTCF.pred.prop-mean(CTCF.pred.prop))/sd(CTCF.pred.prop)
+# 
+# CTCF.df <- make.df.of.profiles(list(predicted.prop=CTCF.pred.prop,
+#                                     predicted.prop.ratio=CTCF.pred.propratio,
+#                                     experimental=CTCF.exp))
+# 
+# plot.refpoint.profile.df(CTCF.df) +
+#   geom_vline(xintercept = 300, color='red') +
+#   ylab('coverage (Z-score)') +
+#   scale_color_discrete(labels=c("density from kmer count", 'density from enriched kmers', 'experimental')) +
+#   theme(legend.position = 'bottom') +
+#   guides(color=guide_legend(nrow=2,byrow=TRUE)) 
+# 
+# ggsave("~/AvOwork/output/coverage_bias/CTCFsites_propflank60VSnormal_covprofile_zscore.pdf")
+# 
+# 

@@ -1,4 +1,6 @@
 from hexVSprimed import *
+sys.path.insert(0,'/hpc/hub_oudenaarden/edann/bin/coverage_bias/optimization')
+from primerProbability import *
 import pysam as ps
 import collections
 import argparse
@@ -11,6 +13,7 @@ import os
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Get matrix of predicted dg for primer-template complex \n By Emma Dann")
 argparser.add_argument('ptmatrix', type=str, help='ptCounts file')
 argparser.add_argument('cellabcsv', type=str, help='Kmer abundance file')
+argparser.add_argument('--ppm', type=str, default=None, help='ppm of primer composition')
 argparser.add_argument('--filt', type=int, default=0, help='filter out counts under filt')
 argparser.add_argument('--suff', type=str,default="", help='additional suffix to output name')
 args = argparser.parse_args()
@@ -21,11 +24,31 @@ def extract_deltaG(templateRow,tempAb, totKmers, S):
         templateRow: row of primer template counts for a certain template
         tempAb: genomic abundance of template
     '''
-    dg = (templateRow/S)/(((tempAb - templateRow.values.sum())/totKmers)*0.00024) # Takes off primer concentration from the parameter
+    dg = (templateRow/S)/(((tempAb - templateRow.values.sum())/totKmers))
     # dg[dg == - np.inf] = -9999
     return(dg)
 
-def make_DgMat_per_cell(cellAb,ptMat,S):
+# def extract_deltaG_primer_conc(templateRow,tempAb, totKmers, primer_prob,S):
+#     '''
+#     Extract predicted p*exp(DeltaG) for row of ptCount table (one template)
+#         templateRow: row of primer template counts for a certain template
+#         tempAb: genomic abundance of template
+#     '''
+#     dg = (templateRow/S)/(((tempAb - templateRow.values.sum())/totKmers)) # Takes off primer concentration from the parameter
+#     probDg  = pd.DataFrame(pd.concat([dg.T, 1/primerProb], axis=1).apply(np.prod, axis=1), columns=[templateRow.index]).T
+#     # dg[dg == - np.inf] = -9999
+#     return(probDg)
+
+# prob={'A':[0.25,0.25,0.25,0.25,0.25,0.25],'T':[0.45,0.45,0.45,0.45,0.45,0.45], 'C':[0.25,0.25,0.25,0.25,0.25,0.25], 'G':[0.05,0.05,0.05,0.05,0.05,0.05]}
+# ppm = pd.DataFrame(prob).T
+# primerProb = prob_from_ppm(ppm, all_hexamers())
+
+def mul_primer_prob(dg,primerProb):
+    pp = primerProb.iloc[:,0][dg.columns]
+    dgWpp = dg.mul(pp)
+    return(dgWpp)
+
+def make_DgMat_per_cell(cellAb,ptMat,S, wPrimer=False, primerProb=None):
     '''
     Make matrix of predicted dg for p-t couples, scaled by tot number of reads
     Input:
@@ -41,7 +64,11 @@ def make_DgMat_per_cell(cellAb,ptMat,S):
         tempAb=cellAb[temp]
         dg = extract_deltaG(temprow,tempAb, totTempl, S)
         dgMat = dgMat.append(dg)
-    return(dgMat)
+    if wPrimer:
+        dgWpp = mul_primer_prob(dg,primerProb)
+    else:
+        dgWpp = dg*0.000244
+    return(dgWpp)
 
 def filter_lowCounts(ptMat,t):
     '''
@@ -55,6 +82,9 @@ ptMatrix = args.ptmatrix
 # ptMatrix='ptCounts/SvdB11d1-MitoTrackerThird-Satellites-Adult.cell130.ptCounts.qualFilt.parallel.csv'
 cellAbundanceTab = args.cellabcsv
 filt=args.filt
+ppm=args.ppm
+if ppm:
+    wPrimer=True
 
 # if type=='bs':
 sample = ptMatrix.split('/')[-1].split('.ptCounts')[0]
@@ -62,6 +92,6 @@ tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbu
 genomeAb = tabAb[1]
 ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
 filtPtMat = filter_lowCounts(ptMat, filt)
-dgMat = make_DgMat_per_cell(genomeAb, filtPtMat, filtPtMat.sum().sum())
+dgMat = make_DgMat_per_cell(genomeAb, filtPtMat, filtPtMat.sum().sum(), wPrimer=wPrimer, primerProb=ppm)
 path = '/'.join(ptMatrix.split('/')[:-1])
 dgMat.to_csv(path +sample +'_ptDg_qual' + args.suff + '.csv')
