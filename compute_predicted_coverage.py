@@ -28,13 +28,15 @@ if ppmFile:
     ppm2 = pd.read_csv(ppmFile, index_col=0)
     ppm2.columns = [int(i) for i in ppm2.columns]   # Make the colnames integers for the calling in prob_from_ppm
     ppm = ppm2.loc[['A','T', 'C', 'G'],:]   # Right order of base pairs
+    ppmName= ppmFile.rstrip(".csv")
 else:
     prob_vec = np.array([[0.25,0.25,0.25, 0.25, 0.25, 0.25],
                 [0.25,0.25,0.25, 0.25, 0.25, 0.25],
                 [0.25,0.25,0.25, 0.25, 0.25, 0.25],
                 [0.25,0.25,0.25, 0.25, 0.25, 0.25]  ])
     ppm = from_vec_to_ppm(prob_vec)
+    ppmName = 'R_ppm'
 
 primer_prob = prob_from_ppm(ppm, all_hexamers())
 coverage = predictCoverage_setProbs(dgMat, abundance[1], primer_prob)
-coverage.to_csv(deltaGfile.rstrip('_ptDg_qual.csv') + '_' + ppmFile.rstrip(".csv") + '.predcoverage.csv')
+coverage.to_csv(deltaGfile.rstrip('_ptDg_qual.csv') + '_' +ppmName + '.predcoverage.csv')
