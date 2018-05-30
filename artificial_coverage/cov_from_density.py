@@ -77,9 +77,6 @@ def save_intervals(seq,chrom,start,density, threads=10):
     return(intervals)
 
 ### Functions for strand specific artificial coverage
-def BS_conversion():
-
-
 def per_base_cov_read_extend(seq, density, start, readLength=0):
     '''
     Compute coverage for seq of interest based on template density
