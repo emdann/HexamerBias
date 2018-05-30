@@ -25,7 +25,9 @@ abundance = pd.read_csv(abundanceFile, index_col=0, compression=findCompr(abunda
 
 
 if ppmFile:
-    ppm = pd.read_csv(ppmFile, index_col=0)
+    ppm2 = pd.read_csv(ppmFile, index_col=0)
+    ppm2.columns = [int(i) for i in ppm2.columns]   # Make the colnames integers for the calling in prob_from_ppm
+    ppm = ppm2.loc[['A','T', 'C', 'G'],:]   # Right order of base pairs
 else:
     prob_vec = np.array([[0.25,0.25,0.25, 0.25, 0.25, 0.25],
                 [0.25,0.25,0.25, 0.25, 0.25, 0.25],
