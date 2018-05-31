@@ -142,8 +142,8 @@ plot.refpoint.profile.df <- function(df, center='CTCF sites', color='sample'){
 # ## Hand-mixed profiles
 # CP <- load.matrix("~/mnt/edann/crypts_bs/VAN2408/CP.srt.mat.gz")
 # MP <- load.matrix("~/mnt/edann/crypts_bs/VAN2408/MP.srt.mat.gz")
-# p <- plot.genes.profile.df(make.df.of.profiles(list(hand.mixed.CP = CP, hand.mixed.MP = MP)))
-# p + ylab('coverage (Z-score)')
+p <- plot.genes.profile.df(make.df.of.profiles(list(hand.mixed.CP = CP, hand.mixed.MP = MP)))
+p + ylab('coverage (Z-score)')
 # ggsave("~/AvOwork/output/coverage_bias/hadMixVSmachineMix_covprofile_zscore.pdf")
 
 # ## Priming VS ligation

@@ -39,13 +39,11 @@ def extract_deltaG(templateRow,tempAb, totKmers, S):
 #     # dg[dg == - np.inf] = -9999
 #     return(probDg)
 
-# prob={'A':[0.25,0.25,0.25,0.25,0.25,0.25],'T':[0.45,0.45,0.45,0.45,0.45,0.45], 'C':[0.25,0.25,0.25,0.25,0.25,0.25], 'G':[0.05,0.05,0.05,0.05,0.05,0.05]}
-# ppm = pd.DataFrame(prob).T
-# primerProb = prob_from_ppm(ppm, all_hexamers())
+
 
 def mul_primer_prob(dg,primerProb):
     pp = primerProb.iloc[:,0][dg.columns]
-    dgWpp = dg.mul(pp)
+    dgWpp = dg.mul(pp) ## <--- WRONG!!! Divide
     return(dgWpp)
 
 def make_DgMat_per_cell(cellAb,ptMat,S, wPrimer=False, primerProb=None):
@@ -67,7 +65,7 @@ def make_DgMat_per_cell(cellAb,ptMat,S, wPrimer=False, primerProb=None):
     if wPrimer:
         dgWpp = mul_primer_prob(dg,primerProb)
     else:
-        dgWpp = dg*0.000244
+        dgWpp = dg/0.000244
     return(dgWpp)
 
 def filter_lowCounts(ptMat,t):
@@ -82,8 +80,8 @@ ptMatrix = args.ptmatrix
 # ptMatrix='ptCounts/SvdB11d1-MitoTrackerThird-Satellites-Adult.cell130.ptCounts.qualFilt.parallel.csv'
 cellAbundanceTab = args.cellabcsv
 filt=args.filt
-ppm=args.ppm
-if ppm:
+ppmFile = args.ppm
+if ppmFile:
     wPrimer=True
 
 # if type=='bs':
@@ -92,6 +90,11 @@ tabAb = pd.read_csv(cellAbundanceTab, index_col=0, compression=findCompr(cellAbu
 genomeAb = tabAb[1]
 ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
 filtPtMat = filter_lowCounts(ptMat, filt)
-dgMat = make_DgMat_per_cell(genomeAb, filtPtMat, filtPtMat.sum().sum(), wPrimer=wPrimer, primerProb=ppm)
+
+ppm = pd.read_csv(ppmFile, index_col=0)
+# prob={'A':[0.25,0.25,0.25,0.25,0.25,0.25],'T':[0.05,0.05,0.05,0.05,0.05,0.05], 'C':[0.25,0.25,0.25,0.25,0.25,0.25], 'G':[0.45,0.45,0.45,0.45,0.45,0.45]}
+# ppm = pd.DataFrame(prob).T
+
+dgMat = make_DgMat_per_cell(genomeAb, filtPtMat, filtPtMat.sum().sum(), wPrimer=wPrimer, primerProb=prob_from_ppm(ppm, all_hexamers()))
 path = '/'.join(ptMatrix.split('/')[:-1])
 dgMat.to_csv(path +sample +'_ptDg_qual' + args.suff + '.csv')
