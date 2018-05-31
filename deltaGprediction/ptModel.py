@@ -40,11 +40,9 @@ def extract_deltaG(templateRow,tempAb, totKmers, S):
 #     # dg[dg == - np.inf] = -9999
 #     return(probDg)
 
-
-
-def mul_primer_prob(dg,primerProb):
+def divide_primer_prob(dg,primerProb):
     pp = primerProb.iloc[:,0][dg.columns]
-    dgWpp = dg.mul(pp) ## <--- WRONG!!! Divide
+    dgWpp = dg.divide(pp)
     return(dgWpp)
 
 def make_DgMat_per_cell(cellAb,ptMat,S, wPrimer=False, primerProb=None):
@@ -64,7 +62,7 @@ def make_DgMat_per_cell(cellAb,ptMat,S, wPrimer=False, primerProb=None):
         dg = extract_deltaG(temprow,tempAb, totTempl, S)
         dgMat = dgMat.append(dg)
     if wPrimer:
-        dgWpp = mul_primer_prob(dgMat,primerProb)
+        dgWpp = divide_primer_prob(dgMat,primerProb)
     else:
         dgWpp = dgMat/0.000244
     return(dgMat)
