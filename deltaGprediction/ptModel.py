@@ -1,4 +1,5 @@
 from hexVSprimed import *
+import sys
 sys.path.insert(0,'/hpc/hub_oudenaarden/edann/bin/coverage_bias/optimization')
 from primerProbability import *
 import pysam as ps
@@ -63,10 +64,10 @@ def make_DgMat_per_cell(cellAb,ptMat,S, wPrimer=False, primerProb=None):
         dg = extract_deltaG(temprow,tempAb, totTempl, S)
         dgMat = dgMat.append(dg)
     if wPrimer:
-        dgWpp = mul_primer_prob(dg,primerProb)
+        dgWpp = mul_primer_prob(dgMat,primerProb)
     else:
-        dgWpp = dg/0.000244
-    return(dgWpp)
+        dgWpp = dgMat/0.000244
+    return(dgMat)
 
 def filter_lowCounts(ptMat,t):
     '''
@@ -91,10 +92,12 @@ genomeAb = tabAb[1]
 ptMat = pd.read_csv(ptMatrix, compression=findCompr(ptMatrix), index_col=0)
 filtPtMat = filter_lowCounts(ptMat, filt)
 
-ppm = pd.read_csv(ppmFile, index_col=0)
+ppm = pd.read_csv(ppmFile, index_col=0, compression=findCompr(ppmFile))
 # prob={'A':[0.25,0.25,0.25,0.25,0.25,0.25],'T':[0.05,0.05,0.05,0.05,0.05,0.05], 'C':[0.25,0.25,0.25,0.25,0.25,0.25], 'G':[0.45,0.45,0.45,0.45,0.45,0.45]}
 # ppm = pd.DataFrame(prob).T
+ppm.columns = [int(i) for i in ppm.columns]   # Make the colnames integers for the calling in prob_from_ppm
+ppm = ppm.loc[['A','T', 'C', 'G'],:]
 
-dgMat = make_DgMat_per_cell(genomeAb, filtPtMat, filtPtMat.sum().sum(), wPrimer=wPrimer, primerProb=prob_from_ppm(ppm, all_hexamers()))
+dgMat = make_DgMat_per_cell(genomeAb, filtPtMat, filtPtMat.sum().sum(), wPrimer=wPrimer, primerProb=prob_from_ppm(ppm, all_hexamers()).loc[ptMat.columns])
 path = '/'.join(ptMatrix.split('/')[:-1])
 dgMat.to_csv(path +sample +'_ptDg_qual' + args.suff + '.csv')
