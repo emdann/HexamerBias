@@ -77,3 +77,7 @@ fi
 # echo "---- Deduplicating! ----"
 echo "${path_2_bismark}/deduplicate_bismark --samtools_path ${path_2_samtools} -s --bam ${sample}_trimmed_bismark_bt2.bam" | \
     qsub -cwd -N dedup_${sample} -l h_rt=10:00:00 -l h_vmem=20G -l h_cpu=1:00:00 # -hold_jid map_${sample}
+
+
+## Optional: methylation extractaction
+echo "${path_2_bismark}/bismark_methylation_extractor --samtools_path ${path_2_samtools} -s --gzip --report --multicore 8 --comprehensive --merge_non_CpG --bedGraph -o . --genome_folder $refgen_dir $bam"

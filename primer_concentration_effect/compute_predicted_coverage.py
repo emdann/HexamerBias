@@ -37,6 +37,6 @@ else:
     ppm = from_vec_to_ppm(prob_vec)
     ppmName = 'R_ppm'
 
-primer_prob = prob_from_ppm(ppm, all_hexamers())
+primer_prob = prob_from_ppm(ppm, all_hexamers()).loc[dgMat.columns]
 coverage = predictCoverage_setProbs(dgMat, abundance[1], primer_prob)
 coverage.to_csv(deltaGfile.rstrip('_ptDg_qual.csv') + '_' +ppmName + '.predcoverage.csv')

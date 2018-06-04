@@ -28,14 +28,14 @@ def make_deltaG_tab(dir, filename=''):
     '''
 files = [el for el in os.listdir() if 'ptDg' in el]
 totDiagDf = pd.DataFrame(columns=['hex'])
-for f in files:
-sample = f.split('.')[0]
-dgMat = pd.read_csv(f, compression=findCompr(f), index_col=0)
-diag={}
-for temp in dgMat.iterrows():
-    diag[temp[0]]=temp[1][temp[0]]
-    diagDf = pd.DataFrame(list(diag.items()), columns=['hex',sample])
-    totDiagDf = pd.merge(totDiagDf , diagDf, on='hex', how='outer')
+for f in ['../'+f for f in files]:
+    sample = f.split('.')[0]
+    dgMat = pd.read_csv(f, compression=findCompr(f), index_col=0)
+    diag={}
+    for temp in dgMat.iterrows():
+        diag[temp[0]]=temp[1][temp[0]]
+        diagDf = pd.DataFrame(list(diag.items()), columns=['hex',sample])
+        totDiagDf = pd.merge(totDiagDf , diagDf, on='hex', how='outer')
 if filename:
     totDiagDf.to_csv(filename)
     return(totDiagDf)
