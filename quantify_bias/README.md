@@ -31,3 +31,18 @@ zcat ${sample}.mat.gz  |
 
 ## Comparison with non-PBAT BS-seq
 The best I could find now is the data from the scWGBS protocol (Farlik et al. 2014). Downloaded from https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE65196
+
+## Example on how to use the biasProfiles.r functions to make a profile
+From the make profile you will get a ```sample.mat.gz``` file.
+
+In R:
+```
+profile.smp1 <- load.matrix('~/path/to/file/sample1.mat.gz')
+profile.smp2 <- load.matrix('~/path/to/file/sample2.mat.gz')
+
+df <- make.df.of.profiles(list(label_4_smp1 = profile.smp2, label_4_smp2 = profile.smp2 ))
+plot.refpoint.profile.df(df, center='the name for the center', color='the label for the legend')
+
+```
+
+NB: the profiles are normalized as Z-scores!!
