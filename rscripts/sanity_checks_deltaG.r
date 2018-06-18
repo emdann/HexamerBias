@@ -25,7 +25,7 @@ make_pair_df <- function(dgMat){
   pairDf <- dgMat %>% 
     melt(value.name = 'dG') %>% 
     mutate(ptPair=paste0(Var1,'.',Var2)) %>% 
-    select(ptPair, dG)
+    dplyr::select(ptPair, dG)
   return(pairDf)
 }
 

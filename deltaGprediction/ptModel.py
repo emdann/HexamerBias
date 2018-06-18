@@ -82,6 +82,8 @@ filt=args.filt
 ppmFile = args.ppm
 if ppmFile:
     wPrimer=True
+else:
+    wPrimer=False
 
 # if type=='bs':
 sample = ptMatrix.split('/')[-1].split('.ptCounts')[0]

@@ -98,25 +98,118 @@ handMixed.df %>% mutate(label = ifelse(CM > 0.005 | MD > 0.005, as.character(pri
 ggsave('~/AvOwork/handMixed_primer_usage.pdf')
 
 ## My BS data
-BS <- loadPtMatrix("~/mnt/edann/noPreAmp_crypts/CG-pbat-1xPA-gDNA-crypts_lmerged_R1_val_1_bismark_bt2_pe.ptCounts.qualFilt.parallel.csv", compression = 'no')
-pt.BS <- BS
+cele.noBS <- loadPtMatrix("~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-CeleTotal-noBS-1preAmp-handMix_lmerged_R1.ptCounts.qualFilt.csv", compression = 'no')
+zf.noBS <- loadPtMatrix("~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-zfishTotal-noBS-1preAmp-handMix_lmerged_R1.ptCounts.qualFilt.csv", compression = 'no')
 
-BS.primer.usage <- make.hex.usage.df(pt.BS, type="primer", scale=TRUE)
+cele.primer.usage <- make.hex.usage.df(cele.noBS, type="primer", scale=TRUE)
+zf.primer.usage <- make.hex.usage.df(zf.noBS, type="primer", scale=TRUE)
 
-merge(BS.primer.usage, MD.primer.usage, by='primer') %>%
-  mutate(label = ifelse(BS > 0.005 | MD > 0.005, as.character(primer),'')) %>%
-  ggplot(., aes(BS, MD, label=label)) + 
+cele.template.usage <- make.hex.usage.df(cele.noBS, type="template", scale=TRUE)
+cele.abs.template.usage <- make.hex.usage.df(cele.noBS, type="template", scale=F)
+zf.template.usage <- make.hex.usage.df(zf.noBS, type="template", scale=T)
+zf.abs.template.usage <- make.hex.usage.df(zf.noBS, type="template", scale=F)
+
+merge(cele.template.usage, zf.template.usage, by='template') %>%
+  mutate(label = ifelse(cele.noBS > 0.002 | zf.noBS > 0.003, as.character(template),'')) %>%
+  ggplot(., aes(cele.noBS, zf.noBS, label=label)) + 
   theme_classic() +
   geom_point() +
   geom_text_repel() +
   theme(axis.title = element_text(size = 22), 
         axis.text = element_text(size=14)) +
-  xlab('BS_Emma') + ylab('VAN2408_MD1')
+  xlab('C.elegans primer usage') + ylab('D.rerio primer usage') +
+  geom_abline(intercept=0, slope=1, color='red') + 
+  ggsave("~/AvOwork/output/MyData/template_usage_celVSzf_noBS.pdf")
 
-ggsave("~/AvOwork/handMixed_primer_usage_meVSanna.pdf")
 
 ### Compare with total kmer abundance
-abundance <- read.csv(gzfile('~/mnt/edann/hexamers/VAN1667prediction/mm10.cellAbundance.noN.csv.gz'), row.names=1, header=FALSE)
-abundance <- abundance %>% mutate(template=rownames(abundance))
-ab.primer.df <- base::merge(abundance,primer.usage.df, by='primer')
-ab.template.df <- base::merge(abundance,template.usage.df, by='template')
+cele.abundance <- read_csv("~/mnt/edann/hexamers/genomes_kmers/WBcel235.kmerAbundance.csv", col_names=FALSE)
+colnames(cele.abundance) <- c('hex', 'abundance')
+
+
+zf.abundance %>% 
+  rename(template=hex) %>% 
+  inner_join(., zf.template.usage, by='template') %>% 
+  ggplot(., aes(abundance, zf.noBS)) + 
+  geom_point(alpha=0.2) + 
+  theme_classic() + 
+  ylab('template usage') + xlab('template abundance') +
+  theme(axis.title = element_text(size = 25), 
+        axis.text = element_text(size=20))
+ggsave('~/AvOwork/output/MyData/abVStemplate_zf.pdf')
+
+zf.abundance %>% 
+  rename(template=hex) %>% 
+  inner_join(., zf.abs.template.usage, by='template') %>% 
+  ggplot(., aes(abundance, zf.noBS)) + 
+  geom_point(alpha=0.2) + 
+  theme_classic() + 
+  ylab('template usage') + xlab('template abundance') +
+  theme(axis.title = element_text(size = 25), 
+        axis.text = element_text(size=20)) +
+  coord_cartesian(xlim=c(0,1000000), ylim=c(0,20000))
+
+cele.abundance %>% 
+  rename(template=hex) %>% 
+  inner_join(., cele.abs.template.usage, by='template') %>% 
+  ggplot(., aes(abundance, cele.noBS)) + 
+  geom_point(alpha=0.2) + 
+  theme_classic() + 
+  ylab('template usage') + xlab('template abundance') +
+  theme(axis.title = element_text(size = 25), 
+        axis.text = element_text(size=20)) +
+  coord_cartesian(xlim=c(0,200000), ylim=c(0,20000))
+
+## Try again original model
+tabDg <- read.delim(gzfile("~/mnt/edann/hexamers/rand_hex_deltaG_ions.txt.gz"), sep=' ', header = FALSE, col.names=c('template', 'dG'))
+
+zf.noBS.pair <- make_pair_df(zf.noBS)
+zf.diag <- getDiag.pair(zf.noBS.pair)
+
+zf.ab <- zf.abundance %>% 
+  rename(template=hex) %>% 
+  inner_join(., zf.abs.template.usage, by='template') %>%
+  inner_join(., tabDg, by='template') 
+
+zf.ab %>%
+  filter(zf.noBS>500) %>%
+  ggplot(., aes(dG, log(zf.noBS/abundance))) +
+  geom_point(alpha=0.3)
+
+zf.df <- zf.diag %>%
+  mutate(hex=substr(ptPair,1,6)) %>%
+  inner_join(., zf.abundance, by='hex') %>%
+  rename(template=hex, cov=dG) %>%
+  inner_join(., tabDg, by='template') 
+
+zf.df %>%
+  filter(cov>250) %>%
+  ggplot(., aes(dG, log(cov/abundance))) +
+  geom_point(alpha=0.3) +
+  xlab('Delta G NN') + ylab('log(pt/T)') +
+  ggtitle('Filtering pt < 250') +
+  theme(axis.text = element_text(size=20),
+      axis.title = element_text(size=24),
+      title=element_text(size=28))
+
+ggsave("~/AvOwork/output/MyData/model_fitting_zf_noBS_diag")
+
+
+cors<-c()
+for (n in seq(100,1900, by = 100)) {
+  # print(n)
+  pcc <- with(filter(zf.df, cov>n ),
+       cor(dG,log(cov/abundance), use='pairwise.complete.obs'))
+  cors <- c(cors, pcc)
+}
+plot(seq(100,1900,by=100), cors, type='b', ylim=c(0,-1))
+
+cors.tot<-c()
+for (n in seq(100,1900, by = 100)) {
+  # print(n)
+  pcc <- with(filter(zf.ab, zf.noBS>n ),
+              cor(dG,log(zf.noBS/abundance), use='pairwise.complete.obs'))
+  cors.tot <- c(cors.tot, pcc)
+}
+
+plot(seq(100,1900,by=100), cors.tot, type='b', ylim=c(0,-1))

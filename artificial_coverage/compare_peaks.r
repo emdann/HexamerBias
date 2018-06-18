@@ -35,6 +35,8 @@ library(similaRpeak)
   
 ## Trying to use rtracklayer
 
+
+
 make.base.res.bw <- function(bw){
   base.res.bw.list <- tile(bw, width=1)
   base.res.bw <- base.res.bw.list@unlistData
@@ -64,6 +66,25 @@ add.id <- function(subset.common){
   subset.common$id <- paste(subset.common@seqnames,ids)
   return(subset.common)
   }
+
+load.expVSpred.coverage <- function(pred.bw.file, exp.bw.file, save=FALSE){
+  print('Loading predicted coverage profile...')
+  pred.bw <- import(pred.bw.file, format = 'BigWig')
+  ranges <- GRanges(seqnames = pred.bw@seqnames, 
+                    ranges = IRanges(start=pred.bw@ranges@start, 
+                                     end = pred.bw@ranges@start+1))
+  print('Loading expected coverage profile...')
+  exp.bw <- import(exp.bw.file, format = 'BigWig', which = ranges)
+  exp.bw.base <- make.base.res.bw(exp.bw)
+  # print('Merging coverage profiles...')
+  # common.bw <- make.predVSexp.range(pred.bw = pred.bw, exp.bw = exp.bw.base)
+  # common.bw <- add.id(common.bw)
+  # if (save) {
+  #   save(human_noBS.common.bw, file='~/AvOwork/human_noBS.covprofiles.RData')  
+  # }
+  return(list(pred.bw, exp.bw))
+  }
+
 
 ## Subset
 subsetByRegion <- function(bw, chrom, start, end){

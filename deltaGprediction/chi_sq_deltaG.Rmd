@@ -1,0 +1,241 @@
+---
+title: "Chi-square approach validation"
+output: html_notebook
+---
+```{r}
+source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
+```
+
+Validation of chi-square approach to estimate the scaling factor $\epsilon$ and the equilibrium constant for binding of matching pairs $K_{eq}$, using different genomes.
+
+# Loading
+```{r}
+cele.df <- make.match.df("~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-CeleTotal-noBS-1preAmp-handMix_lmerged_R1.ptCounts.qualFilt.csv", '~/mnt/edann/hexamers/genomes_kmers/WBcel235.kmerAbundance.csv')
+zf.df <- make.match.df("~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-zfishTotal-noBS-1preAmp-handMix_lmerged_R1.ptCounts.qualFilt.csv", '~/mnt/edann/hexamers/genomes_kmers/danRer10.kmerAbundance.csv')
+human.df <- make.match.df("~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-humanAPKS-noBS-1preAmp-handMix_lmerged_R1.ptCounts.qualFilt.csv", '~/mnt/edann/hexamers/genomes_kmers/hg38.kmerAbundance.csv')
+
+```
+
+(Saving RData cos it's about time)
+```{r}
+save(cele.df, file='~/AvOwork/cele_pt.RData')
+save(zf.df, file='~/AvOwork/zf_pt.RData')
+save(human.df, file='~/AvOwork/human_pt.RData')
+```
+
+
+Build primer pool for random hexamers
+```{r}
+primer.pool <- simulate.primer.pool(pool.size = 200000)
+```
+
+Load groups of sequences with same binding energy
+```{r}
+t.groups <- read.table("~/AvOwork/MatchingTemplate_groups.tsv", col.names = c('template', 'group'))
+```
+
+# Estimate epsilon for every experiment
+For every genome sample 20 groups with at least 20 sequences, check distributions within samples and the total distribution
+
+```{r}
+epsilon.iterative <- function(pt.df, estimation.it=10, tot.it=20, sample.size=20){
+  i<-1
+  eps.df <- data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it))
+  colnames(eps.df)[ncol(eps.df)] <- paste0('it.',i)
+  while(i<tot.it){
+    i<-i+1
+    eps.df <- full_join(eps.df, data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it)), by='n')
+    colnames(eps.df)[ncol(eps.df)] <- paste0('it.',i)
+  }
+  return(eps.df)
+  }
+
+cele.eps <-epsilon.iterative(cele.df, estimation.it = 50)
+zf.eps <-epsilon.iterative(zf.df, estimation.it = 50)
+human.eps <-epsilon.iterative(human.df, estimation.it = 50)
+
+cele.eps %>%
+  melt(id.vars='n', variable.name='iteration', value.name = 'eps') %>%
+  ggplot(., aes(iteration, eps)) + geom_boxplot()
+
+zf.eps %>%
+  melt(id.vars='n', variable.name='iteration', value.name = 'eps') %>%
+  ggplot(., aes(iteration, eps)) + geom_boxplot()
+
+human.eps %>%
+  melt(id.vars='n', variable.name='iteration', value.name = 'eps') %>%
+  ggplot(., aes(iteration, eps)) + geom_boxplot()
+
+```
+
+Total distribution
+```{r}
+mutate(melt(cele.eps, id.vars='n', variable.name='iteration', value.name = 'eps'), species='cele') %>%
+  bind_rows(., mutate(melt(human.eps, id.vars='n', variable.name='iteration', value.name = 'eps'), species='human')) %>%
+  bind_rows(., mutate(melt(zf.eps, id.vars='n', variable.name='iteration', value.name = 'eps'), species='zf')) %>%
+  ggplot(., aes(eps, group=species, fill=species)) + geom_histogram() 
+  xlim(0,0.01)
+  
+  group_by(species) %>%
+  summarise(mean(eps, na.rm=T), sd(eps, na.rm = T))
+    ggplot(., aes(species,eps)) + geom_boxplot()
+
+
+```
+
+One reassuring thing is that I get a much higher epsilon for the c.elegans
+```{r}
+# keq.iterative <- function(pt.df, estimation.it=10, sample.size=20){
+#   i<-1
+#   keq.df <- data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it))
+#   colnames(eps.df)[ncol(eps.df)] <- paste0('it.',i)
+#   while(i<tot.it){
+#     i<-i+1
+#     eps.df <- full_join(eps.df, data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it)), by='n')
+#     colnames(eps.df)[ncol(eps.df)] <- paste0('it.',i)
+#   }
+#   return(eps.df)
+#   }
+
+keq.cele <-estimate.keq(cele.df, primer.pool, groupsOI = seq(1,20), iterations = 100)
+keq.human <-estimate.keq(human.df, primer.pool, groupsOI = c(1,2,4,5,6,7,8, seq(9,20)), iterations = 100)
+keq.zf <-estimate.keq(zf.df, primer.pool, groupsOI = seq(1,20), iterations = 100)
+keq.cele %>%
+  melt %>%
+  ggplot(., aes(variable, value, fill=variable)) + geom_boxplot()
+
+# as.data.frame(keq.human) %>%
+#   melt %>%
+#   ggplot(., aes(variable, value, fill=variable)) + geom_boxplot()
+# 
+as.data.frame(keq.zf) %>%
+  melt %>%
+  ggplot(., aes(variable, value, fill=variable)) + geom_boxplot()
+
+```
+```{r}
+compare.zf.cele <- mutate(melt(keq.cele, variable.name='group',value.name = 'keq'), species='cele') %>%
+  bind_rows(., mutate(melt(keq.human,variable.name='group',value.name = 'keq' ) , species='human')) %>%
+  bind_rows(., mutate(melt(keq.zf, variable.name='group',value.name = 'keq'), species='zf')) 
+
+compare.zf.cele %>%
+  ggplot(., aes(group, keq, fill=species)) + geom_boxplot()
+
+compare.zf.cele %>%
+  group_by(group, species) %>%
+  summarise(mean.keq=mean(keq)) %>%
+  dcast(group ~ species) %>%
+  ggplot(., aes(zf, human, label=group)) + geom_text() +
+  geom_abline(intercept = 0, slope=1, color='red') +
+  theme_classic() +
+  geom_errorbar(aes(ymin=human+sd(human, na.rm=T), ymax=human-sd(human, na.rm=T)), alpha=0.4) +
+  geom_errorbarh(aes(xmin=zf+sd(zf, na.rm=T), xmax=zf-sd(zf, na.rm=T)), alpha=0.4)
+
+compare.zf.cele %>%
+  group_by(group, species) %>%
+  summarise(mean.keq=mean(keq)) %>%
+  dcast(group ~ species) %>%
+  ggplot(., aes(zf, cele, label=group)) + geom_text() +
+  geom_abline(intercept = 0, slope=1, color='red') +
+  theme_classic()+
+  geom_errorbar(aes(ymin=cele+sd(cele, na.rm=T), ymax=cele-sd(cele, na.rm=T)), alpha=0.4) +
+  geom_errorbarh(aes(xmin=zf+sd(zf, na.rm=T), xmax=zf-sd(zf, na.rm=T)), alpha=0.4) 
+  
+compare.zf.cele %>%
+  group_by(group, species) %>%
+  summarise(mean.keq=mean(keq)) %>%
+  dcast(group ~ species) %>%
+  ggplot(., aes(cele, human, label=group)) + geom_text() +
+  theme_classic()+
+  geom_abline(intercept = 0, slope=1, color='red') +
+  geom_errorbar(aes(ymin=human+sd(human, na.rm=T), ymax=human-sd(human, na.rm=T)), alpha=0.4) +
+  geom_errorbarh(aes(xmin=cele+sd(cele, na.rm=T), xmax=cele-sd(cele, na.rm=T)), alpha=0.4)
+
+```
+# Estimate deltaG
+Using info from primer concentration assigned from simulated distribution
+```{r}
+deltaG.zf <-estimate.deltaG(zf.df, primer.pool, groupsOI = seq(1,20), iterations = 100)
+deltaG.cele <-estimate.deltaG(cele.df, primer.pool, groupsOI = seq(1,20), iterations = 100)
+deltaG.human <-estimate.deltaG(human.df, primer.pool, groupsOI = c(1,2,4,5,6,7,8, seq(9,20)), iterations = 100)
+
+head(deltaG.zf)
+
+compare.zf.cele <- mutate(melt(deltaG.cele, variable.name='group',value.name = 'dg'), species='cele') %>%
+  bind_rows(., mutate(melt(deltaG.human, variable.name='group',value.name = 'dg') , species='human')) %>%
+  bind_rows(., mutate(melt(deltaG.zf, variable.name='group',value.name = 'dg'), species='zf')) 
+
+
+compare.zf.cele %>%
+  filter(group %in% sample(compare.zf.cele$group, 10)) %>%
+  rename(template=group) %>%
+  inner_join(., dplyr::select(hex.df, template, dG), by='template') %>%
+  ggplot(., aes(template,-dg, fill=species)) +
+  geom_boxplot() +
+  geom_point(aes(y=dG), color='red', size=2, shape=8)
+  
+  # ggplot(., aes(group, dg, fill=species)) + geom_boxplot()
+
+compare.zf.cele %>%
+  filter(group %in% sample(compare.zf.cele$group, 1000)) %>%
+  rename(template=group) %>%
+  inner_join(., dplyr::select(hex.df, template, dG, pt), by='template') %>%
+  filter(pt>200) %>%
+  ggplot(., aes(dG, dg, group=dG)) + geom_boxplot(alpha=0.1)
+
+```
+```{r}
+compare.zf.cele %>%
+  filter(group %in% sample(compare.zf.cele$group, 1000)) %>%
+  rename(template=group) %>%
+  # filter(!is.na(dg)) %>%
+  dcast(template ~ species, value.var = 'dg',fun.aggregate = mean) %>%
+  inner_join(., dplyr::select(hex.df, template, dG), by='template') %>%
+  ggplot(., aes(dG, cele)) +
+    geom_point()
+  
+```
+## Find deltaG values mismatching pairs
+
+```{r}
+keqs <- compute.keqs(cele.eps, human.eps = human.eps, zf.eps, gamma.shape, gamma.rate, pool.size, n.iterations = 100)
+head(keqs)
+```
+plotting a few distributions
+```{r}
+keqs %>%
+  filter(template %in% sample(unique(keqs$template), 10)) %>%
+  filter(pt>200) %>%
+  ggplot(., aes(template, p, fill=species)) + geom_boxplot(alpha=0.4)
+
+```
+Comparison with system method 
+```{r}
+joined.keqs <- keqs %>%
+  inner_join(., t.groups, by='template') %>%
+  mutate(group=as.numeric(group)) %>%
+  inner_join(., melt(keq.cele, variable.name='group', value.name = 'keq.system'), by='group') 
+
+joined.keqs %>%
+  dplyr::select(template, dG, single.keq,p.iter, species, keq.system)  %>%
+  melt(id.vars=c('p.iter','template', 'dG', 'species'), variable.name='keq.method') %>%
+  filter(as.character(template) %in% sample(unique(joined.keqs$template), 10)) %>%
+  # filter(pt>200) %>%
+  ggplot(., aes(template, -value, fill=keq.method)) + geom_boxplot()
+  
+```
+
+
+```{r}
+keq.zf.df2 <- dg.match %>%
+  inner_join(., t.groups, by='template') %>%
+  mutate(group=as.numeric(group)) %>%
+  inner_join(.,melt(keq.zf, variable.name='group', value.name = 'keq.system'), by='group') %>%
+  group_by(template) %>%
+  summarise(mean.system=median(keq.system), keq=first(single.keq), mfold=first(dG), p=first(p)) 
+
+keq.zf.df2 %>%
+  ggplot(., aes(mean.system, log(-keq), label=template)) + geom_point(alpha=0.2) + geom_text(size=2) 
+  # ylim(-0.025, 0.01)
+
+```

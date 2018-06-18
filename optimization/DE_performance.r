@@ -7,6 +7,13 @@ library(ggplot2)
 library(ggseqlogo)
 library(RColorBrewer)
 
+prob.row<- data.frame(0.25,0.25,0.25,0.25,0.25,0.25,
+                      0.25,0.25,0.25,0.25,0.25,0.25,
+                      0.25,0.25,0.25,0.25,0.25,0.25,
+                      0.25,0.25,0.25,0.25,0.25,0.25
+                      )
+colnames(prob.row) <- as.vector(t(sapply(seq(1,6), function(pos) paste0(nuc,'.',pos))))
+
 reshape.prob.mat <- function(prob.mat){
   # nuc <- c("A", "T", "C", "G")
   # pos<-seq(1,6)
