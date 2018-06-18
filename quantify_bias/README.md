@@ -37,6 +37,7 @@ From the make profile you will get a ```sample.mat.gz``` file.
 
 In R:
 ```
+source("/hpc/hub_oudenaarden/edann/bin/coverage_bias/biasProfiles.r")
 profile.smp1 <- load.matrix('~/path/to/file/sample1.mat.gz')
 profile.smp2 <- load.matrix('~/path/to/file/sample2.mat.gz')
 
