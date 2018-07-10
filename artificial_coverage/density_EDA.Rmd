@@ -1,0 +1,129 @@
+---
+title: "Binding density primer batch"
+output: html_notebook
+---
+
+```{r, eval=F}
+library(parallel)
+source("~/HexamerBias/rscripts/hexamer_sequence_functions.r")
+source("~/HexamerBias/rscripts/hexamer_sequence_functions.r")
+```
+
+We want to test how binding density changes for a different set of primers.
+
+```{r}
+prob.combos <- hexamerMatrix(stepSize = 0.1)
+nrow(prob.combos)
+```
+
+Using `d3r.keqs` computed in `eps_and_Keq_estimation_final.Rmd`
+```{r}
+load("~/AvOwork/rdata/D3R_pt.RData")
+
+d3r.pred.cov <- predict.coverage(d3r.keqs, eps.d3r)
+
+d3r.dens <- d3r.pred.cov %>%
+  mutate(binding.dens = pred.cov/abundance) 
+
+dens <- d3r.dens %>%
+  dplyr::select(template,binding.dens) 
+
+seq<- 'AATGCATGGATTGGTTTACGCATGCATGACTGTTCACACCTGAACAGGGTTTACGCATGGGAATACTGCAAATGCATGGATTGGTTTACGCATGCATGACTGTTCATTTACGCATGGGCTGACTGTTTTTCAGCACACAACACACCTGAACAGGGCTAGCTCGGGGTG'
+
+l <- 20
+fig.df <- data.frame(template=sapply(1:(nchar(seq)-6), function(i) substr(seq,i,i+5)) ) %>%
+  inner_join(., dens) %>%
+  mutate(n=1:n()) %>%
+  mutate(tot.dens=rollsumr(binding.dens, k=l, fill=0)) 
+
+# cols <- scico(length(unique(fig.df$template)), palette='berlin')
+# names(cols) <- unique(fig.df$template)
+
+
+p1 <- fig.df %>%  
+  ggplot(., aes(n, binding.dens, fill=template)) + 
+  geom_bar(stat='identity',alpha=0.7, color='black') +
+  theme_classic() +
+  ylab('Binding density') + xlab("Genomic coordinate") +
+  guides(fill='none') +
+  # geom_segment(x=which.max(fig.df$binding.dens), xend=which.max(fig.df$binding.dens)+10, y=max(fig.df$binding.dens), yend=max(fig.df$binding.dens))
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_text(size=16))
+
+p2 <- fig.df %>%  
+  ggplot(., aes(xmin=n, ymin=0, fill=template)) + 
+  # geom_bar(stat='identity',alpha=0.7, width=10, position='dodge', color='black') +
+  geom_rect(aes(xmax=n+l, ymax=binding.dens), alpha=0.7, color='black') +
+  theme_classic() +
+  ylab('Binding density') + xlab("Genomic coordinate") +
+  guides(fill='none') +
+  # geom_segment(x=1, xend=2, y=2, yend=3)
+  geom_segment(aes(x=which.max(fig.df$binding.dens), xend=which.max(fig.df$binding.dens)+l, y=max(fig.df$binding.dens)+0.00008, yend=max(fig.df$binding.dens)+0.00008),  size=0.35) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_text(size=16))
+
+p3 <- fig.df %>%  
+  ggplot(., aes(n, tot.dens)) + 
+  geom_area(fill='grey', alpha=0.7, color='black') +
+  theme_classic() +
+  ylab('Predicted coverage') + xlab("Genomic coordinate") +
+  guides(fill='none') +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_text(size=16)) 
+
+p1
+p2
+p3
+
+p1 + ggsave("~/AvOwork/useful_figs/dens_1_new.pdf")
+p2 + ggsave("~/AvOwork/useful_figs/dens_2.pdf")
+p3 + ggsave("~/AvOwork/useful_figs/dens_3.pdf")
+```
+
+
+
+### Maximize CpGs covered
+
+To maximize the number of CpGs covered I have to enrich for hexamers that contain a CG and deplete the rest.
+
+```{r}
+hexs <- all.hexamers()
+hexs[which(grepl(hexs, pattern = "CG"))]
+
+fc <- as.data.frame(hexs) %>%
+  mutate(fc=ifelse(grepl(hexs, pattern = "CG"), 1, 0)) %>%
+  rename(template=hexs)
+
+compute.enrichment.score <- function(dens.df, fc.df){
+  # dens.df <- pred.cov.df %>%
+  #   mutate(binding.dens = pred.cov/abundance) 
+  enrichment.score <- dens.df %>%
+    inner_join(., fc, by="template") %>%
+    mutate(dens.fc=binding.dens*fc) %>%
+    summarise(score=sum(dens.fc)) %>%
+    .$score
+  return(enrichment.score)
+  }
+
+```
+
+Predict coverage for different primer batches
+```{r, warning=F}
+test.combos <- prob.combos[which(prob.combos['pC']!=0 & prob.combos['pG']!=0),]
+l.test.combos <- lapply(seq_len(nrow(test.combos)), function(i) test.combos[i,])
+
+density.combo <- function(prob.vec, keqs.df=d3r.keqs, eps=eps.d3r){
+  b.probs <- batch.prob.uniform(hexs=keqs.df$primer, nuc.probs = prob.vec)
+  pred.cov.b <- predict.coverage(keqs.df, eps, prob = b.probs)
+  dens.df <- pred.cov.b %>%
+    mutate(binding.dens = pred.cov/abundance)  %>% 
+    dplyr::select(template, binding.dens)
+  return(dens.df)
+  }
+
+test.combo.density <- mclapply(l.test.combos, density.combo, mc.cores = detectCores())
+score <- unlist(lapply(test.combo.density, compute.enrichment.score, fc.df=fc))
+```

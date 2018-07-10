@@ -6,35 +6,37 @@ library(ggplot2)
 library(RColorBrewer)
 library(nortest)
 library(pheatmap)
+source('~/HexamerBias/deltaGprediction/binding_model_functions.r')
 
-loadPtMatrix <- function(file, compression='gzip'){
-  if (compression=='gzip') {
-    tab <- fread(paste('zcat',file), sep = ',', header=TRUE)
-  }else{
-    tab <- fread(file, sep = ',', header=TRUE) 
-  }
-  p <- as.matrix(tab[,-1])
-  rownames(p)<- tab$V1
-  return(p)
-}
+
+# loadPtMatrix <- function(file, compression='gzip'){
+#   if (compression=='gzip') {
+#     tab <- fread(paste('zcat',file), sep = ',', header=TRUE)
+#   }else{
+#     tab <- fread(file, sep = ',', header=TRUE) 
+#   }
+#   p <- as.matrix(tab[,-1])
+#   rownames(p)<- tab$V1
+#   return(p)
+# }
 
 pt.VAN1667 <- loadPtMatrix("~/mnt/edann/hexamers/strand_specific/VAN1667_se.ptCounts.qualFilt.parallel.csv", compression = 'no')
 save(pt.VAN1667, file='~/AvOwork/ptCounts.strandSpec.VAN1667.RData')
 pt.VAN2408 <- loadPtMatrix('~/mnt/edann/crypts_bs/VAN2408/CM1_tr2_R1_bismark_bt2.ptCounts.qualFilt.parallel.csv', compression='no')
 
-## Compare hexamer profiles
-make.hex.usage.df <- function(ptTab, type = 'primer', scale =TRUE){
-  if (type=='primer') { hex.usage <- colSums(ptTab)  }
-  if (type=='template') { hex.usage <- rowSums(ptTab)  }
-  sample.name <- gsub(deparse(substitute(ptTab)), pattern = 'pt.', replacement = '')
-  if (scale) { 
-    hex.df <- data.frame(names(hex.usage), hex.usage/sum(hex.usage), row.names = NULL) 
-  }else{
-    hex.df <- data.frame(names(hex.usage), hex.usage, row.names = NULL)
-    }
-  colnames(hex.df) <- c(type,sample.name)
-  return(hex.df)
-}
+# ## Compare hexamer profiles
+# make.hex.usage.df <- function(ptTab, type = 'primer', scale =TRUE){
+#   if (type=='primer') { hex.usage <- colSums(ptTab)  }
+#   if (type=='template') { hex.usage <- rowSums(ptTab)  }
+#   sample.name <- gsub(deparse(substitute(ptTab)), pattern = 'pt.', replacement = '')
+#   if (scale) { 
+#     hex.df <- data.frame(names(hex.usage), hex.usage/sum(hex.usage), row.names = NULL) 
+#   }else{
+#     hex.df <- data.frame(names(hex.usage), hex.usage, row.names = NULL)
+#     }
+#   colnames(hex.df) <- c(type,sample.name)
+#   return(hex.df)
+# }
 
 VAN1667.primer.usage <- make.hex.usage.df(pt.VAN1667, type = 'primer', scale=TRUE)
 VAN2408.primer.usage <- make.hex.usage.df(pt.VAN2408, type = 'primer', scale=TRUE)

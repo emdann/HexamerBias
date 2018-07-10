@@ -1,7 +1,15 @@
 #### ARTIFICIAL COVERAGE PROFILE
-From the predicted coverage I want to make a igv like coverage track based on density of coverage for every hexamer (C/T).
+From the template usage I want to make a IGV like coverage track based on density of coverage for every hexamer (C/T).
 
-Useful python functions are in module ```cov_from_density```.
+# Contents
+* __artCov_primer_variation.py__: makes predicted coverage tracks for progressive changes of random primer compositions
+* __compare_peaks.r___: helper functions to load, plot and statistical analysis of predicted VS experimental profiles in R
+* __cov_from_density.py___: helper functions for profile computation
+* __density_EDA.Rmd___: notebook of exploratory data analysis
+* __genome_wide_artificialcov.py__: computes genome wide predicted coverage (probably takes years)
+* __strand_specific_artificial_coverage.py__: main function to compute predicted profiles in regions of interest defined in a bed file
+* __which_density.Rmd__: exploratory data analysis notebook to guide binding based targeted enrichment
+
 
 ## Comparison of artificial and real coverage
 Make base resolution genome wide artificial coverage in bigWig file takes too much and comparing profiles from a

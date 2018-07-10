@@ -1,0 +1,403 @@
+---
+title: "Relative energies"
+output: html_notebook
+---
+
+```{r}
+load("~/AvOwork/rdata/cele_pt_all.RData")
+```
+
+
+```{r}
+# install.packages('gtools')
+library(gtools)
+library(dplyr)
+library(tibble)
+source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
+
+temp1 <- permutations(4, 2, c('A', 'T', 'C', 'G'), repeats.allowed = T)
+doublets <- apply(temp1,1, function(x)  paste0(x[1], x[2]))
+primer1 <- permutations(4, 2, c('A', 'T', 'C', 'G'), repeats.allowed = T)
+doublet.pairs <- permutations(16,2, doublets, repeats.allowed = T)
+doublet.pairs.df <- as.data.frame(doublet.pairs) %>%
+    # mutate(rev.temp=sapply(template, rev.comp),
+           # rev.prim=sapply(primer, rev.comp)) %>%
+    rename(template=V1, primer=V2) %>%
+    mutate(pair=ifelse(paste0(template,'.',primer)>paste0(primer,'.',template), paste0(template,'.',primer), paste0(primer,'.',template))) 
+  
+split.in.doublet <- function(hex){
+  spl <- substring(hex, seq(1, nchar(hex)-1), seq(2, nchar(hex), 1))
+  return(spl)
+  }
+
+get.doublets.for.pair <- function(primer, template){
+  temp <- rev.comp(template, rev = F)
+  doublets.df <- data.frame(cbind(split.in.doublet(primer), split.in.doublet(temp))) %>%
+    rename(primer=X1, template=X2) %>%
+    mutate(pair=ifelse(paste0(template,'.',primer)>paste0(primer,'.',template), paste0(template,'.',primer), paste0(primer,'.',template)))
+  return(doublets.df$pair)
+  }
+uniq.pairs <- unique(doublet.pairs.df$pair)
+
+
+count.doublets <- function(primer, template, pairs.oi = uniq.pairs){
+  dubs <- get.doublets.for.pair(primer, template)
+  tab.dubs <- table(dubs)
+  count.mat <- c()
+  for (i in seq_along(tab.dubs)){
+    count.mat <- rbind(count.mat, ifelse(pairs.oi == names(tab.dubs[i]), tab.dubs[i], 0)  )
+  }
+  return(colSums(count.mat))
+  }
+
+# p %>%
+#   dplyr::select(template, primer) %>%
+#   # sample_n(1) %>%
+#   mutate(pair=list(get.doublets.for.pair(primer, template)))
+
+p <- sample_n(cele.all.df, 100)
+sample.mat <- apply(as.matrix(dplyr::select(p,primer, template)),1, function(x) 
+  # paste(x[1], x[2])
+  count.doublets(x[1], x[2])
+  )
+pairs.df <- data.frame(uniq.pairs, rowSums(sample.mat)) %>%
+  filter(rowSums.sample.mat.!=0)
+pairs.oi <- as.character(pairs.df$uniq.pairs)
+
+initiation.factor <- function(primer, template){
+  nuc.list <- list(pur=c('C', 'T'), pyr=c("A", "G"))
+  temp <- rev.comp(template, rev = F)
+  if.pur <- 0
+  if.pyr <- 0
+  if.mix <- 0
+  if (substr(temp,1,1) %in% nuc.list$pur & substr(primer,1,1) %in% nuc.list$pur){ if.pur <- if.pur + 1 }
+  else if (substr(temp,1,1) %in% nuc.list$pyr & substr(primer,1,1) %in% nuc.list$pyr){ if.pyr <- if.pyr + 1 }
+  else{if.mix<-if.mix+1}
+  if (substr(temp,6,6) %in% nuc.list$pur & substr(primer,6,6) %in% nuc.list$pur){ if.pur <- if.pur + 1 }
+  else if (substr(temp,6,6) %in% nuc.list$pyr & substr(primer,6,6) %in% nuc.list$pyr){ if.pyr <- if.pyr + 1 }else{if.mix<-if.mix+1}
+  return(c(if.pur, if.pyr, if.mix))
+}
+
+# for (el in t(sample.mat)){
+#   print(table(el))
+# } 
+# sapply(seq_along(tab.dubs), function(x) ifelse())
+# dim(sample.mat)
+```
+
+Select best mismatches for each match
+```{r}
+top.mismatches <- cele.all.df %>%
+  filter(pt!=0) %>%
+  group_by(template) %>%
+  # mutate(w.match = ifelse(primer==template, T, F)) %>%
+  top_n(n = 10,pt) %>%
+  ungroup() 
+
+top.mismatches %>%
+  summarise(w.match=any(w.match)) %>%
+  filter(w.match==F)
+
+smp.check <- function(){
+  smp <- top.mismatches %>%
+    # filter(primer==template) %>%
+    sample_n(size = 2) %>%
+    mutate(pair=c('A', 'B')) %>%
+    mutate(frac=(abundance-t.usage)/pt,
+           opp.frac=pt/(abundance-t.usage)) 
+  
+  opposite.smp <- top.mismatches %>%
+    filter(primer %in% smp$template[1] & template %in% smp$primer[1] | primer %in% smp$template[2] & template %in% smp$primer[2]  ) %>%
+    mutate(pair=ifelse(primer==filter(smp, pair=='A')$template, 'A', 'B')) %>%
+    mutate(frac=(abundance-t.usage)/pt,
+           opp.frac=pt/(abundance-t.usage))  
+  if (nrow(smp)==2 & nrow(opposite.smp)==2) {
+    vals <- c(filter(smp, pair=='A')$frac*filter(smp, pair=='B')$opp.frac,
+    filter(opposite.smp, pair=='A')$frac*filter(smp, pair=='B')$opp.frac,
+    filter(smp, pair=='A')$frac*filter(opposite.smp, pair=='B')$opp.frac,
+    filter(opposite.smp, pair=='A')$frac*filter(opposite.smp, pair=='B')$opp.frac
+    )
+  } else {vals=NA}
+  return(list(smp, vals))
+}
+
+w.eps <- function(smp1, eps){
+  smp <- smp1 %>%
+    mutate(frac=(abundance-eps*t.usage)/pt,
+           opp.frac=pt/(abundance-eps*t.usage)) 
+    opposite.smp <- top.mismatches %>%
+    filter(primer %in% smp$template[1] & template %in% smp$primer[1] | primer %in% smp$template[2] & template %in% smp$primer[2]  ) %>%
+    mutate(pair=ifelse(primer==filter(smp, pair=='A')$template, 'A', 'B')) %>%
+    mutate(frac=(abundance-eps*t.usage)/pt,
+           opp.frac=pt/(abundance-eps*t.usage))  
+
+    vals <- c(filter(smp, pair=='A')$frac*filter(smp, pair=='B')$opp.frac,
+    filter(opposite.smp, pair=='A')$frac*filter(smp, pair=='B')$opp.frac,
+    filter(smp, pair=='A')$frac*filter(opposite.smp, pair=='B')$opp.frac,
+    filter(opposite.smp, pair=='A')$frac*filter(opposite.smp, pair=='B')$opp.frac
+    )
+  return(vals)
+}
+  
+plot.eps <- function(smp, eps.range){
+  plot(eps.range, sapply(eps.range, function(ep) sd(log(w.eps(smp, ep)))), main=paste('temp:',smp$template,'prim:', smp$primer))
+}
+
+for (i in 1:20) {
+  a<-smp.check()
+  if(any(!is.na(a[[2]]))){plot.eps(a[[1]], seq(0,20,0.1))}
+}
+
+make.matrix.rows <- function(primer, template, pt.i, pt.k, pairs.oi=uniq.pairs){
+  diff.doublets <- count.doublets(primer, template, pairs.oi)-count.doublets(template, template, pairs.oi)
+  diff.if <- initiation.factor(primer, template) - initiation.factor(template, template)
+  left.row <- c(diff.doublets, diff.if)
+  # pt.k <- filter(pt.df, primer==template, template==template)$pt
+  # pt.i <- pt
+  right.row <- log(pt.k/pt.i)
+  return(c(left.row, right.row))
+}
+
+compute.matrix <- function(top.mismatches, match.df, pairs.oi=uniq.pairs){
+  # pt.i <- as.numeric(top.mismatches[i,"pt"])
+  # pt.k <- 
+  # print(paste(pt.i, pt.k))
+  mm.matrix <- sapply(1:nrow(top.mismatches), function(i)
+  make.matrix.rows(as.character(top.mismatches[i,"primer"]),
+                   as.character(top.mismatches[i,"template"]),
+                   as.numeric(top.mismatches[i,"pt"]), 
+                   as.numeric(filter(match.df, template==as.character(top.mismatches[i,"template"]) & primer==as.character(top.mismatches[i,"template"]) )$pt), pairs.oi))
+  return(mm.matrix)  
+}
+```
+
+Sampling until you fill the matrix
+```{r}
+df <- filter(top.mismatches, template!=primer)
+n <- 200
+exit <- F
+# smp<- bind_rows(smp1, smp2) %>% bind_rows(., smp3) %>% bind_rows(., smp4) %>% bind_rows(., smp5)
+mm.mat <- c()
+match.df <- filter(top.mismatches, template==primer)
+while(!exit){
+  smp <- sample_n(df, n)
+  mm.mat.smp <- compute.matrix(smp, match.df)
+  mm.mat <- cbind(mm.mat, mm.mat.smp)
+  if(!any(apply(mm.mat[1:(nrow(mm.mat)-1),], 1, function(x) all(x==0)))){
+    exit <- TRUE
+  }else{
+    df <- setdiff(df, smp) 
+  }
+  }
+rownames(mm.mat) <- c(uniq.pairs, 'if.pur', 'if.pyr', 'if.mix', 'log.pt')
+colnames(mm.mat) <- sapply(1:ncol(mm.mat), function(x) paste0('p', x))
+```
+
+```{r}
+full.mat <- mm.mat[!apply(mm.mat[1:(nrow(mm.mat)-1),], 1, function(x) all(x==0)),]
+
+# as.data.frame(t(full.mat)) %>%
+#   dplyr::select(-log.pt) %>%
+#   distinct() 
+
+
+left.mat <- t(full.mat)[,1:(nrow(full.mat)-4)]
+right.mat <- t(full.mat)[,nrow(full.mat)]
+
+# qr.left.mat <- qr(left.mat)
+# sol.full.mat <- solve(qr(left.mat, LAPACK=T), right.mat)
+
+uniq.left.mat <- unique(left.mat)
+uniq.right.mat <- right.mat[rownames(uniq.left.mat)]
+
+keep <- which(uniq.right.mat!=0 & !is.infinite(uniq.right.mat))
+uniq.left.mat.clean <- uniq.left.mat[keep,]
+uniq.left.mat.clean <- uniq.left.mat.clean[,!apply(uniq.left.mat.clean[,1:(ncol(uniq.left.mat.clean))], 2, function(x) all(x==0))]
+uniq.right.mat.clean <- uniq.right.mat[keep]
+
+# uniq.uniq.left.mat.clean <- unique(uniq.left.mat.clean)
+# uniq.uniq.right.mat.clean <- uniq.right.mat.clean[rownames(uniq.uniq.left.mat.clean)]
+
+  
+sol.clen.mat <- solve(qr(uniq.left.mat.clean, LAPACK = T), uniq.right.mat.clean)
+hist(sol.clen.mat, breaks=100)
+sort(sol.clen.mat, decreasing = F)
+hist(uniq.right.mat.clean, breaks = 50)
+```
+
+Sampling square matrices 
+```{r}
+smp.ix <- sample(1:nrow(uniq.uniq.left.mat.clean), 100)
+mat <- uniq.uniq.left.mat.clean
+ixs <- seq_along(uniq.uniq.left.mat.clean)
+final.mat <- c()
+i <- 1
+while(i<(ncol(uniq.uniq.left.mat.clean)+1)){
+  ix <- sample(which(uniq.uniq.left.mat.clean[,i]!=0), 1)
+  if (ix %in% ixs) {
+    final.mat <- rbind(final.mat, mat[ix,])
+    ixs <- ixs[-ix]
+    i <- i+1
+  }
+}
+dim(final.mat)
+# apply(final.mat[1:(nrow(final.mat)-1),], 1, function(x) all(x==0))
+
+used.ixs <- which(!seq_along(uniq.uniq.left.mat.clean) %in% ixs)
+solve(final.mat, uniq.uniq.right.mat.clean[used.ixs], tol=1e-18)
+(left.mat.clean)
+
+corr.matrix <- cor(t(left.mat.clean))
+ones <- apply(corr.matrix, 1, function(x) table(x)['1'])
+sort(ones, decreasing = T)
+
+hist(right.mat.clean[which(signif(corr.matrix[which(ones==39),][1,])==1)], breaks = 15)
+hist(right.mat.clean[which(signif(corr.matrix[which(ones==34),][1,])==1)], breaks = 15)
+hist(right.mat.clean[which(signif(corr.matrix[which(ones==29),][1,])==1)], breaks = 15)
+hist(right.mat.clean[which(signif(corr.matrix[which(ones==24),][1,])==1)], breaks = 15)
+
+
+sd(right.mat.clean[which(signif(corr.matrix[which(ones==39),][1,])==1)])
+sd(right.mat.clean[which(signif(corr.matrix[which(ones==34),][1,])==1)])
+sd(right.mat.clean[which(signif(corr.matrix[which(ones==29),][1,])==1)])
+sd(right.mat.clean[which(signif(corr.matrix[which(ones==24),][1,])==1)])
+
+```
+
+
+
+Remove zero variance variables
+```{r}
+foo <- function(dat) {
+    out <- lapply(dat, function(x) length(unique(x)))
+    want <- which(!out > 1)
+    unlist(want)
+}
+
+dat <- as.data.frame(left.mat.clean)
+distinct.left.mat.clean <- dat %>%
+  distinct() 
+
+f <- foo(as.data.frame(left.mat.clean))
+f
+length(f)
+```
+
+Select all templates with the same mismatch
+```{r}
+
+orig <- "AA"
+change <- "AG"
+
+plot.mismatch.ddg <- function(orig, change, pos=6){
+  p <- cele.all.df %>%
+  # head(20000) %>%
+  select(primer, template, pt) %>%
+  filter(substr(template,5,6)==orig &
+           primer==paste0(substr(template,1,4), change) | template==primer
+           ) %>%
+  mutate(m=ifelse(template==primer, 'match', 'mm')) %>%
+  dcast(template ~ m, value.var = 'pt') %>%
+  filter(!is.na(mm)) %>%
+  mutate(ddg=log(match/mm)) %>%
+  ggplot(., aes(ddg)) + 
+  geom_histogram() +
+  ggtitle(paste(orig, change, sep='-'))
+  return(p)  
+  }
+
+aa.mismatch <- lapply(c('AG', 'AT', 'AC'), function(x) plot.mismatch.ddg('AA', x))
+aa.mismatch
+
+tt.mismatch <- lapply(c('AG', 'AT', 'AC'), function(x) plot.mismatch.ddg('TT', x))
+tt.mismatch
+
+gg.mismatch <- lapply(c('GA', 'GT', 'GC'), function(x) plot.mismatch.ddg('GG', x))
+gg.mismatch
+```
+```{r}
+plot.mismatch.ddg.2 <- function(orig, change){
+  p <- cele.all.df %>%
+  # head(20000) %>%
+  select(primer, template, pt) %>%
+  filter(grepl(template, pattern = orig) &
+           primer==gsub(template, pattern = orig, replacement = change) | template==primer
+           ) %>%
+  mutate(m=ifelse(template==primer, 'match', 'mm')) %>%
+  dcast(template ~ m, value.var = 'pt') %>%
+  filter(!is.na(mm)) %>%
+  mutate(ddg=log(match/mm)) %>%
+  ggplot(., aes(ddg)) + 
+  geom_histogram() +
+  ggtitle(paste(orig, change, sep='-'))
+  return(p)  
+}
+
+plot.mismatch.ddg.2('CG', 'TT')
+plot.mismatch.ddg.2('CG', 'TA')
+plot.mismatch.ddg.2('GA', 'TA')
+
+plot.mismatch.ddg.2('CG', 'CA')
+plot.mismatch.ddg.2('TA', 'TT')
+plot.mismatch.ddg.2('TT', 'TA')
+```
+
+```{r}
+plot.mismatch.ddg.2('GT', 'GA')
+plot.mismatch.ddg.2('TA', 'AA')
+```
+
+Is a partial mismatch more favorable than a total mismatch?
+```{r}
+plot.mismatch.ddg('GG', 'GT')
+plot.mismatch.ddg('GT', 'GG')
+plot.mismatch.ddg('AC', 'CC')
+plot.mismatch.ddg('GG', 'TT')
+```
+```{r}
+plot.mismatch.ddg.3 <- function(orig, change, pos=6){
+  p <- cele.all.df %>%
+  # head(20000) %>%
+  select(primer, template, pt) %>%
+  filter(substr(template,4,6)==orig &
+           primer==paste0(substr(template,1,3), change) | template==primer
+           ) %>%
+  mutate(m=ifelse(template==primer, 'match', 'mm')) %>%
+  dcast(template ~ m, value.var = 'pt') %>%
+  filter(!is.na(mm)) %>%
+  mutate(ddg=log(match/mm)) %>%
+  ggplot(., aes(mm, match)) + 
+  geom_point(alpha=0.4) +
+  ggtitle(paste(orig, change, sep='-'))
+  return(p)  
+  }
+
+plot.mismatch.ddg.3("TCT", "TTT")
+
+```
+```{r}
+plot.mismatch.ddg.3("CTT", "CTA")
+plot.mismatch.ddg.3("GTT", "GTA")
+plot.mismatch.ddg.3("ATT", "ATA")
+```
+
+Frequency of mismatches 
+```{r}
+cele.all.no0.df <- cele.all.df %>% filter(pt!=0)
+# cele.all.no0.df %>%
+#   nrow
+doublets.in.df <- apply(as.matrix(dplyr::select(cele.all.no0.df,primer, template)),1, function(x) 
+  # paste(x[1], x[2])
+  count.doublets(x[1], x[2])
+  )
+cele.all.count.mm <- cele.all.df %>%
+  filter(pt!=0) %>%
+  mutate(n.mm = apply(cbind(template, primer),1, function(x) adist(x[1], x[2]))) 
+
+cele.all.count.mm %>%
+  filter(primer!="AAAAAA") %>%
+  group_by(n.mm) %>%
+  summarise(pt=sum(pt)) %>%
+  ggplot(., aes(n.mm, pt)) +
+  geom_bar(stat='identity')
+```

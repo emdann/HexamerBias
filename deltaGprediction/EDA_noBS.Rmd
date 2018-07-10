@@ -1,0 +1,381 @@
+---
+title: "Rewind"
+output: html_notebook
+---
+
+Loading c.elegans, no BS
+```{r}
+load("~/AvOwork/cele_all_pt.csv")
+```
+
+Does adding dG improve the coverage prediction? (Using matching pairs)
+```{r}
+cele.df %>%
+  # mutate(pred.pt= abundance*exp(dG)) %>%
+  ggplot(., aes((pt), (abundance)*exp(dG))) + geom_point(alpha=0.3)
+
+cele.df %>%
+  mutate(pred.pt= abundance) %>%
+  ggplot(., aes((pt), (abundance))) + geom_point(alpha=0.3)
+
+
+```
+
+While primer and template usage do not coincide, genomic abundance by itself seems to be a very good predictor of template usage. 
+```{r}
+primer.usage.cele <- cele.all.df %>%
+  group_by(primer) %>%
+  summarise(p.usage= sum(pt)) %>%
+  rename(hex=primer)
+
+df <- cele.df %>%
+  dplyr::select(template, t.usage,pt, abundance, dG) %>%
+  rename(hex=template) %>%
+  inner_join(., primer.usage.cele, by='hex') %>%
+  mutate(nuc=sapply(hex,prevalent_nucleotide),
+         CG=ifelse(grepl(pattern = 'CG', hex), 'y', 'n')) 
+
+df %>%
+  ggplot(., aes( log(p.usage), log(t.usage))) +
+  geom_point(alpha=0.4, aes(color=nuc, shape=CG))
+
+df %>%
+  ggplot(., aes( log(p.usage), log(pt))) +
+  geom_point(alpha=0.4, aes(color=nuc, shape=CG))
+
+df %>%
+  ggplot(., aes(log(pt), log(t.usage))) +
+  geom_point(alpha=0.4, aes(color=nuc, shape=CG))
+
+df %>%
+  ggplot(., aes(log(pt), log(abundance))) +
+  geom_point(alpha=0.4, aes(color=nuc, shape=CG))
+
+df %>%
+  ggplot(., aes(log(t.usage/sum(t.usage)), log(abundance/sum(as.numeric(abundance))))) +
+  geom_point(alpha=0.4, aes(color=nuc, shape=CG)) +
+  geom_abline(slope=1, intercept=0)
+
+df %>%
+  ggplot(., aes(log(p.usage), log(abundance/sum(as.numeric(abundance))))) +
+  geom_point(alpha=0.4, aes(color=nuc, shape=CG))
+
+
+```
+Not how well correlated p.usage and pt (number of matching events) are!!
+
+
+This fits with the model (where T is one of the parameters), but if coverage where simply linearly correlated with genomic abundance we wouldn't see a bias in the coverage!! (Remember the predicted profile based on occupancy?). The density of binding (template usage/abundance) is not constant and not gaussian, so not a the simple slope for the correlation
+```{r}
+df.w.dens <- df %>%
+  mutate(p.usage.frac = p.usage/sum(p.usage),
+         abundance.frac = abundance/sum(as.numeric(abundance))) %>%
+  mutate(gc.cont=sapply(hex, GCcont)) %>%
+  mutate(dens=(t.usage/sum(t.usage))/abundance.frac) %>%
+  filter(pt>200)
+
+df.w.dens %>%
+  ggplot(., aes(dens)) + geom_histogram(aes(fill=nuc))
+```
+
+How is that then? Probably the presence of primers plays a role here. If I do multiple linear regression to predict the template usage using the abundance and the number of matching pairs the predictive power improves (the spread is lost, which might explain density differences). Smaae if I put the p.usage instead
+
+```{r}
+df.w.dens %>%
+  ggplot(., aes(log(t.usage), log(abundance.frac))) +
+  geom_point(alpha=0.4, aes(color=gc.cont, shape=CG)) +
+  scale_color_gradient2(midpoint = 0.5)
+df.w.dens %>%
+  ggplot(., aes(log(t.usage), log(abundance.frac*p.usage.frac ))) +
+  geom_point(alpha=0.4, aes(color=gc.cont, shape=CG)) +
+  scale_color_gradient2(midpoint = 0.5) 
+```
+
+Primer usage follows a distribution that resembles the one of a random primer batch, but with some sequences way more used
+```{r}
+df.w.dens %>%
+  ggplot(., aes(p.usage.frac)) + geom_histogram(aes(fill=nuc), bins=50)
+```
+
+And here I thought: is primer usage just proportional to the original batch (so no one actually binds better than another) or is there more to it? That was true then differences in densities could just be explained by the primer concentration (as in: some sequences are bound more than expected because you simply have more of their primer in the batch)
+```{r}
+df.w.dens %>%
+  ggplot(., aes(log(dens), log(p.usage.frac))) +
+  geom_point(alpha=0.4, aes(color=gc.cont, shape=CG)) +
+  scale_color_gradient2(midpoint = 0.5) 
+
+```
+
+Clearly not. 
+
+Also if p.usage was just proportional to what you have in the tube you should see a correlated usage between experiments on different species using the same batch, right?
+```{r}
+primer.usage.cele %>%
+  inner_join(., primer.usage.human, by='hex') %>%
+  ggplot(., aes(log(p.usage.x), log(p.usage.y))) + geom_point(alpha=0.3)
+
+
+primer.usage.zf %>%
+  inner_join(., primer.usage.human, by='hex') %>%
+  mutate(gc.cont=sapply(hex, GCcont)) %>%
+  ggplot(., aes(log(p.usage.x), log(p.usage.y), color=gc.cont)) + geom_point(alpha=0.3) +
+  scale_color_gradient2(midpoint=0.5)
+
+```
+
+Promiscuity
+```{r}
+df %>%
+  inner_join(., df.zf, by='hex') %>%
+  ggplot(., aes((pt.x/t.usage.x), (pt.y/t.usage.y))) + geom_point(alpha=0.3)
+
+cele.df %>%
+  inner_join(., human.df, by='template') %>%
+  ggplot(., aes(log(t.usage.x), log(t.usage.y))) + geom_point(alpha=0.3) 
+  
+```
+
+Weeeelll...more than the template usage?
+```{r}
+d2r.all.df %>%
+  inner_join(., d3r.all.df, by='hex') %>%
+  head
+  ggplot(., aes(pt.x/t.usage.x, pt.y/t.usage.y)) + geom_point(alpha=0.3)
+```
+
+Definetly.
+
+Trying other experiments
+```{r}
+primer.usage.d2 <- d2r.all.df %>%
+  group_by(primer) %>%
+  summarise(p.usage= sum(pt)) %>%
+  rename(hex=primer)
+
+primer.usage.d3 <- d3r.all.df %>%
+  group_by(primer) %>%
+  summarise(p.usage= sum(pt)) %>%
+  rename(hex=primer)
+
+primer.usage.d3t <- d3t.all.df %>%
+  group_by(primer) %>%
+  summarise(p.usage= sum(pt)) %>%
+  rename(hex=primer)
+
+primer.usage.d2 %>%
+  inner_join(., primer.usage.d3, by='hex') %>%
+  ggplot(., aes(log(p.usage.x), log(p.usage.y))) + geom_point(alpha=0.3)
+
+primer.usage.d3 %>%
+  inner_join(., primer.usage.zf, by='hex') %>%
+  ggplot(., aes(log(p.usage.x), log(p.usage.y))) + geom_point(alpha=0.3)
+
+```
+
+Same organism different batch
+```{r}
+primer.usage.VAN1667 <- make.hex.usage.df(pt.VAN1667, scale=F) %>%
+  rename(hex=primer)
+
+primer.usage.d3 %>%
+  inner_join(., primer.usage.VAN1667, by='hex') %>%
+  ggplot(., aes(log(p.usage), log(VAN1667))) + geom_point(alpha=0.3)
+
+```
+
+What then? 
+
+Interesting observation: abundance is also well correlated with the binding energy.
+```{r}
+df.w.dens %>%
+  filter(pt>300) %>%
+  ggplot(., aes(dG, log(1/abundance.frac))) +
+  geom_point(alpha=0.4, aes(color=gc.cont, shape=CG)) +
+  scale_color_gradient2(midpoint = 0.5) 
+
+df.w.dens %>%
+  filter(pt>300) %>%
+    ggplot(., aes(dG, log(dens))) +
+  geom_point(alpha=0.4, aes(color=gc.cont, shape=CG)) +
+  scale_color_gradient2(midpoint = 0.5) 
+
+
+df.w.dens %>%
+    filter(pt>300) %>%
+  ggplot(., aes(dG, log(pt/abundance))) +
+  geom_point(alpha=0.4, aes(color=gc.cont, shape=CG)) +
+  scale_color_gradient2(midpoint = 0.5) 
+
+```
+
+Try the same with different organism
+
+```{r}
+primer.usage.human <- human.all.df %>%
+  group_by(primer) %>%
+  summarise(p.usage= sum(as.numeric(pt))) %>%
+  rename(hex=primer)
+
+df.human <- human.df %>%
+  dplyr::select(template, t.usage,pt, abundance, dG) %>%
+  rename(hex=template) %>%
+  inner_join(., primer.usage.human, by='hex') %>%
+  mutate(nuc=sapply(hex,prevalent_nucleotide),
+         CG=ifelse(grepl(pattern = 'CG', hex), 'y', 'n')) 
+
+df.human.w.dens <- df.human %>%
+  mutate(p.usage.frac = p.usage/sum(p.usage),
+         abundance.frac = abundance/sum(as.numeric(abundance))) %>%
+  mutate(gc.cont=sapply(hex, GCcont)) %>%
+  mutate(dens=(t.usage/sum(t.usage))/abundance.frac) %>%
+  filter(pt>200)
+
+
+df.human.w.dens %>%
+  filter(pt>300) %>%
+  ggplot(., aes(dG, log(1/abundance.frac))) +
+  geom_point(alpha=0.4, aes(color=gc.cont, shape=CG)) +
+  scale_color_gradient2(midpoint = 0.5) 
+
+df.human.w.dens %>%
+  filter(pt>500) %>%
+  ggplot(., aes(dG, log((pt/sum(pt))/abundance.frac))) +
+  geom_point(alpha=0.4, aes(color=gc.cont, shape=CG)) +
+  scale_color_gradient2(midpoint = 0.5) 
+
+
+```
+
+Ok for the human it's not so truw. So is the abundance still a very good predictor?
+
+```{r}
+df.human %>%
+  ggplot(., aes( log(p.usage), log(t.usage))) +
+  geom_point(alpha=0.4, aes(color=nuc, shape=CG))
+
+df.human %>%
+  ggplot(., aes( log(p.usage), log(pt))) +
+  geom_point(alpha=0.4, aes(color=nuc, shape=CG))
+
+df.human %>%
+  ggplot(., aes(log(pt), log(t.usage))) +
+  geom_point(alpha=0.4, aes(color=nuc, shape=CG))
+
+df.human %>%
+  ggplot(., aes(log(pt), log(abundance))) +
+  geom_point(alpha=0.4, aes(color=nuc, shape=CG))
+
+df.human %>%
+  ggplot(., aes(log(t.usage/sum(t.usage)), log(abundance/sum(as.numeric(abundance))))) +
+  geom_point(alpha=0.4, aes(color=nuc, shape=CG)) +
+  geom_abline(slope=1, intercept=0)
+
+df.human %>%
+  ggplot(., aes(log(p.usage), log(abundance/sum(as.numeric(abundance))))) +
+  geom_point(alpha=0.4, aes(color=nuc, shape=CG))
+
+
+plot(log(df.human.w.dens$abundance.frac*(df.human.w.dens$gc.cont+1)), log(df.human.w.dens$t.usage))
+plot(log(df.human.w.dens$abundance.frac), log(df.human.w.dens$t.usage))
+plot(log((df.human.w.dens$gc.cont+1)), log(df.human.w.dens$abundance.frac))
+```
+
+Yes it is. Wot the hell... 
+```{r}
+df.human.w.dens %>%
+  ggplot(., aes(log(t.usage), log(abundance+(p.usage.frac)+(gc.cont+1)))) +
+  geom_point(alpha=0.4, aes(color=gc.cont, shape=CG)) +
+  scale_color_gradient2(midpoint = 0.5) 
+df.human.w.dens %>%
+  ggplot(., aes(log(t.usage), log(abundance.frac*(p.usage.frac)))) +
+  geom_point(alpha=0.4, aes(color=gc.cont, shape=CG)) +
+  scale_color_gradient2(midpoint = 0.5) 
+df.human.w.dens %>%
+  ggplot(., aes(log(t.usage/sum(t.usage)), log(abundance.frac))) +
+  geom_point(alpha=0.4, aes(color=gc.cont, shape=CG)) +
+  scale_color_gradient2(midpoint = 0.5) 
+
+df.human.w.dens %>%
+  ggplot(., aes((pt/t.usage))) +
+  geom_histogram( aes(fill=nuc)) 
+
+df.human.w.dens %>%
+  ggplot(., aes(dens)) + geom_histogram(aes(fill=nuc))
+
+```
+
+Fitting
+```{r}
+lm.1 <- lm(t.usage ~ abundance.frac, data=df.w.dens)
+lm.2 <- lm(t.usage ~ abundance.frac * (p.usage.frac), data=df.w.dens)
+lm.3 <- lm(t.usage ~ abundance.frac * p.usage.frac * (gc.cont+1), data=df.w.dens)
+
+summary(lm.1)
+summary(lm.2)
+summary(lm.3)
+```
+
+
+```{r}
+primer.usage.zf <- zf.all.df %>%
+  group_by(primer) %>%
+  summarise(p.usage= sum(as.numeric(pt))) %>%
+  rename(hex=primer)
+
+df.zf <- zf.df %>%
+  dplyr::select(template, t.usage,pt, abundance, dG) %>%
+  rename(hex=template) %>%
+  inner_join(., primer.usage.zf, by='hex') %>%
+  mutate(nuc=sapply(hex,prevalent_nucleotide),
+         CG=ifelse(grepl(pattern = 'CG', hex), 'y', 'n')) 
+
+df.zf.w.dens <- df.zf %>%
+  mutate(p.usage.frac = p.usage/sum(p.usage),
+         abundance.frac = abundance/sum(as.numeric(abundance)),
+         prom = pt/t.usage) %>%
+  mutate(gc.cont=sapply(hex, GCcont)) %>%
+  mutate(dens=(t.usage/sum(t.usage))/abundance.frac) %>%
+  filter(pt>200)
+
+lm.1 <- lm(t.usage ~ abundance.frac, data=df.zf.w.dens)
+lm.2 <- lm(t.usage ~ abundance.frac * prom, data=df.zf.w.dens)
+lm.3 <- lm(t.usage ~ abundance.frac * prom *  (gc.cont+1), data=df.zf.w.dens)
+lm.4 <- lm(t.usage ~ abundance.frac * (gc.cont+1), data=df.zf.w.dens)
+
+summary(lm.1)
+summary(lm.2)
+summary(lm.3)
+summary(lm.4)
+```
+
+
+Primer usage
+```{r}
+primer.usage.d3t <- d3t.all.df %>%
+  group_by(primer) %>%
+  summarise(p.usage= sum(pt)) %>%
+  rename(hex=primer)
+
+primer.usage.d3t %>%
+  mutate(nuc=sapply(hex,prevalent_nucleotide),
+         p.usage.frac=p.usage/sum(p.usage)) %>%
+  ggplot(., aes(p.usage.frac)) + geom_histogram(aes(fill=nuc))
+
+r.pool <- simulate.primer.pool()
+data.frame(table(r.pool)) %>%
+  rename(hex=r.pool) %>%
+  inner_join(., primer.usage.cele, by='hex') %>%
+    mutate(nuc=sapply(hex,prevalent_nucleotide),
+         p.usage.frac=p.usage/sum(p.usage)) %>%
+  ggplot(., aes(log(Freq),log(p.usage), color=nuc)) + geom_point(alpha=0.4)
+# 
+# df <- d3r..df %>%
+#   dplyr::select(template, t.usage,pt, abundance) %>%
+#   rename(hex=template) %>%
+#   inner_join(., primer.usage.cele, by='hex') %>%
+#   mutate(nuc=sapply(hex,prevalent_nucleotide),
+#          CG=ifelse(grepl(pattern = 'CG', hex), 'y', 'n')) 
+# 
+
+
+```

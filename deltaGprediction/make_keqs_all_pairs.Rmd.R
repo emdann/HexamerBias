@@ -23,7 +23,6 @@ kmer.ab.human <- load.kmer.abundance('./edann/hexamers/genomes_kmers/hg38.kmerAb
 # 
 # save(human.all.df, file = "~/AvOwork/human_pt_all.RData")
 # save(zf.all.df, file = "~/AvOwork/zfish_pt_all.RData")
-
 load("~/AvOwork/human_pt_all.RData")
 load("~/AvOwork/cele_pt_all.RData")
 load("~/AvOwork/zfish_pt_all.RData")
@@ -36,9 +35,9 @@ gamma.rate = fit.gamma$estimate['rate']
 pool.size = length(primer.pool)
 
 ## Estimation of scaling factor
-cele.eps <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 10, imposeP = T)
-zf.eps <-epsilon.iterative(select.diag.pairs(zf.all.df), estimation.it = 20, sample.size = 10, imposeP = T)
-human.eps <-epsilon.iterative(select.diag.pairs(human.all.df), estimation.it = 20, sample.size = 10, imposeP = T)
+cele.eps <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20)
+zf.eps <-epsilon.iterative(select.diag.pairs(zf.all.df), estimation.it = 20)
+human.eps <-epsilon.iterative(select.diag.pairs(human.all.df), estimation.it = 20)
 
 ## Filter out low counts
 cele.filt.df <- filter(cele.all.df, pt > 200)
@@ -52,20 +51,10 @@ keqs <- compute.keqs(pt.dfs=list(cele=cele.filt.df, human=human.filt.df, zf=zf.f
              gamma.shape = gamma.shape, gamma.rate = gamma.rate, pool.size = pool.size,
              n.iterations = 50, take.pairs = T)
 
-cele.keqs <- compute.keqs.fixedP(cele.filt.df, mean.eps = median(as.matrix(cele.eps[,-1])), take.pairs = T)
-zf.keqs <- compute.keqs.fixedP(zf.filt.df, mean.eps = median(as.matrix(zf.eps[,-1])), take.pairs = T)
-human.keqs <- compute.keqs.fixedP(human.filt.df, mean.eps = median(as.matrix(human.eps[,-1])), take.pairs = T)
 
 keqs.mean <- keqs %>% 
   filter(pt>300) %>%
-  filter(species=='cele') %>%
   group_by(pair) %>%
   summarise(dG=first(dG), mean.keq=mean(single.keq, na.rm=T), sd.keq=sd(single.keq, na.rm=T))
-
-keqs.5 <- keqs.mean
-
-keqs.5 <- compute.keqs.fixedP(cele.df, mean.eps = median(as.matrix(cele.eps.5[,-1])))
-keqs.10 <- compute.keqs.fixedP(cele.df, mean.eps = median(as.matrix(cele.eps.10[,-1])))
-keqs.20 <- compute.keqs.fixedP(cele.df, mean.eps = median(as.matrix(cele.eps.20[,-1])))
 
 write.csv(x = keqs.mean, "~/Keqs_all_pairs.csv")

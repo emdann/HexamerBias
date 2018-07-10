@@ -1,15 +1,14 @@
-### Keq COMPUTATION ###
+#############################################
+###### HEXAMER BINDING MODEL FUNCTIONS ######
+#############################################
+
 library(dplyr)
 library(data.table)
 library(ggplot2)
 library(reshape2)
 library(RColorBrewer)
 library(fitdistrplus)
-source('~/HexamerBias/rscripts/sanity_checks_deltaG.r')
-
-# Putting together functions used in normalization_strategy.Rmd
-
-
+source('~/HexamerBias/rscripts/hexamer_sequence_functions.r')
 
 ## DATA PARSING ##
 
@@ -89,114 +88,6 @@ make.match.df <- function(pt.file, ab.file){
   return(hex.df)
 }
 
-## NORMALIZATION ## 
-rev.comp<-function(x,compl=TRUE,rev=TRUE){
-  x<-toupper(x)
-  y<-rep("N",nchar(x))
-  xx<-unlist(strsplit(x,NULL))
-  if(compl==TRUE)
-  {
-    for (bbb in 1:nchar(x))
-    {
-      if(xx[bbb]=="A") y[bbb]<-"T"
-      if(xx[bbb]=="C") y[bbb]<-"G"
-      if(xx[bbb]=="G") y[bbb]<-"C"
-      if(xx[bbb]=="T") y[bbb]<-"A"
-    }
-  }
-  if(compl==FALSE)
-  {
-    for (bbb in 1:nchar(x))
-    {
-      if(xx[bbb]=="A") y[bbb]<-"A"
-      if(xx[bbb]=="C") y[bbb]<-"C"
-      if(xx[bbb]=="G") y[bbb]<-"G"
-      if(xx[bbb]=="T") y[bbb]<-"T"
-    }
-  }
-  if(rev==FALSE)
-  {
-    for(ccc in (1:nchar(x)))
-    {
-      if(ccc==1) yy<-y[ccc] else yy<-paste(yy,y[ccc],sep="")
-    }
-  }
-  if(rev==T)
-  {
-    zz<-rep(NA,nchar(x))
-    for(ccc in (1:nchar(x)))
-    {
-      zz[ccc]<-y[nchar(x)+1-ccc]
-      if(ccc==1) yy<-zz[ccc] else yy<-paste(yy,zz[ccc],sep="")
-    }
-  }
-  return(yy)
-}
-
-find.rev.pairs <- function(df,smp){
-  p <- filter(df, primer==smp$primer, template==smp$template  | template==rev.comp(smp$template, compl = F) )
-  return(p)
-}
-
-find.pal.epsilon <- function(smp.ij, smp.ji){
-  return(c((smp.ji$abundance*smp.ij$pt - smp.ij$abundance*smp.ji$pt), (smp.ij$pt*smp.ji$cele.pt - smp.ji$pt*smp.ij$cele.pt)))
-}
-
-is.palindrome <- function(seq){
-  if (seq == paste0(rev(strsplit(seq,split='')[[1]]), collapse='')) {
-    return(TRUE)
-  }else{
-    return(FALSE)
-  }
-}
-
-epsilon.distribution <- function(hex.df){
-  pals <- unique(hex.df$primer)[sapply(unique(hex.df$primer), is.palindrome)]
-  pal.df <- hex.df %>%
-    filter(primer %in% pals)
-  l.pairs.pals <- lapply(1:nrow(pal.df), function(i) find.rev.pairs(pal.df,pal.df[i,]))
-  epsilons.pals <- sapply(l.pairs.pals, function(p) find.pal.epsilon(p[1,], p[2,]))
-  return(epsilons.pals)
-}
-
-# eps <- median(epsilons, na.rm=T)
-
-normalize.w.palindrome.primers <- function(hex.df, eps, C=1){
-  scaled.hex.df <- hex.df %>%
-    mutate(scaled.pt = pt*eps*C) %>%
-    mutate(pred.dg.scaled= (abundance-scaled.pt)/scaled.pt) %>%
-    mutate(pred.dg= (abundance-pt)/pt) 
-  return(scaled.hex.df)
-}
-
-## PRIMER POOL SIMULATION ##
-build.random.base <- function(pA=0.25, pT=0.25, pG=0.25, pC=0.25){
-  a <- pA
-  c <- a+pC
-  t <- c+pT
-  g <- t+pG
-  rand <- runif(1,0,1)
-  if (rand < a) {return('A')}
-  if (rand > a & rand < c) {return('C')}
-  if (rand > c & rand < t) {return('T')}
-  if (rand > t) {return('G')}
-}
-
-build.random.hex <- function(){
-  hex <- ''
-  for (n in 1:6) {
-    hex <- paste0(hex,build.random.base())  
-  }
-  return(hex)
-}
-
-simulate.primer.pool <- function(pool.size=50000){
-  pool <- c()
-  for (n in 1:pool.size) {
-    pool <- c(pool, build.random.hex())
-  }
-  return(pool)
-}
 
 # tab <- data.frame(pool = factor())
 # for (n in 1:100) {
@@ -205,6 +96,72 @@ simulate.primer.pool <- function(pool.size=50000){
 #   tab <- full_join(tab, count, by='pool')
 # }
 
+#### Chi-SQUARE MINIMIZATION BASED ON CALORIMETRY DATA ####
+
+epsilon.minimize.chisq <- function(pt.df, max, min=0, plot=T){
+  min.epsilon <- pt.df %>%
+    mutate(ep=t.usage/abundance) %>%
+    top_n(n = 1,ep) %>%
+    .$ep
+  chis <- c()
+  if(min < min.epsilon){min <- min.epsilon}
+  for (eps in seq(min, max, 1) ) {
+    chi.sq <- pt.df %>%
+      filter(pt!=0) %>%
+      mutate(chi=(-dG/0.59)
+             - log(4/(4^6)) 
+             - log(abundance-(t.usage/eps)) 
+             + log(pt/eps)
+      ) %>%
+      summarise(chi=sum(chi^2))
+    chis <- c(chis, chi.sq)  
+  }
+  if(plot){plot(seq(min, max,1), unlist(chis), pch='.')}
+  best.eps <- seq(min, max, 1)[which.min(unlist(chis))] 
+  return(best.eps)
+}
+
+compute.keqs <- function(pt.df, eps, filter.pt=200){
+  keqs <- pt.df %>%
+    filter(pt>filter.pt) %>%
+    mutate(keq=((4^6)/4)*(pt/(eps*abundance-t.usage))) 
+  return(keqs)
+}
+
+predict.coverage <- function(keqs.df, eps, prob=4/(4^6)){
+  pred.cov <- keqs.df %>%
+    mutate(p=prob) %>%
+    mutate(phi=p*keq,
+           nuc=sapply(template, prevalent_nucleotide),
+           epsilon=eps) %>%
+    group_by(template) %>%
+    summarise(abundance=first(abundance), epsilon=first(epsilon), t.usage=first(t.usage), sum.phi=sum(phi), nuc=first(nuc)) %>%
+    mutate(pred.cov=epsilon*abundance*(sum.phi/1+sum.phi)) 
+  return(pred.cov)
+}
+
+#### TESTS ####
+
+compute.keqs.noeps <- function(pt.df, filter.pt=200){
+  keqs <- pt.df %>%
+    filter(pt>filter.pt) %>%
+    mutate(keq=((4^6)/4)*(pt/(abundance-t.usage))) 
+  return(keqs)
+}
+
+predict.coverage.noeps <- function(keqs.df, prob=4/(4^6)){
+  pred.cov <- keqs.df %>%
+    mutate(p=prob) %>%
+    mutate(phi=p*keq,
+           nuc=sapply(template, prevalent_nucleotide)) %>%
+    group_by(template) %>%
+    summarise(abundance=first(abundance), t.usage=first(t.usage), sum.phi=sum(phi), nuc=first(nuc)) %>%
+    mutate(pred.cov=abundance*(sum.phi/1+sum.phi)) 
+  return(pred.cov)
+}
+
+#### A BIG BUNCH OF THINGS THAT DIDN'T WORK ####
+
 ## SCALING FACTOR ESTIMATION ASSUMING DISTRIBUTION OF PRIMER CONCENTRATION ##
 group.coeffs.wPrimer.all <- function(hex.df, groupsOI, gamma.shape=24.05, gamma.rate=0.98, pool.size=sum(table(pool1)), imposeP=F){
   groups.df <- hex.df %>% 
@@ -212,12 +169,12 @@ group.coeffs.wPrimer.all <- function(hex.df, groupsOI, gamma.shape=24.05, gamma.
     filter(group %in% groupsOI) %>%
     mutate(dG=dG/0.59) 
   if (imposeP) {
-    groups.df <- mutate(groups.df, p=1/(4^6))
+    groups.df <- mutate(groups.df, p=4/(4^6))
   } else {
-    groups.df <- mutate(groups.df, 
-                        p=(sample(rgamma(pool.size, 
-                                         shape=gamma.shape, 
-                                         rate=gamma.rate)/pool.size, n())))
+    p.conc <- data.frame(primer=t.groups$template,   p=(sample(rgamma(pool.size, 
+                                                                      shape=gamma.shape, 
+                                                                      rate=gamma.rate)/pool.size, 4096)))
+    groups.df <- inner_join(groups.df,p.conc, by='primer')
   }
   groups.df.coeffs <- groups.df %>%
     mutate(frac.abundance=(abundance/sum(abundance))) %>%
@@ -244,7 +201,7 @@ solve.system <- function(groups.df){
   for (n in groups.df$group){
     coeffs <- rbind(coeffs, sapply(groups.df$group, function(i) ifelse(groups.df[groups.df$group==i,]$group==n,as.numeric(groups.df[groups.df$group==i,'N']), 0)))
     # ifelse(groups.df$group==n)
-    }
+  }
   right <- groups.df %>%
     transmute(group,D)
   right <- as.matrix(cbind(right$group, right$D))
@@ -280,9 +237,52 @@ estimate.epsilon <- function(hex.df, primer.pool, groupsOI, imposeP = F, iterati
     if(!is.na(sols)){
       epsilons <- c(epsilons, sols$eps)
     } else {epsilons <- c(epsilons, NA)}
-    }
-  return(epsilons)
   }
+  return(epsilons)
+}
+
+epsilon.iterative <- function(pt.df, estimation.it=10, tot.it=20, sample.size=20, imposeP=F){
+  i<-1
+  eps.df <- data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it, imposeP=imposeP))
+  colnames(eps.df)[ncol(eps.df)] <- paste0('it.',i)
+  while(i<tot.it){
+    i<-i+1
+    eps.df <- full_join(eps.df, data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it, imposeP=imposeP)), by='n')
+    colnames(eps.df)[ncol(eps.df)] <- paste0('it.',i)
+  }
+  return(eps.df)
+}
+
+estimate.eps.one.group <- function(hex.df, groupOI,imposeP=T){
+  groups.df <- hex.df %>% 
+    inner_join(., t.groups, by='template') %>%
+    filter(group==groupOI) %>%
+    mutate(dG=dG/0.59
+           # abundance=abundance/sum(abundance)
+    )  
+  if (imposeP) {
+    groups.df <- mutate(groups.df, p=4/(4^6))
+  } else {
+    groups.df <- mutate(groups.df, 
+                        p=(sample(rgamma(pool.size, 
+                                         shape=gamma.shape, 
+                                         rate=gamma.rate)/pool.size, n())))
+  }
+  groups.df <- groups.df %>%
+    mutate(A=sum((p^2)*(abundance^2/pt^2)),
+           C=sum(((abundance*t.usage)/(pt^2))*(p^2))) %>%
+    # group_by(group) %>%
+    mutate(B=sum((p*abundance)/pt),
+           D=sum((t.usage/pt)*p),
+           N=n()
+           # C.sing=sum(((abundance*t.usage)/(pt^2))*(p^2))
+    ) %>%
+    mutate(eps=(-D*B+N*C)/(-(B^2)+N*A)) %>%
+    dplyr::select(group,eps) %>%
+    summarise_all(funs(first)) 
+  return(groups.df)  
+}
+
 
 estimate.keq <- function(hex.df, primer.pool, groupsOI, iterations=1000){
   fit.gamma <- summary(fitdist(as.numeric(table(primer.pool)), 'gamma'))
@@ -303,6 +303,8 @@ estimate.keq <- function(hex.df, primer.pool, groupsOI, iterations=1000){
   return(keq.df)
 }
 
+
+
 estimate.deltaG <- function(hex.df, primer.pool, groupsOI, iterations=1000){
   fit.gamma <- summary(fitdist(as.numeric(table(primer.pool)), 'gamma'))
   deltaG <- c()
@@ -319,11 +321,11 @@ estimate.deltaG <- function(hex.df, primer.pool, groupsOI, iterations=1000){
       # rename(Keq=sols$dg) %>%
       inner_join(., coeffs$df) %>%
       mutate(deltaG=keq/p)
-  #   if(!is.na(sols)){
-  #     keq <- rbind(keq, sols$dgs)
-  #   } else {keq <- rbind(keq, rep(NA, length(groupsOI)))}
+    #   if(!is.na(sols)){
+    #     keq <- rbind(keq, sols$dgs)
+    #   } else {keq <- rbind(keq, rep(NA, length(groupsOI)))}
     deltaG <- rbind(deltaG, dgs.df$deltaG)
-    }
+  }
   deltaG.df <- data.frame(deltaG)
   colnames(deltaG.df) <- dgs.df$template
   return(deltaG.df)
@@ -335,7 +337,7 @@ estimate.deltaG <- function(hex.df, primer.pool, groupsOI, iterations=1000){
 # 
 
 
- 
+
 # fit.gamma <- summary(fitdist(as.numeric(table(primer.pool)), 'gamma'))
 # gamma.shape = fit.gamma$estimate['shape']
 # gamma.rate = fit.gamma$estimate['rate']
@@ -354,7 +356,7 @@ add.many.ps <- function(df, gamma.shape, gamma.rate, pool.size, n.iterations=10)
   return(df.long)
 }
 
-compute.keqs <- function(pt.dfs = list(cele=cele.df, human=human.df, zf=zf.df), cele.eps, human.eps, zf.eps, gamma.shape, gamma.rate, pool.size, n.iterations=10, take.pairs=F){
+compute.keqs.2 <- function(pt.dfs = list(cele=cele.df, human=human.df, zf=zf.df), cele.eps, human.eps, zf.eps, gamma.shape, gamma.rate, pool.size, n.iterations=10, take.pairs=F){
   if (take.pairs) {
     dfs.w.p <- lapply(pt.dfs, add.pairs.info)
   } else {
@@ -368,7 +370,52 @@ compute.keqs <- function(pt.dfs = list(cele=cele.df, human=human.df, zf=zf.df), 
   keqs1 <- keqs1 %>%
     mutate(single.keq=p*((epsilon*(frac.abundance/pt))-(t.usage/pt))) 
   return(keqs1)
+}
+
+compute.keqs.fixedP <- function(pt.df, mean.eps, 
+                                prob=data.frame(p=sapply(as.character(t.groups$template), primer.prob)) %>% tibble::rownames_to_column(var='primer') , 
+                                # n.iterations=10, 
+                                take.pairs=F){
+  tot.ab <- pt.df %>% group_by(template) %>% summarise(ab=first(abundance)) %>% mutate(tot=sum(as.numeric(ab))) %>% sample_n(1) %>% .$tot 
+  if (take.pairs) {
+    df.w.p <- add.pairs.info(pt.df)
+  } else {
+    df.w.p <- pt.df
   }
+  # dfs.w.p <- lapply(dfs.w.p, function(x) mutate(x, frac.abundance=(abundance/sum(as.numeric(abundance)))))
+  # dfs.w.p <- lapply(dfs.w.p, add.many.ps, gamma.shape = gamma.shape, gamma.rate = gamma.rate, pool.size=pool.size, n.iterations = n.iterations)
+  keqs1 <- mutate(df.w.p, 
+                  epsilon=mean.eps,
+                  frac.abundance=(abundance/tot.ab)
+  ) %>%
+    inner_join(., prob, by='primer' ) %>%
+    mutate(p=4*p) %>%
+    mutate(single.keq=p*((epsilon*(frac.abundance/pt))-(t.usage/pt))) 
+  # mutate(single.keq=pt/(p*(epsilon*(frac.abundance)-t.usage)))
+  return(keqs1)
+}
+
+compute.keqs.fixedP.totabundance <- function(pt.df, mean.eps, 
+                                             prob=data.frame(p=sapply(as.character(t.groups$template), primer.prob)) %>% tibble::rownames_to_column(var='primer') , 
+                                             # n.iterations=10, 
+                                             take.pairs=F){
+  # tot.ab <- pt.df %>% group_by(template) %>% summarise(ab=first(abundance)) %>% mutate(tot=sum(as.numeric(ab))) %>% sample_n(1) %>% .$tot 
+  if (take.pairs) {
+    df.w.p <- add.pairs.info(pt.df)
+  } else {
+    df.w.p <- pt.df
+  }
+  # dfs.w.p <- lapply(dfs.w.p, function(x) mutate(x, frac.abundance=(abundance/sum(as.numeric(abundance)))))
+  # dfs.w.p <- lapply(dfs.w.p, add.many.ps, gamma.shape = gamma.shape, gamma.rate = gamma.rate, pool.size=pool.size, n.iterations = n.iterations)
+  keqs1 <- mutate(df.w.p, 
+                  epsilon=mean.eps
+  ) %>%
+    inner_join(., prob, by='primer' ) %>%
+    mutate(p=4*p) %>%
+    mutate(single.keq=p*((epsilon*(abundance/pt))-(t.usage/pt))) 
+  # mutate(single.keq=pt/(p*(epsilon*(frac.abundance)-t.usage)))
+  return(keqs1)
+}
 
 
 # taking the pairs
@@ -380,61 +427,3 @@ add.pairs.info <- function(hex.df){
   return(hex.df)
 }
 
-
-# %>%
-#   dplyr::select(template, single.keq, species) %>%
-#   filter(template=='TATCTC') 
-#   ggplot(., aes(single.keq, fill=species)) + geom_histogram()
-  
-# while (i<n.iterations) {
-#   i <- i+1
-#   dfs.w.p <- lapply(list(cele=cele.df, human=human.df, zf=zf.df), function(x) mutate(x, p=(sample(rgamma(pool.size,shape=gamma.shape,rate=gamma.rate)/pool.size, n()))))
-#   keqs <- bind_rows(mutate(dfs.w.p$cele, species='cele'), mutate(dfs.w.p$human, species='human'), mutate(dfs.w.p$zf, species='zfish')) %>%
-#     # mutate(p=(sample(rgamma(pool.size,shape=gamma.shape,rate=gamma.rate)/pool.size, n()))) %>%
-#     mutate(single.keq=p*((epsilon*(abundance/pt))-(t.usage/pt))) %>%
-#     dplyr::select(template, single.keq)
-#   keqs1 <- inner_join(keqs1, keqs, by='template')
-# }
-# head(keqs1)
-# group_by(template,primer) %>%
-#   summarise(mean.keq = mean(single.keq), sd.keq = sd(single.keq))
-
-
-
-# cele.df.wp <- add.many.ps(cele.df, gamma.shape = gamma.shape, gamma.rate = gamma.rate, pool.size, n.iterations = 100)
-# 
-# cele.eps
-# 
-# keqs %>%
-#   inner_join(., t.groups, by='template') %>%
-#   mutate(group=as.numeric(group),
-#          mean.keq=-mean.keq) %>%
-#   inner_join(.,melt(keq.zf, variable.name='group', value.name = 'keq.system'), by='group') %>%
-#   group_by(template) %>%
-#   summarise(mean.system=mean(keq.system), mean.keq=first(mean.keq), sd.system=sd(keq.system), sd.keq=first(sd.keq)) %>%
-#   melt(id.vars='template') %>%
-#   mutate(type=gsub(variable, pattern = '\\..+', replacement = ''),
-#          method=gsub(variable, pattern = '.+.\\.', replacement = '')) %>%
-#   dplyr::select(-variable) %>%
-#   dcast(template+method ~ type) %>%
-#   filter(template %in% sample(t.groups$template, 50)) %>%
-#   ggplot(., aes(template,mean, group=method, color=method)) + geom_point() +
-#   geom_errorbar(aes(ymax=mean+sd, ymin=mean-sd))
-# 
-# compare.zf.cele %>%
-#   filter(species=='zf') %>%
-#   # filter(group %in% sample(compare.zf.cele$group, 1000)) %>%
-#   rename(template=group)
-#   inner_join(., keqs, by='template') %>%
-#   group_by(template) %>%
-#   summarise(mean.system=mean(dg), keq=first(mean.keq), sd.system=sd(dg), sd.keq=first(sd.keq))
-# 
-# 
-
-# epsilon=0.05
-# # pt.data <- load.pt.data(ptCounts.file = "~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-CeleTotal-noBS-1preAmp-handMix_lmerged_R1.ptCounts.qualFilt.csv", diag.pairs = F)
-# # kmer.ab.data <- load.kmer.abundance('~/mnt/edann/hexamers/genomes_kmers/WBcel235.kmerAbundance.csv')
-# # deltaG.data <- load.modelled.deltaG("~/mnt/edann/hexamers/rand_hex_deltaG_ions.txt.gz")
-# # 
-# # matches <- filter(pt.data$matches, substr(ptPair,1,6)==substr(ptPair, 8,100))
-# # hex.df <- join.pt.data(matches, pt.data$t.usage, kmer.ab.data, deltaG.data)

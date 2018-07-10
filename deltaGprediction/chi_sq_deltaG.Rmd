@@ -2,7 +2,7 @@
 title: "Chi-square approach validation"
 output: html_notebook
 ---
-```{r}
+```{r, echo=F}
 source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
 ```
 
@@ -27,6 +27,7 @@ save(human.df, file='~/AvOwork/human_pt.RData')
 Build primer pool for random hexamers
 ```{r}
 primer.pool <- simulate.primer.pool(pool.size = 200000)
+hist(table(primer.pool))
 ```
 
 Load groups of sequences with same binding energy
@@ -38,21 +39,21 @@ t.groups <- read.table("~/AvOwork/MatchingTemplate_groups.tsv", col.names = c('t
 For every genome sample 20 groups with at least 20 sequences, check distributions within samples and the total distribution
 
 ```{r}
-epsilon.iterative <- function(pt.df, estimation.it=10, tot.it=20, sample.size=20){
+epsilon.iterative <- function(pt.df, estimation.it=10, tot.it=20, sample.size=20, imposeP=F){
   i<-1
-  eps.df <- data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it))
+  eps.df <- data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it, imposeP=imposeP))
   colnames(eps.df)[ncol(eps.df)] <- paste0('it.',i)
   while(i<tot.it){
     i<-i+1
-    eps.df <- full_join(eps.df, data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it)), by='n')
+    eps.df <- full_join(eps.df, data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it, imposeP=imposeP)), by='n')
     colnames(eps.df)[ncol(eps.df)] <- paste0('it.',i)
   }
   return(eps.df)
   }
 
-cele.eps <-epsilon.iterative(cele.df, estimation.it = 50)
-zf.eps <-epsilon.iterative(zf.df, estimation.it = 50)
-human.eps <-epsilon.iterative(human.df, estimation.it = 50)
+cele.eps <-epsilon.iterative(cele.df, estimation.it = 20)
+zf.eps <-epsilon.iterative(zf.df, estimation.it = 20)
+human.eps <-epsilon.iterative(human.df, estimation.it = 20)
 
 cele.eps %>%
   melt(id.vars='n', variable.name='iteration', value.name = 'eps') %>%
@@ -68,18 +69,100 @@ human.eps %>%
 
 ```
 
+Compare epsilon estimation using probability distribution or mean probability
+```{r}
+zf.eps <-epsilon.iterative(zf.df, estimation.it = 20, sample.size = 10)
+zf.eps.prob <-epsilon.iterative(zf.df, estimation.it = 50, sample.size = 10, imposeP = T)
+cele.eps.prob <-epsilon.iterative(cele.df, estimation.it = 50, sample.size = 10, imposeP = T)
+median(as.matrix(zf.eps))
+median(as.matrix(zf.eps.prob))
+sd(as.matrix(zf.eps))
+sd(as.matrix(zf.eps.prob))
+
+median(as.matrix(cele.eps))
+median(as.matrix(cele.eps.prob))
+sd(as.matrix(cele.eps))
+sd(as.matrix(cele.eps.prob))
+
+# cbind(c(as.matrix(cele.eps.prob)), c(as.matrix(zf.eps.prob)), c(as.matrix(cele.eps)), c(as.matrix(zf.eps))) %>%
+
+mutate(melt(cele.eps, id.vars='n', variable.name='iteration', value.name = 'eps'), species='cele.dist') %>%
+  bind_rows(., mutate(melt(cele.eps.prob, id.vars='n', variable.name='iteration', value.name = 'eps'), species='cele.prob')) %>%
+  # bind_rows(., mutate(melt(zf.eps, id.vars='n', variable.name='iteration', value.name = 'eps'), species='zf')) %>%
+  ggplot(., aes(eps, group=species, fill=species)) + 
+  facet_grid(species~.) +
+  geom_histogram()  
+  # group_by(species) %>%
+  # summarise(mean(eps, na.rm=T), sd(eps, na.rm = T))
+  #   ggplot(., aes(species,eps)) + geom_boxplot()
+
+mutate(melt(zf.eps, id.vars='n', variable.name='iteration', value.name = 'eps'), species='zf.dist') %>%
+  bind_rows(., mutate(melt(zf.eps.prob, id.vars='n', variable.name='iteration', value.name = 'eps'), species='zf.prob')) %>%
+  # bind_rows(., mutate(melt(zf.eps, id.vars='n', variable.name='iteration', value.name = 'eps'), species='zf')) %>%
+  ggplot(., aes(eps, group=species, fill=species)) + 
+  facet_grid(species~.) +
+  geom_histogram()  
+```
+
+Effect of sample size on estimated $\varepsilon$
+```{r}
+cele.eps.3 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 3)
+cele.eps.4 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 4)
+cele.eps.5 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 5)
+cele.eps.10 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 10)
+cele.eps.15 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 15)
+cele.eps.20 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 20)
+cele.eps.25 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 25)
+cele.eps.30 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 30)
+
+mutate(melt(cele.eps.5, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=5) %>%
+  # bind_rows(., mutate(melt(cele.eps.3, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=3)) %>%
+  # bind_rows(., mutate(melt(cele.eps.4, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=4)) %>%
+  bind_rows(., mutate(melt(cele.eps.10, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=10)) %>%
+  bind_rows(., mutate(melt(cele.eps.15, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=15)) %>%
+  bind_rows(., mutate(melt(cele.eps.20, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=20)) %>%
+  bind_rows(., mutate(melt(cele.eps.25, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=25)) %>%
+  bind_rows(., mutate(melt(cele.eps.30, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=30)) %>%
+# bind_rows(., mutate(melt(zf.eps, id.vars='n', variable.name='iteration', value.name = 'eps'), species='zf')) %>%
+  ggplot(., aes(sample.size, eps, group=sample.size, fill=sample.size)) + 
+  # facet_grid(species~.) +
+  geom_violin()  
+```
+```{r}
+cele.eps.3 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 3,imposeP = T)
+cele.eps.4 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 4,imposeP = T)
+cele.eps.5 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 5,imposeP = T)
+cele.eps.10 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 10,imposeP = T)
+cele.eps.15 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 15,imposeP = T)
+cele.eps.20 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 20,imposeP = T)
+cele.eps.25 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 25,imposeP = T)
+cele.eps.30 <-epsilon.iterative(select.diag.pairs(cele.all.df), estimation.it = 20, sample.size = 30,imposeP = T)
+
+mutate(melt(cele.eps.5, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=5) %>%
+  # bind_rows(., mutate(melt(cele.eps.3, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=3)) %>%
+  # bind_rows(., mutate(melt(cele.eps.4, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=4)) %>%
+  bind_rows(., mutate(melt(cele.eps.10, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=10)) %>%
+  bind_rows(., mutate(melt(cele.eps.15, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=15)) %>%
+  bind_rows(., mutate(melt(cele.eps.20, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=20)) %>%
+  bind_rows(., mutate(melt(cele.eps.25, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=25)) %>%
+  bind_rows(., mutate(melt(cele.eps.30, id.vars='n', variable.name='iteration', value.name = 'eps'), sample.size=30)) %>%
+# bind_rows(., mutate(melt(zf.eps, id.vars='n', variable.name='iteration', value.name = 'eps'), species='zf')) %>%
+  ggplot(., aes(sample.size, eps, group=sample.size, fill=sample.size)) + 
+  # facet_grid(species~.) +
+  geom_violin()  
+```
+
 Total distribution
 ```{r}
 mutate(melt(cele.eps, id.vars='n', variable.name='iteration', value.name = 'eps'), species='cele') %>%
   bind_rows(., mutate(melt(human.eps, id.vars='n', variable.name='iteration', value.name = 'eps'), species='human')) %>%
   bind_rows(., mutate(melt(zf.eps, id.vars='n', variable.name='iteration', value.name = 'eps'), species='zf')) %>%
-  ggplot(., aes(eps, group=species, fill=species)) + geom_histogram() 
-  xlim(0,0.01)
-  
+  ggplot(., aes(eps, group=species, fill=species)) + geom_histogram()  
   group_by(species) %>%
   summarise(mean(eps, na.rm=T), sd(eps, na.rm = T))
     ggplot(., aes(species,eps)) + geom_boxplot()
 
+    
 
 ```
 
@@ -198,15 +281,19 @@ compare.zf.cele %>%
 ## Find deltaG values mismatching pairs
 
 ```{r}
-keqs <- compute.keqs(cele.eps, human.eps = human.eps, zf.eps, gamma.shape, gamma.rate, pool.size, n.iterations = 100)
-head(keqs)
+fit.gamma <- summary(fitdist(as.numeric(table(primer.pool)), 'gamma'))
+gamma.shape = fit.gamma$estimate['shape']
+gamma.rate = fit.gamma$estimate['rate']
+pool.size = length(primer.pool)
+
+keqs <- compute.keqs(cele.eps, human.eps = human.eps, zf.eps, gamma.shape, gamma.rate, pool.size=length(primer.pool), n.iterations = 10, take.pairs = T)
 ```
 plotting a few distributions
 ```{r}
 keqs %>%
-  filter(template %in% sample(unique(keqs$template), 10)) %>%
+  filter(template %in% sample(unique(keqs$template), 15)) %>%
   filter(pt>200) %>%
-  ggplot(., aes(template, p, fill=species)) + geom_boxplot(alpha=0.4)
+  ggplot(., aes(template, single.keq, fill=species)) + geom_boxplot(alpha=0.4)
 
 ```
 Comparison with system method 
@@ -214,17 +301,132 @@ Comparison with system method
 joined.keqs <- keqs %>%
   inner_join(., t.groups, by='template') %>%
   mutate(group=as.numeric(group)) %>%
-  inner_join(., melt(keq.cele, variable.name='group', value.name = 'keq.system'), by='group') 
+  inner_join(., melt(keq.zf, variable.name='group', value.name = 'keq.system'), by='group') 
+
+# joined.keqs %>%
+#   group_by(template) %>%
+#   summarise(single.keq=mean(single.keq), keq.system=mean(keq.system)) %>%
+#   filter(single.keq>-0.001) %>%
+#   ggplot(., aes(single.keq, keq.system)) + geom_point(alpha=0.4)
 
 joined.keqs %>%
   dplyr::select(template, dG, single.keq,p.iter, species, keq.system)  %>%
+  mutate(single.keq=-single.keq) %>%
   melt(id.vars=c('p.iter','template', 'dG', 'species'), variable.name='keq.method') %>%
   filter(as.character(template) %in% sample(unique(joined.keqs$template), 10)) %>%
   # filter(pt>200) %>%
-  ggplot(., aes(template, -value, fill=keq.method)) + geom_boxplot()
-  
+  ggplot(., aes(template, log(value), fill=keq.method)) + geom_boxplot()
+
+joined.keqs %>%
+  dplyr::select(template, dG, single.keq,p.iter, species, keq.system)  %>%
+  mutate(single.keq=-single.keq) %>%
+  melt(id.vars=c('p.iter','template', 'dG', 'species'), variable.name='keq.method') %>%
+  filter(as.character(template) %in% sample(unique(joined.keqs$template), 10)) %>%
+  # filter(pt>200) %>%
+  ggplot(., aes(template, (value), fill=keq.method)) + geom_boxplot()
+
+```
+Comparison with Mfold
+```{r}
+joined.keqs %>%
+  # dplyr::select(template, dG, single.keq,p.iter, species, keq.system)  %>%
+  filter(as.character(template) %in% sample(unique(keqs$template), 10)) %>%
+  filter(pt>200) %>%
+  ggplot(., aes(template, log(-single.keq))) + geom_boxplot() +
+  geom_point(aes(y=dG), color='red')
+
+keqs %>%
+  # dplyr::select(template, dG, single.keq,p.iter, species, keq.system)  %>%
+  filter(as.character(template) %in% sample(unique(keqs$template), 600)) %>%
+  filter(pt>300) %>%
+  ggplot(., aes(exp(dG/0.59), single.keq)) +
+  geom_point(alpha=0.1) 
+
+```
+```{r}
+keqs %>%
+  # dplyr::select(template, dG, single.keq,p.iter, species, keq.system)  %>%
+  # filter(as.character(template) %in% sample(unique(keqs$template), 600)) %>%
+  filter(pt>300) %>%
+  group_by(template) %>%
+  summarise(dG=first(dG), mean.keq=mean(single.keq, na.rm=T), sd.keq=sd(single.keq, na.rm=T), pt=first(pt)) %>%
+  mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+  # head()
+  # ggplot(., aes(mean.keq)) + geom_histogram()
+  # filter(mean.keq<0 & mean.keq>-7e-04) %>%
+    ggplot(., aes(dG/0.59, log(-mean.keq), color=nuc)) +
+  geom_point(alpha=0.5) + 
+    geom_errorbar(aes(ymax=log(-mean.keq+sd.keq), ymin=log(-mean.keq-sd.keq)), alpha=0.5)
+  # xlim(-12, -8)
+ggsave('~/AvOwork/Keq_vs_mfold.pdf')
+
+```
+Oh my God, yes.
+
+Where do the pairs fall?
+```{r}
+keqs %>%
+  filter(pt>300) %>%
+  group_by(template) %>%
+  summarise(dG=first(dG), mean.keq=mean(single.keq, na.rm=T), sd.keq=sd(single.keq, na.rm=T), pt=first(pt)) %>%
+  mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+  mutate(label=ifelse(template=='ATAAAA' | template=='TTTTAT', template, '')) %>%
+  ggplot(., aes(dG/0.59, log(-mean.keq), color=label)) +
+  geom_point(alpha=0.5)  
+  # geom_text_repel()
+    geom_errorbar(aes(ymax=log(-mean.keq+sd.keq), ymin=log(-mean.keq-sd.keq)))
+
+
 ```
 
+
+```{r}
+keqs %>%
+  # filter(pt>300) %>%
+  dplyr::select(template, single.keq, species) %>%
+  dcast(template ~ species, value.var='single.keq', fun.aggregate = mean) %>%
+  mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+  # summarise(cele=max(cele, na.rm=T))
+  ggplot(., aes(log((-cele)), log((-human)), color=nuc)) + geom_point(alpha=0.3)
+```
+
+With pairs
+```{r}
+keqs.pairs <- compute.keqs(cele.eps, human.eps = human.eps, zf.eps, gamma.shape, gamma.rate, pool.size, n.iterations = 50, take.pairs = T)
+
+pairs.keq <- keqs.pairs %>%
+# dplyr::select(template, dG, single.keq,p.iter, species, keq.system)  %>%
+# filter(as.character(template) %in% sample(unique(keqs$template), 600)) %>%
+filter(pt>200) %>%
+group_by(pair) %>%
+summarise(dG=first(dG), template=first(template), mean.keq=mean(single.keq, na.rm=T), sd.keq=sd(single.keq, na.rm=T), pt=first(pt))
+
+cele.df.wKeq <- cele.all.df %>%
+  add.pairs.info() %>%
+  inner_join(dplyr::select(pairs.keq, pair, mean.keq), by='pair') 
+
+cele.df.wKeq %>%
+  mutate(frac.abundance = abundance/sum(as.numeric(abundance))) %>%
+  group_by(template) %>%
+  mutate(pred.cov=frac.abundance*(sum(0.00024*-mean.keq)/(1+sum(0.00024*-mean.keq)))) %>%
+  ggplot(., aes(log(t.usage/sum(t.usage)), log(pred.cov/sum(pred.cov)))) + geom_point(alpha=0.3) +
+  geom_abline(slope=1, intercept = 0, col='red')
+
+keqs.pairs %>%
+  # dplyr::select(template, dG, single.keq,p.iter, species, keq.system)  %>%
+  # filter(as.character(template) %in% sample(unique(keqs$template), 600)) %>%
+  filter(pt>500) %>%
+  group_by(pair, species) %>%
+  summarise(dG=first(dG), template=first(template), mean.keq=mean(single.keq, na.rm=T), sd.keq=sd(single.keq, na.rm=T), pt=first(pt)) %>%
+  dplyr::select(pair, species,mean.keq) %>%
+  dcast(pair ~ species) %>%
+  mutate(nuc=sapply(pair, prevalent_nucleotide)) %>%
+  ggplot(., aes(log(-zfish), log(-cele), color=nuc)) + geom_point(alpha=0.5)
+  # filter(pair=='AAATTT.AAATTT')
+
+head(pairs.keq)  
+
+```
 
 ```{r}
 keq.zf.df2 <- dg.match %>%
@@ -239,3 +441,5 @@ keq.zf.df2 %>%
   # ylim(-0.025, 0.01)
 
 ```
+
+
