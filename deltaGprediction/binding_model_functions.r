@@ -36,6 +36,14 @@ make.hex.usage.df <- function(ptTab, type = 'primer', scale =TRUE){
   return(hex.df)
 }
 
+make_pair_df <- function(dgMat){
+  pairDf <- dgMat %>% 
+    melt(value.name = 'dG') %>% 
+    mutate(ptPair=paste0(Var1,'.',Var2)) %>% 
+    dplyr::select(ptPair, dG)
+  return(pairDf)
+}
+
 load.pt.data <- function(ptCounts.file, diag.pairs = F){
   # Loading primer-template matrix, returns long matrix 
   pt <- loadPtMatrix(ptCounts.file,compression = 'none')

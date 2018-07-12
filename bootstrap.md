@@ -13,7 +13,7 @@ for f in $(seq 15 5 95);
   done
 ```
 
-3) Run DeltaF prediction on all subsamples
+3) Build pt table for all subsamples
 ```
 for file in *.bam;
   do
