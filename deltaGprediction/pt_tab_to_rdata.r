@@ -1,4 +1,4 @@
-#!/usr/bin/Rscript
+
 source("/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction/binding_model_functions.r")
 
 args <- commandArgs(trailingOnly = T) 
