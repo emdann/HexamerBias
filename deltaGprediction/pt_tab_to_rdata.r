@@ -1,4 +1,4 @@
-
+install.packages("data.table", 'reshape2', 'ggplot2', 'RColorBrewer', 'gtools', 'ggrepel')
 source("/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction/binding_model_functions.r")
 
 args <- commandArgs(trailingOnly = T) 

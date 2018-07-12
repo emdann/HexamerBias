@@ -7,8 +7,9 @@ library(data.table)
 library(ggplot2)
 library(reshape2)
 library(RColorBrewer)
-library(fitdistrplus)
-source('~/HexamerBias/rscripts/hexamer_sequence_functions.r')
+# library(fitdistrplus)
+path2script <- '/hpc/hub_oudenaarden/edann/bin/coverage_bias'
+source(paste0(path2script,'/rscripts/hexamer_sequence_functions.r'))
 
 ## DATA PARSING ##
 
@@ -106,26 +107,28 @@ make.match.df <- function(pt.file, ab.file){
 
 #### Chi-SQUARE MINIMIZATION BASED ON CALORIMETRY DATA ####
 
-epsilon.minimize.chisq <- function(pt.df, max, min=0, plot=T){
+epsilon.minimize.chisq <- function(pt.df, max, min=0, primer.prob=batch.prob.uniform(), step=1, plot=T){
   min.epsilon <- pt.df %>%
     mutate(ep=t.usage/abundance) %>%
     top_n(n = 1,ep) %>%
     .$ep
   chis <- c()
   if(min < min.epsilon){min <- min.epsilon}
-  for (eps in seq(min, max, 1) ) {
-    chi.sq <- pt.df %>%
+  for (eps in seq(min, max, step) ) {
+    chi.sq <- rownames_to_column(data.frame(primer.prob), var = 'primer') %>%
+      rename(p=primer.prob) %>%
+      inner_join(.,pt.df, by='primer' ) %>%
       filter(pt!=0) %>%
       mutate(chi=(-dG/0.59)
-             - log(4/(4^6)) 
+             - log(4/p) 
              - log(abundance-(t.usage/eps)) 
              + log(pt/eps)
       ) %>%
       summarise(chi=sum(chi^2))
     chis <- c(chis, chi.sq)  
   }
-  if(plot){plot(seq(min, max,1), unlist(chis), pch='.')}
-  best.eps <- seq(min, max, 1)[which.min(unlist(chis))] 
+  if(plot){plot(seq(min, max,step), unlist(chis), pch='.')}
+  best.eps <- seq(min, max, step)[which.min(unlist(chis))] 
   return(best.eps)
 }
 
@@ -136,9 +139,13 @@ compute.keqs <- function(pt.df, eps, filter.pt=200){
   return(keqs)
 }
 
-predict.coverage <- function(keqs.df, eps, prob=4/(4^6)){
-  pred.cov <- keqs.df %>%
-    mutate(p=prob) %>%
+predict.coverage <- function(keqs.df, eps){
+  pred.cov <- 
+    keqs.df %>%
+    # rownames_to_column(data.frame(prob), var = 'primer') %>%
+    # rename(p=prob) %>%
+    # inner_join(.,keqs.df, by='primer' )%>%
+    # # mutate(p=prob) %>%
     mutate(phi=p*keq,
            nuc=sapply(template, prevalent_nucleotide),
            epsilon=eps) %>%
