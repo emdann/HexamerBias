@@ -16,4 +16,4 @@ print("Merging")
 pt.all.df <- join.pt.data(pt.df$matches, pt.df$t.usage, genome.abundance, mfold.dg)
 
 print("Saving")
-save(pt.all.df, file = outfile)
+saveRDS(pt.all.df, file = outfile)
