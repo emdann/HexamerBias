@@ -8,41 +8,19 @@ library(ezknitr)
 ezknit(file = "eps_and_Keq_estimation_final.Rmd", out_dir = "~/AvOwork")
 ```
 
-```{r}
+```{r, eval=F}
 setwd("~/mnt/")
 source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
 source('~/HexamerBias/rscripts/hexamer_sequence_functions.r')
 ```
 
-<!-- Loading required files: tab of Mfold binding energies, tab of groups of simmetric hexamers, genomic kmer abundances for 3 genomes, primer-template tables -->
-<!-- ```{r} -->
-<!-- tabDg <- read.delim(gzfile("~/mnt/edann/hexamers/rand_hex_deltaG_ions.txt.gz"), sep=' ', header = FALSE, col.names=c('template', 'dG')) -->
-<!-- t.groups <- read.table("~/AvOwork/MatchingTemplate_groups.tsv", col.names = c('template', 'group')) -->
-
-<!-- kmer.ab.cele <- load.kmer.abundance('./edann/hexamers/genomes_kmers/WBcel235.kmerAbundance.csv') -->
-<!-- kmer.ab.zf <- load.kmer.abundance('./edann/hexamers/genomes_kmers/danRer10.kmerAbundance.csv') -->
-<!-- kmer.ab.human <- load.kmer.abundance('./edann/hexamers/genomes_kmers/hg38.kmerAbundance.csv') -->
-
-<!-- cele.all <- load.pt.data("./edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-CeleTotal-noBS-1preAmp-handMix_lmerged_R1.ptCounts.qualFilt.csv") -->
-<!-- cele.all.df <- join.pt.data(cele.all$matches, cele.all$t.usage, kmer.ab.cele, tabDg) -->
-
-<!-- zf.all <- load.pt.data("./edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-zfishTotal-noBS-1preAmp-handMix_lmerged_R1.ptCounts.qualFilt.csv") -->
-<!-- zf.all.df <- join.pt.data(zf.all$matches, zf.all$t.usage, kmer.ab.zf, tabDg) -->
-
-<!-- human.all <- load.pt.data("./edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-humanAPKS-noBS-1preAmp-handMix_lmerged_R1.ptCounts.qualFilt.csv") -->
-<!-- human.all.df <- join.pt.data(human.all$matches, human.all$t.usage, kmer.ab.human, tabDg) -->
-<!-- ``` -->
-
-<!-- Saving RData files for future use -->
-<!-- ```{r} -->
-<!-- save(human.all.df, file = "~/AvOwork/human_pt_all.RData") -->
-<!-- save(zf.all.df, file = "~/AvOwork/zfish_pt_all.RData") -->
-<!-- ``` -->
-
 ```{r}
 load("~/AvOwork/rdata/human_pt_all.RData")
 load("~/AvOwork/rdata/cele_pt_all.RData")
 load("~/AvOwork/rdata/zfish_pt_all.RData")
+load("~/AvOwork/rdata/human_pt.RData")
+load("~/AvOwork/rdata/cele_pt.RData")
+load("~/AvOwork/rdata/zf_pt.RData")
 ```
 
 <!-- ## Before epsilon -->
@@ -521,7 +499,7 @@ load("~/AvOwork/rdata/zfish_pt_all.RData")
 ## YET ANOTHER EPSILON ESTIMATION
 We search for the value of the scaling factor $\epsilon$ that minimizes the difference between the expected association constant ($e^{-\beta\Delta G}$, taking $\Delta$G values from calorimetry). To avoid numerical errors in the estimation we transform all factors to logarithms. 
 $$
-\chi^2 = \sum{_{ij} - log([p]) + log\left(T_j - \frac{\sum_i{x_{ij}}}{\epsilon}\right) + log\left(\frac{x_{ij}}{\epsilon}\right)}
+\chi^2 = \sum{\left( K_{ij} - log([p]) + log\left(T_j - \frac{\sum_i{x_{ij}}}{\epsilon}\right) + log\left(\frac{x_{ij}}{\epsilon}\right)\right)^2}
 $$
 
 Where we fix that the concentration of total template should also be higher than the concentration of bound template:
@@ -555,24 +533,31 @@ epsilon.minimize.chisq <- function(pt.df, max, min=0, plot=T){
   }
 ```
 
-```{r}
-human.eps <- epsilon.minimize.chisq(human.df, max=10000)
-zf.eps <- epsilon.minimize.chisq(zf.df, max=15000)
-cele.eps <- epsilon.minimize.chisq(cele.df, min=130000, max=140000, plot=F)
+```{r, eval=F}
+eps.human <- epsilon.minimize.chisq(human.df, max=10000, plot=F)
+eps.zf <- epsilon.minimize.chisq(zf.df, max=15000, plot=F)
+eps.cele <- epsilon.minimize.chisq(cele.df, min=130000, max=140000, plot=F)
 ```
 
 #### Correlation with genomic coverage
 I compute percentage of genome covered using `bedtools genomecov`
 
 ```{r}
-cov %>%
+genome.cov <- data.frame(species = c('cele', 'human', 'zf'), cov=c(1-0.0638419,1-0.754045,1-0.603038))
+
+genome.cov %>%
   bind_cols(eps=c(eps.cele, eps.human, eps.zf)) %>%
   ggplot(., aes(log(cov), log(eps), label=species)) + 
   geom_point() +
   geom_text_repel()
 ```
 
-We will confirm this trend by downsampling and adding the new samples.
+Downsampling experiments to better fit the curve
+```{r}
+
+
+
+```
 
 #### Keq estimation
 ```{r}
@@ -583,42 +568,84 @@ compute.keqs <- function(pt.df, eps, filter.pt=200){
   return(keqs)
   }
 
-human.keqs <- compute.keqs(human.df, eps.human, filter.pt = 20)
-zf.keqs <- compute.keqs(zf.df, eps.zf, filter.pt = 20)
-cele.keqs <- compute.keqs(cele.df, eps.cele, filter.pt = 20)
+human.keqs <- compute.keqs(human.all.df, eps.human, filter.pt = 10)
+zf.keqs <- compute.keqs(zf.all.df, eps.zf, filter.pt = 10)
+cele.keqs <- compute.keqs(cele.all.df, eps.cele, filter.pt = 10)
 ```
 
 Correlation between predicted keqs
 ```{r}
-inner_join(zf.keqs, human.keqs, by=c('template', 'primer'), suffix=c('.zf', '.human')) %>%
-  ggplot(., aes(log(keq.zf), log(keq.human))) +
-  geom_point(alpha=0.3) +
+join.df <- 
+  inner_join(zf.keqs, human.keqs, by=c('template', 'primer'), suffix=c('.zf', '.human')) %>%
+  # filter(primer==template) %>%
+  mutate(mm=ifelse(primer==template, 'match', 'mismatch')) 
+pcc <- cor(join.df$keq.zf, join.df$keq.human)
+join.df %>%
+  ggplot(., aes(log(keq.zf), log(keq.human), color=mm)) +
+  geom_point(alpha=0.2, size=0.7) +
   theme_classic() +
-  geom_abline(slope=1, intercept=0, color='red')
+  annotate("text",x = -9, y=-15, label=paste("PCC =",round(pcc, 3)), size=9) +
+  geom_abline(slope=1, intercept=0, color='red') +
+  scale_color_brewer(palette = "Paired",type = "qual") +
+    theme(legend.title = element_blank(),
+        legend.text = element_text(size=20),
+        axis.text = element_text(size=20),
+        axis.title = element_text(size=30)) +
+  xlab("Predicted Keq - D.rerio") + ylab("Predicted Keq - H.sapiens") +
+    coord_fixed(ratio=1) +
+  ggsave("~/AvOwork/output/epsilon_estimate/keq_cor_zfVShuman.pdf")
 
-inner_join(cele.keqs, human.keqs, by=c('template', 'primer'), suffix=c('.cele', '.human')) %>%
-  ggplot(., aes(log(keq.cele), log(keq.human))) +
-  geom_point(alpha=0.3) +
+join.df <- 
+  inner_join(cele.keqs, human.keqs, by=c('template', 'primer'), suffix=c('.cele', '.human')) %>%
+  # filter(primer==template) %>%
+  mutate(mm=ifelse(primer==template, 'match', 'mismatch')) 
+pcc <- cor(join.df$keq.cele, join.df$keq.human)
+join.df %>%
+  ggplot(., aes(log(keq.cele), log(keq.human), color=mm)) +
+  geom_point(alpha=0.2, size=0.7) +
   theme_classic() +
-  geom_abline(slope=1, intercept=0, color='red')
+  annotate("text",x = -9, y=-15, label=paste("PCC =",round(pcc, 3)), size=9) +
+  geom_abline(slope=1, intercept=0, color='red') +
+  scale_color_brewer(palette = "Paired",type = "qual") +
+    theme(legend.title = element_blank(),
+        legend.text = element_text(size=20),
+        axis.text = element_text(size=20),
+        axis.title = element_text(size=30)) +
+  xlab("Predicted Keq - C.elegans") + ylab("Predicted Keq - H.sapiens") +
+    coord_fixed(ratio=1) +
+  ggsave("~/AvOwork/output/epsilon_estimate/keq_cor_celeVShuman.pdf")
 
-inner_join(cele.keqs, zf.keqs, by=c('template', 'primer'), suffix=c('.cele', '.zf')) %>%
-  ggplot(., aes(log(keq.zf), log(keq.cele))) +
-  geom_point(alpha=0.3) +
+join.df <- 
+  inner_join(cele.keqs, zf.keqs, by=c('template', 'primer'), suffix=c('.cele', '.zf')) %>%
+  # filter(primer==template) %>%
+  mutate(mm=ifelse(primer==template, 'match', 'mismatch')) 
+pcc <- cor(join.df$keq.cele, join.df$keq.zf)
+join.df %>%
+  ggplot(., aes(log(keq.cele), log(keq.zf), color=mm)) +
+  geom_point(alpha=0.2, size=0.7) +
   theme_classic() +
-  geom_abline(slope=1, intercept=0, color='red')
+  annotate("text",x = -9, y=-15, label=paste("PCC =",round(pcc, 3)), size=9) +
+  geom_abline(slope=1, intercept=0, color='red') +
+  scale_color_brewer(palette = "Paired",type = "qual") +
+    theme(legend.title = element_blank(),
+        legend.text = element_text(size=20),
+        axis.text = element_text(size=20),
+        axis.title = element_text(size=30)) +
+  xlab("Predicted Keq - C.elegans") + ylab("Predicted Keq - D.rerio") +
+  coord_fixed(ratio=1) +
+  ggsave("~/AvOwork/output/epsilon_estimate/keq_cor_celeVSzf.pdf")
 
 ```
 
 
 #### Coverage prediction
 ```{r}
-predict.coverage <- function(keqs.df, prob=4/(4^6)){
+predict.coverage <- function(keqs.df, eps, prob=4/(4^6)){
   pred.cov <- keqs.df %>%
     mutate(p=prob) %>%
     mutate(phi=p*keq,
            nuc=sapply(template, prevalent_nucleotide),
-           epsilon=eps.human) %>%
+           epsilon=eps) %>%
     group_by(template) %>%
     summarise(abundance=first(abundance), epsilon=first(epsilon), t.usage=first(t.usage), sum.phi=sum(phi), nuc=first(nuc)) %>%
     mutate(pred.cov=epsilon*abundance*(sum.phi/1+sum.phi)) 
@@ -629,25 +656,74 @@ predict.coverage <- function(keqs.df, prob=4/(4^6)){
 # zf.keqs <- compute.keqs(zf.df, eps.zf, filter.pt = 50)
 # cele.keqs <- compute.keqs(cele.df, eps.cele, filter.pt = 50)
 
-predict.coverage(human.keqs) %>%
+predict.coverage(filter(human.keqs), eps=eps.human) %>%
   mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
-    ggplot(., aes(log(t.usage/sum(t.usage)), log(pred.cov/sum(pred.cov)), color=nuc)) + 
+    ggplot(., aes(log(t.usage), log(pred.cov), color=nuc)) + 
   geom_point(alpha=0.4) +
   geom_abline(slope=1, intercept=0, color='red') +
   theme_classic() +
   xlab("expected cov") + ylab("predicted cov") +
   ggtitle("Human - no BS") 
 
-predict.coverage(zf.keqs) %>%
+predict.coverage(zf.keqs, eps.zf) %>%
   mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
-    ggplot(., aes(log(t.usage/sum(t.usage)), log(pred.cov/sum(pred.cov)), color=nuc)) + 
+    ggplot(., aes(log(t.usage), log(pred.cov), color=nuc)) + 
   geom_point(alpha=0.4) +
   geom_abline(slope=1, intercept=0, color='red') +
   theme_classic() +
   xlab("expected cov") + ylab("predicted cov") +
   ggtitle("Zebrafish - no BS")
 
-predict.coverage(cele.keqs) %>%
+predict.coverage(filter(cele.keqs, pt>100), eps.cele) %>%
+  mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+    ggplot(., aes((t.usage/sum(t.usage)), (pred.cov/sum(pred.cov)), color=nuc)) + 
+  geom_point(alpha=0.4) +
+  geom_abline(slope=1, intercept=0, color='red') +
+  theme_classic() +
+  xlab("expected cov") + ylab("predicted cov") +
+  ggtitle("C.elegans - no BS")
+
+pred.cov.cele.unfilt %>% 
+  mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+    ggplot(., aes((t.usage/sum(t.usage)), (pred.cov/sum(pred.cov)), color=nuc)) + 
+  geom_point(alpha=0.4) +
+  geom_abline(slope=1, intercept=0, color='red') +
+  theme_classic() +
+  xlab("expected cov") + ylab("predicted cov") +
+  ggtitle("C.elegans - no BS")
+
+pred.cov.cele.filt %>% 
+  mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+    ggplot(., aes(log(t.usage), log(pred.cov), color=nuc)) + 
+  geom_point(alpha=0.4) +
+  # geom_abline(slope=1, intercept=0, color='red') +
+  theme_classic() +
+  xlab("expected cov") + ylab("predicted cov") +
+  ggtitle("C.elegans - no BS")
+
+pred.cov.cele.filt <- predict.coverage(filter(cele.keqs, pt>100), eps.cele)
+pred.cov.cele.unfilt <- predict.coverage(filter(cele.keqs, pt>2), eps.cele)
+cor(pred.cov.cele.filt$pred.cov, pred.cov.cele.filt$t.usage)
+
+
+
+```
+
+There is a general underestimation of A rich hexamers. This is expected because we filter out primer-template events that occur less than a set number of times and we've seen that A rich hexamers tend to be bound weakly by a wide range of hexamers.
+
+#### Is epsilon useful to filter less or is it just the logs?
+```{r}
+cele.keqs.noeps <- compute.keqs.noeps(cele.all.df, filter.pt = 10)
+cele.keqs <- compute.keqs(cele.all.df, eps.cele, filter.pt = 10)
+
+cele.keqs %>%
+  inner_join(., cele.keqs.noeps, by=c('template', 'primer')) %>%
+  ggplot(., aes(keq.x, keq.y)) + geom_point(alpha=0.2)
+
+pred.cov.cele.noeps <- predict.coverage.noeps(cele.keqs.noeps)
+pred.cov.cele.unfilt <- predict.coverage(cele.keqs, eps.cele)
+
+pred.cov.cele.unfilt %>% 
   mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
     ggplot(., aes(log(t.usage/sum(t.usage)), log(pred.cov/sum(pred.cov)), color=nuc)) + 
   geom_point(alpha=0.4) +
@@ -656,12 +732,17 @@ predict.coverage(cele.keqs) %>%
   xlab("expected cov") + ylab("predicted cov") +
   ggtitle("C.elegans - no BS")
 
-
-
+pred.cov.cele.noeps %>% 
+  mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+    ggplot(., aes(log(t.usage/sum(t.usage)), log(pred.cov/sum(t.usage)), color=nuc)) + 
+  geom_point(alpha=0.4) +
+  geom_abline(slope=1, intercept=0, color='red') +
+  theme_classic() +
+  xlab("expected cov") + ylab("predicted cov") +
+  ggtitle("C.elegans - no BS")
 
 ```
 
-There is a general underestimation of A rich hexamers. This is expected because we filter out primer-template events that occur less than a set number of times and we've seen that A rich hexamers tend to be bound weakly by a wide range of hexamers.
 
 ### Estimate epsilon in BS-seq experiments
 To estimate espilon in BS-seq experiments we use the same Chi-square approach as described abouve but using only templates that do not contain any Cs, that are not affected by bisulfite conversion. 
@@ -672,7 +753,7 @@ d3r.noC <- d3r.all.df %>%
   filter(template==primer) %>%
   filter(!grepl(template, pattern = "C"))
   
-epsilon.minimize.chisq(d3r.noC, max=1000)
+eps.d3r <- epsilon.minimize.chisq(d3r.noC, max=1000)
 ```
 
 Is this value in line with genomic coverage? I redo epsilon estimation for the non converted samples using only hexamers with no Cs.
@@ -692,9 +773,9 @@ chi.human.onlyC <- epsilon.minimize.chisq(human.noC, max=10000)
 chi.zf.onlyC <- epsilon.minimize.chisq(zf.noC, max=10000)
 chi.cele.onlyC <- epsilon.minimize.chisq(cele.noC, max=15000)
 
-cov %>%
+genome.cov %>%
   bind_rows(data.frame(species="mouse.BS", cov=perc.d3R)) %>%
-  bind_cols(eps=c(chi.cele.onlyC, chi.human.onlyC, chi.zf.onlyC, 14)) %>%
+  bind_cols(eps=c(chi.cele.onlyC, chi.human.onlyC, chi.zf.onlyC, eps.d3r)) %>%
   ggplot(., aes(log(cov), log(eps))) + 
   geom_point() +
   geom_text_repel(aes(label=species))
@@ -705,10 +786,10 @@ cov %>%
 #### Coverage prediction in BS-seq
 ```{r}
 d3r.keqs <- d3r.all.df %>%
-  filter(pt>10) %>%
-  mutate(keq=((4^6)/4)*(pt/(14*abundance-t.usage))) 
+  filter(pt>=10) %>%
+  mutate(keq=((4^6)/4)*(pt/( eps.d3r*abundance-t.usage))) 
 
-predict.coverage(d3r.keqs) %>%
+predict.coverage(d3r.keqs, eps.d3r) %>%
   mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
     ggplot(., aes(log(t.usage/sum(t.usage)), log(pred.cov/sum(pred.cov)), color=nuc)) + 
   geom_point(alpha=0.4) +
@@ -723,11 +804,83 @@ predict.coverage(d3r.keqs) %>%
 Probably with less reads you also have less unspecific binding.
 
 #### Coverage prediction with variable primer concentration
+Load data for D2
+```{r, echo=F}
+setwd("~/mnt/edann/primer_conc_VAN2493/")
+D2G <- load.pt.data("~/mnt/edann/primer_conc_VAN2493/D2G_tr2_R1_bismark_bt2.ptCounts.qualFilt.csv")
+D2T <- load.pt.data("~/mnt/edann/primer_conc_VAN2493/D2T_tr2_R1_bismark_bt2.ptCounts.qualFilt.csv")
+D2R <- load.pt.data("~/mnt/edann/primer_conc_VAN2493/D2R_tr2_R1_bismark_bt2.ptCounts.qualFilt.csv")
+```
 ```{r}
+mm10.abundance <- load.kmer.abundance("~/mnt/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv")
+mfold.dg <- load.modelled.deltaG("~/mnt/edann/hexamers/rand_hex_deltaG_ions.txt.gz")
+d2g.all.df <- join.pt.data(D2G$matches, D2G$t.usage, mm10.abundance, mfold.dg)
+d2t.all.df <- join.pt.data(D2T$matches, D2T$t.usage, mm10.abundance, mfold.dg)
+d2r.all.df <- join.pt.data(D2R$matches, D2R$t.usage, mm10.abundance, mfold.dg)
+```
+
+```{r}
+save(d2g.all.df, file="~/AvOwork/rdata/D2G_pt_all.RData")
+save(d2t.all.df, file="~/AvOwork/rdata/D2T_pt_all.RData")
 
 ```
 
+Epsilon estimation
+```{r}
+prob.t <- batch.prob.uniform(nuc.probs = c(pA=0.25, pT=0.45, pC=0.25, pG=0.05))
+prob.g <- batch.prob.uniform(nuc.probs = c(pA=0.25, pT=0.05, pC=0.25, pG=0.45))
 
+d2g.noC <- d2g.all.df %>%
+  filter(template==primer) %>%
+  filter(!grepl(template, pattern = "C"))
+  
+eps.d2g <- epsilon.minimize.chisq(d2g.noC, max=0.0052, primer.prob=prob.g, step=0.0000001)
+
+d2t.noC <- d2t.all.df %>%
+  filter(template==primer) %>%
+  filter(!grepl(template, pattern = "C"))
+  
+eps.d2t <- epsilon.minimize.chisq(d2t.noC,  max=0.0007495, primer.prob=prob.t, step=0.0000000001)
+```
+
+```{r}
+d2g.keqs <- 
+  rownames_to_column(data.frame(prob.g), var = 'primer') %>%
+  rename(p=prob.g) %>%
+  inner_join(., d2g.all.df, by='primer') %>%
+  filter(pt>=10) %>%
+  mutate(keq=(4/p)*(pt/( eps.d2g*abundance-t.usage))) 
+
+d2t.keqs <- 
+  rownames_to_column(data.frame(prob.t), var = 'primer') %>%
+  rename(p=prob.t) %>%
+  inner_join(., d2t.all.df, by='primer') %>%
+  filter(pt>=10) %>%
+  mutate(keq=(p/4)*(pt/(eps.d2t*abundance-t.usage))) 
+
+d2g.pred.cov <- predict.coverage(d2g.keqs, eps.d2g) %>%
+  mutate(nuc=sapply(template, prevalent_nucleotide)) 
+
+d2g.pred.cov %>%  
+  ggplot(., aes((t.usage/sum(t.usage)), (pred.cov/sum(pred.cov)), color=nuc)) + 
+  geom_point(alpha=0.4) +
+  geom_abline(slope=1, intercept=0, color='red') +
+  theme_classic() +
+  xlab("expected cov") + ylab("predicted cov") +
+  ggtitle("Mouse - more G - BS")
+
+d2t.pred.cov <- predict.coverage(d2t.keqs, eps.d2t) %>%
+  mutate(nuc=sapply(template, prevalent_nucleotide)) 
+
+d2t.pred.cov %>%
+    ggplot(., aes((t.usage/sum(t.usage)), (pred.cov/sum(pred.cov)), color=nuc)) + 
+  geom_point(alpha=0.4) +
+  # geom_abline(slope=1, intercept=0, color='red') +
+  theme_classic() +
+  xlab("expected cov") + ylab("predicted cov") +
+  ggtitle("Mouse - more T - BS")
+
+```
 
 
 <!-- # Selection of filtering cut-off -->
