@@ -554,7 +554,8 @@ genome.cov %>%
 
 Downsampling experiments to better fit the curve
 ```{r}
-
+pt.bootstrap.files<- list.files("~/mnt/edann/VAN2423_onePreamp/bootstrap/", pattern = '.ptCounts', full.names = T)
+bootstrap.pt.tabs <- mclapply(pt.bootstrap.files, load.pt.data, mc.cores = detectCores())
 
 
 ```
