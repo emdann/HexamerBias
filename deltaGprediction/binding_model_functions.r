@@ -109,7 +109,7 @@ make.match.df <- function(pt.file, ab.file){
 
 #### Chi-SQUARE MINIMIZATION BASED ON CALORIMETRY DATA ####
 
-epsilon.minimize.chisq <- function(pt.df, max, min=0, primer.prob=batch.prob.uniform(), plot=T){
+epsilon.minimize.chisq <- function(pt.df, max, min=0, prob=batch.prob.uniform(), plot=T){
   min.epsilon <- pt.df %>%
     mutate(ep=t.usage/abundance) %>%
     top_n(n = 1,ep) %>%
@@ -120,12 +120,12 @@ epsilon.minimize.chisq <- function(pt.df, max, min=0, primer.prob=batch.prob.uni
   while(best.eps.ix <= 2){
     chis <- c()
     for (eps in seq(min, max, length.out=2000) ) {
-      chi.sq <- rownames_to_column(data.frame(primer.prob), var = 'primer') %>%
-        rename(p=primer.prob) %>%
+      chi.sq <- rownames_to_column(data.frame(prob), var = 'primer') %>%
+        rename(p=prob) %>%
         inner_join(.,pt.df, by='primer' ) %>%
         filter(pt!=0) %>%
         mutate(chi=(-dG/0.59)
-               - log(4/p) 
+               - log(4*p) 
                - log(abundance-(t.usage/eps)) 
                + log(pt/eps)
         ) %>%
