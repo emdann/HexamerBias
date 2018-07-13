@@ -8,17 +8,20 @@ samtools cat crypts_bs/VAN1667/sorted_L*.bam > VAN1667.bam
 ```
 for f in $(seq 15 5 95);
   do
-  echo "/hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.4.1/samtools view -s 0.$f  -o ${sample}_$f.bam -@ 8 ${sample}.bam" |
+  echo "/hpc/hub_oudenaarden/bdebarbanson/bin/samtools-1.4.1/samtools view -s 0.$f  -o ${sample}_$f.bam -@ 8 ${sample}.deduplicated.srt.bam" |
   qsubl -N subsmp.${f} -pe threaded 9;
   done
 ```
 
 3) Build pt table for all subsamples
 ```
-for file in *.bam;
+for file in *Cele*withBS*.bam;   
   do
-  echo "/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction/run_deltaF_prediction.sh $file $refgen $fasta $type" |
-  qsubl -N predDg_${file}; done
+  fasta=../CG-pbat-gDNA-CeleTotal-withBS-1preAmp-handMix_lmerged_R1.fastq.gz;
+  refgen=/hpc/hub_oudenaarden/edann/genomes/WBcel235/WBcel235.fa;
+  echo "/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction/run_deltaF_prediction.sh $file $refgen $fasta $type"  |
+  qsubl -N predDg_${file};
+  done
 ```
 
 4) Make table of predicted coverage for each predicted DeltaF table

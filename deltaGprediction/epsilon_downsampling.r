@@ -4,11 +4,15 @@ source("/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction/binding_mo
 args <- commandArgs(trailingOnly = T) 
 # Make parsing better
 rds.file <- args[1]
+type <- args[2]
 
 print("Loading pt table")
 pt.df <- readRDS(rds.file)
 pt.diag.df <- filter(pt.df, template==primer)
-
+if (type=="BS") {
+  pt.diag.df <- pt.diag.df %>%
+    filter(!grepl(template, pattern = "C"))
+  }
 print("Estimating espilon")
 eps <- epsilon.minimize.chisq(pt.diag.df, max=200000, plot=F)
 
