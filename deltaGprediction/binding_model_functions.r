@@ -116,6 +116,7 @@ epsilon.minimize.chisq <- function(pt.df, max, min=0, primer.prob=batch.prob.uni
     sample_n(1) %>%
     .$ep
   if(min < min.epsilon){min <- min.epsilon}
+  best.eps.ix <- 0
   while(best.eps.ix <= 2){
     chis <- c()
     for (eps in seq(min, max, length.out=2000) ) {
