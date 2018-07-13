@@ -9,8 +9,8 @@ library(reshape2)
 library(tibble)
 library(RColorBrewer)
 # library(fitdistrplus)
-# path2script <- '/hpc/hub_oudenaarden/edann/bin/coverage_bias'
-path2script <- '~/HexamerBias'
+path2script <- '/hpc/hub_oudenaarden/edann/bin/coverage_bias'
+# path2script <- '~/HexamerBias'
 source(paste0(path2script,'/rscripts/hexamer_sequence_functions.r'))
 
 ## DATA PARSING ##
@@ -109,29 +109,35 @@ make.match.df <- function(pt.file, ab.file){
 
 #### Chi-SQUARE MINIMIZATION BASED ON CALORIMETRY DATA ####
 
-epsilon.minimize.chisq <- function(pt.df, max, min=0, primer.prob=batch.prob.uniform(), step=1, plot=T){
+epsilon.minimize.chisq <- function(pt.df, max, min=0, primer.prob=batch.prob.uniform(), plot=T){
   min.epsilon <- pt.df %>%
     mutate(ep=t.usage/abundance) %>%
     top_n(n = 1,ep) %>%
     sample_n(1) %>%
     .$ep
-  chis <- c()
   if(min < min.epsilon){min <- min.epsilon}
-  for (eps in seq(min, max, step) ) {
-    chi.sq <- rownames_to_column(data.frame(primer.prob), var = 'primer') %>%
-      rename(p=primer.prob) %>%
-      inner_join(.,pt.df, by='primer' ) %>%
-      filter(pt!=0) %>%
-      mutate(chi=(-dG/0.59)
-             - log(4/p) 
-             - log(abundance-(t.usage/eps)) 
-             + log(pt/eps)
-      ) %>%
-      summarise(chi=sum(chi^2))
-    chis <- c(chis, chi.sq)  
+  while(best.eps.ix <= 2){
+    chis <- c()
+    for (eps in seq(min, max, length.out=2000) ) {
+      chi.sq <- rownames_to_column(data.frame(primer.prob), var = 'primer') %>%
+        rename(p=primer.prob) %>%
+        inner_join(.,pt.df, by='primer' ) %>%
+        filter(pt!=0) %>%
+        mutate(chi=(-dG/0.59)
+               - log(4/p) 
+               - log(abundance-(t.usage/eps)) 
+               + log(pt/eps)
+        ) %>%
+        summarise(chi=sum(chi^2))
+      chis <- c(chis, chi.sq)  
+    }
+    best.eps.ix <- which.min(unlist(chis))
+    if(best.eps.ix<=2){
+      max <- seq(min,max, length.out = 100)[10]  # Take 10% of scale
+    }
   }
-  if(plot){plot(seq(min, max,step), unlist(chis), pch='.')}
-  best.eps <- seq(min, max, step)[which.min(unlist(chis))] 
+  if(plot){plot(seq(min, max, length.out=2000), unlist(chis), pch='.', xlab='epsilon', ylab='chi^2')}
+  best.eps <- seq(min, max, length.out=2000)[which.min(unlist(chis))] 
   return(best.eps)
 }
 
