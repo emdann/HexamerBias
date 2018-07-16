@@ -1,0 +1,190 @@
+---
+title: "Coverage fraction prediction"
+output: html_notebook
+---
+
+```{r, eval=F}
+source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
+source('~/HexamerBias/rscripts/hexamer_sequence_functions.r')
+```
+
+```{r}
+load("~/AvOwork/rdata/human_pt_all.RData")
+load("~/AvOwork/rdata/cele_pt_all.RData")
+load("~/AvOwork/rdata/mean_keqs_noBS_unfilt.RData")
+```
+
+```{r}
+human.keqs.df <- inner_join(avg.keqs.all, human.all.df, by=c("primer", 'template', 'dG')) 
+pred.cov.human <- predict.coverage(human.keqs.df, eps=eps.human)  
+
+cele.keqs.df <- inner_join(avg.keqs.all, cele.all.df, by=c("primer", 'template', 'dG')) 
+pred.cov.cele <- predict.coverage(cele.keqs.df, eps=eps.cele)  
+
+
+```
+```{r}
+pred.cov.cele %>%
+  ggplot(., aes(log(t.usage/sum(t.usage)), log(pred.cov/sum(pred.cov)), color=nuc)) + 
+  geom_point(alpha=0.4) +
+  geom_abline(slope=1, intercept=0, color='red') +
+  theme_classic() +
+  xlab("expected cov") + ylab("predicted cov") 
+
+cor(pred.cov.cele$pred.cov, pred.cov.cele$t.usage)
+```
+
+Predicted coverage with BS-seq
+```{r}
+load("~/AvOwork/rdata/model_epsilon.RData")
+epsilon.d3r <- exp(predict(model.epsilon, data.frame(genomecov=perc.d3R)))
+
+d3r.keqs <- compute.keqs(d3r.all.df, eps=epsilon.d3r, filter.pt = 1)
+pred.cov.d3r <- predict.coverage(d3r.keqs, eps = epsilon.d3r)
+```
+
+
+```{r}
+cor(pred.cov.d3r$t.usage, pred.cov.d3r$pred.cov)
+pred.cov.d3r %>%
+  mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+    ggplot(., aes(log(t.usage/sum(t.usage)), log(pred.cov/sum(pred.cov)), color=nuc)) + 
+  geom_point(alpha=0.4) +
+  geom_abline(slope=1, intercept=0, color='red') +
+  theme_classic() +
+  xlab("log(expected cov)") + ylab("log(predicted cov)") +
+        theme(legend.title = element_blank(),
+        legend.text = element_text(size=20),
+        axis.text = element_text(size=20),
+        axis.title = element_text(size=30),
+        title = element_text(size=30)) +
+  ggtitle("Mouse - BS") +
+  ggsave("~/AvOwork/output/epsilon_estimate/predcov_BS_mm10_nofilt.pdf")
+
+```
+
+```{r, echo=F}
+D3G <- load.pt.data("~/mnt/edann/primer_conc_VAN2493/D3G_tr2_R1_bismark_bt2.ptCounts.qualFilt.csv")
+D3T <- load.pt.data("~/mnt/edann/primer_conc_VAN2493/D3T_tr2_R1_bismark_bt2.ptCounts.qualFilt.csv")
+```
+```{r}
+mm10.abundance <- load.kmer.abundance("~/mnt/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv")
+mfold.dg <- load.modelled.deltaG("~/mnt/edann/hexamers/rand_hex_deltaG_ions.txt.gz")
+d3g.all.df <- join.pt.data(D3G$matches, D3G$t.usage, mm10.abundance, mfold.dg)
+d3t.all.df <- join.pt.data(D3T$matches, D3T$t.usage, mm10.abundance, mfold.dg)
+
+save(d3t.all.df, file='~/AvOwork/rdata/D3T_pt.RData')
+save(d3g.all.df, file='~/AvOwork/rdata/D3G_pt.RData')
+```
+
+```{r}
+perc.d3g <- 1-0.969021
+epsilon.d3g <- exp(predict(model.epsilon, data.frame(genomecov=perc.d3g)))
+
+d3g.keqs <- inner_join(select(d3r.keqs, primer, template, keq), d3g.all.df, by=c("primer", 'template')) 
+prob.g <- batch.prob.uniform(nuc.probs = c(pA=0.25, pT=0.05, pC=0.25, pG=0.45))
+pred.cov.d3g <- predict.coverage(d3g.keqs, eps = epsilon.d3g, prob = prob.g)
+
+```
+
+```{r}
+pcc.d3g <- cor(pred.cov.d3g$t.usage, pred.cov.d3g$pred.cov)
+pred.cov.d3g %>%
+  mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+    ggplot(., aes(log(t.usage/sum(t.usage)), log(pred.cov/sum(pred.cov)), color=nuc)) + 
+  geom_point(alpha=0.4) +
+  geom_abline(slope=1, intercept=0, color='red') +
+  theme_classic() +
+  xlab("log(expected cov)") + ylab("log(predicted cov)") +
+        theme(legend.title = element_blank(),
+        legend.text = element_text(size=20),
+        axis.text = element_text(size=20),
+        axis.title = element_text(size=30),
+        title = element_text(size=30)) 
+
+```
+
+```{r}
+perc.d3t <- 1-0.97141
+epsilon.d3t <- exp(predict(model.epsilon, data.frame(genomecov=perc.d3t)))
+
+d3t.keqs <- inner_join(select(d3r.keqs, primer, template, keq), d3t.all.df, by=c("primer", 'template')) 
+prob.t <- batch.prob.uniform(nuc.probs = c(pA=0.25, pT=0.45, pC=0.25, pG=0.05))
+pred.cov.d3t <- predict.coverage(d3t.keqs, eps = epsilon.d3t, prob = prob.t)
+
+```
+
+```{r}
+plot.prediction <- function(pred.cov.df){
+  pcc.pred <- cor(pred.cov.df$t.usage, pred.cov.df$pred.cov)
+  pl <- pred.cov.df %>%
+    mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+      ggplot(., aes(log(t.usage/sum(t.usage)), log(pred.cov/sum(pred.cov)), color=nuc)) + 
+    geom_point(alpha=0.4) +
+    geom_abline(slope=1, intercept=0, color='red') +
+    theme_classic() +
+    xlab("log(observed cov)") + ylab("log(predicted cov)") +
+          theme(legend.title = element_blank(),
+          legend.text = element_text(size=20),
+          axis.text = element_text(size=20),
+          axis.title = element_text(size=30),
+          title = element_text(size=30)) +
+    ggtitle(paste('R.sq.', ' = ', round(pcc.pred,2), sep=''))
+  return(pl)
+  }
+
+plot.prediction(pred.cov.d3g) + coord_cartesian(ylim=c(-22,-4)) + ggsave("~/AvOwork/output/primer_batch_VAN2493/obsVSexp_G_new.pdf")
+plot.prediction(pred.cov.d3r) + coord_cartesian(ylim=c(-22,-4)) + ggsave("~/AvOwork/output/primer_batch_VAN2493/obsVSexp_R_new.pdf")
+plot.prediction(pred.cov.d3t) + coord_cartesian(ylim=c(-22,-4)) + ggsave("~/AvOwork/output/primer_batch_VAN2493/obsVSexp_T_new.pdf")
+```
+
+When we switch probability vectors as a control we get very poor correlation, while usage and predicted coverage are stil somewhat correlated if we use as probability vector the even probability.
+```{r}
+pred.cov.wrong.d3t <- predict.coverage(d3t.keqs, eps = epsilon.d3t, prob = prob.g)
+pred.cov.wrong.d3g <- predict.coverage(d3g.keqs, eps = epsilon.d3g, prob = prob.t)
+pred.cov.wrong2.d3t <- predict.coverage(d3t.keqs, eps = epsilon.d3t)
+pred.cov.wrong2.d3g <- predict.coverage(d3g.keqs, eps = epsilon.d3g)
+
+pcc.d3g.wT <- cor(pred.cov.wrong.d3g$pred.cov, pred.cov.wrong.d3g$t.usage)
+pcc.d3t.wG <- cor(pred.cov.wrong.d3t$pred.cov, pred.cov.wrong.d3t$t.usage)
+pcc.d3g.wT; pcc.d3t.wG
+```
+
+This might be telling us something about the sensitivity of the method: probably the prediction cannot capture such fine grained differences in primer concentration.
+```{r}
+
+g.probs <- seq(0,0.5,0.05)
+prob.vecs <- lapply(g.probs, function(x) batch.prob.uniform(nuc.probs = c(pA=0.25, pT=1-0.5-x, pG=x, pC=0.25)))
+# prob.vec <- batch.prob.uniform(nuc.probs = c(pA=0.25, pT=0.05, pC=0.25, pG=0.45))
+pc.d3t <- lapply(prob.vecs, predict.coverage, keqs.df=d3t.keqs, eps=epsilon.d3t)
+pc.d3g <- lapply(prob.vecs, predict.coverage, keqs.df=d3g.keqs, eps=epsilon.d3g)
+pc.d3r <- mclapply(prob.vecs, predict.coverage, keqs.df=d3r.keqs, eps=epsilon.d3r, mc.cores = 4)
+```
+
+
+```{r}
+cor.pt.d3t <- sapply(pc.d3t, function(x) cor(x$pred.cov, x$t.usage))
+cor.pt.d3g <- sapply(pc.d3g, function(x) cor(x$pred.cov, x$t.usage))
+cor.pt.d3r <- sapply(pc.d3r, function(x) cor(x$pred.cov, x$t.usage))
+
+data.frame(prob.G = g.probs, prob.T = 1-g.probs, 
+           moreT = cor.pt.d3t, 
+           moreG = cor.pt.d3g,
+           random = cor.pt.d3r) %>%
+  gather(key='sample', value='PCC', 3:5) %>%
+  ggplot(., aes(prob.G, PCC, group=sample, color=sample)) +
+  geom_line(size=1.5) +
+  geom_point(size=2) +
+  theme_minimal() +
+  xlab('% G') + ylab(expression(R^2)) +
+  scale_x_continuous(sec.axis=sec_axis(~0.5-., name='% T')) +
+  scale_color_discrete(name='') +
+  scale_color_brewer(palette = 'Accent') +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size=20),
+        axis.text = element_text(size=20),
+        axis.title = element_text(size=30),
+        title = element_text(size=30)) +
+  ggsave(filename = "~/AvOwork/output/primer_batch_VAN2493/variable_pcc.pdf",width = 12, height = 6)
+
+```

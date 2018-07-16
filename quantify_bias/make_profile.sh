@@ -37,24 +37,24 @@ fi
 ## Make coverage matrix on defined region
 echo "--- Computing matrix ---"
 
-# computeMatrix scale-regions \
-#   -R  $bed \
-#   -S ${sample}.bw  \
-#   -b 3000 -a 3000 \
-#   --regionBodyLength 5000 --skipZeros \
-#   -p 6 \
-#   -o ${sample}.mat.gz \
-#   --outFileNameMatrix ${sample}.mat.tab
-
-computeMatrix reference-point \
+computeMatrix scale-regions \
   -R  $bed \
   -S ${sample}.bw  \
-  --referencePoint center \
   -b 3000 -a 3000 \
-  --skipZeros \
+  --regionBodyLength 5000 --skipZeros \
   -p 6 \
-  -o ${sample}.CTCF.mat.gz \
-  --outFileNameMatrix ${sample}.CTCF.mat.tab
+  -o ${sample}.mat.gz \
+  --outFileNameMatrix ${sample}.mat.tab
+
+# computeMatrix reference-point \
+#   -R  $bed \
+#   -S ${sample}.bw  \
+#   --referencePoint center \
+#   -b 3000 -a 3000 \
+#   --skipZeros \
+#   -p 6 \
+#   -o ${sample}.CTCF.mat.gz \
+#   --outFileNameMatrix ${sample}.CTCF.mat.tab
 
 ## Plot profile
 echo "--- Plotting profile ---"
