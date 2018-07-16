@@ -1,0 +1,223 @@
+---
+title: "Scaling factor estimation from genomic coverage"
+output: html_notebook
+---
+```{r, eval=F}
+setwd("~/mnt/")
+library(gvlma)
+source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
+source('~/HexamerBias/rscripts/hexamer_sequence_functions.r')
+```
+
+We want to evaluate if the scaling factor $\varepsilon$ can be correctly estimated using only as a function of the percentage of genomic coverage, without using chi-square minimization for every sample, as suggested by preliminary analysis on a small number of samples. We use a downsampling approach to improve the fit and to rule out sample specific effects.
+
+1. *Estimating epsilon*
+
+No-BS samples where downsampled to variable percentage of reads and primer-template tables were computed for all downsampled bam files and processed to RDS tables with ```pt_tab_to_rdata.r```. I estimate epsilon for each RDS table with the ```epsilon_downsampling.r``` script (on cluster, faster).
+
+Loading saved results
+```{r}
+eps.downsample <- read.csv("~/mnt/edann/VAN2423_onePreamp/bootstrap/bootstrap_epsilon_noBS.txt", header=F, col.names = c('smp', 'eps'))
+eps.downsample <- eps.downsample %>%
+  mutate(smp = gsub(smp, pattern = '_all', replacement = ''))
+eps.downsample
+```
+
+2. *Measuring genomic coverage*
+
+For each bam file we measure percentage of uncovered genome with ```bedtools genomecov```.
+
+Loading saved results
+```{r}
+gencov.downsample <- read.table("~/mnt/edann/VAN2423_onePreamp/bootstrap/bootstrap_genomecov.tsv", sep='\t', header=F, col.names = c('smp', 'genomecov'))
+
+gencov.downsample <- gencov.downsample %>%
+  mutate(genomecov=1-genomecov) %>%
+  mutate(smp=gsub(smp, pattern = 'Total|APKS|ish', replacement = '')) %>%
+  mutate(smp=tolower(smp)) 
+```
+
+The value of epsilon scales nicely with genomic coverage, following a power law. 
+```{r}
+eps.df <- inner_join(gencov.downsample, eps.downsample, by='smp') %>%
+  mutate(species=gsub(smp, pattern = '_.+', replacement = '')) 
+
+p1 <- eps.df %>%
+  ggplot(., aes((genomecov)*100, (eps), color=species)) +
+  geom_point(shape=15, size=2) +
+  scale_color_brewer(palette='Set1') +
+  xlab("% Genomic coverage") + ylab("epsilon") +
+    theme(axis.text = element_text(size=18),
+    axis.title = element_text(size=22),
+    legend.title = element_text(size=20),
+    legend.text = element_text(size=18)) +
+  # geom_smooth(method='lm', aes(color=NULL))
+  NULL
+
+p2 <- eps.df %>%
+  ggplot(., aes(log(genomecov*100), log(eps), color=species)) +
+  geom_point(shape=15, size=2) +
+  scale_color_brewer(palette='Set1') +
+  xlab("log(% Genomic coverage)") + ylab("log(epsilon)") +
+    theme(axis.text = element_text(size=18),
+    axis.title = element_text(size=22),
+    legend.title = element_text(size=20),
+    legend.text = element_text(size=18)) +
+  # geom_smooth(method='lm', aes(color=NULL))
+  NULL
+
+p1; p2
+
+```
+
+```{r, eval=F, echo=F}
+p1 + ggsave("~/AvOwork/output/epsilon_estimate/gencov_vs_eps_untransformed.pdf")
+p2 + ggsave("~/AvOwork/output/epsilon_estimate/gencov_vs_eps_powerlaw.pdf")
+```
+
+The distribution is quite skewed at the higher end of the genomic coveerage spectrum (close to 100% coverage), but for the purpose of predicting coverage in BS-seq (where the coverage is usually ~ 10%) we can fit only with $x<0.5$.
+```{r, echo=TRUE}
+model.epsilon <- 
+  filter(eps.df, genomecov<0.5) %>%
+  mutate(log.eps = log(eps)) %>%
+  lm(log.eps ~ log(genomecov), 
+   data=.)
+
+summary(model.epsilon)
+```
+
+```{r}
+eps.df %>%
+  filter(genomecov<0.5) %>%
+  ggplot(., aes(log(genomecov*100), log(eps), color=species)) +
+  geom_point(shape=15, size=2) +
+  scale_color_brewer(palette='Set1') +
+  xlab("log(% Genomic coverage)") + ylab("log(epsilon)") +
+    theme(axis.text = element_text(size=18),
+    axis.title = element_text(size=22),
+    legend.title = element_text(size=20),
+    legend.text = element_text(size=18)) +
+  geom_smooth(method='lm', aes(color=NULL))
+  NULL
+```
+
+Including BS-seq samples processed in the same way, estimating epsilon only on hexamers not containing cytosines (not affected by bisulfite conversion), for both WGS and BS-seq samples.
+```{r}
+eps.bs.downsample <- read.csv("~/mnt/edann/VAN2423_onePreamp/bootstrap/bootstrap_epsilon_BS.txt", header=F, col.names = c('smp', 'eps'))
+eps.bs.downsample <- eps.bs.downsample %>%
+  mutate(smp = gsub(smp, pattern = '_all', replacement = ''))
+eps.bs.downsample 
+```
+```{r}
+gencov.bs.downsample <- read.table("~/mnt/edann/VAN2423_onePreamp/bootstrap/bootstrap_genomecov_wBS.tsv", sep='\t', header=F, col.names = c('smp', 'genomecov'))
+
+gencov.bs.downsample <- 
+  gencov.bs.downsample %>%
+  mutate(genomecov=1-genomecov) %>%
+  mutate(smp=gsub(smp, pattern = 'Total|APKS|ish', replacement = '')) %>%
+  mutate(smp=paste0(tolower(gsub(pattern = '-.+BS', replacement = '', smp)), ifelse(grepl('with', smp), '_BS', ''))) 
+
+gencov.bs.downsample
+```
+```{r}
+eps.bs.df <- inner_join(gencov.bs.downsample, eps.bs.downsample, by='smp') %>%
+  mutate(species=gsub(smp, pattern = '_.+', replacement = '')) 
+
+p1 <- eps.bs.df %>%
+  ggplot(., aes((genomecov)*100, (eps), color=species)) +
+  geom_point(shape=15, size=2) +
+  scale_color_brewer(palette='Set1') +
+  xlab("% Genomic coverage") + ylab("epsilon") +
+    theme(axis.text = element_text(size=18),
+    axis.title = element_text(size=22),
+    legend.title = element_text(size=20),
+    legend.text = element_text(size=18)) +
+  # geom_smooth(method='lm', aes(color=NULL))
+  NULL
+
+p2 <- eps.bs.df %>%
+  ggplot(., aes(log(genomecov*100), log(eps), color=species)) +
+  geom_point(shape=15, size=2) +
+  scale_color_brewer(palette='Set1') +
+  xlab("log(% Genomic coverage)") + ylab("log(epsilon)") +
+    theme(axis.text = element_text(size=18),
+    axis.title = element_text(size=22),
+    legend.title = element_text(size=20),
+    legend.text = element_text(size=18)) +
+  # geom_smooth(method='lm', aes(color=NULL))
+  NULL
+
+p1; p2
+
+
+```
+
+Weird. Is there some factor that we are not taking into consideration that might explain why you get a different curve for BS-seq experiments? 
+
+Try again without downsampling.
+```{r}
+cele.bs.all.df <- readRDS("~/mnt/edann/VAN2423_onePreamp/cov_prediction/cele_BS_all.RDS")
+human.bs.all.df <- readRDS("~/mnt/edann/VAN2423_onePreamp/cov_prediction/human_BS_all.RDS")
+zf.bs.all.df <- readRDS("~/mnt/edann/VAN2423_onePreamp/cov_prediction/zf_BS_all.RDS")
+```
+
+```{r}
+celebs.noC <- cele.bs.all.df %>%
+  filter(template==primer) %>%
+  filter(!grepl(template, pattern = "C"))
+  
+eps.celebs <- epsilon.minimize.chisq(celebs.noC, max=1000)
+
+
+zfbs.noC <- zf.bs.all.df %>%
+  filter(template==primer) %>%
+  filter(!grepl(template, pattern = "C"))
+  
+eps.zfbs <- epsilon.minimize.chisq(zfbs.noC, max=1000)
+
+
+zfbs.noC <- zf.bs.all.df %>%
+  filter(template==primer) %>%
+  filter(!grepl(template, pattern = "C"))
+  
+eps.zfbs <- epsilon.minimize.chisq(zfbs.noC, max=1000)
+
+humanbs.noC <- human.bs.all.df %>%
+  filter(template==primer) %>%
+  filter(!grepl(template, pattern = "C"))
+  
+eps.humanbs <- epsilon.minimize.chisq(humanbs.noC, max=1000)
+
+```
+
+```{r}
+eps.bs.downsample <- read.csv("~/mnt/edann/VAN2423_onePreamp/cov_prediction/bootstrap_epsilon.txt", header=F, col.names = c('smp', 'eps'))
+eps.bs.downsample <- eps.bs.downsample %>%
+  mutate(smp = gsub(smp, pattern = '_all', replacement = '')) %>%
+  filter(smp!='zf_95_BS')
+
+eps.bs.downsample
+```
+
+```{r}
+gencov.bs <- gencov.bs.downsample %>%
+  filter(grepl("BS", smp)) %>%
+  mutate(perc=as.numeric(gsub(gsub(smp, pattern = '_BS', replacement = ''), pattern='.*_', replacement = ''))) %>%
+  filter(perc==95)
+  
+eps.nobs <- data.frame(smp=c('cele', 'human', 'zf', 'cele_BS', 'human_BS', 'zf_BS'), eps=c(chi.cele.onlyC, chi.human.onlyC, chi.zf.onlyC))
+eps.all.df <- bind_rows(eps.nobs, eps.bs.downsample)
+
+gg <- genome.cov %>%
+  rename(smp=species, genomecov=cov) %>%
+  bind_rows(., gencov.bs) %>%
+  mutate(smp=gsub(smp, pattern='_95', replacement = ''))
+
+gg %>%
+  inner_join(., eps.all.df) %>%
+  # mutate(type=ifelse(grepl("BS", smp), "BS", 'noBS')) %>%
+  ggplot(., aes(log(genomecov), log(eps))) + 
+  geom_point() +
+  geom_text_repel(aes(label=smp))
+```
+

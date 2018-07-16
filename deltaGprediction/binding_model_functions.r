@@ -9,8 +9,8 @@ library(reshape2)
 library(tibble)
 library(RColorBrewer)
 # library(fitdistrplus)
-path2script <- '/hpc/hub_oudenaarden/edann/bin/coverage_bias'
-# path2script <- '~/HexamerBias'
+# path2script <- '/hpc/hub_oudenaarden/edann/bin/coverage_bias'
+path2script <- '~/HexamerBias'
 source(paste0(path2script,'/rscripts/hexamer_sequence_functions.r'))
 
 ## DATA PARSING ##
