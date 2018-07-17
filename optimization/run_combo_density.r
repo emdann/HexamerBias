@@ -31,8 +31,9 @@ density.combo <- function(prob.vec, keqs.df=d3r.keqs, eps=epsilon.d3r){
   return(dens.df)
 }
 
-## Load Keqs for mouse BS-seq
+## Load Keqs and epsilon for mouse BS-seq
 load("/hpc/hub_oudenaarden/edann/primer_conc_VAN2493/d3r_keqs.RData")
+epsilon.d3r <- 612.6353
 
 ## Make table of sequence combosition combos
 prob.combos <- hexamerMatrix(stepSize = 0.1)
