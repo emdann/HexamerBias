@@ -6,7 +6,6 @@ output: html_notebook
 ```{r, eval=F}
 library(parallel)
 source("~/HexamerBias/rscripts/hexamer_sequence_functions.r")
-source("~/HexamerBias/rscripts/hexamer_sequence_functions.r")
 ```
 
 We want to test how binding density changes for a different set of primers.
@@ -28,6 +27,10 @@ d3r.dens <- d3r.pred.cov %>%
 dens <- d3r.dens %>%
   dplyr::select(template,binding.dens) 
 
+```
+
+Making density explanatory figure
+```{r}
 seq<- 'AATGCATGGATTGGTTTACGCATGCATGACTGTTCACACCTGAACAGGGTTTACGCATGGGAATACTGCAAATGCATGGATTGGTTTACGCATGCATGACTGTTCATTTACGCATGGGCTGACTGTTTTTCAGCACACAACACACCTGAACAGGGCTAGCTCGGGGTG'
 
 l <- 20
@@ -83,18 +86,16 @@ p2 + ggsave("~/AvOwork/useful_figs/dens_2.pdf")
 p3 + ggsave("~/AvOwork/useful_figs/dens_3.pdf")
 ```
 
-
-
 ### Maximize CpGs covered
 
 To maximize the number of CpGs covered I have to enrich for hexamers that contain a CG and deplete the rest.
 
 ```{r}
 hexs <- all.hexamers()
-hexs[which(grepl(hexs, pattern = "CG"))]
+# hexs[which(grepl(hexs, pattern = "CG"))]
 
 fc <- as.data.frame(hexs) %>%
-  mutate(fc=ifelse(grepl(hexs, pattern = "CG"), 1, 0)) %>%
+  mutate(fc=ifelse(grepl(hexs, pattern = "CG"), 1, -1)) %>%
   rename(template=hexs)
 
 compute.enrichment.score <- function(dens.df, fc.df){
@@ -115,15 +116,65 @@ Predict coverage for different primer batches
 test.combos <- prob.combos[which(prob.combos['pC']!=0 & prob.combos['pG']!=0),]
 l.test.combos <- lapply(seq_len(nrow(test.combos)), function(i) test.combos[i,])
 
-density.combo <- function(prob.vec, keqs.df=d3r.keqs, eps=eps.d3r){
-  b.probs <- batch.prob.uniform(hexs=keqs.df$primer, nuc.probs = prob.vec)
+density.combo <- function(prob.vec, keqs.df=d3r.keqs, eps=epsilon.d3r){
+  b.probs <- batch.prob.uniform(hexs=all.hexamers(), nuc.probs = prob.vec)
   pred.cov.b <- predict.coverage(keqs.df, eps, prob = b.probs)
   dens.df <- pred.cov.b %>%
     mutate(binding.dens = pred.cov/abundance)  %>% 
     dplyr::select(template, binding.dens)
+  colnames(dens.df)[2] <- do.call(paste,c('dens',prob.vec, sep='_'))
   return(dens.df)
-  }
+}
 
-test.combo.density <- mclapply(l.test.combos, density.combo, mc.cores = detectCores())
+test <- density.combo(l.test.combos[[2]])
+
+
+test.combo.density <- mclapply(sample(l.test.combos, 4), density.combo, mc.cores = 4)
+func <- function(...){
+  df1 = list(...)[[1]]
+  df2 = list(...)[[2]]
+  col1 = colnames(df1)[1]
+  col2 = colnames(df2)[1]
+  xxx = left_join(..., by = setNames(col2,col1))
+  return(xxx)
+}
+dens.table <- Reduce( func, test.combo.density)
+
 score <- unlist(lapply(test.combo.density, compute.enrichment.score, fc.df=fc))
+```
+
+Load CpG island FC hexamer enrichment
+```{r}
+cgi.fc <- read.csv("~/mnt/edann/hexamers/annotations_bed/CpGislands_srt_mm10.kmersFC.csv", header=F, col.names = c("template", "fc"))
+cgi.fc
+compute.enrichment.score(test, cgi.fc)
+```
+
+```{r}
+load('~/mnt/edann/primer_combos_density.RData')
+
+prova <- map(column_to_rownames(dens.table, var='template'), function(x) data.frame(template=dens.table$template, binding.dens=x))
+scores <- map_dbl(prova, compute.enrichment.score, fc.df=cgi.fc)
+compute.enrichment.score(dens.table[1:5], cgi.fc)
+```
+
+```{r}
+dens.table %>% 
+  select(template, dens_0_0.3_0.1_0.6) %>%
+  filter(dens_0_0.3_0.1_0.6!=0) %>%
+  inner_join(., cgi.fc)
+
+dens.table %>% inner_join(select(d3r.keqs, template, abundance))
+
+```
+
+Save best hits for artificial coverage prediction
+```{r}
+pr2 <- map(prova, function(x) x %>% inner_join(., distinct(select(d3r.keqs, template, abundance)), by='template') %>% mutate(exp=binding.dens*abundance) %>% select(template, exp))
+
+for (name in names(head(sort(scores, decreasing = F)))) {
+  df <- pr2[name][[1]] %>% full_join(select(cele.df, template)) %>% mutate(exp=ifelse(is.na(exp), 0, exp))
+  write.csv(df, file= paste0("~/AvOwork/D3R_", name, "_predcoverage.csv"), row.names = F, col.names = T, quote = F )
+}
+
 ```
