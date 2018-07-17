@@ -41,6 +41,6 @@ test.combos <- prob.combos[which(prob.combos['pC']!=0 & prob.combos['pG']!=0),]
 l.test.combos <- lapply(seq_len(nrow(test.combos)), function(i) test.combos[i,])
 
 ## Compute density for all combos and save in table
-test.combo.density <- mclapply(sample(l.test.combos, 5), density.combo, mc.cores = detectCores())
+test.combo.density <- mclapply(l.test.combos, density.combo, mc.cores = detectCores())
 dens.table <- Reduce( joining.fun, test.combo.density)
 save(dens.table, file="/hpc/hub_oudenaarden/edann/primer_combos_density.RData")
