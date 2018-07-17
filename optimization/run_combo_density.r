@@ -1,5 +1,5 @@
 library(parallel)
-source("/hpc/hub_oudenaarden/edann/bin/coverage_bias/rscripts/hexamer_sequence_functions.r")
+source("/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction/binding_model_functions.r")
 
 compute.enrichment.score <- function(dens.df, fc.df){
   # dens.df <- pred.cov.df %>%
