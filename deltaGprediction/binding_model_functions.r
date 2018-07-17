@@ -149,13 +149,13 @@ compute.keqs <- function(pt.df, eps, filter.pt=200){
   return(keqs)
 }
 
-predict.coverage <- function(keqs.df, eps){
+predict.coverage <- function(keqs.df, eps, prob=batch.prob.uniform()){
   pred.cov <- 
-    keqs.df %>%
-    # rownames_to_column(data.frame(prob), var = 'primer') %>%
-    # rename(p=prob) %>%
-    # inner_join(.,keqs.df, by='primer' )%>%
-    # # mutate(p=prob) %>%
+    # keqs.df %>%
+    rownames_to_column(data.frame(prob), var = 'primer') %>%
+    rename(p=prob) %>%
+    inner_join(.,keqs.df, by='primer' )%>%
+    # mutate(p=prob) %>%
     mutate(phi=p*keq,
            nuc=sapply(template, prevalent_nucleotide),
            epsilon=eps) %>%
