@@ -29,7 +29,7 @@ density.combo <- function(prob.vec, keqs.df=d3r.keqs, eps=epsilon.d3r){
     dplyr::select(template, binding.dens)
   colnames(dens.df)[2] <- do.call(paste,c('dens',prob.vec, sep='_'))
   return(dens.df)
-}
+  }
 
 ## Load Keqs and epsilon for mouse BS-seq
 load("/hpc/hub_oudenaarden/edann/primer_conc_VAN2493/d3r_keqs.RData")
@@ -41,7 +41,8 @@ test.combos <- prob.combos[which(prob.combos['pC']!=0 & prob.combos['pG']!=0),]
 l.test.combos <- lapply(seq_len(nrow(test.combos)), function(i) test.combos[i,])
 
 ## Compute density for all combos and save in table
-test.combo.density <- mclapply(sample(l.test.combos, 5), density.combo, mc.cores = detectCores())
+# test.combo.density <- mclapply(sample(l.test.combos, 5), density.combo, mc.cores = detectCores())
+test.combo.density <- lapply(sample(l.test.combos, 5), density.combo)
 save(test.combo.density, file="/hpc/hub_oudenaarden/edann/test_primer_combos_density.RData")
 
 # dens.table <- Reduce( joining.fun, test.combo.density)
