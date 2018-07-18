@@ -36,7 +36,7 @@ load("/hpc/hub_oudenaarden/edann/primer_conc_VAN2493/d3r_keqs.RData")
 epsilon.d3r <- 612.6353
 
 ## Make table of sequence combosition combos
-prob.combos <- hexamerMatrix(stepSize = 0.1)
+prob.combos <- hexamerMatrix(stepSize = 0.05)
 test.combos <- prob.combos[which(prob.combos['pC']!=0 & prob.combos['pG']!=0),]
 l.test.combos <- lapply(seq_len(nrow(test.combos)), function(i) test.combos[i,])
 
