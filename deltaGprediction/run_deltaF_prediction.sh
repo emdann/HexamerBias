@@ -4,7 +4,7 @@ if [ $# -ne 4 ]
 then
     echo "Please, give:"
     echo "1) bamfile"
-    echo "2) reference genome (mm10, hg38, danRer10, WBcel235)"
+    echo "2) reference genome fasta file (mm10, hg38, danRer10, WBcel235)"
     echo "3) untrimmed fasta"
     echo "4) type of mapping (bs_se or bs_pe or no_bs)"
     exit
@@ -36,7 +36,7 @@ python ${bin_dir}/bsPrimerTemplTab.py -t $type $fasta ${sample}.primedreg.fa $ab
 # echo "--- Step 3: predict delta G --- "
 # python ${bin_dir}/ptModel.py ${sample}.ptCounts.qualFilt.csv $abfile
 
-# rm ${sample}.primedreg.fa
-# rm ${sample}.primedreg.bed
+rm ${sample}.primedreg.fa
+rm ${sample}.primedreg.bed
 # gzip ${sample}.ptCounts.qualFilt.parallel.csv
 # gzip ${sample}_ptDg_qual.csv
