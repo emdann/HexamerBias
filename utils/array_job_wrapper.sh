@@ -5,22 +5,23 @@
 my_script=$1
 my_files=$2
 
+first_j=1
+last_j=$(ls $my_files | wc -l)
+
 ## Make one directory for every job ##
-n=$SGE_TASK_FIRST;
-max=$SGE_TASK_LAST;
+n=$first_j;
+max=$last_j;
 while [ "$n" -le "$max" ]; do
   mkdir "dir.$n"
   n=`expr "$n" + 1`;
 done
 
-n=$SGE_TASK_FIRST;
+n=$first_j;
 for file in $my_files; do
   mv $file dir.${n}
   n=`expr "$n" + 1`;
 done
 
 ## Go to directory and run job
-cd dir.$SGE_TASK_ID
-input_file=$(ls)
 
-$my_script $input_file
+/hpc/hub_oudenaarden/edann/bin/coverage_bias/utils/send_array_job.sh $my_script

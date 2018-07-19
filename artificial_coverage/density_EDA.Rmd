@@ -11,7 +11,7 @@ source("~/HexamerBias/rscripts/hexamer_sequence_functions.r")
 We want to test how binding density changes for a different set of primers.
 
 ```{r}
-prob.combos <- hexamerMatrix(stepSize = 0.1)
+prob.combos <- hexamerMatrix(stepSize = 0.05)
 nrow(prob.combos)
 ```
 
@@ -150,31 +150,76 @@ cgi.fc
 compute.enrichment.score(test, cgi.fc)
 ```
 
+
 ```{r}
 load('~/mnt/edann/primer_combos_density.RData')
 
-prova <- map(column_to_rownames(dens.table, var='template'), function(x) data.frame(template=dens.table$template, binding.dens=x))
-scores <- map_dbl(prova, compute.enrichment.score, fc.df=cgi.fc)
-compute.enrichment.score(dens.table[1:5], cgi.fc)
-```
-
-```{r}
 dens.table %>% 
   select(template, dens_0_0.3_0.1_0.6) %>%
   filter(dens_0_0.3_0.1_0.6!=0) %>%
   inner_join(., cgi.fc)
 
 dens.table %>% inner_join(select(d3r.keqs, template, abundance))
+compute.enrichment.score(dens.table[1:5], cgi.fc)
+```
+
+```{r}
+dens.table.l <- map(column_to_rownames(dens.table, var='template'), function(x) data.frame(template=dens.table$template, binding.dens=x))
+scores <- map_dbl(dens.table.l, compute.enrichment.score, fc.df=cgi.fc)
 
 ```
 
 Save best hits for artificial coverage prediction
 ```{r}
-pr2 <- map(prova, function(x) x %>% inner_join(., distinct(select(d3r.keqs, template, abundance)), by='template') %>% mutate(exp=binding.dens*abundance) %>% select(template, exp))
+pred.cov.table <- map(dens.table.l, function(x) x %>% 
+                        inner_join(., distinct(select(d3r.keqs, template, abundance)), by='template') %>% 
+                        mutate(exp=binding.dens*abundance) %>% select(template, exp))
 
-for (name in names(head(sort(scores, decreasing = F)))) {
-  df <- pr2[name][[1]] %>% full_join(select(cele.df, template)) %>% mutate(exp=ifelse(is.na(exp), 0, exp))
-  write.csv(df, file= paste0("~/AvOwork/D3R_", name, "_predcoverage.csv"), row.names = F, col.names = T, quote = F )
+for (name in names(pred.cov.table)) {
+  df <- pred.cov.table[name][[1]] %>% full_join(select(cele.df, template)) %>% mutate(exp=ifelse(is.na(exp), 0, exp))
+  write.csv(df, file= paste0("~/AvOwork/pred_cov_batches/D3R_", name, "_predcoverage.csv"), row.names = F, col.names = T, quote = F )
 }
 
+```
+
+### How does the coverage profile of the top hits looks like?
+```{r}
+cov.profile.files <- list.files("~/mnt/edann/primer_conc_VAN2493/predcov_tracks", pattern = 'mat.gz', full.names = T)
+
+high.score.profile.1 <- load.matrix("~/mnt/edann/primer_conc_VAN2493/predcov_tracks/highcov.random.42D3R_dens_0_0.3_0_0.7_predcoverage.artCov.cgis.mat.gz")
+high.score.profile.2 <- load.matrix("~/mnt/edann/primer_conc_VAN2493/predcov_tracks/highcov.random.42D3R_dens_0_0.3_0.1_0.6_predcoverage.artCov.cgis.mat.gz")
+low.score.profile.2 <- load.matrix("~/mnt/edann/primer_conc_VAN2493/predcov_tracks/highcov.random.42D3R_dens_0_0.1_0.7_0.2_predcoverage.artCov.cgis.mat.gz")
+original.profile <- load.matrix("~/mnt/edann/primer_conc_VAN2493/predcov_tracks/D3R_original_samegenes.mat.gz")
+
+df <- make.df.of.profiles(list(high.score1=high.score.profile.1,
+                               high.score2=high.score.profile.2,
+                               low.score=low.score.profile.2,
+                               original.score=original.profile))
+
+plot.genes.profile.df(df, big.labels = F, start.label = "CGI-start", "CGI-end") +
+  # annotate('text',x=900, y=5.9, label=paste('PCC =', pcc), size=15) +
+  ylab('Coverage (Z-score)') 
+  # theme(legend.position = "bottom",
+  #       plot.title = element_text(hjust = 0.5, size=33),
+  #       ) 
+
+
+```
+
+```{r}
+cov.track.files <- list.files("~/mnt/edann/primer_conc_VAN2493/predcov_tracks", pattern = '.bw', full.names = T)
+pred.bw <- import(cov.track.files[[1]], format = 'BigWig')
+
+```
+
+A very ugly analysis
+```{r}
+f <- list.files(path='~/mnt/edann/primer_conc_VAN2493/predcov_tracks', pattern='scores.txt', full.names = T)
+l.scores <- sapply(f, scan)
+norm.scores <- lapply(l.scores, function(x) (x/sum(x, na.rm = T)))
+names(norm.scores) <- gsub(pattern = '.+/|.scores.txt', replacement = '',names(norm.scores))
+boxplot(norm.scores, outline=T, varwidth=T, las=2)
+
+t.test(norm.scores$top.cgis, norm.scores$top.random, alternative = 'less')
+t.test(norm.scores$cgis, norm.scores$random, alternative = 'less')
 ```
