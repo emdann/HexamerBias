@@ -101,6 +101,21 @@ eps.df %>%
   NULL
 ```
 
+#### Adding more samples ####
+```{r}
+eps.noBS <- read.csv("~/mnt/edann/VAN2591/epsilon_R_noBS.csv", header=F, col.names = c('smp', 'eps'))
+eps.noBS <- eps.noBS %>%
+  mutate(smp = gsub(smp, pattern = 'CG-BS-pbat-bulk-1xPreamp-noBS-|_lmerged_R1.ptCounts.qualFilt.csv', replacement = ''))
+
+
+gencov.noBS <- read.table("~/mnt/edann/VAN2591/genomecov_noBS.txt", sep='\t', header=F, col.names = c('smp', 'genomecov'))
+gencov.noBS %>%
+  mutate(genomecov=1-genomecov) %>%
+  mutate(smp=gsub(smp, pattern = 'CG-BS-pbat-bulk-1xPreamp-noBS-|_lmerged_R1.ptCounts.qualFilt.csv',  replacement = '')) 
+```
+
+
+
 Including BS-seq samples processed in the same way, estimating epsilon only on hexamers not containing cytosines (not affected by bisulfite conversion), for both WGS and BS-seq samples.
 ```{r}
 eps.bs.downsample <- read.csv("~/mnt/edann/VAN2423_onePreamp/bootstrap/bootstrap_epsilon_BS.txt", header=F, col.names = c('smp', 'eps'))
