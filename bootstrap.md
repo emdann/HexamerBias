@@ -15,7 +15,7 @@ for f in $(seq 15 5 95);
 
 3) Build pt table for all subsamples
 ```
-for file in *Cele*withBS*.bam;   
+for file in *Cele*withBS*.bam;
   do
   fasta=../CG-pbat-gDNA-CeleTotal-withBS-1preAmp-handMix_lmerged_R1.fastq.gz;
   refgen=/hpc/hub_oudenaarden/edann/genomes/WBcel235/WBcel235.fa;

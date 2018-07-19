@@ -28,8 +28,4 @@ ${bindir}/utils/kmerCounter.py -s both ${sample}.randomize.fa > ${sample}.random
 
 ## FoldChange
 ${bindir}/optimization/compute_kmers_FC.py ${sample}.kmersTot.csv ${sample}.randomize.kmersTot.csv
-grep -v 'N' ${sample}.noN.kmersFC.csv > ${sample}.noN.kmersFC.csv
-mv ${sample}.noN.kmersFC.csv ${sample}.noN.kmersFC.csv
-
-rm ${sample}.randomize.fa
-rm ${sample}.fa
+grep -v 'N' ${sample}.kmersFC.csv > ${sample}.noN.kmersFC.csv

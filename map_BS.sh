@@ -75,7 +75,7 @@ else
 fi
 #
 # echo "---- Deduplicating! ----"
-echo "${path_2_bismark}/deduplicate_bismark --samtools_path ${path_2_samtools} -s --bam ${sample}_trimmed_bismark_bt2.bam" | \
+# echo "${path_2_bismark}/deduplicate_bismark --samtools_path ${path_2_samtools} -s --bam ${sample}_trimmed_bismark_bt2.bam" | \
     qsub -cwd -N dedup_${sample} -l h_rt=10:00:00 -l h_vmem=20G -l h_cpu=1:00:00 -hold_jid map_${sample}
 
 
