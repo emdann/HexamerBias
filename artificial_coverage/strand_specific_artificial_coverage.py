@@ -3,10 +3,19 @@ import sys
 sys.path.insert(0,'/hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage')
 from cov_from_density import *
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Make pt counts tables for bs-seq \n By Emma Dann")
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    description="Build predicted genomic coverage track in regions of interest given a certain binding fraction for each sequence \n By Emma Dann",
+    epilog=textwrap.dedent('''\
+        THE BED REGIONS MUSTN'T OVERLAP! Otherwise the entries won't be added in the right order and the
+        programme will crash right at the end./)
+
+        You can make sure there is no overlap running:
+        bedtools sort -i myregions.bed | bedtools spacing -i stdin | awk '$4!=0'
+        
+    '''))
 argparser.add_argument('abfile', type=str, help='Csv file of kmer abundance on reference genome')
 argparser.add_argument('covfile', type=str, help='predicted coverage file (in .csv, template sequences in first column)')
-argparser.add_argument('bed', type=str, help='bed of regions OI')
+argparser.add_argument('bed', type=str, help='bed of regions OI (NON OVERLAPPING INTERVALS!!!)')
 argparser.add_argument('refgen', type=str, help='Fasta file of reference genome')
 argparser.add_argument('--BS', type=str, default='no',help='BS conversion mode')
 argparser.add_argument('--output', type=str, default='bigWig',help='Format of output file: bedGraph or bigWig')
@@ -17,7 +26,7 @@ args = argparser.parse_args()
 def save_bw_read_extend(beds,refgen_fasta,density, outfile,bs='no',readLength=10,threads=10):
     workers = multiprocessing.Pool(threads)
     bw = pbw.open(outfile, 'w')
-    header=make_BigWig_header(refgen)
+    header=make_BigWig_header(refgen_fasta)
     chroms = [e[0] for e in header]
     bw.addHeader(header)
     intervals = []
