@@ -3,7 +3,7 @@ import sys
 sys.path.insert(0,'/hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage')
 from cov_from_density import *
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+argparser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
     description="Build predicted genomic coverage track in regions of interest given a certain binding fraction for each sequence \n By Emma Dann",
     epilog=textwrap.dedent('''\
         THE BED REGIONS MUSTN'T OVERLAP! Otherwise the entries won't be added in the right order and the
@@ -11,7 +11,7 @@ argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHel
 
         You can make sure there is no overlap running:
         bedtools sort -i myregions.bed | bedtools spacing -i stdin | awk '$4!=0'
-        
+
     '''))
 argparser.add_argument('abfile', type=str, help='Csv file of kmer abundance on reference genome')
 argparser.add_argument('covfile', type=str, help='predicted coverage file (in .csv, template sequences in first column)')
