@@ -99,6 +99,14 @@ make.match.df <- function(pt.file, ab.file){
 }
 
 
+compute.primer.usage <- function(pt.all.df){
+  primer.usage <- pt.all.df %>%
+    group_by(primer) %>%
+    summarise(p.usage= sum(pt)) %>%
+    rename(hex=primer)
+  return(primer.usage)
+  }
+
 # tab <- data.frame(pool = factor())
 # for (n in 1:100) {
 #   pool <- simulate.primer.pool(10000)

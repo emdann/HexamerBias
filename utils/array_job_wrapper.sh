@@ -24,4 +24,4 @@ done
 
 ## Go to directory and run job
 
-/hpc/hub_oudenaarden/edann/bin/coverage_bias/utils/send_array_job.sh $my_script
+echo "/hpc/hub_oudenaarden/edann/bin/coverage_bias/utils/send_array_job.sh $my_script" | qsub -cwd -t $first_j-$last_j -N array_${my_script} 

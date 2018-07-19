@@ -6,7 +6,7 @@ parser <- ArgumentParser()
 parser$add_argument("rdsFile", type="character",
                     help = ".RDS file of pt table")
 parser$add_argument("--type", default="noBS", type="character",
-                    help="Specify is BS or no BS samples")
+                    help="Specify if sample is BS or noBS")
 parser$add_argument("-o", "--outputFile", type="character",
                     help="path and name of output file")
 args <- parser$parse_args()
