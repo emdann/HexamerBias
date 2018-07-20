@@ -1,0 +1,291 @@
+---
+title: "Primer batch analysis noBS"
+output: html_notebook
+---
+
+```{r, eval=F}
+library(pheatmap)
+library(purrr)
+library(parallel)
+source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
+```
+
+Load data for random samples
+```{r}
+rdata.files <- list.files("~/mnt/edann/VAN2591/", pattern = 'noBS.+.RDS', full.names = T)
+pt.tabs <- mclapply(rdata.files[grep(rdata.files, pattern = 'handMix')], readRDS, mc.cores = 4)
+names(pt.tabs) <- gsub(rdata.files[grep(rdata.files, pattern = 'handMix')], pattern = '.+/CG-BS-pbat-bulk-1xPreamp-noBS-|_lmerged_R1.ptCounts.qualFilt.csv.RDS', replacement = '')
+```
+
+
+### Primer usage in different batches of random primers 
+```{r}
+load('~/AvOwork/rdata/cele_pt_all.RData')
+cele.nobs.Rnew.pt <- pt.tabs$`cElegans-whole-handMixNew`
+cele.nobs.Rold.pt <- pt.tabs$`cElegans-whole-handMixOld`
+
+p.usage.new <- compute.primer.usage(cele.nobs.Rnew.pt)
+p.usage.old <- compute.primer.usage(cele.nobs.Rold.pt)
+p.usage.old2 <- compute.primer.usage(cele.all.df)
+
+inner_join(p.usage.new, p.usage.old, by='hex', suffix=c('.new', '.old')) %>%
+  ggplot(., aes(log(p.usage.new), log(p.usage.old))) +
+  geom_point(alpha=0.3)
+
+inner_join(p.usage.old2, p.usage.old, by='hex', suffix=c('.old2', '.old')) %>%
+  ggplot(., aes(log(p.usage.old2), log(p.usage.old))) +
+  geom_point(alpha=0.3)
+
+p.usage.cele.df <- inner_join(p.usage.old2, p.usage.new, by='hex', suffix=c('.old2', '.new')) %>%
+  inner_join(., p.usage.old) %>%
+  rename(p.usage.old = p.usage) 
+
+pheatmap(cor(p.usage.df[,-1]))
+
+```
+```{r}
+p.usage.new <- compute.primer.usage(zf.nobs.Rnew.pt)
+p.usage.old <- compute.primer.usage(zf.nobs.Rold.pt)
+p.usage.old2 <- compute.primer.usage(zf.all.df)
+
+inner_join(p.usage.new, p.usage.old, by='hex', suffix=c('.new', '.old')) %>%
+  ggplot(., aes(log(p.usage.new), log(p.usage.old))) +
+  geom_point(alpha=0.3)
+
+inner_join(p.usage.old2, p.usage.old, by='hex', suffix=c('.old2', '.old')) %>%
+  ggplot(., aes(log(p.usage.old2), log(p.usage.old))) +
+  geom_point(alpha=0.3)
+
+p.usage.zf.df <- inner_join(p.usage.old2, p.usage.new, by='hex', suffix=c('.old2', '.new')) %>%
+  inner_join(., p.usage.old) %>%
+  rename(p.usage.old = p.usage) 
+
+pheatmap(cor(p.usage.zf.df[,-1]))
+
+```
+
+They all seem very uniform. Very good! 
+
+Compare with correlation between machine mixed and hand mixed (for figure)
+```{r}
+load('~/AvOwork/rdata/ptCounts.strandSpec.VAN1667.RData')
+load("~/AvOwork/rdata/D3R_pt.RData")
+p.usage.d3r <- compute.primer.usage(d3r.all.df) %>% mutate(p.usage=p.usage/sum(p.usage))
+p.usage.machineMixed <- make.hex.usage.df(pt.VAN1667) %>%
+  rename(hex=primer, p.usage=VAN1667)
+p.usage.handmachine <- inner_join(p.usage.machineMixed, p.usage.d3r, by='hex', suffix=c('.machineMixed', '.handMixed')) %>%
+  mutate(nuc=sapply(hex, prevalent_nucleotide)) 
+  # mutate(label = ifelse(p.usage.machineMixed > 0.005 | p.usage.handMixed > 0.005, as.character(hex),'')) %>%
+pcc.hm <- cor(p.usage.handmachine$p.usage.machineMixed, p.usage.handmachine$p.usage.handMixed)
+
+mm.nobs.Rnew.pt <- pt.tabs$`mMusculus-crypts-handMixNew`
+mm.nobs.Rold.pt <- pt.tabs$`mMusculus-crypts-handMixOld`
+p.usage.new <- compute.primer.usage(mm.nobs.Rnew.pt)
+p.usage.old <- compute.primer.usage(mm.nobs.Rold.pt)
+p.usage.handhand <- inner_join(p.usage.new, p.usage.old, by='hex', suffix=c('.new', '.old')) %>%
+  mutate(nuc=sapply(hex, prevalent_nucleotide)) 
+pcc.hh <- cor(p.usage.handhand$p.usage.old, p.usage.handhand$p.usage.new)
+
+p1 <- p.usage.handmachine %>%
+  ggplot(., aes(log(p.usage.machineMixed), log(p.usage.handMixed))) +
+  geom_point(alpha=0.7, aes(color=nuc), shape=3, size=2) +
+  theme_classic() +
+  # geom_text_repel(aes(label=label)) +
+  xlab('log(Machine-mixed primer usage)') + ylab('log(Hand-mixed primer usage)') +
+  scale_color_discrete(name='Prevalent\nnucleotide') +
+  theme_classic() +
+  coord_fixed(ratio=1) +
+  theme(axis.title=element_text(size=20), 
+        axis.text=element_text(size=16), 
+        strip.text=element_text(size=20), 
+        legend.text = element_text(size=20),
+        legend.title = element_text(size=22)) +
+  annotate("text",x = -6.5, y=-13, label=paste("PCC =",round(pcc.hm, 2)), size=9) +
+  NULL
+
+p2 <- p.usage.handhand %>%
+  ggplot(., aes(log(p.usage.new/sum(p.usage.new)), log(p.usage.old/sum(p.usage.old)))) +
+  geom_point(alpha=0.7, aes(color=nuc), shape=3, size=2) +
+  theme_classic() +
+  # geom_text_repel(aes(label=label)) +
+  xlab('log(Hand-mixed 1 primer usage)') + ylab('log(Hand-mixed 2 primer usage)') +
+  scale_color_discrete(name='Prevalent\nnucleotide') +
+  theme_classic() +
+  coord_fixed(ratio=1) +
+  theme(axis.title=element_text(size=20), 
+        axis.text=element_text(size=16), 
+        strip.text=element_text(size=20), 
+        legend.text = element_text(size=20),
+        legend.title = element_text(size=22)) +
+  annotate("text",x = -7, y=-13, label=paste("PCC =",round(pcc.hh, 2)), size=9) +
+  NULL
+
+p1 + ggsave("~/AvOwork/formatted_figs/p_usage_handVSmachineMixed.pdf")  
+p2 + ggsave("~/AvOwork/formatted_figs/p_usage_hand1VShand2Mixed.pdf")  
+
+
+```
+
+### Keq estimation 
+```{r}
+load('~/AvOwork/rdata/epsilon_genomecov_full.RData')
+keqs.tab <- map(names(pt.tabs), function(smp.name) compute.keqs(pt.tabs[smp.name][[1]], eps = filter(eps.full.df, smp==smp.name)$eps, filter.pt = 10))
+names(keqs.tab) <- names(pt.tabs)
+```
+
+Correlate Keqs
+```{r}
+keqs.cele.old <- compute.keqs(pt.tabs['cElegans-whole-handMixOld'][[1]], eps = 23011.8783, filter.pt=10)
+keqs.human.old <- compute.keqs(pt.tabs['human-APKS-handMixOld'][[1]], eps =600, filter.pt=10)
+
+keqs.tab <- map2(keqs.tab, paste0('keq.', names(keqs.tab)), ~setnames(.x, 'keq', .y)) 
+keqs.all <- map(keqs.tab, function(x) select(x, template,primer, starts_with('keq'))) %>%
+  reduce(full_join, by=c('primer', 'template')) 
+
+keqs.all %>%
+  mutate(mm=ifelse(primer==template, 'match', 'mismatch')) %>%
+  ggplot(., aes(log(`keq.mMusculus-crypts-handMixNew`), log(`keq.mMusculus-crypts-handMixOld`), color=mm)) +
+  geom_point(alpha=0.3)
+
+keqs.all %>%
+  mutate(mm=ifelse(primer==template, 'match', 'mismatch')) %>%
+  ggplot(., aes(log(`keq.human-APKS-handMixNew`), log(`keq.cElegans-whole-handMixOld`),color=mm)) +
+  geom_point(alpha=0.3)
+
+cor(keqs.all[-c(1,2)], use='pairwise.complete.obs')
+pheatmap(cor(keqs.all[-c(1,2)], use='pairwise.complete.obs'))
+```
+
+
+### How does this data look compared to the old dataset?
+```{r}
+pt.tabs$`cElegans-whole-handMixNew`
+# pt.tabs %>%
+map(pt.tabs, function(p) summarise(p, pt=sum(pt)))
+
+cele.all.df %>% summarise(pt=sum(pt))
+zf.all.df %>% summarise(pt=sum(pt))
+human.all.df %>% summarise(pt=sum(pt))
+
+
+```
+
+Very few reads!!! 
+
+```{r}
+load('~/AvOwork/rdata/mean_keqs_noBS_unfilt.RData')
+head(avg.keqs.all)
+```
+
+```{r}
+k <- keqs.all %>%
+  full_join(., select(avg.keqs.all, primer, template, keq))
+
+pheatmap(cor(k[-c(1,2)], use='pairwise.complete.obs'))
+```
+
+Try pooling technical replicates 
+```{r}
+pool.replicates <- function(pt.tabs, organism){
+   a <- pt.tabs[grep(names(pt.tabs), pattern=organism)] %>%
+    reduce(bind_rows) %>%
+    group_by(primer,template) %>%
+    summarise(abundance=first(abundance), t.usage=first(t.usage), pt=sum(pt)) 
+  return(a)  
+  }
+
+pt.tabs.pooled <- map(c('dRerio', 'mMusculus', 'human', 'cElegans'), function(x) pool.replicates(pt.tabs, x))
+pt.tabs.pooled <- pt.tabs.pooled %>% set_names(nm=c('dRerio', 'mMusculus', 'human', 'cElegans'))
+
+eps.pooled <- eps.full.df %>% 
+  filter(grepl(pattern = 'handMix', smp)) %>% 
+  group_by(species) %>% 
+  summarise(eps=mean(eps))
+keqs.tab.pooled <- map(names(pt.tabs.pooled), function(smp.name) compute.keqs(pt.tabs.pooled[smp.name][[1]], eps = filter(eps.pooled, species==smp.name)$eps, filter.pt = 10))
+names(keqs.tab.pooled) <- names(pt.tabs.pooled)
+map(keqs.tab.pooled, head)
+
+keqs.tab.pooled <- map2(keqs.tab.pooled, paste0('keq.', names(keqs.tab.pooled)), ~setnames(.x, 'keq.', .y)) 
+keqs.all.pooled <- map(keqs.tab.pooled, function(x) select(x, template,primer, starts_with('keq'))) %>%
+  reduce(full_join, by=c('primer', 'template')) 
+
+keqs.all.pooled %>% head
+
+keqs.all.pooled %>%
+  mutate(mm=ifelse(primer==template, 'match', 'mismatch')) %>%
+  ggplot(., aes(log(`keq.mMusculus`), log(`keq.human`), color=mm)) +
+  geom_point(alpha=0.3)
+
+keqs.all %>%
+  mutate(mm=ifelse(primer==template, 'match', 'mismatch')) %>%
+  ggplot(., aes(log(`keq.human-APKS-handMixNew`), log(`keq.cElegans-whole-handMixOld`),color=mm)) +
+  geom_point(alpha=0.3)
+
+pheatmap(cor(keqs.all.pooled[-c(1,2)], use='pairwise.complete.obs'))
+
+```
+
+### Prediction for different primer conc
+```{r}
+zf.G.all.df <- readRDS("~/mnt/edann/VAN2591/CG-BS-pbat-bulk-1xPreamp-noBS-dRerio-whole-moreG_lmerged_R1.ptCounts.qualFilt.csv.RDS")
+zf.T.all.df <- readRDS("~/mnt/edann/VAN2591/CG-BS-pbat-bulk-1xPreamp-noBS-dRerio-whole-moreT_lmerged_R1.ptCounts.qualFilt.csv.RDS")
+
+gencov.noBS <- read.table("~/mnt/edann/VAN2591/genomecov_noBS.txt", sep='\t', header=F, col.names = c('smp', 'genomecov'))
+gencov.noBS <- gencov.noBS %>%
+  mutate(genomecov=1-genomecov) %>%
+  filter(grepl(smp, pattern = 'noBS')) %>%
+  mutate(smp=gsub(smp, pattern = 'CG-BS-pbat-bulk-1xPreamp-noBS-|_lmerged_R1.srt',  replacement = '')) 
+
+eps.zf.moreG <- exp(predict(model.epsilon, data.frame(genomecov=filter(gencov.noBS, smp=='dRerio-whole-moreG')$genomecov)))
+eps.zf.moreT <- exp(predict(model.epsilon, data.frame(genomecov=filter(gencov.noBS, smp=='dRerio-whole-moreT')$genomecov)))
+
+zf.G.keqs <- inner_join(select(avg.keqs.all, primer, template, keq), zf.G.all.df, by=c("primer", 'template')) 
+zf.T.keqs <- inner_join(select(avg.keqs.all, primer, template, keq), zf.T.all.df, by=c("primer", 'template'))
+zf.R.keqs <- inner_join(select(avg.keqs.all, primer, template, keq), pt.tabs$`dRerio-whole-handMixNew`, by=c("primer", 'template'))
+
+prob.t <- batch.prob.uniform(nuc.probs = c(pA=0.25, pT=0.45, pC=0.25, pG=0.05))
+prob.g <- batch.prob.uniform(nuc.probs = c(pA=0.25, pG=0.45, pC=0.25, pT=0.05))
+
+pred.cov.zf.G <- predict.coverage(zf.G.keqs, eps = eps.zf.moreG, prob = prob.g)
+pred.cov.zf.T <- predict.coverage(zf.T.keqs, eps = eps.zf.moreT, prob = prob.t)
+pred.cov.zf.R <- predict.coverage(zf.R.keqs, eps = filter(eps.full.df, smp=='dRerio-whole-handMixNew')$eps)
+
+```
+
+```{r}
+plot.prediction <- function(pred.cov.df){
+  pcc.pred <- cor(pred.cov.df$t.usage, pred.cov.df$pred.cov)
+  pl <- pred.cov.df %>%
+    mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+      ggplot(., aes(log(t.usage/sum(t.usage)), log(pred.cov/sum(pred.cov)), color=nuc)) + 
+    geom_point(alpha=0.4) +
+    geom_abline(slope=1, intercept=0, color='red') +
+    theme_classic() +
+    xlab("log(observed cov)") + ylab("log(predicted cov)") +
+          theme(legend.title = element_blank(),
+          legend.text = element_text(size=20),
+          axis.text = element_text(size=20),
+          axis.title = element_text(size=30),
+          title = element_text(size=30)) +
+    ggtitle(paste('R.sq.', ' = ', round(pcc.pred,2), sep=''))
+  return(pl)
+}
+
+plot.prediction(pred.cov.zf.G)
+plot.prediction(pred.cov.zf.R)
+plot.prediction(pred.cov.zf.T)
+```
+
+```{r}
+p.usage.zf.T <- compute.primer.usage(zf.T.all.df)
+p.usage.zf.G <- compute.primer.usage(zf.G.all.df)
+p.usage.zf.R <- compute.primer.usage( pt.tabs$`dRerio-whole-handMixNew`)
+
+inner_join(p.usage.zf.R, p.usage.zf.T, by=c('hex'), suffix=c('.G', '.T')) %>%
+  mutate(nuc=sapply(hex, prevalent_nucleotide)) %>%
+  ggplot(., aes(p.usage.G, p.usage.T, color=nuc)) + geom_point(alpha=0.3)
+
+summarise(p.usage.zf.G, p.usage=sum(p.usage))
+summarise(p.usage.zf.T, p.usage=sum(p.usage))
+summarise(p.usage.zf.R, p.usage=sum(p.usage))
+```
