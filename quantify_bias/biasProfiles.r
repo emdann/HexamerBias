@@ -51,12 +51,12 @@ make.df.of.profiles <- function(profiles){
   return(prof.df)
 }
 
-plot.genes.profile.df <- function(df, big.labels=FALSE){
+plot.genes.profile.df <- function(df, big.labels=FALSE, start.label='TSS', end.label='TES'){
   p <-ggplot(df, aes(position,value, color=sample)) + 
     theme_classic() +
     geom_line(size=2, alpha=0.5) +
     scale_x_continuous(breaks = c(0,300,800,1100), 
-                       labels = c('0' = '-3kb', '300' = 'TSS', '800' = 'TES', '1100' = '+3kb')) +
+                       labels = c('0' = '-3kb', '300' = start.label, '800' = end.label, '1100' = '+3kb')) +
     xlab('Relative position') + ylab('normalized coverage') +
     theme(axis.title = element_text(size = 30), 
           axis.text = element_text(size=25), 
@@ -113,18 +113,18 @@ plot.refpoint.profile.df <- function(df, center='CTCF sites', color='sample'){
 # plot.genes.profile.df(df)
 # 
 ## Purified vs non-purified
-VAN1667.profile <- load.profile("~/mnt/edann/hexamers/strand_specific/VAN1667.profile.txt")
-purified.profile <- load.matrix("~/mnt/edann/hexamers/OUD2086prediction/10_tr2_R1_bismark_bt2.deduplicated.sorted.mat.gz")
-pcc <- round(cor(VAN1667.profile, purified.profile), 3)
-df <- make.df.of.profiles(list(non.purified=VAN1667.profile, purified=purified.profile))
-plot.genes.profile.df(df, big.labels = TRUE) +
-  annotate('text',x=900, y=5.9, label=paste('PCC =', pcc), size=15) +
-  ylab('Coverage (Z-score)') +
-  scale_color_discrete(labels=c('purified'='Std. extraction', 'non.purified'='Trizol extraction')) +
-  # theme(legend.position = "bottom",
-  #       plot.title = element_text(hjust = 0.5, size=33),
-  #       ) +
-  ggtitle('Impact of genome accessibility')
+# VAN1667.profile <- load.profile("~/mnt/edann/hexamers/strand_specific/VAN1667.profile.txt")
+# purified.profile <- load.matrix("~/mnt/edann/hexamers/OUD2086prediction/10_tr2_R1_bismark_bt2.deduplicated.sorted.mat.gz")
+# pcc <- round(cor(VAN1667.profile, purified.profile), 3)
+# df <- make.df.of.profiles(list(non.purified=VAN1667.profile, purified=purified.profile))
+# plot.genes.profile.df(df, big.labels = TRUE) +
+#   annotate('text',x=900, y=5.9, label=paste('PCC =', pcc), size=15) +
+#   ylab('Coverage (Z-score)') +
+#   scale_color_discrete(labels=c('purified'='Std. extraction', 'non.purified'='Trizol extraction')) +
+#   # theme(legend.position = "bottom",
+#   #       plot.title = element_text(hjust = 0.5, size=33),
+#   #       ) +
+#   ggtitle('Impact of genome accessibility')
 
 # 
 # ## artificial coverage
@@ -141,47 +141,47 @@ plot.genes.profile.df(df, big.labels = TRUE) +
 # ## Hand-mixed profiles
 # CP <- load.matrix("~/mnt/edann/crypts_bs/VAN2408/CP.srt.mat.gz")
 # MP <- load.matrix("~/mnt/edann/crypts_bs/VAN2408/MP.srt.mat.gz")
-p <- plot.genes.profile.df(make.df.of.profiles(list(hand.mixed.CP = CP, hand.mixed.MP = MP)))
-p + ylab('coverage (Z-score)')
-# ggsave("~/AvOwork/output/coverage_bias/hadMixVSmachineMix_covprofile_zscore.pdf")
-
-## Priming VS ligation
-# lig <- load.profile("~/mnt/edann/SRR1769256_chr1.profile.txt")
-lig <- load.matrix("~/mnt/edann/SRR1769256_chr1.mat.gz")
-# prim <- load.profile("~/mnt/edann/VAN1667.chr1.profile.txt")
-prim <- load.matrix("~/mnt/edann/crypts_bs/VAN1667/se_mapping/VAN1667_se.srt.chr1.mat.gz")
-pcc <- round(cor(lig, prim), 3)
-p <- plot.genes.profile.df(make.df.of.profiles(list(ligation=lig, priming=prim)), big.labels = T) +
-  ylab('coverage (Z-score)')
-cols <- gg_color_hue(2)
-my.cols <- c(gg_color_hue(7)[7], cols[2])
-names(my.cols) <- unique(p$data$sample)
-p  +  annotate('text',x=900, y=1.5, label=paste('PCC =', pcc), size=15) +
-  # scale_color_manual(values=cols)
-  scale_color_manual(values =my.cols,
-                     labels=c('ligation'='Ligation\n(Farlik et al. 2014)',
-                              'priming'='Random priming')) +
-  ggtitle('Impact of WGA method') +
-  ggsave('~/AvOwork/formatted_figs/wga_bias.pdf')
-ggsave("~/AvOwork/output/coverage_bias/ligationVSpriming_covprofile_zscore.pdf")
-
-## Definitive purified vs non-purified
-d3r.mat <- get.profile.from.matrix("D3R_tr2_R1_bismark_bt2.deduplicated.srt.mat.gz")
-purified.profile <- get.profile.from.matrix("~/mnt/edann/hexamers/OUD2086prediction/10_tr2_R1_bismark_bt2.deduplicated.sorted.mat.gz")
-pcc <- round(cor(d3r.mat, purified.profile), 3)
-df <- make.df.of.profiles(list(non.purified=d3r.mat, purified=purified.profile))
-plot.genes.profile.df(df, big.labels = TRUE) +
-  annotate('text',x=900, y=1, label=paste('PCC =', pcc), size=15) +
-  ylab('Coverage (Z-score)') +
-  scale_color_discrete(labels=c('purified'='Std. extraction', 'non.purified'='Trizol extraction')) +
-  # theme(legend.position = "bottom",
-  #       plot.title = element_text(hjust = 0.5, size=33),
-  #       ) +
-  ggtitle('Impact of genome accessibility')
-
-
-ggsave('~/AvOwork/formatted_figs/accessibility_bias.pdf')
-
+# p <- plot.genes.profile.df(make.df.of.profiles(list(hand.mixed.CP = CP, hand.mixed.MP = MP)))
+# p + ylab('coverage (Z-score)')
+# # ggsave("~/AvOwork/output/coverage_bias/hadMixVSmachineMix_covprofile_zscore.pdf")
+# 
+# ## Priming VS ligation
+# # lig <- load.profile("~/mnt/edann/SRR1769256_chr1.profile.txt")
+# lig <- load.matrix("~/mnt/edann/SRR1769256_chr1.mat.gz")
+# # prim <- load.profile("~/mnt/edann/VAN1667.chr1.profile.txt")
+# prim <- load.matrix("~/mnt/edann/crypts_bs/VAN1667/se_mapping/VAN1667_se.srt.chr1.mat.gz")
+# pcc <- round(cor(lig, prim), 3)
+# p <- plot.genes.profile.df(make.df.of.profiles(list(ligation=lig, priming=prim)), big.labels = T) +
+#   ylab('coverage (Z-score)')
+# cols <- gg_color_hue(2)
+# my.cols <- c(gg_color_hue(7)[7], cols[2])
+# names(my.cols) <- unique(p$data$sample)
+# p  +  annotate('text',x=900, y=1.5, label=paste('PCC =', pcc), size=15) +
+#   # scale_color_manual(values=cols)
+#   scale_color_manual(values =my.cols,
+#                      labels=c('ligation'='Ligation\n(Farlik et al. 2014)',
+#                               'priming'='Random priming')) +
+#   ggtitle('Impact of WGA method') +
+#   ggsave('~/AvOwork/formatted_figs/wga_bias.pdf')
+# ggsave("~/AvOwork/output/coverage_bias/ligationVSpriming_covprofile_zscore.pdf")
+# 
+# ## Definitive purified vs non-purified
+# d3r.mat <- get.profile.from.matrix("D3R_tr2_R1_bismark_bt2.deduplicated.srt.mat.gz")
+# purified.profile <- get.profile.from.matrix("~/mnt/edann/hexamers/OUD2086prediction/10_tr2_R1_bismark_bt2.deduplicated.sorted.mat.gz")
+# pcc <- round(cor(d3r.mat, purified.profile), 3)
+# df <- make.df.of.profiles(list(non.purified=d3r.mat, purified=purified.profile))
+# plot.genes.profile.df(df, big.labels = TRUE) +
+#   annotate('text',x=900, y=1, label=paste('PCC =', pcc), size=15) +
+#   ylab('Coverage (Z-score)') +
+#   scale_color_discrete(labels=c('purified'='Std. extraction', 'non.purified'='Trizol extraction')) +
+#   # theme(legend.position = "bottom",
+#   #       plot.title = element_text(hjust = 0.5, size=33),
+#   #       ) +
+#   ggtitle('Impact of genome accessibility')
+# 
+# 
+# ggsave('~/AvOwork/formatted_figs/accessibility_bias.pdf')
+# 
 
 # ## Reference point profile (CTCF)
 # CTCF.pred.norm <- load.profile('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.CTCF.profile.txt')

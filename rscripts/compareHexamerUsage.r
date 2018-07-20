@@ -38,7 +38,10 @@ pt.VAN2408 <- loadPtMatrix('~/mnt/edann/crypts_bs/VAN2408/CM1_tr2_R1_bismark_bt2
 #   return(hex.df)
 # }
 
-VAN1667.primer.usage <- make.hex.usage.df(pt.VAN1667, type = 'primer', scale=TRUE)
+load("~/AvOwork/rdata/D3R_pt.RData")
+p.usage.d3r <- compute.primer.usage(d3r.all.df)
+
+# VAN1667.primer.usage <- make.hex.usage.df(pt.VAN1667, type = 'primer', scale=TRUE)
 VAN2408.primer.usage <- make.hex.usage.df(pt.VAN2408, type = 'primer', scale=TRUE)
 
 primer.usage.df <- merge(VAN1667.primer.usage, VAN2408.primer.usage, by = 'primer')

@@ -1,5 +1,6 @@
 ### RUN COVERAGE PREDICTION ### 
 library(purrr)
+library(tidyr)
 source("/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction/binding_model_functions.r")
 suppressPackageStartupMessages(library(argparse))
 

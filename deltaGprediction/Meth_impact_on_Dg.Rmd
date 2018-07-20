@@ -63,11 +63,15 @@ common.diag.gc <- common.diag %>%
   mutate(label=sapply(ptPair, function(pt) ifelse(grepl(pt, pattern = 'GC|CG'), 'wCG', 'noCG'))) 
 
 ggplot(common.diag.gc, aes(dG.BS.cel, dG.BS.zf, color=label)) +
-  geom_point(alpha=0.7)
+  geom_point(alpha=0.7) + 
+  coord_fixed(ratio=1) +
+  ggsave("~/AvOwork/output/MyData/deltaG_BScor_celVSzf.pdf")
 ggplot(common.diag.gc, aes(dG.BS.cel, dG.BS.human, color=label)) +
-  geom_point(alpha=0.7)
+  coord_fixed(ratio=1) +
+  geom_point(alpha=0.7) + ggsave("~/AvOwork/output/MyData/deltaG_BScor_celVShg.pdf")
 ggplot(common.diag.gc, aes(dG.BS.human, dG.BS.zf, color=label)) +
-  geom_point(alpha=0.7)
+  coord_fixed(ratio=1) +
+  geom_point(alpha=0.7) + ggsave("~/AvOwork/output/MyData/deltaG_BScor_hgVSzf.pdf")
 ```
 So cool!!
 ```{r}
