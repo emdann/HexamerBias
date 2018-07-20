@@ -35,4 +35,5 @@ fi
 echo "Refgen folder: $refgen_dir"
 
 ## Extract methylation
-echo "${path_2_bismark}/bismark_methylation_extractor --samtools_path ${path_2_samtools} -s --gzip --report --multicore 8 --comprehensive --merge_non_CpG --bedGraph -o . --genome_folder $refgen_dir $bam"
+echo "${path_2_bismark}/bismark_methylation_extractor --samtools_path ${path_2_samtools} -s --gzip --report --multicore 8 --comprehensive --merge_non_CpG --bedGraph -o . --genome_folder $refgen_dir $bam" | \\
+  qsub -cwd -N meth_extract_${bam} -l h_rt=01:00:00 -l h_vmem=20G -l h_cpu=1:00:00
