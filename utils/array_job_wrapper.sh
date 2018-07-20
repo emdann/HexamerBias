@@ -27,4 +27,4 @@ for file in $my_files; do
 done
 
 ## Run job array
-echo "/hpc/hub_oudenaarden/edann/bin/coverage_bias/utils/send_array_job.sh $my_script" | qsub -cwd -t $first_j-$last_j -N array_${id} -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=80G -l h_cpu=2:00:00
+echo "/hpc/hub_oudenaarden/edann/bin/coverage_bias/utils/send_array_job.sh $my_script" | qsub -cwd -t $first_j-$last_j -N array_${id} -pe threaded $threads -l h_rt=24:00:00 -l h_vmem=80G -l h_cpu=2:00:00

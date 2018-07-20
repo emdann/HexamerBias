@@ -2,4 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
-.html
+*.html
+
+## OS generated files
+.DS_Store
