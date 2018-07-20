@@ -82,8 +82,9 @@ pcc.primer.batch <- data.frame(prob.G = g.probs, prob.T = 1-g.probs,
            handMixNew = cor.pt.R2) %>%
   gather(key='sample', value='PCC', 3:5)
   
-save(list(pred.coverage=pred.coverage, 
-          pcc.primer.batch=pcc.primer.batch),
+output <- list(pred.coverage=pred.coverage, 
+               pcc.primer.batch=pcc.primer.batch)
+save(output,
   file=paste0(input.dir, output.prefix, '.primerbatch.predcoverage.RData'))
 
 
