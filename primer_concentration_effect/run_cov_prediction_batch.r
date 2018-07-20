@@ -6,7 +6,7 @@ suppressPackageStartupMessages(library(argparse))
 parser <- ArgumentParser()
 parser$add_argument("inputPattern", type="character",
                     help = "Pattern of RDS files to be processed")
-parser$add_argument("-o", "--outputPrexis", type="character",
+parser$add_argument("-o", "--outputPrefix", type="character",
                     help="prefix for output file")
 args <- parser$parse_args()
 
