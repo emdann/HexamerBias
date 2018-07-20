@@ -6,7 +6,7 @@ then
     echo "1) fastq.gz file"
     echo "2) reference genome (mm10, hg38, danRer10, WBcel235)"
     echo "3) Type of data (BS or noBS)"
-    echo "3) output directory"
+    echo "4) output directory"
     exit
 fi
 

@@ -1,6 +1,5 @@
-### Chi-square estimation of espilon for downsampling ###
+### Chi-square estimation of epsilon for downsampling ###
 suppressPackageStartupMessages(library(argparse))
-source("/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction/binding_model_functions.r")
 
 parser <- ArgumentParser()
 parser$add_argument("rdsFile", type="character",
@@ -13,6 +12,8 @@ args <- parser$parse_args()
 
 rds.file <- args$rdsFile
 type <- args$type
+
+source("/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction/binding_model_functions.r")
 
 print("Loading pt table")
 pt.df <- readRDS(rds.file)
