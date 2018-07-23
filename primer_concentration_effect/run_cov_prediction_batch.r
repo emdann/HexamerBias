@@ -24,6 +24,7 @@ gencov.file <- "./VAN2591/genomecov_all.txt"
 rdata.pattern <- paste0(input.pattern, '.+.RDS')
 input.files <- list.files(input.dir, pattern = rdata.pattern, full.names = T)
 load(eps.model.file)
+load(keqs.file)
 
 pt.R1.all.df <- readRDS(input.files[grep(input.files, pattern = 'handMixOld')])
 pt.R2.all.df <- readRDS(input.files[grep(input.files, pattern = 'handMixNew')])

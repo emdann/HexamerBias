@@ -252,8 +252,9 @@ pred.cov.zf.R <- predict.coverage(zf.R.keqs, eps = filter(eps.full.df, smp=='dRe
 
 ```
 
+
 ```{r}
-plot.prediction <- function(pred.cov.df){
+plot.prediction <- function(pred.cov.df, main=''){
   pcc.pred <- cor(pred.cov.df$t.usage, pred.cov.df$pred.cov)
   pl <- pred.cov.df %>%
     mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
@@ -267,7 +268,7 @@ plot.prediction <- function(pred.cov.df){
           axis.text = element_text(size=20),
           axis.title = element_text(size=30),
           title = element_text(size=30)) +
-    ggtitle(paste('R.sq.', ' = ', round(pcc.pred,2), sep=''))
+    ggtitle(paste(main,'(R.sq.', ' = ', round(pcc.pred,2), ')', sep=''))
   return(pl)
 }
 
@@ -276,16 +277,77 @@ plot.prediction(pred.cov.zf.R)
 plot.prediction(pred.cov.zf.T)
 ```
 
+Computed for all organisms with script `run_cov_prediction_batch.r`
+
 ```{r}
-p.usage.zf.T <- compute.primer.usage(zf.T.all.df)
-p.usage.zf.G <- compute.primer.usage(zf.G.all.df)
-p.usage.zf.R <- compute.primer.usage( pt.tabs$`dRerio-whole-handMixNew`)
+pred.cov.files <- list.files("~/mnt/edann/VAN2591", pattern = '.RData', full.names = T)
+pred.cov.files <- pred.cov.files[!grepl(pred.cov.files, pattern = 'BS')]
 
-inner_join(p.usage.zf.R, p.usage.zf.T, by=c('hex'), suffix=c('.G', '.T')) %>%
-  mutate(nuc=sapply(hex, prevalent_nucleotide)) %>%
-  ggplot(., aes(p.usage.G, p.usage.T, color=nuc)) + geom_point(alpha=0.3)
+load(pred.cov.files[[1]])
+cele.pred.cov.batch <- output 
 
-summarise(p.usage.zf.G, p.usage=sum(p.usage))
-summarise(p.usage.zf.T, p.usage=sum(p.usage))
-summarise(p.usage.zf.R, p.usage=sum(p.usage))
+load(pred.cov.files[[2]], verbose = T)
+drerio.pred.cov.batch <- output 
+
+load(pred.cov.files[[3]])
+human.pred.cov.batch <- output 
+
+load(pred.cov.files[[4]])
+mm.pred.cov.batch <- output 
 ```
+
+```{r}
+map(seq_along(cele.pred.cov.batch$pred.coverage), function(i) plot.prediction(cele.pred.cov.batch$pred.coverage[[i]], main=names(cele.pred.cov.batch$pred.coverage)[i]))
+```
+
+```{r}
+map(seq_along(drerio.pred.cov.batch$pred.coverage), function(i) plot.prediction(drerio.pred.cov.batch$pred.coverage[[i]], main=names(drerio.pred.cov.batch$pred.coverage)[i]))
+```
+
+```{r}
+map(seq_along(human.pred.cov.batch$pred.coverage), function(i) plot.prediction(human.pred.cov.batch$pred.coverage[[i]], main=names(human.pred.cov.batch$pred.coverage)[i]))
+
+```
+
+```{r}
+map(seq_along(mm.pred.cov.batch$pred.coverage), function(i) plot.prediction(mm.pred.cov.batch$pred.coverage[[i]], main=names(mm.pred.cov.batch$pred.coverage)[i]))
+
+```
+
+
+##### Why is the mouse an outlier?
+```{r}
+mm.pred.cov.batch$pred.coverage$handMixOld %>%
+  ggplot(., aes(t.usage)) + geom_histogram(binwidth = 10)
+human.pred.cov.batch$pred.coverage$handMixOld %>% 
+  ggplot(., aes(t.usage)) + geom_histogram(binwidth = 10)
+drerio.pred.cov.batch$pred.coverage$handMixOld %>%
+  ggplot(., aes(t.usage)) + geom_histogram(binwidth = 10)
+cele.pred.cov.batch$pred.coverage$handMixOld %>%
+  ggplot(., aes(t.usage)) + geom_histogram(binwidth = 10)
+```
+```{r}
+inner_join(mm.pred.cov.batch$pred.coverage$handMixOld,human.pred.cov.batch$pred.coverage$handMixOld, by='template') %>%
+  filter(template!='TGAAAA') %>%
+  ggplot(., aes(log(t.usage.x), log(t.usage.y), label=template)) +
+  geom_text(alpha=0.2) 
+cele.pred.cov.batch$pred.coverage$handMixOld %>%
+  arrange(-t.usage)
+```
+```{r, eval=F}
+mm10.noBS <- readRDS("~/mnt/edann/VAN2591/CG-BS-pbat-bulk-1xPreamp-noBS-mMusculus-crypts-handMixNew_lmerged_R1.ptCounts.qualFilt.csv.RDS")
+mm10.noBS %>%
+  filter(template=='TGAAAA') %>%
+  arrange(-pt)
+  ggplot(., aes(pt)) + geom_histogram(binwidth = 10)
+```
+
+Huge mapping artifact in chr2!! 
+```{r, out.width='25%', fig.align='center', fig.cap='...'}
+knitr::include_graphics('~/AvOwork/mapping_artifact_mm10.png')
+```
+
+
+
+
+
