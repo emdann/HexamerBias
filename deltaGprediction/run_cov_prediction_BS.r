@@ -1,4 +1,4 @@
-### RUN COV PREDICTION BS-SEQ ### 
+### RUN COV PREDICTION BS-SEQ ###
 library(purrr)
 library(tidyr)
 source("/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction/binding_model_functions.r")
@@ -20,7 +20,7 @@ output.prefix <- args$outputPrefix
 eps.model.file <- "./model_epsilon.RData"
 gencov.file <- "./VAN2591/genomecov_all.txt"
 
-## Load data and epsilon model ## 
+## Load data and epsilon model ##
 rdata.pattern <- paste0(input.pattern, '.+.RDS')
 input.files <- list.files(input.dir, pattern = rdata.pattern, full.names = T)
 load(eps.model.file)
@@ -30,7 +30,7 @@ pt.R2.all.df <- readRDS(input.files[grep(input.files, pattern = 'handMixNew')])
 pt.T.all.df <- readRDS(input.files[grep(input.files, pattern = 'moreT')])
 pt.G.all.df <- readRDS(input.files[grep(input.files, pattern = 'moreG')])
 
-## Compute scaling factor based on genomic coverage ## 
+## Compute scaling factor based on genomic coverage ##
 gencov.all <- read.table(gencov.file, sep='\t', header=F, col.names = c('smp', 'genomecov'))
 gencov.BS <- gencov.all %>%
   mutate(genomecov=1-genomecov) %>%
@@ -41,12 +41,12 @@ eps.pt.handMixNew <- exp(predict(model.epsilon, data.frame(genomecov=filter(genc
 eps.pt.moreG <- exp(predict(model.epsilon, data.frame(genomecov=filter(gencov.BS, grepl(smp, pattern = paste0(input.pattern, '.+moreG')))$genomecov)))
 eps.pt.moreT <- exp(predict(model.epsilon, data.frame(genomecov=filter(gencov.BS, grepl(smp, pattern = paste0(input.pattern, '.+moreT')))$genomecov)))
 
-## Compute keqs for random primer concentration ## 
-pt.R1.keqs <- compute.keqs(d3r.all.df, eps=epsilon.d3r, filter.pt = 1)
+## Compute keqs for random primer concentration ##
+pt.R1.keqs <- compute.keqs(pt.R1.all.df, eps=eps.pt.handMixOld, filter.pt = 1)
 
-pt.R1.keqs <- inner_join(select(pt.R1.keqs, primer, template, keq), pt.R1.all.df, by=c("primer", 'template')) 
-pt.R2.keqs <- inner_join(select(pt.R1.keqs, primer, template, keq), pt.R2.all.df, by=c("primer", 'template')) 
-pt.G.keqs <- inner_join(select(pt.R1.keqs, primer, template, keq), pt.G.all.df, by=c("primer", 'template')) 
+pt.R1.keqs <- inner_join(select(pt.R1.keqs, primer, template, keq), pt.R1.all.df, by=c("primer", 'template'))
+pt.R2.keqs <- inner_join(select(pt.R1.keqs, primer, template, keq), pt.R2.all.df, by=c("primer", 'template'))
+pt.G.keqs <- inner_join(select(pt.R1.keqs, primer, template, keq), pt.G.all.df, by=c("primer", 'template'))
 pt.T.keqs <- inner_join(select(pt.R1.keqs, primer, template, keq), pt.T.all.df, by=c("primer", 'template'))
 
 prob.t <- batch.prob.uniform(nuc.probs = c(pA=0.25, pT=0.45, pC=0.25, pG=0.05))
@@ -63,7 +63,7 @@ pred.coverage <- list(handMixOld=pred.cov.pt.R1,
                       moreT=pred.cov.pt.T
                       )
 
-### R-sq w different primer batch 
+### R-sq w different primer batch
 g.probs <- seq(0,0.5,0.05)
 prob.vecs <- lapply(g.probs, function(x) batch.prob.uniform(nuc.probs = c(pA=0.25, pT=1-0.5-x, pG=x, pC=0.25)))
 
@@ -78,16 +78,15 @@ cor.pt.R2 <- variable.batch.Rsq(pt.R2.keqs, eps.pt.handMixNew)
 cor.pt.G <- variable.batch.Rsq(pt.G.keqs, eps.pt.moreG)
 cor.pt.T <- variable.batch.Rsq(pt.T.keqs, eps.pt.moreT)
 
-pcc.primer.batch <- data.frame(prob.G = g.probs, prob.T = 1-g.probs, 
-                               moreT = cor.pt.T, 
+pcc.primer.batch <- data.frame(prob.G = g.probs, prob.T = 1-g.probs,
+                               moreT = cor.pt.T,
                                moreG = cor.pt.G,
                                handMixOld = cor.pt.R1,
                                handMixNew = cor.pt.R2) %>%
   gather(key='sample', value='PCC', 3:5)
 
-output <- list(pred.coverage=pred.coverage, 
+output <- list(pred.coverage=pred.coverage,
                pcc.primer.batch=pcc.primer.batch)
 
 save(output,
      file=paste0(input.dir, output.prefix, '.primerbatch.predcoverage.RData'))
-
