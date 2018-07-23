@@ -3,8 +3,7 @@ source("/hpc/hub_oudenaarden/edann/bin/coverage_bias/deltaGprediction/binding_mo
 
 suppressPackageStartupMessages(library(argparse))
 
-parser <- ArgumentParser(decription='Process primer-template occurrency matrix into long dataframe, saved in RDS file for quick loading in R.
-  Includes information about kmer abundance and MFold binding energies.')
+parser <- ArgumentParser(decription='Process primer-template occurrency matrix into long dataframe, saved in RDS file for quick loading in R. Includes information about kmer abundance and MFold binding energies.')
 parser$add_argument("ptFile", type="character",
                     help = "File of primer-template occurrency table (.csv)")
 parser$add_argument("abundanceFile", type="character",
@@ -17,7 +16,7 @@ pt.file <- args$ptFile
 ab.file <- args$abundanceFile
 outfile <- args$outputFile
 
-# args <- commandArgs(trailingOnly = T) 
+# args <- commandArgs(trailingOnly = T)
 # # Make parsing better
 # pt.file <- args[1]
 # ab.file <- args[2]

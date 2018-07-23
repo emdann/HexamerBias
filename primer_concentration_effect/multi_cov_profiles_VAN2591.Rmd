@@ -1,0 +1,218 @@
+---
+title: "Multi-primer cov profiles"
+output: html_notebook
+---
+```{r}
+library(pheatmap)
+library(purrr)
+library(parallel)
+library(tidyr)
+source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
+source("~/HexamerBias/quantify_bias/biasProfiles.r")
+```
+```{r}
+library(ezknitr)
+ezknit(file = "multi_cov_profiles_VAN2591.Rmd", out_dir = "~/AvOwork")
+```
+
+Load all profiles on gene for VAN2591 dataset
+```{r}
+profiles.files <- list.files("~/mnt/edann/VAN2591", pattern='mat.gz', full.names = T)
+# profile.human.hmNew <- load.matrix("/Users/user/mnt/edann/VAN2591/CG-BS-pbat-bulk-1xPreamp-noBS-human-APKS-handMixNew_lmerged_R1.srt.mat.gz")
+
+load.profiles.species <- function(species, exp='noBS'){
+  profiles <- map(profiles.files[grep(profiles.files, pattern = paste0(exp,'-', species))], load.matrix)
+  names(profiles) <- gsub(profiles.files[grep(profiles.files, pattern = paste0(exp,'-', species))], pattern = '.+-|_lmerged.+', replacement = '')
+  return(profiles)
+  }
+
+profiles.human <- load.profiles.species('human')
+profiles.drerio <- load.profiles.species('dRerio')
+profiles.cele <- load.profiles.species('cElegans')
+profiles.mm <- load.profiles.species('mMusculus')
+
+```
+
+
+```{r}
+make.df.of.profiles(profiles.human) %>%
+  plot.genes.profile.df 
+
+make.df.of.profiles(profiles.mm) %>%
+  plot.genes.profile.df 
+
+make.df.of.profiles(profiles.drerio) %>%
+  plot.genes.profile.df 
+
+make.df.of.profiles(profiles.cele) %>%
+  plot.genes.profile.df 
+
+
+```
+
+### Correlate with nucleotide composition at TSS
+
+| Species       | AT            | GC      | Methylation frac  |
+| ------------- |:-------------:| :-----:  | ----------------: |
+| hg38          | 0.49159       | 0.50841 | 0.433536          |
+| danRer10      | 0.583162      | 0.416157| 0.551011          |
+| cele      | 0.653962     | 0.346038      |           |
+
+```{r}
+gc.cont.tss <- c(human=0.50841 , dRerio=0.416157, cElegans=0.346038) 
+gc.cont.tss.df <- data.frame(gc.cont.tss) %>% rownames_to_column(var = 'species')
+all.profiles <- list(human=profiles.human,
+                     dRerio=profiles.drerio,
+                     mMus=profiles.mm,
+                     cElegans=profiles.cele
+
+norm.tss.df <- as.data.frame(all.profiles)[300,] %>%
+  gather(key = 'sample', value = 'cov') %>%
+  mutate(species=gsub(sample, pattern = '\\..+', replacement = ''),
+         batch=gsub(sample, pattern = '.+\\.', replacement = '')) %>%
+  full_join(gc.cont.tss.df) 
+
+myColors <- brewer.pal(3,"Accent")
+names(myColors) <- c("moreG", "moreT", "random")
+fill.scale.primer.batch <- scale_fill_manual(name = "",values = myColors)
+color.scale.primer.batch <- scale_color_manual(name = "",values = myColors)
+
+norm.tss.df %>%
+  filter(batch!='handMixOld') %>%
+  mutate(batch=ifelse(batch=='handMixNew', 'random',batch)) %>%
+  mutate(batch=factor(batch,levels = c('moreG', 'random', 'moreT'))) %>%
+  # factor(x$name, levels = x$name[order(x$val)])
+  ggplot(., aes(batch, cov)) +
+  facet_wrap(~species, 
+             scale='free'
+             ) +
+  geom_bar(aes(fill=batch), stat='identity') +
+  theme_classic() +
+  fill.scale.primer.batch +
+  ylab("Coverage (z-score)") + xlab("") +
+  theme(axis.text.x = element_blank())
+
+```
+
+Read only TSS position: computed with `zcat ${sample}.mat.gz | tail -n+2 | cut -f 306 > ${sample}.tss.cov`
+
+```{r}
+tss.files <- list.files("~/mnt/edann/VAN2591/", pattern = 'tss.cov', full.names = T)
+tss.coverage <- map(tss.files, scan)
+names(tss.coverage) <- gsub(tss.files, pattern = ".+Preamp-|_lmerged.+", replacement = '')
+
+tss.df <- map(tss.coverage, function(x) (x-mean(x, na.rm=T))/sd(x, na.rm=T)) %>%
+  map(function(x) data.frame(cov=x)) %>%
+  map2(., names(tss.coverage), function(x,y) mutate(x, sample=y)) %>%
+  reduce(bind_rows) %>%
+  mutate(exp=ifelse(grepl(sample, pattern = 'noBS'), 'noBS', 'BS'),
+         sample=gsub('noBS-', sample, replacement = ''),
+         ) %>%
+  mutate(species=gsub(sample, pattern = '-.+', replacement = ''),
+         batch=gsub(sample, pattern = '.+-', replacement = '')) 
+
+tss.df %>%
+  filter(exp=='BS') %>%
+  # filter(cov!=0) %>%
+  # filter(species=='cElegans') %>%
+  ggplot(., aes(batch, cov)) +
+  facet_wrap(~species, scale='free') +
+  geom_boxplot(aes(fill=batch), outlier.shape = NA) +
+  theme_classic() +
+  scale_fill_brewer(palette='Accent') +
+  ylim(0,5)
+```
+Nope 
+
+```{r}
+profiles.human.BS <- load.profiles.species('human', exp = 'Preamp')
+profiles.drerio.BS <- load.profiles.species('dRerio', exp = 'Preamp')
+profiles.cele.BS <- load.profiles.species('cElegans', exp = 'Preamp')
+profiles.mm.BS <- load.profiles.species('mMusculus', exp = 'Preamp')
+```
+
+```{r}
+plot.genes.profile.df(make.df.of.profiles(profiles.cele.BS[1:4]))
+plot.genes.profile.df(make.df.of.profiles(profiles.drerio.BS[1:4]))
+plot.genes.profile.df(make.df.of.profiles(profiles.mm.BS[1:4]))
+
+```
+
+```{r}
+all.profiles.bs <- list(human=profiles.human.BS,
+                     dRerio=profiles.drerio.BS[1:4],
+                     mMus=profiles.mm.BS[1:4],
+                     cElegans=profiles.cele.BS[1:4]
+)
+                     
+norm.tss.df.bs <- as.data.frame(all.profiles.bs)[300,] %>%
+  gather(key = 'sample', value = 'cov') %>%
+  mutate(species=gsub(sample, pattern = '\\..+', replacement = ''),
+         batch=gsub(sample, pattern = '.+\\.', replacement = '')) %>%
+  full_join(gc.cont.tss.df) 
+
+myColors <- brewer.pal(3,"Accent")
+names(myColors) <- c("moreG", "moreT", "random")
+fill.scale.primer.batch <- scale_fill_manual(name = "",values = myColors)
+color.scale.primer.batch <- scale_color_manual(name = "",values = myColors)
+
+bs.plot <- norm.tss.df.bs %>%
+  filter(batch!='handMixOld') %>%
+  mutate(batch=ifelse(batch=='handMixNew', 'random',batch)) %>%
+  mutate(batch=factor(batch,levels = c('moreG', 'random', 'moreT'))) %>%
+  # factor(x$name, levels = x$name[order(x$val)])
+  ggplot(., aes(batch, cov)) +
+  facet_wrap(~species, 
+             scale='free'
+             ) +
+  geom_bar(aes(fill=batch), stat='identity') +
+  theme_classic() +
+  fill.scale.primer.batch +
+  ylab("Coverage (z-score)") + xlab("") +
+  ggtitle("TSS coverage - BS samples") +
+      theme(axis.title = element_text(size = 25), 
+          axis.text = element_text(size=18), 
+          plot.title = element_text(hjust = 0.5,size=33),
+          legend.text = element_text(size=22), 
+          legend.key.size = unit(1,"cm"),
+          panel.spacing = unit(2, "lines"),
+          strip.text.x = element_text(size = 20)) +
+  theme(axis.text.x = element_blank())
+
+bs.plot + ggsave('~/AvOwork/output/')
+
+```
+```{r}
+save(all.profiles,file="~/AvOwork/rdata/profiles_VAN2591_noBS.RData")
+save(all.profiles.bs,file="~/AvOwork/rdata/profiles_VAN2591_BS.RData")
+```
+
+
+### CpGs vs reads
+```{r}
+cpgs.df <- read.table("~/mnt/edann/VAN2591/cpgs_BS.tsv", header=F, col.names = c('sample', 'n.cpgs'))
+nreads.df <- read.table("~/mnt/edann/VAN2591/nreads_BS.tsv", header=F, col.names = c('sample', 'n.reads'))
+
+inner_join(nreads.df, cpgs.df) %>%
+  mutate(species=gsub(sample, pattern = '-.+', replacement = ''),
+         batch=gsub(sample, pattern = '.+-', replacement = '')) %>%
+  filter(batch!='handMixOld') %>%
+  mutate(batch=ifelse(batch=='handMixNew', 'random',batch)) %>%
+  # filter(species=='mMusculus') %>%
+  mutate(batch=factor(batch,levels = c('moreG', 'random', 'moreT'))) %>%
+  ggplot(., aes(n.reads, n.cpgs, group=batch, color=batch)) +
+  # geom_line() +
+  geom_point(size=1.5, aes(shape=species)) +
+  col.scale.primer.batch +
+  # geom_line(stat='smooth', method='lm', se=F, size=2, alpha=0.5) +
+  # scale_x_continuous(labels=scientific) + scale_y_continuous(labels=scientific) +
+  theme_classic() +
+  xlab("# reads") + ylab("# covered CpGs") +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size=20),
+        axis.text = element_text(size=16),
+        axis.title = element_text(size=30),
+        title = element_text(size=30)) 
+  
+
+```
