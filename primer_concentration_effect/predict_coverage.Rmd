@@ -5,13 +5,14 @@ output: html_notebook
 
 ```{r, eval=F}
 source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
-source('~/HexamerBias/rscripts/hexamer_sequence_functions.r')
+# source('~/HexamerBias/rscripts/hexamer_sequence_functions.r')
 ```
 
 ```{r}
 load("~/AvOwork/rdata/human_pt_all.RData")
 load("~/AvOwork/rdata/cele_pt_all.RData")
 load("~/AvOwork/rdata/mean_keqs_noBS_unfilt.RData")
+load("~/AvOwork/rdata/D3R_pt.RData")
 ```
 
 ```{r}
@@ -188,3 +189,88 @@ data.frame(prob.G = g.probs, prob.T = 1-g.probs,
   ggsave(filename = "~/AvOwork/output/primer_batch_VAN2493/variable_pcc.pdf",width = 12, height = 6)
 
 ```
+
+```{r}
+primer.usage.cele <- cele.all.df %>%
+  group_by(primer) %>%
+  summarise(p.usage= sum(pt)) %>%
+  rename(hex=primer)
+primer.usage.cele %>%
+  mutate(p.usage.rank=dense_rank(p.usage)) %>%
+  mutate(label=ifelse(p.usage.rank>784, hex, '')) %>%
+  ggplot(., aes(p.usage.rank, p.usage)) + 
+  geom_point() +
+  # geom_bar(stat = 'identity') +
+  geom_text_repel(aes(label=label))
+  
+```
+
+### VAN2591 BS dataset
+
+Load tables
+```{r}
+rdata.files <- list.files("~/mnt/edann/VAN2591/", pattern = 'Preamp-[^noBS].+.RDS', full.names = T)
+pt.tabs.bs <- mclapply(rdata.files[grep(rdata.files, pattern = 'handMix')], readRDS, mc.cores = 4)
+names(pt.tabs.bs) <- gsub(rdata.files[grep(rdata.files, pattern = 'handMix')], pattern = '.+/CG-BS-pbat-bulk-1xPreamp-|_lmerged_R1.ptCounts.qualFilt.csv.RDS', replacement = '')
+str(pt.tabs.bs)
+```
+
+Compute epsilon
+```{r}
+gencov.all <- read.table("~/mnt/edann/VAN2591/genomecov_all.txt", sep='\t', header=F, col.names = c('smp', 'genomecov'))
+gencov.BS <- gencov.all %>%
+  mutate(genomecov=1-genomecov) %>%
+  filter(!grepl(smp, pattern = 'noBS'))
+
+epsilons <- exp(predict(model.epsilon, filter(gencov.BS, grepl(smp, pattern = 'handMix')) %>% select(genomecov)))
+eps.bs <- filter(gencov.BS, grepl(smp, pattern = 'handMix')) %>%
+  mutate(eps=epsilons)
+
+keqs.tab.bs <- map(names(pt.tabs.bs), function(smp.name) compute.keqs(pt.tabs.bs[smp.name][[1]], eps = filter(eps.bs, smp==smp.name)$eps, filter.pt = 1))
+names(keqs.tab.bs) <- names(pt.tabs.bs)
+
+
+
+```
+
+***** TO FINISH!!! *****
+
+Predicted coverage computed with `run_cov_prediction_BS.r`
+
+```{r}
+pred.cov.files <- list.files("~/mnt/edann/VAN2591", pattern = 'BS.*.RData', full.names = T)
+
+load(pred.cov.files[[1]])
+cele.bs.pred.cov.batch <- output 
+
+load(pred.cov.files[[2]], verbose = T)
+drerio.bs.pred.cov.batch <- output 
+
+load(pred.cov.files[[4]])
+mm.bs.pred.cov.batch <- output 
+
+```
+```{r}
+map(seq_along(cele.pred.cov.batch$pred.coverage), function(i) plot.prediction(cele.pred.cov.batch$pred.coverage[[i]], main=names(cele.pred.cov.batch$pred.coverage)[i]))
+```
+
+```{r}
+map(seq_along(drerio.pred.cov.batch$pred.coverage), function(i) plot.prediction(drerio.pred.cov.batch$pred.coverage[[i]], main=names(drerio.pred.cov.batch$pred.coverage)[i]))
+```
+
+```{r}
+# map(seq_along(human.pred.cov.batch$pred.coverage), function(i) plot.prediction(human.pred.cov.batch$pred.coverage[[i]], main=names(human.pred.cov.batch$pred.coverage)[i]))
+```
+
+```{r}
+map(seq_along(mm.pred.cov.batch$pred.coverage), function(i) plot.prediction(mm.pred.cov.batch$pred.coverage[[i]], main=names(mm.pred.cov.batch$pred.coverage)[i]))
+
+```
+
+```{r}
+plot.batch.accuracy(mm.bs.pred.cov.batch$pcc.primer.batch)
+# plot.batch.accuracy(human.pred.cov.batch$pcc.primer.batch)
+plot.batch.accuracy(cele.bs.pred.cov.batch$pcc.primer.batch)
+plot.batch.accuracy(drerio.bs.pred.cov.batch$pcc.primer.batch)
+```
+

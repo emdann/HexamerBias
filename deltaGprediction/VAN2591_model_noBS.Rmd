@@ -349,5 +349,71 @@ knitr::include_graphics('~/AvOwork/mapping_artifact_mm10.png')
 
 
 
+Try using mouse taking out reads from the mapping artifact region
+```{r}
+rdata.pattern <- "noBS-mMus.+filt.+.RDS"
+input.files <- list.files("~/mnt/edann/VAN2591", pattern = rdata.pattern, full.names = T)
 
+mmfilt.R1.all.df <- readRDS(input.files[grep(input.files, pattern = 'handMixOld')])
+mmfilt.R2.all.df <- readRDS(input.files[grep(input.files, pattern = 'handMixNew')])
+mmfilt.T.all.df <- readRDS(input.files[grep(input.files, pattern = 'moreT')])
+mmfilt.G.all.df <- readRDS(input.files[grep(input.files, pattern = 'moreG')])
+
+load("~/mnt/edann/model_epsilon.RData")
+load("~/mnt/edann/mean_keqs_noBS_unfilt.RData")
+gencov <- 0.036315
+eps <- exp(predict(model.epsilon, data.frame(genomecov=gencov)))
+
+keqs.mmfilt <- compute.keqs(mmfilt.R1.all.df, eps=eps, filter.pt=10)
+
+df <- inner_join(keqs.mmfilt, avg.keqs.all, by=c('template', 'primer')) 
+  cor(df$keq.x, df$keq.y, use='pairwise.complete.obs')
+  ggplot(., aes(keq.x, keq.y)) +
+  geom_point(alpha=0.2)
+
+
+mmfilt.R1.keqs <- inner_join(select(avg.keqs.all, primer, template, keq), mmfilt.R1.all.df, by=c("primer", 'template')) 
+mmfilt.R2.keqs <- inner_join(select(avg.keqs.all, primer, template, keq), mmfilt.R2.all.df, by=c("primer", 'template')) 
+mmfilt.G.keqs <- inner_join(select(avg.keqs.all, primer, template, keq), mmfilt.G.all.df, by=c("primer", 'template')) 
+mmfilt.T.keqs <- inner_join(select(avg.keqs.all, primer, template, keq), mmfilt.T.all.df, by=c("primer", 'template'))
+
+prob.t <- batch.prob.uniform(nuc.probs = c(pA=0.25, pT=0.45, pC=0.25, pG=0.05))
+prob.g <- batch.prob.uniform(nuc.probs = c(pA=0.25, pG=0.45, pC=0.25, pT=0.05))
+
+pred.cov.pt.G <- predict.coverage(pt.G.keqs, eps = eps.pt.moreG, prob = prob.g)
+pred.cov.pt.T <- predict.coverage(pt.T.keqs, eps = eps.pt.moreT, prob = prob.t)
+pred.cov.pt.R1 <- predict.coverage(pt.R1.keqs, eps = eps.pt.handMixOld)
+pred.cov.pt.R2 <- predict.coverage(pt.R2.keqs, eps = eps.pt.handMixNew)
+
+
+```
+
+Still bad.
+
+##### Accuracy
+
+```{r}
+plot.batch.accuracy <- function(pcc.primer.batch){
+  pl <- ggplot(pcc.primer.batch, aes(prob.G, PCC, group=sample, color=sample)) +
+  geom_line(size=1.5) +
+  geom_point(size=2) +
+  theme_minimal() +
+  xlab('% G') + ylab(expression(R^2)) +
+  scale_x_continuous(sec.axis=sec_axis(~0.5-., name='% T')) +
+  scale_color_discrete(name='') +
+  scale_color_brewer(palette = 'Accent') +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size=20),
+        axis.text = element_text(size=20),
+        axis.title = element_text(size=30),
+        title = element_text(size=30)) +
+  NULL
+  return(pl)
+}
+
+plot.batch.accuracy(mm.pred.cov.batch$pcc.primer.batch)
+plot.batch.accuracy(human.pred.cov.batch$pcc.primer.batch)
+plot.batch.accuracy(cele.pred.cov.batch$pcc.primer.batch)
+plot.batch.accuracy(drerio.pred.cov.batch$pcc.primer.batch)
+```
 

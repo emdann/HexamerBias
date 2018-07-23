@@ -17,7 +17,7 @@ input.dir <- "./VAN2591/"
 input.pattern <- args$inputPattern
 output.prefix <- args$outputPrefix
 
-keqs.file <- "./mean_keqs_noBS_unfilt.RData"
+keqs.file <- "./mean_keqs_noBS_all.RData"
 eps.model.file <- "./model_epsilon.RData"
 gencov.file <- "./VAN2591/genomecov_all.txt"
 
