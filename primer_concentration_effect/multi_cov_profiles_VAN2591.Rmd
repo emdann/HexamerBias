@@ -2,6 +2,7 @@
 title: "Multi-primer cov profiles"
 output: html_notebook
 ---
+
 ```{r}
 library(pheatmap)
 library(purrr)
@@ -10,13 +11,15 @@ library(tidyr)
 source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
 source("~/HexamerBias/quantify_bias/biasProfiles.r")
 ```
-```{r}
-library(ezknitr)
-ezknit(file = "multi_cov_profiles_VAN2591.Rmd", out_dir = "~/AvOwork")
+```{r setup}
+# library(ezknitr)
+# ezknit(file = "~/HexamerBias/primer_concentration_effect/multi_cov_profiles_VAN2591.Rmd", out_dir = "~/AvOwork")
+# knitr::opts_chunk$set(fig.path = "~/AvOwork/output/multi_primer_cov_VAN2591/")
+knitr::opts_knit$set(root.dir = normalizePath("~/AvOwork/output/multi_primer_cov_VAN2591/")) 
 ```
 
 Load all profiles on gene for VAN2591 dataset
-```{r}
+```{r, eval=F}
 profiles.files <- list.files("~/mnt/edann/VAN2591", pattern='mat.gz', full.names = T)
 # profile.human.hmNew <- load.matrix("/Users/user/mnt/edann/VAN2591/CG-BS-pbat-bulk-1xPreamp-noBS-human-APKS-handMixNew_lmerged_R1.srt.mat.gz")
 
@@ -77,7 +80,7 @@ names(myColors) <- c("moreG", "moreT", "random")
 fill.scale.primer.batch <- scale_fill_manual(name = "",values = myColors)
 color.scale.primer.batch <- scale_color_manual(name = "",values = myColors)
 
-norm.tss.df %>%
+nobs.plot <- norm.tss.df %>%
   filter(batch!='handMixOld') %>%
   mutate(batch=ifelse(batch=='handMixNew', 'random',batch)) %>%
   mutate(batch=factor(batch,levels = c('moreG', 'random', 'moreT'))) %>%
@@ -90,7 +93,17 @@ norm.tss.df %>%
   theme_classic() +
   fill.scale.primer.batch +
   ylab("Coverage (z-score)") + xlab("") +
+  ggtitle("TSS coverage - no BS samples") +
+      theme(axis.title = element_text(size = 25), 
+          axis.text = element_text(size=18), 
+          plot.title = element_text(hjust = 0.5,size=33),
+          legend.text = element_text(size=22), 
+          legend.key.size = unit(1,"cm"),
+          panel.spacing = unit(2, "lines"),
+          strip.text.x = element_text(size = 20)) +
   theme(axis.text.x = element_blank())
+
+nobs.plot + ggsave('TSScov_noBS.pdf')
 
 ```
 
@@ -179,7 +192,7 @@ bs.plot <- norm.tss.df.bs %>%
           strip.text.x = element_text(size = 20)) +
   theme(axis.text.x = element_blank())
 
-bs.plot + ggsave('~/AvOwork/output/')
+bs.plot + ggsave('TSScov_BS.pdf')
 
 ```
 ```{r}

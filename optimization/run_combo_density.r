@@ -21,10 +21,11 @@ joining.fun <- function(...){
   return(xxx)
 }
 
-density.combo <- function(prob.vec, keqs.df=d3r.keqs, eps=epsilon.d3r){
+density.combo <- function(prob.vec, keqs.df=d3r.keqs, eps=epsilon.d3r, nreads=2238543){
   b.probs <- batch.prob.uniform(hexs=all.hexamers(), nuc.probs = prob.vec)
   pred.cov.b <- predict.coverage(keqs.df, eps, prob = b.probs)
   dens.df <- pred.cov.b %>%
+    mutate(pred.cov=(pred.cov/sum(pred.cov))*nreads) %>%
     mutate(binding.dens = pred.cov/abundance)  %>% 
     dplyr::select(template, binding.dens)
   colnames(dens.df)[2] <- do.call(paste,c('dens',prob.vec, sep='_'))
@@ -43,4 +44,4 @@ l.test.combos <- lapply(seq_len(nrow(test.combos)), function(i) test.combos[i,])
 ## Compute density for all combos and save in table
 test.combo.density <- mclapply(l.test.combos, density.combo, mc.cores = detectCores())
 dens.table <- Reduce( joining.fun, test.combo.density)
-save(dens.table, file="/hpc/hub_oudenaarden/edann/primer_combos_density.RData")
+save(dens.table, file="/hpc/hub_oudenaarden/edann/primer_combos_density_even_nreads.RData")

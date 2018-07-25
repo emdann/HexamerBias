@@ -32,13 +32,13 @@ mm.count <- cele.all.df %>%
   mutate(sample='cele_noBS') %>%
   bind_rows(., mutate(human.all.df, sample='human_noBS')) %>%
   bind_rows(., mutate(zf.all.df, sample='zf_noBS')) %>%
-  bind_rows(., mutate(d3r.all.df, sample='D3R_BS')) %>%
+  # bind_rows(., mutate(d3r.all.df, sample='D3R_BS')) %>%
   mutate(MM=ifelse(template==primer, 'match', 'mismatch')) %>% 
   group_by(sample, MM) %>%
   summarise(pt=sum(pt)) 
   
 mm.count %>%
-  filter(sample!="D3R_BS") %>%
+  # filter(sample!="D3R_BS") %>%
   ggplot(., aes(sample, pt*100, fill=MM)) + 
   theme_classic() +
   geom_bar(position='fill', stat='identity') +
@@ -47,6 +47,6 @@ mm.count %>%
         legend.text = element_text(size=20),
         axis.text = element_text(size=20),
         axis.title = element_text(size=30)) +
-  scale_fill_brewer(palette = "Reds")
+  scale_fill_brewer(palette = "Paired")
 
 ggsave("~/AvOwork/output/mismatch_noBS.pdf")

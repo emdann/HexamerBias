@@ -99,10 +99,8 @@ fc <- as.data.frame(hexs) %>%
   rename(template=hexs)
 
 compute.enrichment.score <- function(dens.df, fc.df){
-  # dens.df <- pred.cov.df %>%
-  #   mutate(binding.dens = pred.cov/abundance) 
   enrichment.score <- dens.df %>%
-    inner_join(., fc, by="template") %>%
+    inner_join(., fc.df, by="template") %>%
     mutate(dens.fc=binding.dens*fc) %>%
     summarise(score=sum(dens.fc)) %>%
     .$score
@@ -164,6 +162,13 @@ compute.enrichment.score(dens.table[1:5], cgi.fc)
 ```
 
 ```{r}
+fc.scores <- function(dens.table, fc.df){
+  dens.table.l <- map(column_to_rownames(dens.table, var='template'), function(x) data.frame(template=dens.table$template, binding.dens=x))
+  scores <- map_dbl(dens.table.l, compute.enrichment.score, fc.df=fc.df)
+  return(scores)
+  }
+
+
 dens.table.l <- map(column_to_rownames(dens.table, var='template'), function(x) data.frame(template=dens.table$template, binding.dens=x))
 scores <- map_dbl(dens.table.l, compute.enrichment.score, fc.df=cgi.fc)
 
@@ -218,8 +223,68 @@ f <- list.files(path='~/mnt/edann/primer_conc_VAN2493/predcov_tracks', pattern='
 l.scores <- sapply(f, scan)
 norm.scores <- lapply(l.scores, function(x) (x/sum(x, na.rm = T)))
 names(norm.scores) <- gsub(pattern = '.+/|.scores.txt', replacement = '',names(norm.scores))
-boxplot(norm.scores, outline=T, varwidth=T, las=2)
+boxplot(norm.scores, outline=F, varwidth=T, las=2)
 
 t.test(norm.scores$top.cgis, norm.scores$top.random, alternative = 'less')
 t.test(norm.scores$cgis, norm.scores$random, alternative = 'less')
 ```
+
+#### Improving coverage at CpG sites
+Only about 1.0e+06 CpG dinucleotides are in CpG islands, so I will take all regions flanking CpG sites in the mouse genome.
+
+1. I take the slop of 10 bps around CpG sites
+```
+cat hexamers/annotations_bed//cpg_sites_mm10.bed | bedtools slop -i stdin -g /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.genome -b 10 > hexamers/annotations_bed/cpg_sites_mm10_10bpsSlop.bed
+```
+
+2. I compute the fold change between these and random regions using my script ```optimization/get_kmers_ROI.sh```
+```{r}
+cpgs.fc <- read.csv("~/mnt/edann/hexamers/annotations_bed/CpGislands_srt_mm10.kmersFC.csv", header=F, col.names = c("template", "fc"))
+```
+
+
+```{r}
+fc.scores.cpgs <- fc.scores(dens.table, fc.df = cpgs.fc)
+
+```
+
+
+#### Improving coverage at CTCF sites
+
+```{r}
+ctcf.fc.file <- "~/mnt/edann/hexamers/strand_specific/CTCF.flank60.kmersFC.csv"
+ctcf.fc <- read.csv(ctcf.fc.file, header=F, col.names = c("template", "fc"))
+ctcf.fc
+```
+
+
+```{r}
+fc.scores.ctcf <- fc.scores(dens.table, fc.df = ctcf.fc)
+sort(fc.scores.ctcf, decreasing = T)
+```
+
+Load profiles
+```{r}
+profiles <- map(list.files('~/mnt/edann/pred_coverage_primer_batch_D3R/', pattern='mat.gz', full.names = T), load.matrix)
+high.score.profile.1 <- load.matrix("~/mnt/edann/pred_coverage_primer_batch_D3R/random.42.mm10.noOvsD3R_dens_0_0.1_0.6_0.3_predcoverage.artCov.mat.gz")
+original.profile <- load.matrix("~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42CTCF.flank60.coverage.artCov.CTCF.mat.gz")
+
+df <- make.df.of.profiles(profiles)
+
+plot.refpoint.profile.df(df, center = 'CTCF')
+  # annotate('text',x=900, y=5.9, label=paste('PCC =', pcc), size=15) +
+  ylab('Coverage (Z-score)') 
+  # theme(legend.position = "bottom",
+  #       plot.title = element_text(hjust = 0.5, size=33),
+  #       ) 
+
+
+```
+
+
+#### Reading TF binding sites 
+```{r}
+
+
+```
+

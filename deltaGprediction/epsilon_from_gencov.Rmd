@@ -34,7 +34,8 @@ gencov.downsample <- read.table("~/mnt/edann/VAN2423_onePreamp/bootstrap/bootstr
 gencov.downsample <- gencov.downsample %>%
   mutate(genomecov=1-genomecov) %>%
   mutate(smp=gsub(smp, pattern = 'Total|APKS|ish', replacement = '')) %>%
-  mutate(smp=tolower(smp)) 
+  mutate(smp=tolower(smp))
+gencov.downsample
 ```
 
 The value of epsilon scales nicely with genomic coverage, following a power law. 
@@ -108,11 +109,60 @@ eps.noBS <- eps.noBS %>%
   mutate(smp = gsub(smp, pattern = 'CG-BS-pbat-bulk-1xPreamp-noBS-|_lmerged_R1.ptCounts.qualFilt.csv', replacement = ''))
 
 
-gencov.noBS <- read.table("~/mnt/edann/VAN2591/genomecov_noBS.txt", sep='\t', header=F, col.names = c('smp', 'genomecov'))
-gencov.noBS %>%
+gencov.noBS <- read.table("~/mnt/edann/VAN2591/genomecov_all.txt", sep='\t', header=F, col.names = c('smp', 'genomecov'))
+gencov.noBS <- gencov.noBS %>%
   mutate(genomecov=1-genomecov) %>%
-  mutate(smp=gsub(smp, pattern = 'CG-BS-pbat-bulk-1xPreamp-noBS-|_lmerged_R1.ptCounts.qualFilt.csv',  replacement = '')) 
+  filter(grepl(smp, pattern = 'noBS')) %>%
+  mutate(smp=gsub(smp, pattern = 'CG-BS-pbat-bulk-1xPreamp-noBS-|_lmerged_R1.srt',  replacement = '')) 
+
+eps.full.df <- inner_join(eps.noBS, gencov.noBS) %>%
+  mutate(species = gsub(pattern = '-.+',replacement = '', smp)) %>%
+  bind_rows(., filter(eps.df, grepl(smp, pattern = '95'))) %>%
+  mutate(species=ifelse(as.character(species)=='cele', 'cElegans', species),
+         species=ifelse(as.character(species)=='zf', 'dRerio', species),
+         # smp=ifelse(smp=='cele', 'cElegans', smp),
+         ) 
+
+p1 <- eps.full.df %>%
+  ggplot(., aes(((genomecov)*100), (eps), color=species, shape=species)) +
+  geom_point(size=3) +
+  scale_color_brewer(palette='Set1') +
+  theme_minimal() +
+  xlab("% Genomic coverage") + ylab("epsilon") +
+  theme(axis.text = element_text(size=18),
+    axis.title = element_text(size=22),
+    legend.title = element_text(size=20),
+    legend.text = element_text(size=18)) +
+    # geom_smooth(aes(color=NULL)) +
+  NULL
+
+p3 <- eps.full.df %>%
+  filter(genomecov<50) %>%
+  ggplot(., aes(log((genomecov)*100), log(eps), color=species, shape=species)) +
+  geom_point( size=3, alpha=0.7) +
+  scale_color_brewer(palette='Set1') +
+  theme_minimal() +
+  xlab("% Genomic coverage") + ylab("epsilon") +
+    theme(axis.text = element_text(size=18),
+    axis.title = element_text(size=22),
+    legend.title = element_text(size=20),
+    legend.text = element_text(size=18)) +
+    geom_smooth(method='lm', aes(color=NULL, shape=NULL), color='cornflowerblue')
+
+p3 + ggsave("~/AvOwork/output/epsilon_estimate/gencov_vs_eps_fit.pdf")
+p1 + ggsave("~/AvOwork/output/epsilon_estimate/gencov_vs_eps_untransformed_moresamples.pdf")
 ```
+```{r, echo=T}
+model.epsilon <- 
+  filter(eps.full.df, genomecov<0.5) %>%
+  mutate(log.eps = log(eps)) %>%
+  lm(log.eps ~ log(genomecov), 
+   data=.)
+
+summary(model.epsilon)
+save(model.epsilon, file="~/AvOwork/rdata/model_epsilon.RData")
+```
+
 
 
 

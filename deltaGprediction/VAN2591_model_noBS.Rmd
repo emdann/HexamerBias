@@ -390,6 +390,66 @@ pred.cov.pt.R2 <- predict.coverage(pt.R2.keqs, eps = eps.pt.handMixNew)
 
 Still bad.
 
+##### Keqs with no filtering
+```{r}
+pred.cov.files <- list.files("~/mnt/edann/VAN2591", pattern = '.RData', full.names = T)
+pred.cov.files <- pred.cov.files[grepl(pred.cov.files, pattern = 'new')]
+
+load(pred.cov.files[[1]])
+cele.pred.cov.batch <- output 
+
+load(pred.cov.files[[2]], verbose = T)
+drerio.pred.cov.batch <- output 
+
+load(pred.cov.files[[3]])
+human.pred.cov.batch <- output 
+```
+
+```{r}
+map(seq_along(cele.pred.cov.batch$pred.coverage), function(i) 
+  plot.prediction(cele.pred.cov.batch$pred.coverage[[i]], main=names(cele.pred.cov.batch$pred.coverage)[i]) +
+    ggsave(paste('~/AvOwork/output/epsilon_estimate/pred_cov_noBS_cele', names(cele.pred.cov.batch$pred.coverage)[i] ,'.pdf', sep='')))
+
+bind.batches <- function(pred.coverage.list){
+  reduced.pc.df <- seq_along(pred.coverage.list) %>%
+  map(function(i) mutate(pred.coverage.list[[i]], sample=names(pred.coverage.list)[i])) %>%
+  reduce(bind_rows) 
+  return(reduced.pc.df)  
+}
+
+all.pred.cov <- list(cele.pred.cov.batch$pred.coverage, human.pred.cov.batch$pred.coverage, drerio.pred.cov.batch$pred.coverage) 
+names(all.pred.cov) <- c('cElegans', 'human', 'dRerio')
+
+all.predictions.reduced <- seq_along(all.pred.cov) %>%
+  map(function(i) 
+    map(all.pred.cov[[i]], function(x)
+      mutate(x, species=names(all.pred.cov)[i])
+    ) %>%
+      bind.batches() %>%
+      filter(sample!='handMixOld') %>%
+      group_by(sample) %>%
+      mutate(cor=cor(t.usage, pred.cov))
+    ) %>%
+  reduce(bind_rows) 
+
+pl <- all.predictions.reduced %>%  
+  plot.prediction() +
+  facet_grid(species~sample) 
+
+```
+
+```{r}
+map(seq_along(human.pred.cov.batch$pred.coverage), function(i) plot.prediction(human.pred.cov.batch$pred.coverage[[i]], main=names(human.pred.cov.batch$pred.coverage)[i]) +
+      ggsave(paste('~/AvOwork/output/epsilon_estimate/pred_cov_noBS_human', names(human.pred.cov.batch$pred.coverage)[i] ,'.pdf', sep='')))
+```
+
+```{r}
+map(seq_along(drerio.pred.cov.batch$pred.coverage), function(i) plot.prediction(drerio.pred.cov.batch$pred.coverage[[i]], main=names(drerio.pred.cov.batch$pred.coverage)[i]) +
+      ggsave(paste('~/AvOwork/output/epsilon_estimate/pred_cov_noBS_drerio', names(drerio.pred.cov.batch$pred.coverage)[i] ,'.pdf', sep='')))
+```
+
+
+
 ##### Accuracy
 
 ```{r}
@@ -415,5 +475,15 @@ plot.batch.accuracy(mm.pred.cov.batch$pcc.primer.batch)
 plot.batch.accuracy(human.pred.cov.batch$pcc.primer.batch)
 plot.batch.accuracy(cele.pred.cov.batch$pcc.primer.batch)
 plot.batch.accuracy(drerio.pred.cov.batch$pcc.primer.batch)
+
+
+l <- list(human.pred.cov.batch$pcc.primer.batch %>% mutate(species="H.sapiens"),
+     # human.bs.pred.cov.batch$pcc.primer.batch %>% mutate(species="human"),
+     cele.pred.cov.batch$pcc.primer.batch %>% mutate(species="C.elegans"),
+     drerio.pred.cov.batch$pcc.primer.batch %>% mutate(species="D.rerio")
+    ) %>%
+  reduce(bind_rows) 
+
+plot.batch.accuracy.full(l) 
 ```
 

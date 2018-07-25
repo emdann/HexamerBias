@@ -172,6 +172,27 @@ predict.coverage <- function(keqs.df, eps, prob=batch.prob.uniform()){
   return(pred.cov)
 }
 
+plot.prediction <- function(pred.cov.df){
+  # pcc.pred <- cor(pred.cov.df$t.usage, pred.cov.df$pred.cov)
+  pl <- pred.cov.df %>%
+    mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+    ggplot(., aes(log(t.usage/sum(t.usage)), log(pred.cov/sum(pred.cov)), color=nuc)) + 
+    geom_point(alpha=0.4) +
+    geom_abline(slope=1, intercept=0, color='red') +
+    theme_bw() +
+    xlab("log(observed cov)") + ylab("log(predicted cov)") +
+    theme(legend.title = element_blank(),
+          legend.text = element_text(size=20),
+          axis.text = element_text(size=20),
+          axis.title = element_text(size=30),
+          title = element_text(size=30)) +
+    geom_text(aes(x = Inf, y = -Inf, label=paste("R.sq. =",round(cor,2))), 
+              hjust   = +1, 
+              vjust   = -1,
+              color='black') 
+  return(pl)
+}
+
 #### TESTS ####
 
 compute.keqs.noeps <- function(pt.df, filter.pt=200){

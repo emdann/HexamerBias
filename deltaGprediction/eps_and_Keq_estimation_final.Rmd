@@ -11,7 +11,7 @@ ezknit(file = "eps_and_Keq_estimation_final.Rmd", out_dir = "~/AvOwork")
 ```{r, eval=F}
 setwd("~/mnt/")
 source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
-source('~/HexamerBias/rscripts/hexamer_sequence_functions.r')
+# source('~/HexamerBias/rscripts/hexamer_sequence_functions.r')
 ```
 
 ```{r}
@@ -508,31 +508,6 @@ T_j - \frac{\sum_i{x_{ij}}}{\epsilon} > 0
 \epsilon > \frac{\sum_i{x_{ij}}}{T_j}
 $$
 
-```{r}
-epsilon.minimize.chisq <- function(pt.df, max, min=0, plot=T){
-  min.epsilon <- pt.df %>%
-    mutate(ep=t.usage/abundance) %>%
-    top_n(n = 1,ep) %>%
-    .$ep
-  chis <- c()
-  if(min < min.epsilon){min <- min.epsilon}
-  for (eps in seq(min, max, 1) ) {
-    chi.sq <- pt.df %>%
-      filter(pt!=0) %>%
-      mutate(chi=(-dG/0.59)
-             - log(4/(4^6)) 
-             - log(abundance-(t.usage/eps)) 
-             + log(pt/eps)
-             ) %>%
-      summarise(chi=sum(chi^2))
-    chis <- c(chis, chi.sq)  
-  }
-  if(plot){plot(seq(min, max,1), unlist(chis), pch='.')}
-  best.eps <- seq(min, max, 1)[which.min(unlist(chis))] 
-  return(best.eps)
-  }
-```
-
 ```{r, eval=F}
 eps.human <- epsilon.minimize.chisq(human.df, max=10000, plot=F)
 eps.zf <- epsilon.minimize.chisq(zf.df, max=15000, plot=F)
@@ -552,26 +527,19 @@ genome.cov %>%
   geom_text_repel()
 ```
 
-Downsampling experiments to better fit the curve
-```{r}
-pt.bootstrap.files<- list.files("~/mnt/edann/VAN2423_onePreamp/bootstrap/", pattern = '.ptCounts', full.names = T)
-bootstrap.pt.tabs <- mclapply(pt.bootstrap.files, load.pt.data, mc.cores = detectCores())
-
-
-```
 
 #### Keq estimation
 ```{r}
-compute.keqs <- function(pt.df, eps, filter.pt=200){
-  keqs <- pt.df %>%
-    filter(pt>filter.pt) %>%
-    mutate(keq=((4^6)/4)*(pt/(eps*abundance-t.usage))) 
-  return(keqs)
-  }
+# compute.keqs <- function(pt.df, eps, filter.pt=200){
+#   keqs <- pt.df %>%
+#     filter(pt>filter.pt) %>%
+#     mutate(keq=((4^6)/4)*(pt/(eps*abundance-t.usage))) 
+#   return(keqs)
+#   }
 
-human.keqs <- compute.keqs(human.all.df, eps.human, filter.pt = 10)
-zf.keqs <- compute.keqs(zf.all.df, eps.zf, filter.pt = 10)
-cele.keqs <- compute.keqs(cele.all.df, eps.cele, filter.pt = 10)
+human.keqs <- compute.keqs(human.all.df, eps.human, filter.pt = 0)
+zf.keqs <- compute.keqs(zf.all.df, eps.zf, filter.pt = 0)
+cele.keqs <- compute.keqs(cele.all.df, eps.cele, filter.pt = 0)
 ```
 
 Correlation between predicted keqs
@@ -613,12 +581,12 @@ join.df %>%
         axis.text = element_text(size=20),
         axis.title = element_text(size=30)) +
   xlab("Predicted Keq - C.elegans") + ylab("Predicted Keq - H.sapiens") +
-    coord_fixed(ratio=1) +
+    coord_fixed(ratio=1) 
   ggsave("~/AvOwork/output/epsilon_estimate/keq_cor_celeVShuman.pdf")
 
 join.df <- 
   inner_join(cele.keqs, zf.keqs, by=c('template', 'primer'), suffix=c('.cele', '.zf')) %>%
-  # filter(primer==template) %>%
+  # filter(pt.cele>100 & pt.zf >100) %>%
   mutate(mm=ifelse(primer==template, 'match', 'mismatch')) 
 pcc <- cor(join.df$keq.cele, join.df$keq.zf)
 join.df %>%
@@ -633,11 +601,43 @@ join.df %>%
         axis.text = element_text(size=20),
         axis.title = element_text(size=30)) +
   xlab("Predicted Keq - C.elegans") + ylab("Predicted Keq - D.rerio") +
-  coord_fixed(ratio=1) +
-  ggsave("~/AvOwork/output/epsilon_estimate/keq_cor_celeVSzf.pdf")
+  coord_fixed(ratio=1) 
+ggsave("~/AvOwork/output/epsilon_estimate/keq_cor_celeVSzf.pdf")
 
 ```
 
+##### Correlation with MFold values
+```{r}
+
+avg.keqs <- inner_join(select(filter(human.keqs, pt>0), primer, template, keq, dG, pt), select(filter(cele.keqs, pt>0), primer, template, keq, pt), by=c('primer', 'template'), suffix=c('.human', '.cele')) %>%
+inner_join(., select(filter(zf.keqs, pt>0), primer, template, keq, pt), by=c('primer', 'template')) %>%
+  rename(pt.zf=pt) 
+a <- avg.keqs %>%
+  melt(id.vars=c('primer', 'template', 'dG', 'pt.zf', 'pt.human', 'pt.cele')) %>%
+  group_by(primer, template) %>%
+  summarise(avg.keq=mean(value, na.rm=T), dG=first(dG), pt.zf=first(pt.zf), pt.human=first(pt.human), pt.cele=first(pt.cele)) %>%
+  ungroup() 
+# 
+# cele.keqs %>%
+a %>%
+  filter(primer==template) %>%
+  filter(pt.zf>200 & pt.human>200 & pt.cele>200) %>%
+  mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+  ggplot(., aes(dG, -log(avg.keq), color=nuc)) + 
+  geom_point(alpha=0.4)+
+  theme_classic() +
+      theme(legend.title = element_blank(),
+        legend.text = element_text(size=20),
+        axis.text = element_text(size=20),
+        axis.title = element_text(size=30),
+        title = element_text(size=30)) +
+  xlab("MFold Delta G") + ylab("log(estimated Keq)") +
+  ggtitle("Filtered pt > 200") 
+  # coord_fixed(ratio=1) 
+
+ggsave("~/AvOwork/output/epsilon_estimate/keq_mfold_avg_filt200.pdf")
+
+```
 
 #### Coverage prediction
 ```{r}
@@ -770,7 +770,7 @@ zf.noC <- zf.df %>%
 cele.noC <- cele.df %>%
    filter(!grepl(template, pattern = "C")) 
 
-chi.human.onlyC <- epsilon.minimize.chisq(human.noC, max=10000)
+chi.human.onlyC <- epsilon.minimize.chisq(human.noC, max=5000)
 chi.zf.onlyC <- epsilon.minimize.chisq(zf.noC, max=10000)
 chi.cele.onlyC <- epsilon.minimize.chisq(cele.noC, max=15000)
 
