@@ -10,12 +10,12 @@ argparser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpF
         programme will crash right at the end./)
 
         You can make sure there is no overlap running:
-        bedtools sort -i myregions.bed | bedtools spacing -i stdin | awk '$4!=0'
+        bedtools sort -i myregions.bed | bedtools spacing -i stdin | awk '$4!=0 | cut -f 1,2,3
 
     ''')
 argparser.add_argument('abfile', type=str, help='Csv file of kmer abundance on reference genome')
 argparser.add_argument('covfile', type=str, help='predicted coverage file (in .csv, template sequences in first column)')
-argparser.add_argument('bed', type=str, help='bed of regions OI (NON OVERLAPPING INTERVALS!!!)')
+argparser.add_argument('bed', type=str, help='bed of regions OI (N.B. NON OVERLAPPING INTERVALS and with 3 columns only)')
 argparser.add_argument('refgen', type=str, help='Fasta file of reference genome')
 argparser.add_argument('--BS', type=str, default='no',help='BS conversion mode')
 argparser.add_argument('--output', type=str, default='bigWig',help='Format of output file: bedGraph or bigWig')

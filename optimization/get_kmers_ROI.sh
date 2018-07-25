@@ -4,7 +4,7 @@ if [ $# -ne 2 ]
 then
     echo "Please, give:"
     echo "1) bedfile of regions of interest"
-    echo "2) folder to genome files"
+    echo "2) folder to genome fasta files"
     exit
 fi
 
@@ -18,6 +18,7 @@ bindir=/hpc/hub_oudenaarden/edann/bin/coverage_bias
 path2bedtools=/hpc/hub_oudenaarden/edann/bin/bedtools2/bin
 
 ## Kmer count ROI
+
 ${path2bedtools}/bedtools getfasta -fi ${genomedir}/${genome}.fa -bed $bed -fo ${sample}.fa
 ${bindir}/utils/kmerCounter.py -s both ${sample}.fa > ${sample}.kmersTot.csv
 
