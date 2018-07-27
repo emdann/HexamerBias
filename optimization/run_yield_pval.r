@@ -1,6 +1,9 @@
 ### Testing yield score ###
 suppressPackageStartupMessages(library(argparse))
 library(rtracklayer)
+library(purrr)
+library(zoo)
+library(flux)
 source("/hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage/compare_peaks.r")
 
 
