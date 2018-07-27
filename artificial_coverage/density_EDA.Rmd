@@ -144,7 +144,17 @@ score <- unlist(lapply(test.combo.density, compute.enrichment.score, fc.df=fc))
 Load CpG island FC hexamer enrichment
 ```{r}
 cgi.fc <- read.csv("~/mnt/edann/hexamers/annotations_bed/CpGislands_srt_mm10.kmersFC.csv", header=F, col.names = c("template", "fc"))
-cgi.fc
+plot.ranked.fc <- function(cgi.fc){
+  p <- cgi.fc %>%
+  arrange(-fc) %>%
+  mutate(rank=min_rank(fc)) %>%
+  mutate(label=ifelse(rank<=5 | rank>=max(rank)-5, as.character(template), '')) %>%
+  ggplot(., aes(rank, fc, label=label)) + 
+    geom_point(size=0.5, alpha=0.2) +
+    geom_text_repel()
+  return(p)
+  }
+plot.ranked.fc(cgi.fc)
 compute.enrichment.score(test, cgi.fc)
 ```
 
@@ -239,7 +249,8 @@ cat hexamers/annotations_bed//cpg_sites_mm10.bed | bedtools slop -i stdin -g /hp
 
 2. I compute the fold change between these and random regions using my script ```optimization/get_kmers_ROI.sh```
 ```{r}
-cpgs.fc <- read.csv("~/mnt/edann/hexamers/annotations_bed/CpGislands_srt_mm10.kmersFC.csv", header=F, col.names = c("template", "fc"))
+cpgs.fc <- read.csv("~/mnt/edann/hexamers/annotations_bed/cpg_sites_mm10_10bpsSlop.noN.kmersFC.csv", header=F, col.names = c("template", "fc"))
+plot.ranked.fc(cpgs.fc)
 ```
 
 
@@ -254,13 +265,45 @@ fc.scores.cpgs <- fc.scores(dens.table, fc.df = cpgs.fc)
 ```{r}
 ctcf.fc.file <- "~/mnt/edann/hexamers/strand_specific/CTCF.flank60.kmersFC.csv"
 ctcf.fc <- read.csv(ctcf.fc.file, header=F, col.names = c("template", "fc"))
-ctcf.fc
+plot.ranked.fc(ctcf.fc)
+```
+```{r}
+tss.fc.file <- "~/mnt/edann/hexamers/annotations_bed/TxStart_mm10.50.flank.noN.kmersFC.csv"
+tss.fc <- read.csv(tss.fc.file, header=F, col.names = c("template", "fc"))
+
+plot.ranked.fc(ctcf.fc)
+plot.ranked.fc(tss.fc)
+plot.ranked.fc(cgi.fc %>% filter(!grepl('N', template)))
+```
+```{r}
+fc.scores.cgi <- fc.scores(dens.table, cgi.fc)
+
+plot.ranked.fc(as.data.frame(fc.scores.cgi) %>% rename(fc=fc.scores.cgi) %>% rownames_to_column(var='template'))
 ```
 
-
+```{r}
+fc.scores.tss <- fc.scores(dens.table, tss.fc)
+plot.ranked.fc(as.data.frame(fc.scores.tss) %>% rename(fc=fc.scores.tss) %>% rownames_to_column(var='template'))
+```
 ```{r}
 fc.scores.ctcf <- fc.scores(dens.table, fc.df = ctcf.fc)
 sort(fc.scores.ctcf, decreasing = T)
+plot.ranked.fc(as.data.frame(fc.scores.ctcf) %>% rename(fc=fc.scores.ctcf)%>% rownames_to_column(var='template'))
+as.data.frame(fc.scores.ctcf) %>% 
+  arrange(fc.scores.ctcf) %>% 
+  mutate(ecdf=cume_dist(fc.scores.ctcf)) %>%
+  ggplot(., aes(fc.scores.ctcf, ecdf)) +
+  geom_point() +
+    geom_vline(color='red', xintercept = 10)
+
+as.data.frame(fc.scores.tss) %>% 
+  arrange(fc.scores.tss) %>% 
+  mutate(ecdf=cume_dist(fc.scores.tss)) %>%
+  ggplot(., aes(fc.scores.tss, ecdf)) +
+  geom_point() +
+  geom_vline(color='red', xintercept = 10)
+
+
 ```
 
 Load profiles
@@ -281,10 +324,27 @@ plot.refpoint.profile.df(df, center = 'CTCF')
 
 ```
 
+#### Adding to score the weight for the binding energy
+What's guiding the coverage? Is the binding energy or the primer concentration dominating?
 
-#### Reading TF binding sites 
+Check the differences in densities between very similar batches
 ```{r}
+load("~/mnt/edann/primer_combos_density_even_nreads.RData")
+dens.table[1:10, 1:10]
+colnames(dens.table)
 
+dens.table$dens_0.35_0.3_0.05_0.3
+dens.table %>% 
+  select(dens_0.3_0.3_0.1_0.3,dens_0.35_0.3_0.05_0.3) %>%
+  ggplot(., aes(log(dens_0.35_0.3_0.05_0.3), log(dens_0.3_0.3_0.1_0.3))) + geom_point()
+
+dens.table %>% 
+  select(template, dens_0.3_0.3_0.1_0.3, dens_0.4_0.15_0.05_0.4) %>%
+  ggplot(., aes(log(dens_0.4_0.15_0.05_0.4), log(dens_0.3_0.3_0.1_0.3))) + geom_point()
 
 ```
 
+```{r}
+cgi.fc %>% mutate(fc=exp(fc))
+
+```

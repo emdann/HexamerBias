@@ -11,39 +11,17 @@ library(rtracklayer)
 # biocLite("similaRpeak")
 # biocLite('ChIPpeakAnno')
 # biocLite('plyranges')
-library(Gviz)
-library(similaRpeak)
+# library(Gviz)
+# library(similaRpeak)
+library(GenomicRanges)
 # library(plyranges)
-
-# bed.intersect <- read.table('~/mnt/edann/hexamers/strand_specific/random.42.1000smp.chr1.intersect.bed')
-# colnames(bed.intersect) <- c('chr', 'start', 'end', 'exp', 'pred')
-# 
-# bed.intersect %>% 
-#   mutate(coverage=ifelse(exp >20, 20,exp)) %>%
-#   mutate(coverage=cut(exp,c(0,0.0001,3,5,10,max(exp)), right=FALSE, include.lowest = TRUE)) %>%
-#   ggplot(., aes(y=pred, x=coverage, group=coverage, fill=coverage)) +
-#   # facet_wrap(~coverage) +
-#   theme_classic() +
-#   geom_boxplot(varwidth = TRUE, outlier.alpha=0.01, lwd=1.5) +
-#   scale_fill_brewer() +
-#   scale_x_discrete(labels=c('0', '< 3', '< 5', '< 10', '> 10')) +
-#   xlab("experimental coverage") + ylab("Predicted coverage") +
-#   theme(axis.title = element_text(size = 30), 
-#         axis.text = element_text(size=25), 
-#         title = element_text(size=22)) +
-#   guides(fill='none')
-  
-## Trying to use rtracklayer
-
-
 
 make.base.res.bw <- function(bw){
   base.res.bw.list <- tile(bw, width=1)
   base.res.bw <- base.res.bw.list@unlistData
-  base.res.bw$score <- rep(exp.bw$score,width(exp.bw))
+  base.res.bw$score <- rep(bw$score,width(bw))
   return(base.res.bw)
 }
-
 
 make.predVSexp.range <- function(pred.bw, exp.bw, pred.name='pred', exp.name='score'){
   ranges <- subsetByOverlaps(exp.bw,pred.bw)
@@ -65,7 +43,32 @@ add.id <- function(subset.common){
   ids <- cut(subset.common@ranges@start, breaks = c(0,break.points, max(break.points)+10000), include.lowest = TRUE)
   subset.common$id <- paste(subset.common@seqnames,ids)
   return(subset.common)
+}
+
+add.id.2 <- function(common.ranges, reg.length=3000){
+  common.ranges$range.id <- cut(seq_along(common.ranges), breaks = seq(0, length(common.ranges), by = reg.length))
+  return(common.ranges)
   }
+
+test.add.id <- function(range, reg.length=3000){
+  l <- max(range@ranges@start) - min(range@ranges@start)
+  chroms <- length(range@seqnames@values)
+  if(l==reg.length-1 & chroms==1){
+    return('good')
+  } else {
+    return('bad')
+    }
+  }
+
+split.tracks <- function(common.ranges, reg.length){
+  range.list <- split(common.ranges, common.ranges$range.id)
+  all <- sapply(range.list, test.add.id, reg.length=reg.length)
+  if (any(all=='bad')){stop('Ranges are not all of the same length!')
+  } else {
+      return(range.list)
+    }
+  }
+
 
 load.expVSpred.coverage <- function(pred.bw.file, exp.bw.file, save=FALSE){
   print('Loading predicted coverage profile...')
@@ -80,10 +83,20 @@ load.expVSpred.coverage <- function(pred.bw.file, exp.bw.file, save=FALSE){
   # common.bw <- make.predVSexp.range(pred.bw = pred.bw, exp.bw = exp.bw.base)
   # common.bw <- add.id(common.bw)
   # if (save) {
-  #   save(human_noBS.common.bw, file='~/AvOwork/human_noBS.covprofiles.RData')  
+  #   save(human_noBS.common.bw, file='~/AvOwork/human_noBS.covprofiles.RData')
   # }
-  return(list(pred.bw, exp.bw))
+  return(list(pred=pred.bw, exp=exp.bw))
   }
+
+make.predVSexp.track <- function(predicted.bw, experimental.bw, reg.length=3000){
+  pred.exp.tracks <- load.expVSpred.coverage(pred.bw.file = predicted.bw, exp.bw.file = experimental.bw)
+  br <- smooth.coverage(make.base.res.bw(pred.exp.tracks[[2]]))
+  track <- make.predVSexp.range(pred.exp.tracks[[1]], br) %>%
+    normalize.coverage() %>%
+    add.id.2(reg.length = reg.length)
+  track.list <- lapply(split.tracks(track, reg.length = reg.length), trim.edges)
+  return(track.list)  
+}
 
 
 ## Subset
@@ -156,18 +169,18 @@ computeDistance <- function(bw.ranges){
   return(met.df)
 }
 
-split.region <- function(gr, bps=100){
-  sp <- split(gr, rep(1:round(length(gr)/bps),each=bps)[1:length(gr)])
-  return(sp)
-}
+# split.region <- function(gr, bps=100){
+#   sp <- split(gr, rep(1:round(length(gr)/bps),each=bps)[1:length(gr)])
+#   return(sp)
+# }
 
 smooth.coverage <- function(gr, bandwith=100){
   gr$score <- ksmooth(1:length(gr$score), gr$score, kernel='normal', bandwidth = 100)$y
   return(gr)
 }
 
-trim.edges <- function(gr, trim=200){
-  trimmed.gr <- gr[trim:length(gr)-100,]
+trim.edges <- function(gr, trim=100){
+  trimmed.gr <- gr[(trim+1):(length(gr)-trim)]
   return(trimmed.gr)
 }
 
@@ -252,25 +265,125 @@ plot.cov.wAnnotation <- function(test.bw, anno.gr){
 }
 
 nice.plotTrack <- function(test.bw, labels=c('Experimental ', 'Predicted')){
-  chrom <- gsub(test.bw$id[1],pattern = ' \\(.+\\]', replacement = '')
+  chrom <- test.bw@seqnames@values
   long.df <- as.data.frame(values(test.bw)) %>% 
-    select(-id) %>%
+    select(-range.id) %>%
     mutate(genomic.coord=test.bw@ranges@start) %>%
     melt(id.vars='genomic.coord', variable.name='sample', value.name='norm.coverage')
-  
-  p <- ggplot(long.df, aes(genomic.coord, norm.coverage, group=sample, color=sample)) +
-    geom_line(size=2,linetype=1) +
+  p <- ggplot(long.df, aes(genomic.coord, norm.coverage, group=sample, color=sample, linetype=sample)) +
+    geom_line(size=2) +
     xlab("Genomic coordinates") +
     ylab('Norm. coverage (zscore)') +
     ggtitle(paste0(chrom, ':', as.character(min(long.df$genomic.coord)),":", as.character(max(long.df$genomic.coord)))) +
     theme_bw() +
-    scale_color_discrete(labels=labels) +
+    scale_color_manual(values=c('royalblue3', 'gold2'),labels=labels) +
+    scale_linetype_manual(values=c(8,1), labels=labels) +
     theme(axis.title = element_text(size = 28), 
           axis.text = element_text(size=18), 
           plot.title = element_text(size=30, hjust=0.5), 
           legend.text=element_text(size=25),
           legend.position = 'bottom',
-          legend.title = element_blank())
+          legend.title = element_blank(),
+          legend.key.size = grid::unit(5, "lines"))
   return(p)
-  }
+}
+
+#### CORRELATION ANALYSIS ####
+correlate.pred.exp <- function(pred, exp, method='spearman'){
+  cor.coef <- cor(exp, pred, method=method)
+  return(cor.coef)  
+}
+
+corr.real <- function(track, method='spearman'){
+  return(correlate.pred.exp(exp=track$score, pred=track$pred)) 
+}
+
+randomize <- function(track.list.clean, method='spearman'){
+  rand <- sample(track.list.clean)
+  corr.coef.rand <- map_dbl(seq_along(track.list.clean), function(i) correlate.pred.exp(exp=track.list.clean[[i]]$score, pred=rand[[i]]$pred, method = method))
+  return(corr.coef.rand)
+}
+
+compare.spear.real <- function(track.list, name.real='WGS', method='spearman'){
+  spear <- map_dbl(track.list, corr.real,method=method)
+  rand <- randomize(track.list, method=method)
+  pl <- data.frame(sample=name.real, spearman.rho=spear) %>%
+    bind_rows(., data.frame(sample='random', spearman.rho=rand)) %>%
+    ggplot(., aes(sample, spearman.rho)) +
+    geom_boxplot(outlier.alpha = 0.2, varwidth = T) +
+    theme_classic() +
+    ggsignif::geom_signif(comparisons = list(c(name.real, "random")), 
+                          map_signif_level=TRUE) +
+    theme(axis.title=element_text(size=20), 
+          axis.text=element_text(size=16), 
+          strip.text=element_text(size=20), 
+          legend.text = element_text(size=20),
+          legend.title = element_text(size=22)) +
+    xlab('')
+  return(list(spear=spear, rand=rand, p=pl))
+}
   
+
+#### AUC YIELD ANALYSIS ####
+
+
+coverage.yield <- function(scaled.track, roi.track){
+  int.roi <- findOverlaps(query = scaled.track, subject = roi.track)
+  auc.best.roi <- auc(seq_along(scaled.track[queryHits(int.roi)]$best), scaled.track[queryHits(int.roi)]$best)
+  auc.even.roi <- auc(seq_along(scaled.track[queryHits(int.roi)]$even), scaled.track[queryHits(int.roi)]$even)
+  random.out <- scaled.track[-queryHits(int.roi)]
+  auc.even.out <- auc(seq_along(sample(random.out$even, length(queryHits(int.roi)))), sample(random.out$even, length(queryHits(int.roi))))
+  auc.best.out <- auc(seq_along(sample(random.out$best, length(queryHits(int.roi)))), sample(random.out$best, length(queryHits(int.roi))))
+  yield.best <- auc.best.roi/auc.best.out
+  yield.even <- auc.even.roi/auc.even.out
+  return(yield.best-yield.even)
+}
+
+make.cum.dist <- function(vec, plot=T){
+  cum.dist.best.out <- data.frame(even=vec) %>%
+    mutate(cumdist=cume_dist(even)) 
+  if (plot) {
+    p <- cum.dist.best.out %>%
+      ggplot(., aes(even, cumdist)) +
+      geom_point(size=0.5)
+  }
+  return(list(cumdist=cum.dist.best.out, p=p))
+}
+
+random.from.even.2 <- function(vec, vec.cum.dist){
+  r <- runif(1,0,1)
+  s <- suppressWarnings(max(vec[r >= vec.cum.dist], na.rm=T))
+  return(s)
+}
+
+make.random.profile <- function(cum.dist.real){
+  random.profile <- c()
+  n <- 1
+  while (n <= nrow(cum.dist.real$cumdist)){
+    r <- random.from.even.2(cum.dist.real$cumdist$even, cum.dist.real$cumdist$cumdist)
+    random.profile <- c(random.profile, r )
+    n <- n+1
+  }
+  return(random.profile)
+}
+
+delta.yield.permutation <- function(my.track, roi.track){
+  rand.prof <- make.random.profile(make.cum.dist(my.track$even))
+  rand.prof[is.infinite(rand.prof)] <- 0
+  permuted.track <- my.track
+  permuted.track@elementMetadata$even <- rand.prof
+  yield.delta <- coverage.yield(permuted.track, roi.track)
+  return(yield.delta)  
+}
+
+random.delta.yield.dist <- function(my.track, roi.track, n.iterations=1000){
+  real.delta <- coverage.yield(my.track, roi.track)
+  it <- 1
+  random.deltas <- c()
+  while (it< n.iterations) {
+    d <- delta.yield.permutation(my.track, roi.track)  
+    random.deltas <- c(random.deltas, d)
+    it <- it+1  
+  }
+  return(list(real=real.delta, random=random.deltas))
+}

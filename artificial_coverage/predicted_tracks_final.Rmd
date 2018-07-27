@@ -1,0 +1,300 @@
+---
+title: "Binding density coverage tracks"
+subtitle: "the final version"
+output: html_notebook
+---
+
+```{r, warning=FALSE}
+library(tibble)
+library(purrr)
+library(ggpubr)
+library(ggsignif)
+
+source("~/HexamerBias/artificial_coverage/compare_peaks.r")
+```
+
+## C.elegans WGS
+```{r}
+predicted.bw <- '~/mnt/edann/VAN2423_onePreamp/cov_prediction/WBcel235.random.42.srt.noOvs.noChrcele_pt_noBS_predcoverage.artCov.bw'
+experimental.bw <- '~/mnt/edann/VAN2423_onePreamp/CG-pbat-gDNA-CeleTotal-noBS-1preAmp-handMix_lmerged_R1.srt.dedup.bw'
+cele.new <- make.predVSexp.track(predicted.bw = predicted.bw,
+                                 experimental.bw = experimental.bw)
+
+```
+Saving example tracks
+```{r}
+for (n in 1:10) {
+  smp <- sample(cele.new,1)[[1]]
+  sp <- sp.cele.new$spear[smp$range.id[1]]
+  nice.plotTrack(smp) +
+    annotate('text',x = smp@ranges@start[500], y=max(smp$score), label=paste("Spearman's rho =", round(sp, 2)), size=8) +
+    ggsave(paste0("~/AvOwork/output/MyData/coverage_tracks/cele_noBS_smp", n, '.pdf'), width=10)
+}
+```
+
+
+#### Spearman correlation between exp and predicted
+```{r}
+sp.cele.new<- compare.spear.real(cele.new,name.real = 'CElegans_VAN2423')
+pcc.cele.new<- compare.spear.real(cele.new,name.real = 'CElegans_VAN2423', method = 'pearson')
+sp.cele.new$p
+pcc.cele.new$p
+```
+```{r}
+high.spear <- cele.new[which(sp.cele.new$spear>0.8)]
+
+for (n in 1:10) {
+  smp <- sample(high.spear,1)[[1]]
+  sp <- sp.cele.new$spear[smp$range.id[1]]
+  nice.plotTrack(smp) +
+    annotate('text',x = smp@ranges@start[500], y=max(smp$score), label=paste("Spearman's rho =", round(sp, 2)), size=8) +
+    ggsave(paste0("~/AvOwork/output/MyData/coverage_tracks/cele_noBS_highspear", n, '.pdf'), width=10)
+}
+
+```
+
+
+#### Coverage dsitribution per spearman correlation
+```{r}
+mean.norm.cov <- sapply(cele.new, function(x) mean(x$score))
+mean.df <- data.frame(mean.cov = mean.norm.cov, id=names(mean.norm.cov))
+
+cov.cor.df <- as.data.frame(sp.cele.new$spear) %>%
+  rownames_to_column(var='id') %>%
+  inner_join(., mean.df) %>%
+  # mutate(spear.group = cut(sp.cele.new$spear, breaks = seq(-1,1,by = 0.25), include.lowest = TRUE)) 
+  mutate(spear.group = cut(sp.cele.new$spear, breaks = c(-1,seq(0,1,by = 0.25)), include.lowest = TRUE)) 
+
+pval.df <- compare_means(mean.cov ~ spear.group, data=cov.cor.df, method='t.test') %>%
+  mutate(y.pos=6e-07)
+ggplot(cov.cor.df, aes(y=mean.cov, x=spear.group)) +
+  geom_boxplot(varwidth = TRUE, 
+               outlier.shape = NA, 
+               fill=NA) +
+  coord_cartesian(ylim=c(-1,2)) +
+  theme_classic() +
+  xlab('Spearman corr. coefficient') + ylab('Mean normalized coverage') +
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size=10), title = element_text(size=22)) +
+  geom_signif(comparisons = list(levels(cov.cor.clean$spear.group)[c(2,5)],
+                                  levels(cov.cor.clean$spear.group)[c(2,4)], 
+                                 levels(cov.cor.clean$spear.group)[3:2],
+                                 levels(cov.cor.clean$spear.group)[c(3,4)]
+                                 ), 
+              test='t.test',
+              map_signif_level = TRUE, y_position = seq(1.1, 1.7, length.out = 4), tip_length = 0.001
+              ) 
+```
+
+##### Try taking smaller regions (1000 bps)
+
+```{r}
+cele.new.1kb <- make.predVSexp.track(predicted.bw = predicted.bw,
+                                 experimental.bw = experimental.bw,
+                                 reg.length = 1000)
+
+```
+```{r}
+spear.cele.1kb <- compare.spear.real(cele.new.1kb, name.real = 'cele_WGS_1kb')
+spear.cele.1kb$p
+```
+```{r}
+smp <- sample(cele.new.1kb,1)[[1]]
+spear.cele.1kb$spear[smp$range.id[1]]
+nice.plotTrack(smp)
+```
+
+## C.elegans BS-seq
+```{r}
+predicted.bw <- '~/mnt/edann/VAN2423_onePreamp/cov_prediction/WBcel235.random.42.srt.noOvs.noChrCG-pbat-gDNA-CeleTotal-withBS-1preAmp-handMix_lmerged_R1_trimmed_bismark_bt2.predcoverage.artCov.bw'
+experimental.bw <- '~/mnt/edann/VAN2423_onePreamp/CG-pbat-gDNA-CeleTotal-withBS-1preAmp-handMix_lmerged_R1_trimmed_bismark_bt2.deduplicated.srt.bw'
+cele.bs <- make.predVSexp.track(predicted.bw = predicted.bw,
+                                 experimental.bw = experimental.bw)
+
+```
+```{r}
+nice.plotTrack(sample(cele.bs,1)[[1]])
+```
+#### Spearman correlation between exp and predicted
+```{r}
+sp.cele.bs <- compare.spear.real(cele.bs,name.real = 'CElegans_VAN2423_BSseq')
+sp.cele.bs$p
+```
+
+#### Coverage dsitribution per spearman correlation
+```{r}
+mean.norm.cov <- sapply(cele.bs, function(x) mean(x$score))
+mean.df <- data.frame(mean.cov = mean.norm.cov, id=names(mean.norm.cov))
+
+cov.cor.df <- as.data.frame(sp.cele.bs$spear) %>%
+  rownames_to_column(var='id') %>%
+  inner_join(., mean.df) %>%
+  # mutate(spear.group = cut(sp.cele.bs$spear, breaks = seq(-1,1,by = 0.25), include.lowest = TRUE)) 
+  mutate(spear.group = cut(sp.cele.bs$spear, breaks = c(-1,seq(0,0.5,by = 0.25),1), include.lowest = TRUE)) 
+
+pval.df <- compare_means(mean.cov ~ spear.group, data=cov.cor.df, method='t.test') %>%
+  mutate(y.pos=6e-07)
+ggplot(filter(cov.cor.df, !is.na(spear.group)), aes(y=mean.cov, x=spear.group)) +
+  geom_boxplot(varwidth = TRUE, 
+               outlier.alpha = 0.3, 
+               fill=NA) +
+  coord_cartesian(ylim=c(-2,3.5)) +
+  theme_classic() +
+  xlab('Spearman corr. coefficient') + ylab('Mean normalized coverage') +
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size=10), title = element_text(size=22)) +
+  geom_signif(comparisons = list(# levels(cov.cor.clean$spear.group)[c(2,5)],
+                                 levels(cov.cor.df$spear.group)[c(1,2)],
+                                 levels(cov.cor.df$spear.group)[c(1,3)],
+                                 levels(cov.cor.df$spear.group)[c(1,4)],
+                                  levels(cov.cor.df$spear.group)[c(2,4)],
+                                  levels(cov.cor.df$spear.group)[c(3,4)]
+                                 # levels(cov.cor.clean$spear.group)[3:2]
+                                 # levels(cov.cor.clean$spear.group)[c(3,4)]
+                                 ), 
+              test='t.test',
+              map_signif_level = TRUE, y_position = seq(2.5, 3.4, length.out = 5), tip_length = 0.001
+              ) 
+```
+
+Human dataset 
+```{r}
+load('~/AvOwork/rdata/human_noBS.covprofiles.RData', verbose = T)
+
+track.human.noBS <- smooth.coverage(human_noBS.common.bw) %>%
+  normalize.coverage() %>%
+  add.id.2()
+track.human.noBS <- lapply(split.tracks(track.human.noBS), trim.edges)
+```
+```{r}
+spear.human <- map_dbl(track.human.noBS, corr.real)
+rand.human <- randomize(track.human.noBS)
+
+data.frame(sample='human_WGS', spearman.rho=spear.human) %>%
+  bind_rows(., data.frame(sample='random', spearman.rho=rand.human)) %>%
+  ggplot(., aes(sample, spearman.rho)) +
+  geom_boxplot(outlier.alpha = 0.2) +
+  theme_classic() +
+  ggsignif::geom_signif(comparisons = list(c("human_WGS", "random")), 
+              map_signif_level=TRUE) +
+  theme(axis.title=element_text(size=20), 
+        axis.text=element_text(size=16), 
+        strip.text=element_text(size=20), 
+        legend.text = element_text(size=20),
+        legend.title = element_text(size=22)) +
+  xlab('')
+
+```
+```{r}
+mean.norm.cov <- sapply(track.human.noBS, function(x) mean(x$score))
+mean.df <- data.frame(mean.cov = mean.norm.cov, id=names(mean.norm.cov))
+
+cov.cor.df <- as.data.frame(spear.human) %>%
+  rownames_to_column(var='id') %>%
+  inner_join(., mean.df) %>%
+  mutate(spear.group = cut(spear.human, breaks = seq(-1,1,by = 0.25), include.lowest = TRUE)) %>% 
+  mutate(spear.group = cut(spear.human, breaks = c(-1,seq(0,1,by = 0.25)), include.lowest = TRUE)) 
+
+pval.df <- compare_means(mean.cov ~ spear.group, data=cov.cor.df, method='t.test') 
+
+ggplot(cov.cor.df, aes(y=mean.cov, x=spear.group)) +
+  geom_boxplot(varwidth = TRUE, 
+               outlier.shape = NA, 
+               fill=NA) +
+  coord_cartesian(ylim=c(-1,2)) +
+  theme_classic() +
+  xlab('Spearman corr. coefficient') + ylab('Mean normalized coverage') +
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size=10), title = element_text(size=22)) +
+  # geom_signif(comparisons = list(levels(cov.cor.clean$spear.group)[c(2,5)],
+  #                                 levels(cov.cor.clean$spear.group)[c(2,4)], 
+  #                                levels(cov.cor.clean$spear.group)[3:2],
+  #                                levels(cov.cor.clean$spear.group)[c(3,4)]
+  #                                ), 
+  #             test='t.test',
+  #             map_signif_level = TRUE, y_position = seq(1.1, 1.7, length.out = 4), tip_length = 0.001
+  #             )
+  NULL
+```
+
+
+```{r}
+low.spear <- names(sort(spear, decreasing = T))
+
+nice.plotTrack(track.list.noBS[low.spear[2]][[1]])
+
+```
+
+### Mouse BS data 
+Load data
+```{r}
+predicted.bw <- '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.bw'
+experimental.bw <- '~/mnt/edann/primer_conc_VAN2493/D3R_tr2_R1_bismark_bt2.deduplicated.srt.bw'
+```
+
+```{r}
+spear.d3r <- map_dbl(track.list.D3R, corr.real)
+rand.d3r <- randomize(track.list.D3R)
+
+data.frame(sample='d3r_WGS', spearman.rho=spear.d3r) %>%
+  bind_rows(., data.frame(sample='random', spearman.rho=rand.d3r)) %>%
+  ggplot(., aes(sample, spearman.rho)) +
+  geom_boxplot(outlier.alpha = 0.2, varwidth = T) +
+  theme_classic() +
+  ggsignif::geom_signif(comparisons = list(c("d3r_WGS", "random")), 
+              map_signif_level=TRUE) +
+  theme(axis.title=element_text(size=20), 
+        axis.text=element_text(size=16), 
+        strip.text=element_text(size=20), 
+        legend.text = element_text(size=20),
+        legend.title = element_text(size=22)) +
+  xlab('')
+
+```
+
+```{r}
+setwd('~/mnt/edann/VAN2591/cov_tracks/')
+cele.new <- make.predVSexp.track(predicted.bw = 'WBcel235.random.42.srt.noOvs.noChrcElegans_handMixNew_predcoverage.artCov.bw',
+                                 experimental.bw = '../CG-BS-pbat-bulk-1xPreamp-noBS-cElegans-whole-handMixNew_lmerged_R1.srt.bw')
+
+human.new <- make.predVSexp.track(predicted.bw = 'hg38.random.42.srt.noOvshuman_handMixNew_predcoverage.artCov.bw',
+                                 experimental.bw = '../CG-BS-pbat-bulk-1xPreamp-noBS-human-APKS-handMixNew_lmerged_R1.srt.bw')
+
+```
+
+```{r}
+spear.cele <- compare.spear.real(cele.new, name='cElegans_WGS')
+spear.human <- compare.spear.real(human.new, name='human_WGS')
+
+spear.cele$p
+```
+
+
+```{r}
+mean.norm.cov <- sapply(cele.new, function(x) mean(x$score))
+mean.df <- data.frame(mean.cov = mean.norm.cov, id=names(mean.norm.cov))
+
+cov.cor.df <- as.data.frame(spear.cele$spear) %>%
+  rownames_to_column(var='id') %>%
+  inner_join(., mean.df) %>%
+  mutate(spear.group = cut(spear.cele$spear, breaks = seq(-1,1,by = 0.25), include.lowest = TRUE)) %>% 
+  mutate(spear.group = cut(spear.cele$spear, breaks = c(-1,seq(0,1,by = 0.25)), include.lowest = TRUE)) 
+
+pval.df <- compare_means(mean.cov ~ spear.group, data=cov.cor.df, method='t.test') 
+
+ggplot(cov.cor.df, aes(y=mean.cov, x=spear.group)) +
+  geom_boxplot(varwidth = TRUE, 
+               outlier.shape = NA, 
+               fill=NA) +
+  coord_cartesian(ylim=c(-0.8,1.5)) +
+  theme_classic() +
+  xlab('Spearman corr. coefficient') + ylab('Mean normalized coverage') +
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size=10), title = element_text(size=22)) +
+  geom_signif(comparisons = list(levels(cov.cor.clean$spear.group)[c(3,5)],
+                                 levels(cov.cor.clean$spear.group)[c(2,5)],
+                                  levels(cov.cor.clean$spear.group)[c(2,4)],
+                                 levels(cov.cor.clean$spear.group)[3:2],
+                                 levels(cov.cor.clean$spear.group)[c(3,4)]
+                                 ),
+              test='t.test',
+              map_signif_level = TRUE, y_position = seq(1.1, 1.7, length.out = 4), tip_length = 0.001
+              )
+  NULL
+```
