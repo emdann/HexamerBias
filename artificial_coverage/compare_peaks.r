@@ -7,14 +7,8 @@ library(nortest)
 library(pheatmap)
 library(rtracklayer)
 # source("https://bioconductor.org/biocLite.R")
-# biocLite("Gviz")
-# biocLite("similaRpeak")
-# biocLite('ChIPpeakAnno')
-# biocLite('plyranges')
-# library(Gviz)
-# library(similaRpeak)
+library(parallel)
 library(GenomicRanges)
-# library(plyranges)
 
 make.base.res.bw <- function(bw){
   base.res.bw.list <- tile(bw, width=1)
@@ -356,19 +350,28 @@ random.from.even.2 <- function(vec, vec.cum.dist){
   return(s)
 }
 
-make.random.profile <- function(cum.dist.real){
-  random.profile <- c()
-  n <- 1
-  while (n <= nrow(cum.dist.real$cumdist)){
-    r <- random.from.even.2(cum.dist.real$cumdist$even, cum.dist.real$cumdist$cumdist)
-    random.profile <- c(random.profile, r )
-    n <- n+1
-  }
-  return(random.profile)
+make.random.profile <- function(cum.dist.real, threads = detectCores()){
+  # random.profile <- c()
+  # n <- 1
+  random.profile <- mclapply(1:nrow(cum.dist.real$cumdist), function(x)
+      random.from.even.2(cum.dist.real$cumdist$even, cum.dist.real$cumdist$cumdist),
+      mc.cores = threads
+  )
+  # while (n <= nrow(cum.dist.real$cumdist)){
+  #   r <- random.from.even.2(cum.dist.real$cumdist$even, cum.dist.real$cumdist$cumdist)
+  #   random.profile <- c(random.profile, r )
+  #   n <- n+1
+  # }
+  return(unlist(random.profile))
 }
 
-delta.yield.permutation <- function(my.track, roi.track){
-  rand.prof <- make.random.profile(make.cum.dist(my.track$even))
+# bench.mark.random.profile <- function(cum.dist){
+#   a <- sapply(1:7, function(n) system.time(p <- make.random.profile(cum.dist, threads=n))
+#   }
+
+
+delta.yield.permutation <- function(my.track, roi.track, threads=detectCores()){
+  rand.prof <- make.random.profile(make.cum.dist(my.track$even), threads = threads)
   rand.prof[is.infinite(rand.prof)] <- 0
   permuted.track <- my.track
   permuted.track@elementMetadata$even <- rand.prof
@@ -376,13 +379,13 @@ delta.yield.permutation <- function(my.track, roi.track){
   return(yield.delta)  
 }
 
-random.delta.yield.dist <- function(my.track, roi.track, n.iterations=1000, verbose=T){
+random.delta.yield.dist <- function(my.track, roi.track, n.iterations=1000, threads=detectCores(), verbose=T){
   real.delta <- coverage.yield(my.track, roi.track)
   it <- 1
   random.deltas <- c()
   while (it< n.iterations) {
     if (verbose) {  print(paste("Running iteration no.", it), quote = F)  }
-    d <- delta.yield.permutation(my.track, roi.track)  
+    d <- delta.yield.permutation(my.track, roi.track, threads = threads)  
     random.deltas <- c(random.deltas, d)
     it <- it+1  
   }
