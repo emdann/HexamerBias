@@ -19,7 +19,7 @@ ROI.track.file <- args$roiBed
 cores <- args$threads 
 
 ## Load track for best and even 
-scaled.track <- readRDS(bestEven.track.file, verbose=T)
+scaled.track <- readRDS(bestEven.track.file)
 
 ## Load track for regions of interest
 roi.track <- import(ROI.track.file, format = 'BED')
