@@ -376,11 +376,12 @@ delta.yield.permutation <- function(my.track, roi.track){
   return(yield.delta)  
 }
 
-random.delta.yield.dist <- function(my.track, roi.track, n.iterations=1000){
+random.delta.yield.dist <- function(my.track, roi.track, n.iterations=1000, verbose=T){
   real.delta <- coverage.yield(my.track, roi.track)
   it <- 1
   random.deltas <- c()
   while (it< n.iterations) {
+    if (verbose) {  print(paste("Running iteration no.", it), quote = F)  }
     d <- delta.yield.permutation(my.track, roi.track)  
     random.deltas <- c(random.deltas, d)
     it <- it+1  
