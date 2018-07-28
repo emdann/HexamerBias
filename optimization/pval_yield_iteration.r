@@ -10,7 +10,7 @@ parser$add_argument("bestEvenTrack", type="character",
                     help = "RDS file of best and even coverage predicted SCALED coverage track (the whole thing or just a sample)")
 parser$add_argument("roiBed", type="character",
                     help = "BED file of regions on which to compare yields")
-parser$add_argument("-t","--threads", type="numeric",
+parser$add_argument("-t","--threads", type="integer",
                     help = "Number of cores to use")
 args <- parser$parse_args()
 

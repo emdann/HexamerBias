@@ -1,16 +1,15 @@
 suppressPackageStartupMessages(library(argparse))
 library(rtracklayer)
-library(purrr)
-library(zoo)
-library(flux)
 source("/hpc/hub_oudenaarden/edann/bin/coverage_bias/artificial_coverage/compare_peaks.r")
 
 parser <- ArgumentParser()
+parser$add_argument("sampleSize", type="integer",
+                    help = "Size of sample")
 parser$add_argument("output", type="character",
                     help = "output file name")
 args <- parser$parse_args()
 
-
+sample.size <- args$sampleSize
 out.name <- args$output
 
 ## Load track for best and even 
@@ -24,5 +23,5 @@ for (col in score.cols) {
   scaled.track@elementMetadata[col][[1]] <- scaled.track@elementMetadata[col][[1]] + abs(min.score)
 }
 
-smp <- sample(scaled.track, 1000000)
+smp <- sample(scaled.track, sample.size)
 saveRDS(smp, file = paste0('/hpc/hub_oudenaarden/edann/pred_coverage_primer_batch_D3R/evenNreads/coverage_yield/', out.name, '.RDS'))
