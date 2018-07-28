@@ -25,4 +25,4 @@ for (col in score.cols) {
 }
 
 smp <- sample(scaled.track, 1000000)
-saveRDS(smp, file = paste0('/hpc/hub_oudenaarden/edann/pred_coverage_primer_batch_D3R/evenNreads/', out.name, '.RDS'))
+saveRDS(smp, file = paste0('/hpc/hub_oudenaarden/edann/pred_coverage_primer_batch_D3R/evenNreads/coverage_yield/', out.name, '.RDS'))
