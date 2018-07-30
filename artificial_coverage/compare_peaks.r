@@ -370,11 +370,15 @@ make.random.profile <- function(cum.dist.real, threads = detectCores()){
 #   }
 
 
-delta.yield.permutation <- function(my.track, roi.track, threads=detectCores()){
+delta.yield.permutation <- function(my.track, roi.track, permute='best', threads=detectCores()){
   rand.prof <- make.random.profile(make.cum.dist(my.track$even), threads = threads)
   rand.prof[is.infinite(rand.prof)] <- 0
   permuted.track <- my.track
-  permuted.track@elementMetadata$even <- rand.prof
+  if (permute=='best') {
+    permuted.track@elementMetadata$best <- rand.prof
+  } else if (permute=='even'){
+    permuted.track@elementMetadata$even <- rand.prof
+  }
   yield.delta <- coverage.yield(permuted.track, roi.track)
   return(yield.delta)  
 }

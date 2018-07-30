@@ -190,19 +190,35 @@ data.frame(prob.G = g.probs, prob.T = 1-g.probs,
 
 ```
 
+Coverage prediction using the non-BS Keqs
 ```{r}
-primer.usage.cele <- cele.all.df %>%
-  group_by(primer) %>%
-  summarise(p.usage= sum(pt)) %>%
-  rename(hex=primer)
-primer.usage.cele %>%
-  mutate(p.usage.rank=dense_rank(p.usage)) %>%
-  mutate(label=ifelse(p.usage.rank>784, hex, '')) %>%
-  ggplot(., aes(p.usage.rank, p.usage)) + 
-  geom_point() +
-  # geom_bar(stat = 'identity') +
-  geom_text_repel(aes(label=label))
-  
+load("~/AvOwork/rdata/d3r_keqs.RData")
+load("~/AvOwork/rdata/mean_keqs_noBS_all.RData")
+
+d3r.noBS.keqs <- d3r.keqs %>% 
+  inner_join(., avg.keqs.all, by=c('primer', 'template', 'dG'), suffix=c('.BS', '.noBS')) %>%
+  select(-one_of('pt.cele', 'pt.human', 'pt.zf', 'keq.BS')) %>%
+  rename(keq=keq.noBS)
+
+d3r.pred.cov.noBS <- predict.coverage(d3r.noBS.keqs,eps = epsilon.d3r)
+d3r.pred.cov.noBS %>%
+  # head %>%
+  mutate(cor=cor(pred.cov, t.usage, use='pairwise.complete.obs')) %>%
+  plot.prediction() +
+  ggsave('~/AvOwork/output/primer_batch_VAN2493/prediction_w_noBS_keqs.pdf')
+
+d3r.pred.cov.noBS %>% head
+```
+
+Compare Keqs
+```{r}
+BS.noBS.keqs <- d3r.keqs %>% 
+  inner_join(., avg.keqs.all, by=c('primer', 'template', 'dG'), suffix=c('.BS', '.noBS')) 
+
+BS.noBS.keqs %>%
+  mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+  ggplot(., aes(keq.BS, keq.noBS, color=nuc)) +
+  geom_point(alpha=0.2)
 ```
 
 ### VAN2591 BS dataset
@@ -274,3 +290,17 @@ plot.batch.accuracy(cele.bs.pred.cov.batch$pcc.primer.batch)
 plot.batch.accuracy(drerio.bs.pred.cov.batch$pcc.primer.batch)
 ```
 
+Save predicted coverage files for track
+```{r}
+save.pred.cov.table <- function(pred.cov.table, name, nreads=1000000){
+  load("~/AvOwork/rdata/cele_pt.RData")
+  pred.cov.table %>% 
+    mutate(exp=(pred.cov/sum(pred.cov))*nreads) %>%
+    full_join(select(cele.df, template)) %>%
+    mutate(exp=ifelse(is.na(exp), 0, exp)) %>%
+    select(template, exp) %>%
+    write.csv(., file= paste0("~/AvOwork/pred_cov_batches/", name, "_predcoverage.csv"), row.names = F, col.names = T, quote = F )
+  }
+
+
+```

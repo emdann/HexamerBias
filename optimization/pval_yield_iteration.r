@@ -30,6 +30,6 @@ score <- delta.yield.permutation(scaled.track, roi.track, threads = cores)
 ## Write to file
 smp.name <- gsub(pattern = '.+/|\\.RDS', replacement = '', bestEven.track.file)
 roi.name <- gsub(pattern = '.+/|\\.bed', replacement = '', ROI.track.file)
-write(score, file = paste0('/hpc/hub_oudenaarden/edann/pred_coverage_primer_batch_D3R/evenNreads/coverage_yield/yield_pval.',smp.name,'.' ,roi.name,'.txt'), append = T)
+write(score, file = paste0('/hpc/hub_oudenaarden/edann/pred_coverage_primer_batch_D3R/evenNreads/coverage_yield/yield_pval_permuteBest.',smp.name,'.' ,roi.name,'.txt'), append = T)
 
 
