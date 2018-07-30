@@ -321,7 +321,7 @@ compare.spear.real <- function(track.list, name.real='WGS', method='spearman'){
 #### AUC YIELD ANALYSIS ####
 
 
-coverage.yield <- function(scaled.track, roi.track){
+coverage.yield.delta <- function(scaled.track, roi.track){
   int.roi <- findOverlaps(query = scaled.track, subject = roi.track)
   auc.best.roi <- auc(seq_along(scaled.track[queryHits(int.roi)]$best), scaled.track[queryHits(int.roi)]$best)
   auc.even.roi <- auc(seq_along(scaled.track[queryHits(int.roi)]$even), scaled.track[queryHits(int.roi)]$even)
@@ -331,6 +331,27 @@ coverage.yield <- function(scaled.track, roi.track){
   yield.best <- auc.best.roi/auc.best.out
   yield.even <- auc.even.roi/auc.even.out
   return(yield.best-yield.even)
+}
+
+coverage.yield.single <- function(scaled.track, roi.track){
+  int.roi <- findOverlaps(query = scaled.track, subject = roi.track)
+  auc.best.roi <- auc(seq_along(scaled.track[queryHits(int.roi)]$score), scaled.track[queryHits(int.roi)]$score)
+  random.out <- scaled.track[-queryHits(int.roi)]
+  auc.best.out <- auc(seq_along(sample(random.out$score, length(queryHits(int.roi)))), sample(random.out$score, length(queryHits(int.roi))))
+  yield.best <- auc.best.roi/auc.best.out
+  return(yield.best)
+}
+
+norm.scale.n.yield <- function(raw.track, roi.track, scale.by=5){
+  norm.track <- normalize.coverage(raw.track) %>%
+    add.id.2(reg.length = 2000)
+  scaled.norm.track <- norm.track
+  score.cols <- colnames(values(scaled.norm.track)[sapply(values(scaled.norm.track), is.numeric)])
+  for (col in score.cols) {
+    scaled.norm.track@elementMetadata[col][[1]] <- scaled.norm.track@elementMetadata[col][[1]] + scale.by
+  }
+  yield <- coverage.yield.single(scaled.norm.track, roi.track)
+  return(yield)
 }
 
 make.cum.dist <- function(vec, plot=T){
