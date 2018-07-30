@@ -1,3 +1,4 @@
+import argparse
 import copy
 import itertools as it
 from Bio.Seq import Seq,MutableSeq
@@ -5,6 +6,14 @@ from Bio import SeqIO
 from Bio.Alphabet import generic_dna
 import sys
 sys.stdout.flush() # To flush output to std out
+
+argparser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+    description="In silico bisulfite convert genome based on reference methylome \n By Emma Dann",
+    )
+argparser.add_argument('refgen', type=str, help='Fasta file of reference genome')
+argparser.add_argument('refMet', type=str, help='Cov2c file of reference methylome ')
+argparser.add_argument('--outputPrefix', default='mm10', type=str,help='Format of output file: bedGraph or bigWig')
+args = argparser.parse_args()
 
 # Open refgen and convert everything
 def read_refgen(refgen):
@@ -76,18 +85,21 @@ def convert_seqs(seqs, metFile, strand):
 #     rec.seq=rec.seq[0:10]
 #     small_recs[chr]=rec
 
-def convert_refgen(refgen, metFile):
+def convert_refgen(refgen, metFile, outputPrefix):
     chroms = read_refgen(refgen)
     print('--- Building reverse strand ---')
     revChroms = make_crick_strand(chroms)
-    with open('mm10.crypts.BSconv.forward.fa','w') as out:
+    with open(outprefix + '_' + refgen.split('/')[-1].rstrip('.fa') + '.BSconv.forward.fa','w') as out:
         SeqIO.write(convert_seqs(chroms,metFile, '+').values(), out, 'fasta')
-    with open('mm10.crypts.BSconv.reverse.fa','w') as out:
+    with open(outprefix + '_' + refgen.split('/')[-1].rstrip('.fa') + '.BSconv.reverse.fa','w') as out:
         SeqIO.write(convert_seqs(revChroms,metFile, '-').values(), out, 'fasta')
 
-refgen = '/hpc/hub_oudenaarden/edann/hexamers/kaester/test_refgen.fa'
-# metFile = '/hpc/hub_oudenaarden/edann/hexamers/kaester/met_extraction/merged_reference_CG.met.chr1'
-# refgen='../test_refgen.fa'
-metFile='/hpc/hub_oudenaarden/edann/hexamers/kaester/test_CG_met.txt'
+# refgen = '/hpc/hub_oudenaarden/edann/hexamers/kaester/test_refgen.fa'
+# # metFile = '/hpc/hub_oudenaarden/edann/hexamers/kaester/met_extraction/merged_reference_CG.met.chr1'
+# # refgen='../test_refgen.fa'
+# metFile='/hpc/hub_oudenaarden/edann/hexamers/kaester/test_CG_met.txt'
+refgen=args.refgen
+metFile=args.refMet
+outputPrefix=args.outputPrefix
 
-convert_refgen(refgen, metFile)
+convert_refgen(refgen, metFile, outputPrefix)
