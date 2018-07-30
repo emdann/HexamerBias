@@ -400,12 +400,12 @@ delta.yield.permutation <- function(my.track, roi.track, permute='best', threads
   } else if (permute=='even'){
     permuted.track@elementMetadata$even <- rand.prof
   }
-  yield.delta <- coverage.yield(permuted.track, roi.track)
+  yield.delta <- coverage.yield.delta(permuted.track, roi.track)
   return(yield.delta)  
 }
 
 random.delta.yield.dist <- function(my.track, roi.track, n.iterations=1000, threads=detectCores(), verbose=T){
-  real.delta <- coverage.yield(my.track, roi.track)
+  real.delta <- coverage.yield.delta(my.track, roi.track)
   it <- 1
   random.deltas <- c()
   while (it< n.iterations) {

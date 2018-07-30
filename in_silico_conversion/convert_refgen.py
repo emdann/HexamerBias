@@ -85,8 +85,8 @@ def convert_refgen(refgen, metFile):
     with open('mm10.crypts.BSconv.reverse.fa','w') as out:
         SeqIO.write(convert_seqs(revChroms,metFile, '-').values(), out, 'fasta')
 
-refgen = '/hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa'
-metFile = 'test_reference_CG.txt'
+refgen = '/hpc/hub_oudenaarden/edann/hexamers/kaester/test_refgen.fa'
+metFile = '/hpc/hub_oudenaarden/edann/hexamers/kaester/met_extraction/merged_reference_CG.met.chr1'
 # refgen='../test_refgen.fa'
 # metFile='../test_CG_met.txt'
 

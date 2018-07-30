@@ -1,0 +1,49 @@
+---
+title: "Batch optimization"
+output: html_notebook
+---
+Description and validation of workflow for primer batch optimization
+
+```{r, eval=F}
+library(parallel)
+library(rtracklayer)
+library(purrr)
+library(Gviz)
+library(zoo)
+library(flux)
+source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
+source("~/HexamerBias/artificial_coverage/compare_peaks.r")
+```
+
+### Computing density for all primer batches
+I generated all primer batch combinations with even nucleotide composition in all positions (with a step of 0.05 fraction) and computed coverage density based on predicted coverage for onepreamp BS-seq mouse samples (using script `run_combo_density.r`). I excluded batches with nucleotide fraction = 0 for Gs and Cs to be quicker.
+```{r}
+load('~/mnt/edann/primer_combos_density_onepreamp.RData')
+```
+
+### Fold-change score for regions of interest 
+
+1. I compute hexamer enrichment in regions of interest (log(FC) between kmer count in region of interest and random regions of the same genome) running `get_kmers_ROI.sh`.
+
+```{r}
+cgi.fc <- read.csv("~/mnt/edann/hexamers/annotations_bed/CpGislands_srt_mm10.kmersFC.csv", header=F, col.names = c("template", "fc"))
+ctcf.fc <- read.csv("~/mnt/edann/hexamers/strand_specific/CTCF.flank60.kmersFC.csv", header=F, col.names = c("template", "fc"))
+tss.fc <- read.csv("~/mnt/edann/hexamers/annotations_bed/TxStart_mm10.50.flank.noN.kmersFC.csv", header=F, col.names = c("template", "fc"))
+```
+
+Let's check the log(FC) distributions
+```{r}
+full_join(cgi.fc, ctcf.fc, by='template', suffix=c('.cgi', '.ctcf')) %>%
+  melt(variable.name='fc') %>%
+  plot.ranked.fc()
+```
+
+2. For each possible primer batch I compute an "enrichment score" for the region of interest, multiplying the predicted hexamer density by the fold change enrichment for that hexamer and summing up all the resulting scores.
+
+```{r, warning=F}
+cgi.score <- fc.scores(dens.table, fc.df = cgi.fc)
+tss.score <- fc.scores(dens.table, fc.df = tss.fc)
+ctcf.score <- fc.scores(dens.table, fc.df = ctcf.fc)
+```
+
+
