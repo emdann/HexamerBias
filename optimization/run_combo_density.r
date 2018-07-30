@@ -33,8 +33,8 @@ density.combo <- function(prob.vec, keqs.df=d3r.keqs, eps=epsilon.d3r, nreads=22
   }
 
 ## Load Keqs and epsilon for mouse BS-seq
-load("/hpc/hub_oudenaarden/edann/primer_conc_VAN2493/d3r_keqs.RData")
-epsilon.d3r <- 612.6353
+load("/hpc/hub_oudenaarden/edann/VAN2591/mm10.onepreamp.keqs.RData")
+epsilon.d3r <- 557.4402
 
 ## Make table of sequence combosition combos
 prob.combos <- hexamerMatrix(stepSize = 0.05)
@@ -42,6 +42,6 @@ test.combos <- prob.combos[which(prob.combos['pC']!=0 & prob.combos['pG']!=0),]
 l.test.combos <- lapply(seq_len(nrow(test.combos)), function(i) test.combos[i,])
 
 ## Compute density for all combos and save in table
-test.combo.density <- mclapply(l.test.combos, density.combo, mc.cores = detectCores())
+test.combo.density <- mclapply(l.test.combos, function(x) density.combo(x, keqs.df = mm10.onepreamp.keqs), mc.cores = detectCores())
 dens.table <- Reduce( joining.fun, test.combo.density)
-save(dens.table, file="/hpc/hub_oudenaarden/edann/primer_combos_density_even_nreads.RData")
+save(dens.table, file="/hpc/hub_oudenaarden/edann/primer_combos_density_onepreamp.RData")

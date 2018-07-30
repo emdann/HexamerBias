@@ -1,0 +1,63 @@
+---
+title: "One-preamp BS VS 5-preamp BS"
+output: html_notebook
+---
+```{r, eval=F, warning=F}
+library(pheatmap)
+library(purrr)
+library(parallel)
+library(dplyr)
+source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
+```
+
+```{r}
+load("~/AvOwork/rdata/D3R_pt.RData")
+load('~/mnt/edann/VAN2591/mMusculus.BS.primerbatch.predcoverage.RData')
+```
+
+### Difference in template usage
+My reasoning is that for example after multiple rounds of preamp I might see a lot of C primers (because after one preamp the complementary to original appear), but not in one round, telling me that if I put a lot of Cs I might not really amplify the first round
+```{r}
+five.round.df <- d3r.all.df %>%
+  group_by(template) %>%
+  summarise(t.usage=first(t.usage)) %>%
+  ungroup()
+one.round.df <- output$pred.coverage$handMixOld
+one.round.df.2 <- output$pred.coverage$handMixNew
+```
+
+```{r}
+one.round.df %>%
+  select(template, t.usage, nuc) %>%
+  inner_join(., select(five.round.df, template, t.usage), by='template', suffix=c('.one', '.five')) %>%
+  mutate(CG=ifelse(grepl('CG', as.character(template)), T, F)) %>%
+  ggplot(., aes((t.usage.one), (t.usage.five), 
+                # color=nuc, 
+                color=CG)) +
+  geom_point(alpha=0.3) +
+  geom_abline(slope=1, intercept = 0)
+```
+
+```{r}
+one.round.df %>%
+  select(template, t.usage, nuc) %>%
+  inner_join(., select(one.round.df.2, template, t.usage), by='template', suffix=c('.one.1', '.one.2')) %>%
+  mutate(CG=ifelse(grepl('CG', as.character(template)), T, F)) %>%
+  ggplot(., aes(log(t.usage.one.1), log(t.usage.one.2), 
+                # color=nuc, 
+                color=CG)) +
+  geom_point(alpha=0.3) +
+  geom_abline(slope=1, intercept = 0)
+```
+
+
+### Compare $K_{ij}$
+```{r}
+load('~/AvOwork/rdata/d3r_keqs.RData')
+
+d3r.keqs %>%
+  head %>%
+  select(template, primer, keq) %>%
+  inner_join(., one.round.df, by=c('primer','template')) %>%
+  filter(primer==template)
+```
