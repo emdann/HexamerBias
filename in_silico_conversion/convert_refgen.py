@@ -86,8 +86,8 @@ def convert_refgen(refgen, metFile):
         SeqIO.write(convert_seqs(revChroms,metFile, '-').values(), out, 'fasta')
 
 refgen = '/hpc/hub_oudenaarden/edann/hexamers/kaester/test_refgen.fa'
-metFile = '/hpc/hub_oudenaarden/edann/hexamers/kaester/met_extraction/merged_reference_CG.met.chr1'
+# metFile = '/hpc/hub_oudenaarden/edann/hexamers/kaester/met_extraction/merged_reference_CG.met.chr1'
 # refgen='../test_refgen.fa'
-# metFile='../test_CG_met.txt'
+metFile='/hpc/hub_oudenaarden/edann/hexamers/kaester/test_CG_met.txt'
 
 convert_refgen(refgen, metFile)
