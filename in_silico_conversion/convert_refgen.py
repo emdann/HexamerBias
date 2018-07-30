@@ -85,7 +85,7 @@ def convert_seqs(seqs, metFile, strand):
 #     rec.seq=rec.seq[0:10]
 #     small_recs[chr]=rec
 
-def convert_refgen(refgen, metFile, outputPrefix):
+def convert_refgen(refgen, metFile, outprefix):
     chroms = read_refgen(refgen)
     print('--- Building reverse strand ---')
     revChroms = make_crick_strand(chroms)
