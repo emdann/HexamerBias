@@ -37,7 +37,8 @@ for (n in 1:10) {
 ```{r}
 sp.cele.new<- compare.spear.real(cele.new,name.real = 'CElegans_VAN2423')
 pcc.cele.new<- compare.spear.real(cele.new,name.real = 'CElegans_VAN2423', method = 'pearson')
-sp.cele.new$p
+sp.cele.new$p + 
+  ggsave("~/AvOwork/output/MyData/coverage_tracks/spearman_dist_vs_random.pdf")
 pcc.cele.new$p
 ```
 ```{r}
@@ -117,7 +118,7 @@ nice.plotTrack(sample(cele.bs,1)[[1]])
 #### Spearman correlation between exp and predicted
 ```{r}
 sp.cele.bs <- compare.spear.real(cele.bs,name.real = 'CElegans_VAN2423_BSseq')
-sp.cele.bs$p
+sp.cele.bs$p + ggsave("~/AvOwork/output/MyData/coverage_tracks/spearman_dist_vs_random_BS.pdf")
 ```
 
 #### Coverage dsitribution per spearman correlation
@@ -154,6 +155,20 @@ ggplot(filter(cov.cor.df, !is.na(spear.group)), aes(y=mean.cov, x=spear.group)) 
               map_signif_level = TRUE, y_position = seq(2.5, 3.4, length.out = 5), tip_length = 0.001
               ) 
 ```
+
+### Mouse BS
+```{r}
+predicted.bw <- '~/mnt/edann/VAN2423_onePreamp/cov_prediction/WBcel235.random.42.srt.noOvs.noChrCG-pbat-gDNA-CeleTotal-withBS-1preAmp-handMix_lmerged_R1_trimmed_bismark_bt2.predcoverage.artCov.bw'
+experimental.bw <- '~/mnt/edann/VAN2423_onePreamp/CG-pbat-gDNA-CeleTotal-withBS-1preAmp-handMix_lmerged_R1_trimmed_bismark_bt2.deduplicated.srt.bw'
+cele.bs <- make.predVSexp.track(predicted.bw = predicted.bw,
+                                 experimental.bw = experimental.bw)
+
+```
+```{r}
+nice.plotTrack(sample(cele.bs,1)[[1]])
+```
+
+
 
 Human dataset 
 ```{r}

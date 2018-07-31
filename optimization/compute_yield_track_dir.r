@@ -33,4 +33,5 @@ for (track.file in track.files) {
                                              ROI=gsub(roi.track.bed, pattern = '.+/', replacement = '')))
   }
 
-write.csv(x = yield.df, file=paste0(tracks.dir, 'yield_', as.character(yield.df$ROI[1]) ))
+write.csv(x = yield.df, file=paste0(tracks.dir, 'yield_', gsub(pattern = '.bed', replacement = '',as.character(yield.df$ROI[1])), '.csv'), 
+          row.names = F)
