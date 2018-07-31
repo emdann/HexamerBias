@@ -16,7 +16,7 @@ parser$add_argument("roiBed", type="character",
 args <- parser$parse_args()
 
 tracks.dir <- args$tracksDir
-roi.track.bed <- args$roiBd
+roi.track.bed <- args$roiBed
 
 roi.track <- import(roi.track.bed, format = 'BED')
 
