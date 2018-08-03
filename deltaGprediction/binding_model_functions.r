@@ -172,18 +172,24 @@ predict.coverage <- function(keqs.df, eps, prob=batch.prob.uniform()){
   return(pred.cov)
 }
 
-plot.prediction <- function(pred.cov.df){
+plot.prediction <- function(pred.cov.df, color='nuc'){
   # pcc.pred <- cor(pred.cov.df$t.usage, pred.cov.df$pred.cov)
-  pl <- pred.cov.df %>%
-    mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
-    ggplot(., aes(log(t.usage/sum(t.usage)), log(pred.cov/sum(pred.cov)), color=nuc)) + 
+  if (color=='nuc') {
+    pl.df <- pred.cov.df %>%
+      mutate(nuc=sapply(template, prevalent_nucleotide)) 
+  } else if (color=='CG') {
+    pl.df <- pred.cov.df %>%
+      mutate(nuc=ifelse(grepl('CG', template), "CG", 'no CG'))
+  }
+  pl <- pl.df %>%
+    ggplot(., aes(log(t.usage), log(pred.cov), color=nuc)) + 
     geom_point(alpha=0.4) +
     geom_abline(slope=1, intercept=0, color='red') +
     theme_bw() +
     xlab("log(observed cov)") + ylab("log(predicted cov)") +
     theme(legend.title = element_blank(),
           legend.text = element_text(size=20),
-          axis.text = element_text(size=20),
+          axis.text = element_text(size=16),
           axis.title = element_text(size=30),
           title = element_text(size=30)) +
     geom_text(aes(x = Inf, y = -Inf, label=paste("R.sq. =",round(cor,2))), 
@@ -192,6 +198,25 @@ plot.prediction <- function(pred.cov.df){
               color='black') 
   return(pl)
 }
+
+plot.batch.accuracy <- function(pcc.primer.batch){
+  pl <- ggplot(pcc.primer.batch, aes(prob.G, PCC, group=sample, color=sample)) +
+    geom_line(size=1.5) +
+    geom_point(size=2) +
+    theme_minimal() +
+    xlab('% G') + ylab(expression(R^2)) +
+    scale_x_continuous(sec.axis=sec_axis(~0.5-., name='% T')) +
+    scale_color_discrete(name='') +
+    scale_color_brewer(palette = 'Accent') +
+    theme(legend.title = element_blank(),
+          legend.text = element_text(size=20),
+          axis.text = element_text(size=20),
+          axis.title = element_text(size=30),
+          title = element_text(size=30)) +
+    NULL
+  return(pl)
+}
+
 
 #### TESTS ####
 
@@ -346,270 +371,270 @@ hexamerMatrix <- function(stepSize = 0.1){
 }
 
 
-#### A BIG BUNCH OF THINGS THAT DIDN'T WORK ####
-
-## SCALING FACTOR ESTIMATION ASSUMING DISTRIBUTION OF PRIMER CONCENTRATION ##
-group.coeffs.wPrimer.all <- function(hex.df, groupsOI, gamma.shape=24.05, gamma.rate=0.98, pool.size=sum(table(pool1)), imposeP=F){
-  groups.df <- hex.df %>% 
-    inner_join(., t.groups, by='template') %>%
-    filter(group %in% groupsOI) %>%
-    mutate(dG=dG/0.59) 
-  if (imposeP) {
-    groups.df <- mutate(groups.df, p=4/(4^6))
-  } else {
-    p.conc <- data.frame(primer=t.groups$template,   p=(sample(rgamma(pool.size, 
-                                                                      shape=gamma.shape, 
-                                                                      rate=gamma.rate)/pool.size, 4096)))
-    groups.df <- inner_join(groups.df,p.conc, by='primer')
-  }
-  groups.df.coeffs <- groups.df %>%
-    mutate(frac.abundance=(abundance/sum(abundance))) %>%
-    mutate(A=sum((p^2)*((frac.abundance/pt)^2)),
-           C=sum(((frac.abundance*t.usage)/(pt^2))*(p^2))) %>%
-    group_by(group) %>%
-    mutate(B=sum((p*frac.abundance)/pt),
-           D=sum((t.usage/pt)*p),
-           N=n(),
-           C.sing=sum(((frac.abundance*t.usage)/(pt^2))*(p^2))
-    ) %>%
-    dplyr::select(A,B,D,N,C,dG) %>%
-    summarise_all(funs(first)) 
-  return(list(df=groups.df, coeffs=groups.df.coeffs))  
-}
-
-solve.system <- function(groups.df){
-  first.left <- c(groups.df$A[1], groups.df$B)
-  first.right <- groups.df %>%
-    transmute(C) %>%
-    sample_n(1)
-  first.right <- c(eps=first.right$C)
-  coeffs <-c()
-  for (n in groups.df$group){
-    coeffs <- rbind(coeffs, sapply(groups.df$group, function(i) ifelse(groups.df[groups.df$group==i,]$group==n,as.numeric(groups.df[groups.df$group==i,'N']), 0)))
-    # ifelse(groups.df$group==n)
-  }
-  right <- groups.df %>%
-    transmute(group,D)
-  right <- as.matrix(cbind(right$group, right$D))
-  rownames(right) <- right[,1]
-  right <- right[,2]
-  left.mat <- rbind(as.numeric(first.left), cbind(groups.df$B, coeffs))
-  right.mat <- c(first.right, right)
-  # print(left.mat)
-  if (any(is.infinite(left.mat[,1]))) {
-    return(NA)
-  } else {
-    # left.mat <- left.mat[!is.infinite(left.mat[,1]),]
-    # print(left.mat)
-    # print(Det(left.mat))
-    sols <- solve(left.mat, right.mat, tol = 1e-18)
-    eps <- sols[1]
-    dgs <- sols[2:length(sols)]
-    return(list(eps=eps, dgs=dgs))  
-  }
-}
-
-estimate.epsilon <- function(hex.df, primer.pool, groupsOI, imposeP = F, iterations=1000){
-  fit.gamma <- summary(fitdist(as.numeric(table(primer.pool)), 'gamma'))
-  epsilons <- c()
-  i <- 0
-  while(i<iterations){
-    i<- i+1
-    coeffs <- group.coeffs.wPrimer.all(hex.df, groupsOI = groupsOI, gamma.shape = fit.gamma$estimate['shape'],
-                                       gamma.rate = fit.gamma$estimate['rate'],
-                                       pool.size = length(primer.pool),
-                                       imposeP=imposeP)
-    sols <- solve.system(coeffs$coeffs)
-    if(!is.na(sols)){
-      epsilons <- c(epsilons, sols$eps)
-    } else {epsilons <- c(epsilons, NA)}
-  }
-  return(epsilons)
-}
-
-epsilon.iterative <- function(pt.df, estimation.it=10, tot.it=20, sample.size=20, imposeP=F){
-  i<-1
-  eps.df <- data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it, imposeP=imposeP))
-  colnames(eps.df)[ncol(eps.df)] <- paste0('it.',i)
-  while(i<tot.it){
-    i<-i+1
-    eps.df <- full_join(eps.df, data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it, imposeP=imposeP)), by='n')
-    colnames(eps.df)[ncol(eps.df)] <- paste0('it.',i)
-  }
-  return(eps.df)
-}
-
-estimate.eps.one.group <- function(hex.df, groupOI,imposeP=T){
-  groups.df <- hex.df %>% 
-    inner_join(., t.groups, by='template') %>%
-    filter(group==groupOI) %>%
-    mutate(dG=dG/0.59
-           # abundance=abundance/sum(abundance)
-    )  
-  if (imposeP) {
-    groups.df <- mutate(groups.df, p=4/(4^6))
-  } else {
-    groups.df <- mutate(groups.df, 
-                        p=(sample(rgamma(pool.size, 
-                                         shape=gamma.shape, 
-                                         rate=gamma.rate)/pool.size, n())))
-  }
-  groups.df <- groups.df %>%
-    mutate(A=sum((p^2)*(abundance^2/pt^2)),
-           C=sum(((abundance*t.usage)/(pt^2))*(p^2))) %>%
-    # group_by(group) %>%
-    mutate(B=sum((p*abundance)/pt),
-           D=sum((t.usage/pt)*p),
-           N=n()
-           # C.sing=sum(((abundance*t.usage)/(pt^2))*(p^2))
-    ) %>%
-    mutate(eps=(-D*B+N*C)/(-(B^2)+N*A)) %>%
-    dplyr::select(group,eps) %>%
-    summarise_all(funs(first)) 
-  return(groups.df)  
-}
-
-
-estimate.keq <- function(hex.df, primer.pool, groupsOI, iterations=1000){
-  fit.gamma <- summary(fitdist(as.numeric(table(primer.pool)), 'gamma'))
-  keq <- c()
-  i <- 0
-  while(i<iterations){
-    i<- i+1
-    coeffs <- group.coeffs.wPrimer.all(hex.df, groupsOI = groupsOI, gamma.shape = fit.gamma$estimate['shape'],
-                                       gamma.rate = fit.gamma$estimate['rate'],
-                                       pool.size = length(primer.pool))
-    sols <- solve.system(coeffs$coeffs)
-    if(!is.na(sols)){
-      keq <- rbind(keq, sols$dgs)
-    } else {keq <- rbind(keq, rep(NA, length(groupsOI)))}
-  }
-  keq.df <- data.frame(keq)
-  colnames(keq.df) <- as.factor(groupsOI)
-  return(keq.df)
-}
-
-
-
-estimate.deltaG <- function(hex.df, primer.pool, groupsOI, iterations=1000){
-  fit.gamma <- summary(fitdist(as.numeric(table(primer.pool)), 'gamma'))
-  deltaG <- c()
-  i <- 0
-  while(i<iterations){
-    i<- i+1
-    coeffs <- group.coeffs.wPrimer.all(hex.df, groupsOI = groupsOI, gamma.shape = fit.gamma$estimate['shape'],
-                                       gamma.rate = fit.gamma$estimate['rate'],
-                                       pool.size = length(primer.pool))
-    sols <- solve.system(coeffs$coeffs)
-    keq <- sols$dgs
-    dgs.df <- as.data.frame(keq) %>%
-      mutate(group=groupsOI) %>%
-      # rename(Keq=sols$dg) %>%
-      inner_join(., coeffs$df) %>%
-      mutate(deltaG=keq/p)
-    #   if(!is.na(sols)){
-    #     keq <- rbind(keq, sols$dgs)
-    #   } else {keq <- rbind(keq, rep(NA, length(groupsOI)))}
-    deltaG <- rbind(deltaG, dgs.df$deltaG)
-  }
-  deltaG.df <- data.frame(deltaG)
-  colnames(deltaG.df) <- dgs.df$template
-  return(deltaG.df)
-}
-
-## DeltaG computation
-
-# function(hex.df, primer.pool, epsilon)
+# #### A BIG BUNCH OF THINGS THAT DIDN'T WORK ####
 # 
-
-
-
-# fit.gamma <- summary(fitdist(as.numeric(table(primer.pool)), 'gamma'))
-# gamma.shape = fit.gamma$estimate['shape']
-# gamma.rate = fit.gamma$estimate['rate']
-# pool.size = length(primer.pool)
+# ## SCALING FACTOR ESTIMATION ASSUMING DISTRIBUTION OF PRIMER CONCENTRATION ##
+# group.coeffs.wPrimer.all <- function(hex.df, groupsOI, gamma.shape=24.05, gamma.rate=0.98, pool.size=sum(table(pool1)), imposeP=F){
+#   groups.df <- hex.df %>% 
+#     inner_join(., t.groups, by='template') %>%
+#     filter(group %in% groupsOI) %>%
+#     mutate(dG=dG/0.59) 
+#   if (imposeP) {
+#     groups.df <- mutate(groups.df, p=4/(4^6))
+#   } else {
+#     p.conc <- data.frame(primer=t.groups$template,   p=(sample(rgamma(pool.size, 
+#                                                                       shape=gamma.shape, 
+#                                                                       rate=gamma.rate)/pool.size, 4096)))
+#     groups.df <- inner_join(groups.df,p.conc, by='primer')
+#   }
+#   groups.df.coeffs <- groups.df %>%
+#     mutate(frac.abundance=(abundance/sum(abundance))) %>%
+#     mutate(A=sum((p^2)*((frac.abundance/pt)^2)),
+#            C=sum(((frac.abundance*t.usage)/(pt^2))*(p^2))) %>%
+#     group_by(group) %>%
+#     mutate(B=sum((p*frac.abundance)/pt),
+#            D=sum((t.usage/pt)*p),
+#            N=n(),
+#            C.sing=sum(((frac.abundance*t.usage)/(pt^2))*(p^2))
+#     ) %>%
+#     dplyr::select(A,B,D,N,C,dG) %>%
+#     summarise_all(funs(first)) 
+#   return(list(df=groups.df, coeffs=groups.df.coeffs))  
+# }
 # 
-add.many.ps <- function(df, gamma.shape, gamma.rate, pool.size, n.iterations=10){
-  start.cols <- colnames(df)
-  i <- 0
-  while (i<n.iterations){
-    i<- i+1
-    df <- mutate(df, p=(sample(rgamma(pool.size,shape=gamma.shape,rate=gamma.rate)/pool.size, n())))
-    colnames(df)[ncol(df)] <- paste0('p',i)
-  }
-  df.long <- df %>%
-    melt(id.vars=start.cols, variable.name='p.iter', value.name = 'p')
-  return(df.long)
-}
-
-compute.keqs.2 <- function(pt.dfs = list(cele=cele.df, human=human.df, zf=zf.df), cele.eps, human.eps, zf.eps, gamma.shape, gamma.rate, pool.size, n.iterations=10, take.pairs=F){
-  if (take.pairs) {
-    dfs.w.p <- lapply(pt.dfs, add.pairs.info)
-  } else {
-    dfs.w.p <- pt.dfs
-  }
-  dfs.w.p <- lapply(dfs.w.p, function(x) mutate(x, frac.abundance=(abundance/sum(as.numeric(abundance)))))
-  dfs.w.p <- lapply(dfs.w.p, add.many.ps, gamma.shape = gamma.shape, gamma.rate = gamma.rate, pool.size=pool.size, n.iterations = n.iterations)
-  keqs1 <- bind_rows(mutate(dfs.w.p$cele, species='cele', epsilon=median(as.matrix(cele.eps[,-1]))), 
-                     mutate(dfs.w.p$human, species='human', epsilon=median(as.matrix(human.eps[,-1]), na.rm=T)), 
-                     mutate(dfs.w.p$zf, species='zfish', epsilon=median(as.matrix(zf.eps[,-1])))) 
-  keqs1 <- keqs1 %>%
-    mutate(single.keq=p*((epsilon*(frac.abundance/pt))-(t.usage/pt))) 
-  return(keqs1)
-}
-
-compute.keqs.fixedP <- function(pt.df, mean.eps, 
-                                prob=data.frame(p=sapply(as.character(t.groups$template), primer.prob)) %>% tibble::rownames_to_column(var='primer') , 
-                                # n.iterations=10, 
-                                take.pairs=F){
-  tot.ab <- pt.df %>% group_by(template) %>% summarise(ab=first(abundance)) %>% mutate(tot=sum(as.numeric(ab))) %>% sample_n(1) %>% .$tot 
-  if (take.pairs) {
-    df.w.p <- add.pairs.info(pt.df)
-  } else {
-    df.w.p <- pt.df
-  }
-  # dfs.w.p <- lapply(dfs.w.p, function(x) mutate(x, frac.abundance=(abundance/sum(as.numeric(abundance)))))
-  # dfs.w.p <- lapply(dfs.w.p, add.many.ps, gamma.shape = gamma.shape, gamma.rate = gamma.rate, pool.size=pool.size, n.iterations = n.iterations)
-  keqs1 <- mutate(df.w.p, 
-                  epsilon=mean.eps,
-                  frac.abundance=(abundance/tot.ab)
-  ) %>%
-    inner_join(., prob, by='primer' ) %>%
-    mutate(p=4*p) %>%
-    mutate(single.keq=p*((epsilon*(frac.abundance/pt))-(t.usage/pt))) 
-  # mutate(single.keq=pt/(p*(epsilon*(frac.abundance)-t.usage)))
-  return(keqs1)
-}
-
-compute.keqs.fixedP.totabundance <- function(pt.df, mean.eps, 
-                                             prob=data.frame(p=sapply(as.character(t.groups$template), primer.prob)) %>% tibble::rownames_to_column(var='primer') , 
-                                             # n.iterations=10, 
-                                             take.pairs=F){
-  # tot.ab <- pt.df %>% group_by(template) %>% summarise(ab=first(abundance)) %>% mutate(tot=sum(as.numeric(ab))) %>% sample_n(1) %>% .$tot 
-  if (take.pairs) {
-    df.w.p <- add.pairs.info(pt.df)
-  } else {
-    df.w.p <- pt.df
-  }
-  # dfs.w.p <- lapply(dfs.w.p, function(x) mutate(x, frac.abundance=(abundance/sum(as.numeric(abundance)))))
-  # dfs.w.p <- lapply(dfs.w.p, add.many.ps, gamma.shape = gamma.shape, gamma.rate = gamma.rate, pool.size=pool.size, n.iterations = n.iterations)
-  keqs1 <- mutate(df.w.p, 
-                  epsilon=mean.eps
-  ) %>%
-    inner_join(., prob, by='primer' ) %>%
-    mutate(p=4*p) %>%
-    mutate(single.keq=p*((epsilon*(abundance/pt))-(t.usage/pt))) 
-  # mutate(single.keq=pt/(p*(epsilon*(frac.abundance)-t.usage)))
-  return(keqs1)
-}
-
-
-# taking the pairs
-add.pairs.info <- function(hex.df){
-  hex.df <- hex.df %>%
-    mutate(rev.temp=sapply(template, rev.comp),
-           rev.prim=sapply(primer, rev.comp)) %>%
-    mutate(pair=ifelse(paste0(template,'.',primer)>paste0(rev.temp,'.',rev.prim), paste0(paste0(template,'.',primer), '.',paste0(rev.temp,'.',rev.prim)), paste0(paste0(rev.temp,'.',rev.prim), '.', paste0(template,'.',primer)))) 
-  return(hex.df)
-}
-
+# solve.system <- function(groups.df){
+#   first.left <- c(groups.df$A[1], groups.df$B)
+#   first.right <- groups.df %>%
+#     transmute(C) %>%
+#     sample_n(1)
+#   first.right <- c(eps=first.right$C)
+#   coeffs <-c()
+#   for (n in groups.df$group){
+#     coeffs <- rbind(coeffs, sapply(groups.df$group, function(i) ifelse(groups.df[groups.df$group==i,]$group==n,as.numeric(groups.df[groups.df$group==i,'N']), 0)))
+#     # ifelse(groups.df$group==n)
+#   }
+#   right <- groups.df %>%
+#     transmute(group,D)
+#   right <- as.matrix(cbind(right$group, right$D))
+#   rownames(right) <- right[,1]
+#   right <- right[,2]
+#   left.mat <- rbind(as.numeric(first.left), cbind(groups.df$B, coeffs))
+#   right.mat <- c(first.right, right)
+#   # print(left.mat)
+#   if (any(is.infinite(left.mat[,1]))) {
+#     return(NA)
+#   } else {
+#     # left.mat <- left.mat[!is.infinite(left.mat[,1]),]
+#     # print(left.mat)
+#     # print(Det(left.mat))
+#     sols <- solve(left.mat, right.mat, tol = 1e-18)
+#     eps <- sols[1]
+#     dgs <- sols[2:length(sols)]
+#     return(list(eps=eps, dgs=dgs))  
+#   }
+# }
+# 
+# estimate.epsilon <- function(hex.df, primer.pool, groupsOI, imposeP = F, iterations=1000){
+#   fit.gamma <- summary(fitdist(as.numeric(table(primer.pool)), 'gamma'))
+#   epsilons <- c()
+#   i <- 0
+#   while(i<iterations){
+#     i<- i+1
+#     coeffs <- group.coeffs.wPrimer.all(hex.df, groupsOI = groupsOI, gamma.shape = fit.gamma$estimate['shape'],
+#                                        gamma.rate = fit.gamma$estimate['rate'],
+#                                        pool.size = length(primer.pool),
+#                                        imposeP=imposeP)
+#     sols <- solve.system(coeffs$coeffs)
+#     if(!is.na(sols)){
+#       epsilons <- c(epsilons, sols$eps)
+#     } else {epsilons <- c(epsilons, NA)}
+#   }
+#   return(epsilons)
+# }
+# 
+# epsilon.iterative <- function(pt.df, estimation.it=10, tot.it=20, sample.size=20, imposeP=F){
+#   i<-1
+#   eps.df <- data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it, imposeP=imposeP))
+#   colnames(eps.df)[ncol(eps.df)] <- paste0('it.',i)
+#   while(i<tot.it){
+#     i<-i+1
+#     eps.df <- full_join(eps.df, data_frame(n=1:estimation.it, estimate.epsilon(pt.df, primer.pool, sample(seq(1,40),sample.size), iterations = estimation.it, imposeP=imposeP)), by='n')
+#     colnames(eps.df)[ncol(eps.df)] <- paste0('it.',i)
+#   }
+#   return(eps.df)
+# }
+# 
+# estimate.eps.one.group <- function(hex.df, groupOI,imposeP=T){
+#   groups.df <- hex.df %>% 
+#     inner_join(., t.groups, by='template') %>%
+#     filter(group==groupOI) %>%
+#     mutate(dG=dG/0.59
+#            # abundance=abundance/sum(abundance)
+#     )  
+#   if (imposeP) {
+#     groups.df <- mutate(groups.df, p=4/(4^6))
+#   } else {
+#     groups.df <- mutate(groups.df, 
+#                         p=(sample(rgamma(pool.size, 
+#                                          shape=gamma.shape, 
+#                                          rate=gamma.rate)/pool.size, n())))
+#   }
+#   groups.df <- groups.df %>%
+#     mutate(A=sum((p^2)*(abundance^2/pt^2)),
+#            C=sum(((abundance*t.usage)/(pt^2))*(p^2))) %>%
+#     # group_by(group) %>%
+#     mutate(B=sum((p*abundance)/pt),
+#            D=sum((t.usage/pt)*p),
+#            N=n()
+#            # C.sing=sum(((abundance*t.usage)/(pt^2))*(p^2))
+#     ) %>%
+#     mutate(eps=(-D*B+N*C)/(-(B^2)+N*A)) %>%
+#     dplyr::select(group,eps) %>%
+#     summarise_all(funs(first)) 
+#   return(groups.df)  
+# }
+# 
+# 
+# estimate.keq <- function(hex.df, primer.pool, groupsOI, iterations=1000){
+#   fit.gamma <- summary(fitdist(as.numeric(table(primer.pool)), 'gamma'))
+#   keq <- c()
+#   i <- 0
+#   while(i<iterations){
+#     i<- i+1
+#     coeffs <- group.coeffs.wPrimer.all(hex.df, groupsOI = groupsOI, gamma.shape = fit.gamma$estimate['shape'],
+#                                        gamma.rate = fit.gamma$estimate['rate'],
+#                                        pool.size = length(primer.pool))
+#     sols <- solve.system(coeffs$coeffs)
+#     if(!is.na(sols)){
+#       keq <- rbind(keq, sols$dgs)
+#     } else {keq <- rbind(keq, rep(NA, length(groupsOI)))}
+#   }
+#   keq.df <- data.frame(keq)
+#   colnames(keq.df) <- as.factor(groupsOI)
+#   return(keq.df)
+# }
+# 
+# 
+# 
+# estimate.deltaG <- function(hex.df, primer.pool, groupsOI, iterations=1000){
+#   fit.gamma <- summary(fitdist(as.numeric(table(primer.pool)), 'gamma'))
+#   deltaG <- c()
+#   i <- 0
+#   while(i<iterations){
+#     i<- i+1
+#     coeffs <- group.coeffs.wPrimer.all(hex.df, groupsOI = groupsOI, gamma.shape = fit.gamma$estimate['shape'],
+#                                        gamma.rate = fit.gamma$estimate['rate'],
+#                                        pool.size = length(primer.pool))
+#     sols <- solve.system(coeffs$coeffs)
+#     keq <- sols$dgs
+#     dgs.df <- as.data.frame(keq) %>%
+#       mutate(group=groupsOI) %>%
+#       # rename(Keq=sols$dg) %>%
+#       inner_join(., coeffs$df) %>%
+#       mutate(deltaG=keq/p)
+#     #   if(!is.na(sols)){
+#     #     keq <- rbind(keq, sols$dgs)
+#     #   } else {keq <- rbind(keq, rep(NA, length(groupsOI)))}
+#     deltaG <- rbind(deltaG, dgs.df$deltaG)
+#   }
+#   deltaG.df <- data.frame(deltaG)
+#   colnames(deltaG.df) <- dgs.df$template
+#   return(deltaG.df)
+# }
+# 
+# ## DeltaG computation
+# 
+# # function(hex.df, primer.pool, epsilon)
+# # 
+# 
+# 
+# 
+# # fit.gamma <- summary(fitdist(as.numeric(table(primer.pool)), 'gamma'))
+# # gamma.shape = fit.gamma$estimate['shape']
+# # gamma.rate = fit.gamma$estimate['rate']
+# # pool.size = length(primer.pool)
+# # 
+# add.many.ps <- function(df, gamma.shape, gamma.rate, pool.size, n.iterations=10){
+#   start.cols <- colnames(df)
+#   i <- 0
+#   while (i<n.iterations){
+#     i<- i+1
+#     df <- mutate(df, p=(sample(rgamma(pool.size,shape=gamma.shape,rate=gamma.rate)/pool.size, n())))
+#     colnames(df)[ncol(df)] <- paste0('p',i)
+#   }
+#   df.long <- df %>%
+#     melt(id.vars=start.cols, variable.name='p.iter', value.name = 'p')
+#   return(df.long)
+# }
+# 
+# compute.keqs.2 <- function(pt.dfs = list(cele=cele.df, human=human.df, zf=zf.df), cele.eps, human.eps, zf.eps, gamma.shape, gamma.rate, pool.size, n.iterations=10, take.pairs=F){
+#   if (take.pairs) {
+#     dfs.w.p <- lapply(pt.dfs, add.pairs.info)
+#   } else {
+#     dfs.w.p <- pt.dfs
+#   }
+#   dfs.w.p <- lapply(dfs.w.p, function(x) mutate(x, frac.abundance=(abundance/sum(as.numeric(abundance)))))
+#   dfs.w.p <- lapply(dfs.w.p, add.many.ps, gamma.shape = gamma.shape, gamma.rate = gamma.rate, pool.size=pool.size, n.iterations = n.iterations)
+#   keqs1 <- bind_rows(mutate(dfs.w.p$cele, species='cele', epsilon=median(as.matrix(cele.eps[,-1]))), 
+#                      mutate(dfs.w.p$human, species='human', epsilon=median(as.matrix(human.eps[,-1]), na.rm=T)), 
+#                      mutate(dfs.w.p$zf, species='zfish', epsilon=median(as.matrix(zf.eps[,-1])))) 
+#   keqs1 <- keqs1 %>%
+#     mutate(single.keq=p*((epsilon*(frac.abundance/pt))-(t.usage/pt))) 
+#   return(keqs1)
+# }
+# 
+# compute.keqs.fixedP <- function(pt.df, mean.eps, 
+#                                 prob=data.frame(p=sapply(as.character(t.groups$template), primer.prob)) %>% tibble::rownames_to_column(var='primer') , 
+#                                 # n.iterations=10, 
+#                                 take.pairs=F){
+#   tot.ab <- pt.df %>% group_by(template) %>% summarise(ab=first(abundance)) %>% mutate(tot=sum(as.numeric(ab))) %>% sample_n(1) %>% .$tot 
+#   if (take.pairs) {
+#     df.w.p <- add.pairs.info(pt.df)
+#   } else {
+#     df.w.p <- pt.df
+#   }
+#   # dfs.w.p <- lapply(dfs.w.p, function(x) mutate(x, frac.abundance=(abundance/sum(as.numeric(abundance)))))
+#   # dfs.w.p <- lapply(dfs.w.p, add.many.ps, gamma.shape = gamma.shape, gamma.rate = gamma.rate, pool.size=pool.size, n.iterations = n.iterations)
+#   keqs1 <- mutate(df.w.p, 
+#                   epsilon=mean.eps,
+#                   frac.abundance=(abundance/tot.ab)
+#   ) %>%
+#     inner_join(., prob, by='primer' ) %>%
+#     mutate(p=4*p) %>%
+#     mutate(single.keq=p*((epsilon*(frac.abundance/pt))-(t.usage/pt))) 
+#   # mutate(single.keq=pt/(p*(epsilon*(frac.abundance)-t.usage)))
+#   return(keqs1)
+# }
+# 
+# compute.keqs.fixedP.totabundance <- function(pt.df, mean.eps, 
+#                                              prob=data.frame(p=sapply(as.character(t.groups$template), primer.prob)) %>% tibble::rownames_to_column(var='primer') , 
+#                                              # n.iterations=10, 
+#                                              take.pairs=F){
+#   # tot.ab <- pt.df %>% group_by(template) %>% summarise(ab=first(abundance)) %>% mutate(tot=sum(as.numeric(ab))) %>% sample_n(1) %>% .$tot 
+#   if (take.pairs) {
+#     df.w.p <- add.pairs.info(pt.df)
+#   } else {
+#     df.w.p <- pt.df
+#   }
+#   # dfs.w.p <- lapply(dfs.w.p, function(x) mutate(x, frac.abundance=(abundance/sum(as.numeric(abundance)))))
+#   # dfs.w.p <- lapply(dfs.w.p, add.many.ps, gamma.shape = gamma.shape, gamma.rate = gamma.rate, pool.size=pool.size, n.iterations = n.iterations)
+#   keqs1 <- mutate(df.w.p, 
+#                   epsilon=mean.eps
+#   ) %>%
+#     inner_join(., prob, by='primer' ) %>%
+#     mutate(p=4*p) %>%
+#     mutate(single.keq=p*((epsilon*(abundance/pt))-(t.usage/pt))) 
+#   # mutate(single.keq=pt/(p*(epsilon*(frac.abundance)-t.usage)))
+#   return(keqs1)
+# }
+# 
+# 
+# # taking the pairs
+# add.pairs.info <- function(hex.df){
+#   hex.df <- hex.df %>%
+#     mutate(rev.temp=sapply(template, rev.comp),
+#            rev.prim=sapply(primer, rev.comp)) %>%
+#     mutate(pair=ifelse(paste0(template,'.',primer)>paste0(rev.temp,'.',rev.prim), paste0(paste0(template,'.',primer), '.',paste0(rev.temp,'.',rev.prim)), paste0(paste0(rev.temp,'.',rev.prim), '.', paste0(template,'.',primer)))) 
+#   return(hex.df)
+# }
+# 

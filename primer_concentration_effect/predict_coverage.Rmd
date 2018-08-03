@@ -192,19 +192,19 @@ data.frame(prob.G = g.probs, prob.T = 1-g.probs,
 
 Coverage prediction using the non-BS Keqs
 ```{r}
-load("~/AvOwork/rdata/d3r_keqs.RData")
+load("~/AvOwork/rdata/mm10.onepreamp.keqs.RData")
 load("~/AvOwork/rdata/mean_keqs_noBS_all.RData")
 
-d3r.noBS.keqs <- d3r.keqs %>% 
+d3r.noBS.keqs <- mm10.onepreamp.keqs %>% 
   inner_join(., avg.keqs.all, by=c('primer', 'template', 'dG'), suffix=c('.BS', '.noBS')) %>%
   select(-one_of('pt.cele', 'pt.human', 'pt.zf', 'keq.BS')) %>%
   rename(keq=keq.noBS)
 
-d3r.pred.cov.noBS <- predict.coverage(d3r.noBS.keqs,eps = epsilon.d3r)
+d3r.pred.cov.noBS <- predict.coverage(d3r.noBS.keqs,eps = 570)
 d3r.pred.cov.noBS %>%
   # head %>%
   mutate(cor=cor(pred.cov, t.usage, use='pairwise.complete.obs')) %>%
-  plot.prediction() +
+  plot.prediction() 
   ggsave('~/AvOwork/output/primer_batch_VAN2493/prediction_w_noBS_keqs.pdf')
 
 d3r.pred.cov.noBS %>% head
@@ -254,7 +254,7 @@ names(keqs.tab.bs) <- names(pt.tabs.bs)
 Predicted coverage computed with `run_cov_prediction_BS.r`
 
 ```{r}
-pred.cov.files <- list.files("~/mnt/edann/VAN2591", pattern = 'BS.*.RData', full.names = T)
+pred.cov.files <- list.files("~/mnt/edann/VAN2591", pattern = '\\.BS.*.RData', full.names = T)
 
 load(pred.cov.files[[1]])
 cele.bs.pred.cov.batch <- output 
@@ -262,12 +262,15 @@ cele.bs.pred.cov.batch <- output
 load(pred.cov.files[[2]], verbose = T)
 drerio.bs.pred.cov.batch <- output 
 
+load(pred.cov.files[[3]], verbose = T)
+human.bs.pred.cov.batch <- output 
+
 load(pred.cov.files[[4]])
 mm.bs.pred.cov.batch <- output 
 
 ```
 ```{r}
-map(seq_along(cele.pred.cov.batch$pred.coverage), function(i) plot.prediction(cele.pred.cov.batch$pred.coverage[[i]], main=names(cele.pred.cov.batch$pred.coverage)[i]))
+map(seq_along(cele.bs.pred.cov.batch$pred.coverage), function(i) plot.prediction(cele.bs.pred.cov.batch$pred.coverage[[i]], main=names(cele.bs.pred.cov.batch$pred.coverage)[i]))
 ```
 
 ```{r}
@@ -284,10 +287,81 @@ map(seq_along(mm.pred.cov.batch$pred.coverage), function(i) plot.prediction(mm.p
 ```
 
 ```{r}
+# map(seq_along(cele.pred.cov.batch$pred.coverage), function(i) 
+#   plot.prediction(cele.pred.cov.batch$pred.coverage[[i]], main=names(cele.pred.cov.batch$pred.coverage)[i]) +
+#     ggsave(paste('~/AvOwork/output/epsilon_estimate/pred_cov_noBS_cele', names(cele.pred.cov.batch$pred.coverage)[i] ,'.pdf', sep='')))
+
+bind.batches <- function(pred.coverage.list){
+  reduced.pc.df <- seq_along(pred.coverage.list) %>%
+  map(function(i) mutate(pred.coverage.list[[i]], sample=names(pred.coverage.list)[i])) %>%
+  reduce(bind_rows) 
+  return(reduced.pc.df)  
+}
+
+all.pred.cov <- list(cele.bs.pred.cov.batch$pred.coverage, human.bs.pred.cov.batch$pred.coverage, drerio.bs.pred.cov.batch$pred.coverage, mm.bs.pred.cov.batch$pred.coverage) 
+names(all.pred.cov) <- c('cElegans', 'human', 'dRerio', 'mMus')
+
+all.predictions.reduced <- seq_along(all.pred.cov) %>%
+  map(function(i) 
+    map(all.pred.cov[[i]], function(x)
+      mutate(x, species=names(all.pred.cov)[i])
+    ) %>%
+      bind.batches() %>%
+      filter(sample!='handMixOld') %>%
+      group_by(sample) %>%
+      mutate(cor=cor(t.usage, pred.cov))
+    ) %>%
+  reduce(bind_rows) 
+
+pl <- all.predictions.reduced %>%
+  # filter(species=='mMus') %>%
+  plot.prediction() +
+  facet_grid(species~sample) 
+pl + ggsave("~/AvOwork/output/epsilon_estimate/prediction_all_BS.pdf", width=9, height = 12)
+
+pl.cg <- all.predictions.reduced %>%
+  filter(species=='mMus') %>%
+  group_by(sample) %>%
+  mutate(pred.cov=pred.cov/sum(pred.cov),
+         t.usage=t.usage/sum(t.usage)) %>%
+  plot.prediction(color = 'CG') +
+  facet_grid(species~sample) +
+  scale_color_manual(values=c('#a50f15','#fcbba1'))
+pl.cg
+pl.cg + ggsave("~/AvOwork/output/epsilon_estimate/prediction_mMus_BS_colorCG.pdf", width = 12)
+```
+
+```{r}
 plot.batch.accuracy(mm.bs.pred.cov.batch$pcc.primer.batch)
-# plot.batch.accuracy(human.pred.cov.batch$pcc.primer.batch)
+plot.batch.accuracy(human.bs.pred.cov.batch$pcc.primer.batch)
 plot.batch.accuracy(cele.bs.pred.cov.batch$pcc.primer.batch)
 plot.batch.accuracy(drerio.bs.pred.cov.batch$pcc.primer.batch)
+
+l <- list(human.bs.pred.cov.batch$pcc.primer.batch %>% mutate(species="H.sapiens"),
+     mm.bs.pred.cov.batch$pcc.primer.batch %>% mutate(species="M.musculus"),
+     cele.bs.pred.cov.batch$pcc.primer.batch %>% mutate(species="C.elegans"),
+     drerio.bs.pred.cov.batch$pcc.primer.batch %>% mutate(species="D.rerio")
+    ) %>%
+  reduce(bind_rows) 
+
+p <- l %>%
+  mutate(smp=paste(sample, species, sep='.')) %>%
+  ggplot(., aes(prob.G, PCC, group=smp, color=sample, shape=species)) +
+    geom_line(size=1.5, alpha=0.7) +
+    geom_point(size=2) +
+    theme_minimal() +
+    xlab('% G') + ylab(expression(R^2)) +
+    scale_x_continuous(sec.axis=sec_axis(~0.5-., name='% T')) +
+    scale_color_discrete(name='') +
+    scale_color_brewer(palette = 'Accent') +
+    theme(legend.title = element_blank(),
+          legend.text = element_text(size=20),
+          axis.text = element_text(size=20),
+          axis.title = element_text(size=30),
+          title = element_text(size=30)) +
+    NULL
+
+p + ggsave('~/AvOwork/output/epsilon_estimate/accuracy_BS_all.pdf', width = 15)
 ```
 
 Save predicted coverage files for track
@@ -301,6 +375,15 @@ save.pred.cov.table <- function(pred.cov.table, name, nreads=1000000){
     select(template, exp) %>%
     write.csv(., file= paste0("~/AvOwork/pred_cov_batches/", name, "_predcoverage.csv"), row.names = F, col.names = T, quote = F )
   }
+
+
+```
+
+### What if I do the coverage prediction in BS based on in silico conversion??
+And using the $K_{ij}$ from the no BS samples
+
+1. Make the in silico converted version of the genome with `convert_refgen.py`
+```{r}
 
 
 ```

@@ -13,37 +13,136 @@ library(zoo)
 library(flux)
 source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
 source("~/HexamerBias/artificial_coverage/compare_peaks.r")
+source("~/HexamerBias/optimization/fc_optimization_functions.r")
 ```
 
-### Computing density for all primer batches
+##### Computing density for all primer batches
 I generated all primer batch combinations with even nucleotide composition in all positions (with a step of 0.05 fraction) and computed coverage density based on predicted coverage for onepreamp BS-seq mouse samples (using script `run_combo_density.r`). I excluded batches with nucleotide fraction = 0 for Gs and Cs to be quicker.
 ```{r}
 load('~/mnt/edann/primer_combos_density_onepreamp.RData')
 ```
 
-### Fold-change score for regions of interest 
+##### Sequence enrichment for regions of interest 
 
-1. I compute hexamer enrichment in regions of interest (log(FC) between kmer count in region of interest and random regions of the same genome) running `get_kmers_ROI.sh`.
+I compute hexamer enrichment in regions of interest (log(FC) between kmer count in region of interest and random regions of the same genome) running `get_kmers_ROI.sh`.
 
 ```{r}
 cgi.fc <- read.csv("~/mnt/edann/hexamers/annotations_bed/CpGislands_srt_mm10.kmersFC.csv", header=F, col.names = c("template", "fc"))
 ctcf.fc <- read.csv("~/mnt/edann/hexamers/strand_specific/CTCF.flank60.kmersFC.csv", header=F, col.names = c("template", "fc"))
 tss.fc <- read.csv("~/mnt/edann/hexamers/annotations_bed/TxStart_mm10.50.flank.noN.kmersFC.csv", header=F, col.names = c("template", "fc"))
+cpgs.fc <- read.csv("~/mnt/edann/hexamers/annotations_bed/cpg_sites_mm10_10bpsSlop.noN.kmersFC.csv", header=F, col.names = c("template", "fc"))
 ```
 
 Let's check the log(FC) distributions
-```{r}
-full_join(cgi.fc, ctcf.fc, by='template', suffix=c('.cgi', '.ctcf')) %>%
-  melt(variable.name='fc') %>%
-  plot.ranked.fc()
+```{r, echo=F}
+plot.ranked.fc(cgi.fc) + ggtitle(deparse(substitute(cgi.fc)))
+plot.ranked.fc(ctcf.fc) + ggtitle(deparse(substitute(ctcf.fc)))
+plot.ranked.fc(tss.fc) + ggtitle(deparse(substitute(tss.fc)))
+plot.ranked.fc(cpgs.fc) + ggtitle(deparse(substitute(cpgs.fc)))
 ```
 
-2. For each possible primer batch I compute an "enrichment score" for the region of interest, multiplying the predicted hexamer density by the fold change enrichment for that hexamer and summing up all the resulting scores.
+##### Compute enrichment score for batches
+For each possible primer batch I compute an "enrichment score" for the region of interest, multiplying the predicted hexamer density by the fold change enrichment for that hexamer and summing up all the resulting scores.
 
-```{r, warning=F}
+```{r}
 cgi.score <- fc.scores(dens.table, fc.df = cgi.fc)
 tss.score <- fc.scores(dens.table, fc.df = tss.fc)
 ctcf.score <- fc.scores(dens.table, fc.df = ctcf.fc)
+cpgs.score <- fc.scores(dens.table, fc.df = cpgs.fc)
+```
+```{r, warning=F, echo=F}
+as.data.frame(cgi.score) %>% rename(score=cgi.score) %>% rownames_to_column(var='template') %>%
+  plot.ranked.score() +
+  ggtitle('CGI')
+
+as.data.frame(ctcf.score) %>% rename(score=ctcf.score) %>% rownames_to_column(var='template') %>%
+  plot.ranked.score() +
+  ggtitle('CTCF')
+
+as.data.frame(tss.score) %>% rename(score=tss.score) %>% rownames_to_column(var='template') %>%
+  plot.ranked.score() +
+  ggtitle('TSS')
+
+as.data.frame(cpgs.score) %>% rename(score=cpgs.score) %>% rownames_to_column(var='template') %>%
+  plot.ranked.score() +
+  ggtitle('CpG sites')
+
+```
+Note how the best are always the same, indicating that we are enriching for CG sites in general, and that for the CpG islands we get higher top scores (> 40) than the rest. 
+
+##### Make predicted coverage tracks for all 
+Save and do predicted track with script `strand_specific_artificial_coverage.py`
+
+```{r, warning=F}
+bottom.scores <- cgi.score %>% sort %>% head(10) %>% names
+top.scores <- cgi.score %>% sort(decreasing = T) %>% head(10) %>% names
+
+load("~/mnt/edann/VAN2591/mm10.onepreamp.keqs.RData")
+dens.table.l <- map(column_to_rownames(dens.table, var='template'), function(x) data.frame(template=dens.table$template, binding.dens=x))
+suppressWarnings(
+  pred.cov.table <- map(dens.table.l, function(x) x %>% 
+                        inner_join(., distinct(select(mm10.onepreamp.keqs, template, abundance)), by='template') %>% 
+                        mutate(exp=binding.dens*abundance) %>% select(template, exp))
+  )
+
+for (name in c(bottom.scores,top.scores, 'dens_0.25_0.25_0.25_0.25')) {
+  df <- pred.cov.table[name][[1]] %>% 
+    full_join(data.frame(template=all.hexamers()), by='template') %>%
+    mutate(exp=ifelse(is.na(exp), 0, exp))
+  write.csv(df, file= paste0("~/AvOwork/pred_cov_batches/mm10_onepreamp_", name, "_predcoverage.csv"), row.names = F, col.names = T, quote = F )
+}
+```
+
+##### Compute density yield in regions of interest 
+To validate the optimization, I compute the yield for a batch in a set of regions of interest as: 
+$$
+Y_b(ROI)=\frac{AUC(c(p)_b + a)_{in}}{AUC(c(p)_b + a)_{out}}
+$$
+where $AUC$ is Area Under the Curve, $c(p)$ is the predicted coverage track, $a$ is an integer used for scaling everything to positive values (here $a=5$) (implemented in `compute_yield_track_dir.r`). 
+```{r}
+cgis.yield <- read.csv("~/mnt/edann/pred_coverage_primer_batch_mm10_onepreamp/yield_CpGislands_srt_mm10.csv")
+ctcf.yield <- read.csv("~/mnt/edann/pred_coverage_primer_batch_mm10_onepreamp/yield_CTCF.flank60.csv")
+tss.yield <- read.csv("~/mnt/edann/pred_coverage_primer_batch_mm10_onepreamp/yield_TxStart_mm10.50.flank.csv")
+```
+
+Plot yield, tracks are sorted by $E$ score.
+```{r}
+plot.yield.roi <- function(yield.df, name.pattern='random.+onepreamp_|_predcove.+', score.midpoint=20, relative.to=NULL){
+  df <- yield.df %>%
+    mutate(track=gsub(track, pattern = name.pattern, replacement = '')) 
+    # mutate(delta_yield=yield-1.3973866) %>%
+  if (!is.null(relative.to)) {
+    df <- df %>% mutate(yield = yield - filter(., track==relative.to)$yield) 
+  }
+  pl <- df %>%
+    mutate(fc.score=cgi.score[match(track, names(cgi.score))]) %>%
+    arrange(fc.score) %>%
+    mutate(track=factor(track, levels = track)) %>%
+    ggplot(., aes(x=track, yield, fill=fc.score)) +
+    geom_bar(stat='identity') +
+    coord_flip() +
+    scale_fill_gradient2(midpoint = score.midpoint) +
+    theme_minimal()
+  if (!is.null(relative.to)) {
+    pl <- pl + ylab(paste('yield (relative to', relative.to, ')')) 
+  }
+  return(pl)
+  }
+```
+
+```{r, echo=F}
+plot.yield.roi(cgis.yield) + ggtitle('CpG islands')
+plot.yield.roi(ctcf.yield) + ggtitle('CTCF sites')
+plot.yield.roi(tss.yield) + ggtitle('Transcription start sites')
 ```
 
 
+
+##### Yield relative to random batch
+```{r, echo=F}
+plot.yield.roi(cgis.yield, relative.to = 'dens_0.25_0.25_0.25_0.25') + ggtitle('CpG islands')
+plot.yield.roi(ctcf.yield, relative.to = 'dens_0.25_0.25_0.25_0.25') + ggtitle('CTCF sites')
+plot.yield.roi(tss.yield, relative.to = 'dens_0.25_0.25_0.25_0.25') + ggtitle('Transcription start sites')
+```
+
+The highest difference in yield I find for the CpG islands (where I also had higher top scores), probably indicating that sequence composition inside CGIs is more specific, and thus "enrichable". 

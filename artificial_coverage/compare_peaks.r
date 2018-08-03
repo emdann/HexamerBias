@@ -306,7 +306,8 @@ compare.spear.real <- function(track.list, name.real='WGS', method='spearman'){
     ggplot(., aes(sample, spearman.rho)) +
     geom_boxplot(outlier.alpha = 0.2, varwidth = T) +
     theme_classic() +
-    ggsignif::geom_signif(comparisons = list(c(name.real, "random")), 
+    ggsignif::geom_signif(comparisons = list(c(name.real, "random")),
+                          test='wilcox.test',
                           map_signif_level=TRUE) +
     theme(axis.title=element_text(size=20), 
           axis.text=element_text(size=16), 
