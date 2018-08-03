@@ -3,6 +3,8 @@ genes_bed=$1
 refgen_fa=$2
 genome=$3
 
+
+
 path2bedtools=/hpc/hub_oudenaarden/edann/bin/bedtools2/bin
 
 cat $genes_bed | \
