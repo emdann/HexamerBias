@@ -12,3 +12,12 @@ cat ${sample}.bed | \
 
 n_cpgs=$(wc -l ${sample}.cpg_coverage.bed | cut -f 1 -d ' ')
 bedtools sample -n $n_cpgs -i ${sample}.bed > ${sample}.random.bed
+
+
+### For regions
+
+bedtools shuffle -i $cpgs_file -g /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.genome | \
+  bedtools intersect -a ${sample}.bed -b stdin > ${sample}.randomCPG.bed
+
+  cat ${sample}.bed | \
+    bedtools intersect -a stdin -b $cpgs_file > ${sample}.cpg_coverage.bed

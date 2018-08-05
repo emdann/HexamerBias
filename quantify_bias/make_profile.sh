@@ -56,10 +56,10 @@ computeMatrix scale-regions \
 #   -o ${sample}.CTCF.mat.gz \
 #   --outFileNameMatrix ${sample}.CTCF.mat.tab
 
-## Plot profile
-echo "--- Plotting profile ---"
-plotProfile -m ${sample}.mat.gz \
-              -out ${sample}_${regions}_coverage.png  \
-              --numPlotsPerRow 1 \
-              --yAxisLabel "coverage" \
-              --samplesLabel $sample
+# ## Plot profile
+# echo "--- Plotting profile ---"
+# plotProfile -m ${sample}.mat.gz \
+#               -out ${sample}_${regions}_coverage.png  \
+#               --numPlotsPerRow 1 \
+#               --yAxisLabel "coverage" \
+#               --samplesLabel $sample

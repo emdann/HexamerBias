@@ -23,3 +23,8 @@ ${path2bedtools}/bedtools slop -b 50 -i stdin -g $genome | \
 ${path2bedtools}/bedtools shuffle -chrom -i stdin -g $genome | \
 ${path2bedtools}/bedtools nuc -fi $refgen_fa -bed stdin | \
 cut -f 1,2,3,5 > TxStart_shuffle_${genes_bed}.GCcont.bed
+
+GC_tss=$(cat TxStart_${genes_bed}.GCcont.bed | awk '{sum += $4; n++}END{print sum/n}')
+GC_rand=$(cat TxStart_shuffle_${genes_bed}.GCcont.bed | awk '{sum += $4; n++}END{print sum/n}')
+
+bc <<< " $GC_tss - $GC_rand  "

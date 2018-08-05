@@ -3,7 +3,7 @@
 if [ $# -ne 2 ]
 then
     echo "Please, give:"
-    echo "1) bedfile of regions of interest"
+    echo "1) bedfile of regions of interest (move to that folder!!!)"
     echo "2) folder to genome fasta files"
     exit
 fi
@@ -24,7 +24,7 @@ ${bindir}/utils/kmerCounter.py -s both ${sample}.fa > ${sample}.kmersTot.csv
 
 ## Kmer count random regions
 ${path2bedtools}/bedtools shuffle -seed 42 -chrom  -i $bed -g ${genomedir}/${genome}.genome | \
-  ${path2bedtools}/bedtools getfasta -fi ${genomedir}/${genome}.fa -bed stdin -fo ${sample}.randomize.fa
+${path2bedtools}/bedtools getfasta -fi ${genomedir}/${genome}.fa -bed stdin -fo ${sample}.randomize.fa
 ${bindir}/utils/kmerCounter.py -s both ${sample}.randomize.fa > ${sample}.randomize.kmersTot.csv
 
 ## FoldChange
