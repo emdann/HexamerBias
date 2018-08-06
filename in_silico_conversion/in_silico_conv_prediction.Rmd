@@ -1,0 +1,92 @@
+---
+title: "BS-seq prediction with in silico conversion"
+output: html_notebook
+---
+```{r, eval=F}
+source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
+# source('~/HexamerBias/rscripts/hexamer_sequence_functions.r')
+```
+
+Doing the prediction with:
+1. $K_ij$ values computes from WGS dataset
+```{r}
+load('~/AvOwork/rdata/mean_keqs_noBS_all.RData')
+```
+
+2. Kmer-abundance from in-silico converted version of the mouse genome
+
+```{r}
+forward.kmers <- load.kmer.abundance("~/mnt/edann/in_silico_BS_conversion/mm10_mm10.BSconv.forward.kmerAbundance.csv")
+reverse.kmers <- load.kmer.abundance("~/mnt/edann/in_silico_BS_conversion/mm10_mm10.BSconv.reverse.kmerAbundance.csv")
+
+bs.conv.kmer.abundance <- full_join(forward.kmers, reverse.kmers, by='template') %>%
+  replace_na(list(abundance.x=0, abundance.y=0)) %>%
+  transmute(template, abundance=abundance.x+abundance.y)
+
+head(bs.conv.kmer.abundance)
+```
+
+3. pt Data from mouse (for know I take unconverted kmers and just assume total conversion)
+```{r}
+mouse.R <- readRDS('~/mnt/edann/VAN2591/CG-BS-pbat-bulk-1xPreamp-mMusculus-crypts-handMixNew_lmerged_R1_trimmed_bismark_bt2.ptCounts.qualFilt.csv.RDS')
+```
+
+Compute epsilon 
+```{r}
+setwd('~/mnt/edann/')
+gencov.file <- "./VAN2591/genomecov_all.txt"
+gencov.all <- read.table(gencov.file, sep='\t', header=F, col.names = c('smp', 'genomecov'))
+gencov.BS <- gencov.all %>%
+  mutate(genomecov=1-genomecov) %>%
+  filter(!grepl(smp, pattern = 'noBS'))
+
+load('~/mnt/edann/model_epsilon.RData')
+
+eps.pt.handMixNew <- exp(predict(model.epsilon, data.frame(genomecov=filter(gencov.BS, grepl(smp, pattern = paste0('Preamp-mMusc', '.+handMixNew')))$genomecov)))
+
+eps.pt.handMixNew
+```
+
+
+##### Predict coverage
+No conversion
+```{r}
+new.mouse.R <- mouse.R %>% 
+  full_join(bs.conv.kmer.abundance, by='template') %>%
+  mutate(abundance=abundance.y) %>%
+  replace_na(list(abundance=0)) %>%
+  select(-abundance.x,-abundance.y)
+
+keqs.mouse.bs <- inner_join(select(avg.keqs.all, primer, template, keq), new.mouse.R, by=c("primer", 'template'))
+
+```
+
+```{r}
+pred.cov.mouse <- predict.coverage(keqs.mouse.bs, eps = eps.pt.handMixNew)
+plot.prediction(pred.cov.mouse %>% mutate(cor=cor(pred.cov, t.usage, use='pairwise.complete.obs')))
+```
+
+With conversion
+```{r}
+BS.convert <- function(seq){
+  return(gsub(seq, pattern='C', replacement = 'T'))
+  }
+
+conv.mouse <- new.mouse.R %>%
+  mutate(template=sapply(template, BS.convert),
+         converted=ifelse(grepl('C', template), T, F))
+
+conv.summed.mouse <- conv.mouse %>%
+  group_by(template, primer) %>%
+  summarise(pt=sum(pt), t.usage=sum(t.usage))
+
+new.conv.mouse.BS <- conv.summed.mouse %>% 
+  full_join(bs.conv.kmer.abundance, by='template') 
+
+keqs.conv.mouse.bs <- inner_join(select(avg.keqs.all, primer, template, keq), new.conv.mouse.BS, by=c("primer", 'template'))
+
+pred.cov.conv.mouse <- predict.coverage(keqs.conv.mouse.bs, eps = eps.pt.handMixNew)
+
+plot.prediction(pred.cov.conv.mouse %>% mutate(cor=cor(pred.cov, t.usage, use='pairwise.complete.obs'), sample='handMixOld',species='mouse' )) +
+  ggsave('~/AvOwork/formatted_figs/suppl_figs_final/converted_bs_prediction.pdf')
+```

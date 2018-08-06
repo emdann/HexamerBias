@@ -63,12 +63,87 @@ as.data.frame(tss.score) %>% rename(score=tss.score) %>% rownames_to_column(var=
   plot.ranked.score() +
   ggtitle('TSS')
 
-as.data.frame(cpgs.score) %>% rename(score=cpgs.score) %>% rownames_to_column(var='template') %>%
-  plot.ranked.score() +
-  ggtitle('CpG sites')
-
 ```
 Note how the best are always the same, indicating that we are enriching for CG sites in general, and that for the CpG islands we get higher top scores (> 40) than the rest. 
+
+```{r}
+ctcf.score.df <- as.data.frame(ctcf.score) %>% 
+  rename(score=ctcf.score) %>% 
+  rownames_to_column(var='template') %>%
+  mutate(ROI='CTCF sites')
+cgi.score.df <- as.data.frame(cgi.score) %>% 
+  rename(score=cgi.score) %>% 
+  rownames_to_column(var='template') %>%
+  mutate(ROI='CpG islands')
+tss.score.df <- as.data.frame(tss.score) %>% 
+  rename(score=tss.score) %>% 
+  rownames_to_column(var='template') %>%
+  mutate(ROI='TSS')
+cpgs.score.df <- as.data.frame(cpgs.score) %>% 
+  rename(score=cpgs.score) %>% 
+  rownames_to_column(var='template') %>%
+  mutate(ROI='CpG sites')
+
+full.rank.pl <- list(ctcf.score.df, cgi.score.df, tss.score.df) %>%
+  reduce(bind_rows) %>%
+  group_by(ROI) %>%
+  arrange(score) %>%
+  mutate(rank=min_rank(score)) %>%
+  ungroup() %>%
+  plot.ranked.score(massage=F) +
+  facet_grid(.~ROI) +
+  theme(strip.text=element_text(size=15)) +
+  xlab('Batch rank') + ylab('E-score')
+
+
+full.rank.pl + ggsave("~/AvOwork/output/DE_optimization/rank_score_full.pdf", width=15)
+```
+
+###### Are the top e-scores driving the final score?
+```{r}
+
+sort(cgi.score, decreasing = T) %>% head
+select(dens.table, template, dens_0_0.2_0_0.8) %>% 
+  rename(binding.dens=dens_0_0.2_0_0.8) %>%
+  inner_join(., cgi.fc, by="template") %>%
+  mutate(dens.fc=binding.dens*fc) %>%
+  mutate(cs=cume_dist(dens.fc)) %>%
+  # filter(dens.fc!=0) %>%
+  ggplot(aes(dens.fc, cs)) +
+    geom_point(alpha=0.3, size=0.5)
+  geom_histogram(bins=1000)   
+geom_vline(xintercept = cgi.score['dens_0_0.2_0_0.8'])
+
+select(dens.table, template, one_of(c(bottom.scores, top.scores, 'dens_0.25_0.25_0.25_0.25'))) %>%
+  melt(id.vars='template', value.name='binding.dens', variable.name='batch') %>%
+  # rename(binding.dens=dens_0.25_0.25_0.25_0.25) %>%
+  inner_join(., cgi.fc, by="template") %>%
+  inner_join(., as.data.frame(tss.score) %>% rownames_to_column(var='batch') , by='batch') %>%
+  mutate(dens.fc=binding.dens*fc) %>%
+  group_by(batch) %>%
+  mutate(cs=cume_dist(dens.fc)) %>%
+  ungroup() %>%
+  mutate(batch=substr(batch, 1,23)) %>%
+  # filter(dens.fc!=0) %>%
+  ggplot(aes(dens.fc, cs, color=tss.score)) +
+    geom_point(alpha=0.5, size=0.5) +
+  facet_wrap(~batch, scales = 'free_x', ncol=5) +
+  # ggtitle(label=batch.name) +
+  xlab('e-score') + ylab('cumulative freq.') +
+  scale_color_gradient2(midpoint = 10, name='E-score') +
+  theme(axis.title = element_text(size=20),
+        axis.text = element_text(size=16),
+        strip.text = element_text(size=12),
+        legend.text = element_text(size=16),
+        legend.title = element_text(size=18)) +
+  ggsave("~/AvOwork/formatted_figs/suppl_figs_final/cum_dist_escores_tss.pdf", height=15, width=15)
+
+  NULL
+#   geom_histogram(bins=1000)   
+# geom_vline(xintercept = cgi.score['dens_0_0.2_0_0.8'])
+
+bottom.scores
+```
 
 ##### Make predicted coverage tracks for all 
 Save and do predicted track with script `strand_specific_artificial_coverage.py`
@@ -107,17 +182,22 @@ tss.yield <- read.csv("~/mnt/edann/pred_coverage_primer_batch_mm10_onepreamp/yie
 
 Plot yield, tracks are sorted by $E$ score.
 ```{r}
-plot.yield.roi <- function(yield.df, name.pattern='random.+onepreamp_|_predcove.+', score.midpoint=20, relative.to=NULL){
-  df <- yield.df %>%
+massage.yield <- function(yield.df, fc.score, relative.to=NULL){
+    df <- yield.df %>%
     mutate(track=gsub(track, pattern = name.pattern, replacement = '')) 
     # mutate(delta_yield=yield-1.3973866) %>%
   if (!is.null(relative.to)) {
     df <- df %>% mutate(yield = yield - filter(., track==relative.to)$yield) 
   }
-  pl <- df %>%
-    mutate(fc.score=cgi.score[match(track, names(cgi.score))]) %>%
+  df <- df %>%
+    mutate(fc.score=fc.score[match(track, names(fc.score))]) %>%
     arrange(fc.score) %>%
-    mutate(track=factor(track, levels = track)) %>%
+    mutate(track=factor(track, levels = track))
+  return(df)
+}
+
+plot.yield.roi <- function(yield.score.df, name.pattern='random.+onepreamp_|_predcove.+', score.midpoint=20, relative.to=NULL){
+  pl <- yield.score.df %>%
     ggplot(., aes(x=track, yield, fill=fc.score)) +
     geom_bar(stat='identity') +
     coord_flip() +
@@ -131,18 +211,213 @@ plot.yield.roi <- function(yield.df, name.pattern='random.+onepreamp_|_predcove.
 ```
 
 ```{r, echo=F}
-plot.yield.roi(cgis.yield) + ggtitle('CpG islands')
-plot.yield.roi(ctcf.yield) + ggtitle('CTCF sites')
-plot.yield.roi(tss.yield) + ggtitle('Transcription start sites')
+massage.yield(cgis.yield, fc.score = cgi.score) %>% plot.yield.roi() + ggtitle('CpG islands')
+massage.yield(ctcf.yield, fc.score = ctcf.score) %>% plot.yield.roi() + ggtitle('CTCF sites')
+massage.yield(tss.yield, fc.score = tss.score) %>% plot.yield.roi() + ggtitle('Transcription start sites')
 ```
 
 
 
-##### Yield relative to random batch
+###### Yield relative to random batch
 ```{r, echo=F}
-plot.yield.roi(cgis.yield, relative.to = 'dens_0.25_0.25_0.25_0.25') + ggtitle('CpG islands')
-plot.yield.roi(ctcf.yield, relative.to = 'dens_0.25_0.25_0.25_0.25') + ggtitle('CTCF sites')
-plot.yield.roi(tss.yield, relative.to = 'dens_0.25_0.25_0.25_0.25') + ggtitle('Transcription start sites')
+massage.yield(cgis.yield, fc.score = cgi.score, relative.to = 'dens_0.25_0.25_0.25_0.25') %>% plot.yield.roi(relative.to = 'dens_0.25_0.25_0.25_0.25') + ggtitle('CpG islands')
+massage.yield(ctcf.yield, fc.score = ctcf.score, relative.to = 'dens_0.25_0.25_0.25_0.25') %>% plot.yield.roi(relative.to = 'dens_0.25_0.25_0.25_0.25') + ggtitle('CTCF sites')
+massage.yield(tss.yield, fc.score = tss.score, relative.to = 'dens_0.25_0.25_0.25_0.25') %>% plot.yield.roi(relative.to = 'dens_0.25_0.25_0.25_0.25') + ggtitle('Transcription start sites')
 ```
 
 The highest difference in yield I find for the CpG islands (where I also had higher top scores), probably indicating that sequence composition inside CGIs is more specific, and thus "enrichable". 
+
+Facet everything.
+```{r}
+cgis.yield %>%
+  full_join(., tss.yield, by='track') %>%
+  full_join(., ctcf.yield, by='track') 
+
+faceted.yield.delta <- list(cgis.yield, tss.yield, ctcf.yield) %>%
+  map(function(x) mutate(x, track=gsub(track, pattern = name.pattern, replacement = ''))) %>%
+  map2(list(cgi.score, tss.score, ctcf.score), function(x,y) mutate(x, fc.score=y[match(track, names(y))])) %>%
+  reduce(bind_rows) %>%
+  group_by(ROI) %>%
+  mutate(yield.delta = yield - yield[track=='dens_0.25_0.25_0.25_0.25'],
+         fc.score.delta = fc.score - fc.score[track=='dens_0.25_0.25_0.25_0.25']) %>%
+  arrange(fc.score) %>%
+  mutate(track=factor(track, levels = track)) %>%
+  ungroup() 
+
+faceted.yield.delta.plot <- faceted.yield.delta %>%
+  # head
+  ggplot(., aes(x=track, y=yield.delta, fill=fc.score)) +
+    facet_grid(.~ROI) +
+    geom_bar(stat='identity') +
+    coord_flip() +
+    scale_fill_gradient2(name='E-score') +
+    theme_bw() +
+    theme(strip.text = element_blank(),
+          legend.position = 'bottom',
+          legend.title = element_text(size=20),
+          legend.text = element_text(size=14),
+          axis.title = element_text(size=16),
+          axis.text.x = element_text(size=14))
+
+faceted.yield.delta %>%
+  # head
+  ggplot(., aes(x=fc.score, y=yield, color=ROI)) +
+    # facet_grid(.~ROI) +
+  geom_point(alpha=0.8) +
+  stat_cor()
+
+    geom_bar(stat='identity') +
+    coord_flip() +
+    scale_fill_gradient2(name='E-score') +
+    theme_bw() +
+    theme(strip.text = element_blank(),
+          legend.position = 'bottom',
+          legend.title = element_text(size=20),
+          legend.text = element_text(size=14),
+          axis.title = element_text(size=16),
+          axis.text.x = element_text(size=14))
+
+```
+
+##### Making plot to label batches
+```{r}
+batch.df <- map(strsplit(names(dens.table)[-1],  '_'), function(x) as.numeric(x[2:5])) %>% reduce(rbind) %>% data.frame(row.names = NULL)
+colnames(batch.df) <- c('A', 'C', 'T', 'G')
+df <- data.frame(batch=names(dens.table)[-1]) %>%
+  bind_cols(., batch.df)
+
+plot.batch.composition <- function(batch.df, fc.score){
+  pl1 <- batch.df %>%
+    melt %>%
+    filter(batch %in% c(bottom.scores,top.scores, 'dens_0.25_0.25_0.25_0.25')) %>%
+    mutate(fc.score=fc.score[match(batch, names(fc.score))]) %>%
+    arrange(fc.score) %>%
+    # head
+    mutate(batch=factor(batch, levels = rev(unique(batch)))) %>%
+    ggplot(., aes(batch, variable,label=variable, size=value, color=variable)) + 
+    facet_grid(batch~.) +
+    theme_bw() +
+    geom_text(x=0.5) +
+    coord_fixed(ratio=1/2) +
+    scale_size(range=c(0,10)) +
+    guides(color='none') +
+    coord_flip() +
+    theme(
+      strip.background = element_blank(),
+      strip.text.y = element_blank(), 
+      panel.grid.major = element_blank(),
+      axis.title = element_blank(),
+      axis.text = element_blank(),
+      axis.ticks = element_blank(),
+      legend.position = 'bottom'    
+    )
+  return(pl1)
+}
+
+grid.batch.yield <- function(yield.df, fc.score, main.title){
+  pl2 <- plot.yield.roi(yield.df, fc.score = fc.score, relative.to = 'dens_0.25_0.25_0.25_0.25',score.midpoint = 15) + 
+  ggtitle(main.title) +
+  theme(axis.text.y = element_blank(),
+        axis.title.y = element_blank())
+  pl1 <- plot.batch.composition(df, fc.score)
+  gr <- grid.arrange(pl1, pl2, ncol=2, widths=0.5:2, heights=3)
+  return(gr)
+  }
+
+grid.ctcf <- grid.batch.yield(ctcf.yield, ctcf.score, main.title='CTCF sites') 
+ggsave(grid.ctcf, filename = '~/AvOwork/output/DE_optimization/yield_ctcf_grid.pdf')
+grid.cgi <- grid.batch.yield(cgis.yield, cgi.score,  main.title='CpG islands')
+ggsave(grid.cgi, filename = '~/AvOwork/output/DE_optimization/yield_cgi_grid.pdf')
+grid.tss <- grid.batch.yield(tss.yield, tss.score, main.title='Transcription Start Sites')
+ggsave(grid.tss, filename = '~/AvOwork/output/DE_optimization/yield_tss_grid.pdf')
+```
+
+With faceted plot 
+```{r}
+pl1 <- plot.batch.composition(df, cgi.score)
+pl1
+pl2 <- faceted.yield.delta.plot +
+    theme(axis.text.y = element_blank(),
+        axis.title.y = element_blank())
+  
+gr <- grid.arrange(pl1, pl2, ncol=2, widths=0.5:2, heights=3)
+ggsave(gr, filename = '~/AvOwork/output/DE_optimization/yield_grid_all.pdf', width=12, height=9)
+```
+
+
+
+### Making scheme to describe algorithm
+```{r}
+dens <- filter(dens.table[,10], dens.table$template %in% smp.fc$template) %>%
+  rename(density=dens_0.4_0.05_0_0.55) %>%
+  mutate(template=1:n()) 
+dens.plot <- dens %>%
+  ggplot(aes(template,y=0, yend=density, xend=template)) +
+    geom_segment(size=1) +
+    geom_point(aes(y=density), size=1) +
+  theme_bw() +
+  coord_flip() +
+    ylab('coverage density') +
+  geom_hline(yintercept = 0) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_text(size=18))
+
+smp.fc <- cgi.fc %>% 
+  sample_n(20) 
+smp.fc.plot <- smp.fc %>%  
+  mutate(template=1:n()) %>%
+  ggplot(aes(template,y=0, yend=fc, xend=template)) +
+    geom_segment(size=1) +
+    geom_point(aes(y=fc), size=1) +
+  theme_bw() +
+  coord_flip() +
+    ylab('log(FC)') +
+  geom_hline(yintercept = 0) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_text(size=18))
+
+e.score.plot <- dens %>%
+  bind_cols(smp.fc) %>%
+  mutate(e.score=fc*density) %>%
+  ggplot(aes(template,y=0, yend=e.score, xend=template)) +
+    geom_segment(size=1) +
+    geom_point(aes(y=e.score), size=1) +
+  theme_bw() +
+  coord_flip() +
+  ylab('e-score') +
+  geom_hline(yintercept = 0) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_text(size=18))
+
+dens.plot + ggsave('~/AvOwork/useful_figs/fc_algorithm_scheme_dens.pdf')
+smp.fc.plot + ggsave('~/AvOwork/useful_figs/fc_algorithm_scheme_fc.pdf')
+e.score.plot + ggsave('~/AvOwork/useful_figs/fc_algorithm_scheme_escore.pdf')
+```
+
+
+##### Making E-score table for report
+```{r}
+d <- data.frame(cgi.score, tss.score, ctcf.score) %>% 
+  rownames_to_column(var='batch') %>%
+  arrange(-cgi.score) %>%
+  top_n(n=10) 
+
+split.batch.name <- function(batch.name){
+  spl.name <- as.numeric(strsplit(batch.name, split = '_')[[1]][-1])*100
+  names(spl.name) <- c('A', 'C', 'T', 'G')
+  return(spl.name)
+  }
+
+formatted.d <- d %>% 
+  mutate(A=sapply(batch, function(b) split.batch.name(b)['A']),
+         C=sapply(batch, function(b) split.batch.name(b)['C']),
+         T=sapply(batch, function(b) split.batch.name(b)['T']),
+         G=sapply(batch, function(b) split.batch.name(b)['G'])) %>%
+  # mutate(rank=1:n()) %>%
+  select( A,C,T,G, tss.score, cgi.score, ctcf.score)
+
+xtable(formatted.d)
+```

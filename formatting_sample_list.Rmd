@@ -1,0 +1,116 @@
+---
+title: "Making sample list"
+output: html_notebook
+---
+```{r}
+sample.list <- read.csv('~/Downloads/SampleList_Report - Sheet1.csv')
+sample.list %>% nrow
+```
+No.reads R1
+```{r}
+van2591.bs.noreads <- read.table('~/mnt/edann/VAN2591/nreads_BS.tsv', col.names = c('SAMPLE_NAME', 'NO_READS_R1'))
+van2591.nobs.noreads <- read.table('~/mnt/edann/VAN2591/nreads_noBS.txt', col.names = c('SAMPLE_NAME', 'NO_READS_R1'))
+van2423.noreads <- read.table('~/mnt/edann/VAN2423_onePreamp/no_reads_bam.tsv', col.names = c('SAMPLE_NAME', 'NO_READS_R1'))
+van2493.noreads <- read.table('~/mnt/edann/primer_conc_VAN2493/nreads_bam.txt',  col.names = c('SAMPLE_NAME', 'NO_READS_R1'))
+
+van2423.noreads <- filter(van2423.noreads, NO_READS_R1!=0)
+
+noreads.all <- list(van2591.bs.noreads, van2591.nobs.noreads, van2423.noreads, van2493.noreads) %>%
+  reduce(bind_rows)
+```
+
+```{r}
+noreads.all <- noreads.all %>%
+  mutate(SAMPLE_NAME=gsub(pattern = '_lmerged.+', replacement = '', SAMPLE_NAME)) %>%
+  mutate(SAMPLE_NAME=ifelse(!startsWith(SAMPLE_NAME, 'CG') & grepl('-', SAMPLE_NAME),paste0('CG-BS-pbat-bulk-1xPreamp-', SAMPLE_NAME),  SAMPLE_NAME))
+
+noreads.all$SAMPLE_NAME
+
+sample.list <- 
+  sample.list %>%
+  mutate(SAMPLE_NAME=gsub('hSapiens', 'human', SAMPLE_NAME)) %>%
+  inner_join(.,noreads.all, by='SAMPLE_NAME') %>%
+  rename(NO_READS_R1=NO_READS_R1.y) %>%
+  select(-NO_READS_R1.x)
+sample.list %>% nrow
+```
+
+Number of pt pairs
+```{r}
+van2591.ptpairs <- read.table('~/mnt/edann/VAN2591/pt_count_VAN2591.txt', col.names = c('SAMPLE_NAME', 'HQ_PT_PAIRS'))
+van2493.ptpairs <- read.table('~/mnt/edann/primer_conc_VAN2493/pt_count_VAN2493.txt', col.names = c('SAMPLE_NAME', 'HQ_PT_PAIRS') )
+van2423.ptpairs <- read.table('~/mnt/edann/VAN2423_onePreamp/pt_count_VAN2423.txt', col.names = c('SAMPLE_NAME', 'HQ_PT_PAIRS') )
+
+ptpairs.all <- list(van2591.ptpairs, van2423.ptpairs, van2493.ptpairs) %>%
+  reduce(bind_rows)
+ptpairs.all <- ptpairs.all %>%
+  mutate(SAMPLE_NAME=gsub(pattern = '_lmerged.+', replacement = '', SAMPLE_NAME)) %>%
+  mutate(SAMPLE_NAME=gsub(pattern = '_tr2.+', replacement = '', SAMPLE_NAME)) %>%
+  mutate(SAMPLE_NAME=gsub(pattern = '.+/', replacement = '', SAMPLE_NAME))
+
+ptpairs.all$SAMPLE_NAME
+```
+
+```{r}
+sample.list <- sample.list %>%
+  select(-HQ_PT_PAIRS) %>%
+  left_join(.,ptpairs.all, by='SAMPLE_NAME') 
+
+sample.list %>% nrow
+```
+
+Mapping efficiency 
+```{r}
+all.reads <- read.table("~/mnt/edann/VAN2591/no_reads_R1.tsv", col.names = c('SAMPLE_NAME', 'TOT')) %>%
+  mutate(SAMPLE_NAME=gsub(pattern = '_lmerg.+', replacement = '', SAMPLE_NAME)) %>%
+  mutate(SAMPLE_NAME=gsub(pattern = 'hSapiens', replacement = 'human', SAMPLE_NAME))
+
+van2591.mapping <- sample.list %>%
+  select(SAMPLE_NAME, NO_READS_R1) %>%
+  inner_join(., all.reads) %>%
+  mutate(MAPPING_EFFICIENCY= NO_READS_R1/TOT*100) %>%
+  select(SAMPLE_NAME, MAPPING_EFFICIENCY)
+
+van2493.mapping <- read.table('~/mnt/edann/primer_conc_VAN2493/mapping_efficiency.tsv', col.names =  c('SAMPLE_NAME', 'MAPPING_EFFICIENCY'))
+van2493.mapping
+
+van2423.mapping <- sample.list %>%
+  select(SAMPLE_NAME, MAPPING_EFFICIENCY) %>%
+  filter(!is.na(MAPPING_EFFICIENCY))
+
+mapping.all <- list(van2423.mapping, van2591.mapping, van2493.mapping) %>%
+  reduce(bind_rows)
+mapping.all$SAMPLE_NAME
+sample.list.2 <- sample.list %>%
+  select(-MAPPING_EFFICIENCY) %>%
+  left_join(.,mapping.all, by='SAMPLE_NAME') 
+
+```
+
+Formatting sample list 
+```{r}
+sample.list.2 %>%
+  mutate(PRIMER_BATCH=ifelse(grepl(PRIMER_BATCH, pattern = 'handMix'), 'random', as.character(PRIMER_BATCH))) %>%
+  mutate(PRIMER_BATCH=gsub('more', replacement = '', PRIMER_BATCH)) %>%
+  mutate(PRIMER_BATCH=ifelse(PRIMER_BATCH!='random', paste0(PRIMER_BATCH, '-rich'), PRIMER_BATCH)) %>%
+  select(SAMPLE_NAME, SPECIES, BS_CONVERSION, PRIMER_BATCH, PREAMP_ROUNDS, SEQ_DEPTH, MAPPING_EFFICIENCY, NO_READS_R1, HQ_PT_PAIRS, NOTES) %>%
+  xtable()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
