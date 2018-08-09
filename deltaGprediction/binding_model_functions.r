@@ -10,6 +10,7 @@ library(tibble)
 library(ggrepel)
 library(gtools)
 library(RColorBrewer)
+library(seqLogo)
 # library(fitdistrplus)
 
 ## DATA PARSING ##
@@ -107,6 +108,15 @@ compute.primer.usage <- function(pt.all.df){
   return(primer.usage)
   }
 
+make_ppm_of_usage <- function(primer.usage.df){
+  df <- primer.usage.df
+  seqList <- unlist(lapply(1:nrow(df), function(i) rep(as.character(df[i,1]), df[i,2])))
+  mat <- apply(do.call(rbind,strsplit(seqList, split='')),2,table)
+  prob.mat <- apply(mat,2,function(x) x/sum(x))
+  pwm <- makePWM(prob.mat)
+  return(pwm)
+}
+
 # tab <- data.frame(pool = factor())
 # for (n in 1:100) {
 #   pool <- simulate.primer.pool(10000)
@@ -192,7 +202,8 @@ plot.prediction <- function(pred.cov.df, color='nuc'){
           axis.text = element_text(size=16),
           axis.title = element_text(size=30),
           title = element_text(size=30)) +
-    geom_text(aes(x = Inf, y = -Inf, label=paste("R.sq. =",round(cor,2))), 
+    geom_text(data=group_by(pl.df, sample, species) %>% summarise(cor=first(cor)),
+              aes(x = Inf, y = -Inf, label=paste("R.sq. =",round(cor,2))),
               hjust   = +1, 
               vjust   = -1,
               color='black') 

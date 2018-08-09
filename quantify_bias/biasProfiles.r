@@ -29,17 +29,26 @@ load.profile <- function(profile.txt, normalize=TRUE, method='zscore'){
   }
   }
 
-load.matrix <- function(mat.file.gz){
+load.matrix <- function(mat.file.gz, scale=T, avg=T){
   tab <- read.table(gzfile(mat.file.gz), skip = 1)
   colnames(tab)[1:6] <- c('chr', 'start', 'end', 'id', 'len', 'strand')
-  tab <- tab %>% select(-c(chr,start,end,len, strand)) %>% 
+  if(scale){  
+    tab <- tab %>% select(-c(chr,start,end,len, strand)) %>% 
     melt(id.vars=c('id'), variable.name='position', value.name='coverage') %>%
     group_by(id) %>% mutate(zscore=(coverage-mean(coverage, na.rm=T))/sd(coverage, na.rm=T)) %>%
-    ungroup() %>% 
-    group_by(position) %>% 
-    summarise(avg=mean(zscore, na.rm=T)) %>%
-    mutate(position=as.numeric(position))
-  return(tab$avg)
+    ungroup()  
+    if (avg) {
+      tab <- tab %>%
+        group_by(position) %>% 
+        summarise(avg=mean(zscore, na.rm=T)) %>%
+        mutate(position=as.numeric(position))
+      return(tab$avg)
+    } else {
+      return(tab)
+    }
+  } else {
+    return(tab)
+  }
   }
 
 
@@ -51,10 +60,17 @@ make.df.of.profiles <- function(profiles){
   return(prof.df)
 }
 
-plot.genes.profile.df <- function(df, big.labels=FALSE, start.label='TSS', end.label='TES'){
-  p <-ggplot(df, aes(position,value, color=sample)) + 
-    theme_classic() +
-    geom_line(size=2, alpha=0.5) +
+plot.genes.profile.df <- function(df, big.labels=FALSE, start.label='TSS', end.label='TES', smooth=F, span=0.2){
+  p <- ggplot(df, aes(position,value, color=sample)) + 
+    theme_classic() 
+  if (smooth) {
+    p <- p +
+      geom_smooth(span=span, method='loess')
+  } else {
+    p <- p +
+      geom_line(size=2, alpha=0.5) 
+  } 
+  p <- p +  
     scale_x_continuous(breaks = c(0,300,800,1100), 
                        labels = c('0' = '-3kb', '300' = start.label, '800' = end.label, '1100' = '+3kb')) +
     xlab('Relative position') + ylab('normalized coverage') +
@@ -80,10 +96,10 @@ gg_color_hue <- function(n) {
   hcl(h = hues, l = 65, c = 100)[1:n]
 }
 
-plot.refpoint.profile.df <- function(df, center='CTCF sites', color='sample'){
+plot.refpoint.profile.df <- function(df, center='CTCF sites', start.label='-3kb', end.label='+3kb', color='sample'){
   breaks <- seq(0,max(df$position), length.out = 3)
   print(breaks)
-  names(breaks) <- c('-3kb', center, '+3kb')
+  names(breaks) <- c(start.label, center, end.label)
   if (color=='score'){
     p <-ggplot(df, aes(position,value, group=sample, color=score)) +
       geom_line(size=2, alpha=0.5)
@@ -126,18 +142,32 @@ plot.refpoint.profile.df <- function(df, center='CTCF sites', color='sample'){
 #   #       ) +
 #   ggtitle('Impact of genome accessibility')
 
-# 
+
 # ## artificial coverage
 # artCov.prof <- load.matrix('~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.mat.gz')
 # VAN1667.subsmp.prof <- load.matrix('~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.mat.gz')
 # pcc <- round(cor(artCov.prof, VAN1667.subsmp.prof), 3)
 # 
-# df <- make.df.of.profiles(list(experimental = VAN1667.subsmp.prof, predicted = artCov.prof ))
+# df <- make.df.of.profiles(list(Experimental = VAN1667.subsmp.prof, Predicted = artCov.prof ))
 # plot.genes.profile.df(df, big.labels = T) +
+#   scale_color_manual(values=c('royalblue3', 'gold2'),labels=c('Experimental', 'Predicted')) +
 #   annotate('text',x=800, y=2, label=paste('PCC =', pcc), size=10) +
 #   ylab('Coverage (Z-score)') 
+#   
 # ggsave("~/AvOwork/output/artificial_coverage/bias_artCovVSVAN1667subsmp_zscore.pdf")
+
+# ## artificial coverage in c.elegans BS
+# artCov.prof <- load.matrix('~/mnt/edann/VAN2423_onePreamp/cov_prediction/WBcel235.random.42.srt.noOvs.noChrCG-pbat-gDNA-CeleTotal-withBS-1preAmp-handMix_lmerged_R1_trimmed_bismark_bt2.predcoverage.artCov.mat.gz')
+# VAN1667.subsmp.prof <- load.matrix('~/mnt/edann/VAN2423_onePreamp/CG-pbat-gDNA-CeleTotal-withBS-1preAmp-handMix_lmerged_R1_trimmed_bismark_bt2.deduplicated.srt.mat.gz')
+# pcc <- round(cor(artCov.prof, VAN1667.subsmp.prof), 3)
 # 
+# df <- make.df.of.profiles(list(Experimental = VAN1667.subsmp.prof, Predicted = artCov.prof ))
+# plot.genes.profile.df(df, big.labels = T) +
+#   scale_color_manual(values=c('royalblue3', 'gold2'),labels=c('Experimental', 'Predicted')) +
+#   annotate('text',x=800, y=2, label=paste('PCC =', pcc), size=10) +
+#   ylab('Coverage (Z-score)') 
+# 
+
 # ## Hand-mixed profiles
 # CP <- load.matrix("~/mnt/edann/crypts_bs/VAN2408/CP.srt.mat.gz")
 # MP <- load.matrix("~/mnt/edann/crypts_bs/VAN2408/MP.srt.mat.gz")

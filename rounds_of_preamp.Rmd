@@ -2,62 +2,230 @@
 title: "One-preamp BS VS 5-preamp BS"
 output: html_notebook
 ---
-```{r, eval=F, warning=F}
+```{r, echo =F, eval=F, warning=F}
 library(pheatmap)
 library(purrr)
 library(parallel)
 library(dplyr)
+library(ggpubr)
 source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
 ```
 
+<!-- ```{r} -->
+<!-- load("~/AvOwork/rdata/D3R_pt.RData") -->
+<!-- load('~/mnt/edann/VAN2591/mMusculus.BS.primerbatch.predcoverage.RData') -->
+<!-- ``` -->
+
+<!-- ### Difference in template usage -->
+<!-- My reasoning is that for example after multiple rounds of preamp I might see a lot of C primers (because after one preamp the complementary to original appear), but not in one round, telling me that if I put a lot of Cs I might not really amplify the first round -->
+<!-- ```{r} -->
+<!-- five.round.df <- d3r.all.df %>% -->
+<!--   group_by(template) %>% -->
+<!--   summarise(t.usage=first(t.usage)) %>% -->
+<!--   ungroup() -->
+<!-- one.round.df <- output$pred.coverage$handMixOld -->
+<!-- one.round.df.2 <- output$pred.coverage$handMixNew -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- one.round.df %>% -->
+<!--   select(template, t.usage, nuc) %>% -->
+<!--   inner_join(., select(five.round.df, template, t.usage), by='template', suffix=c('.one', '.five')) %>% -->
+<!--   mutate(CG=ifelse(grepl('CG', as.character(template)), T, F)) %>% -->
+<!--   ggplot(., aes((t.usage.one), (t.usage.five),  -->
+<!--                 # color=nuc,  -->
+<!--                 color=CG)) + -->
+<!--   geom_point(alpha=0.3) + -->
+<!--   geom_abline(slope=1, intercept = 0) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- one.round.df %>% -->
+<!--   select(template, t.usage, nuc) %>% -->
+<!--   inner_join(., select(one.round.df.2, template, t.usage), by='template', suffix=c('.one.1', '.one.2')) %>% -->
+<!--   mutate(CG=ifelse(grepl('CG', as.character(template)), T, F)) %>% -->
+<!--   ggplot(., aes(log(t.usage.one.1), log(t.usage.one.2),  -->
+<!--                 # color=nuc,  -->
+<!--                 color=CG)) + -->
+<!--   geom_point(alpha=0.3) + -->
+<!--   geom_abline(slope=1, intercept = 0) -->
+<!-- ``` -->
+
+
+## VAN2590 DATASET
+
 ```{r}
-load("~/AvOwork/rdata/D3R_pt.RData")
-load('~/mnt/edann/VAN2591/mMusculus.BS.primerbatch.predcoverage.RData')
+files.kapa <- list.files('~/mnt/edann/preAmp_rounds_VAN2590', pattern = 'Kapa.+.RDS', full.names = T)
+files.neb <- list.files('~/mnt/edann/preAmp_rounds_VAN2590', pattern = 'NEB.+.RDS', full.names = T)
+
+# system.time(pt.kapa.1 <- readRDS(files.kapa[1]))
+neb.pt.tabs <- mclapply(files.neb, readRDS, mc.cores = 4)
+kapa.pt.tabs <- mclapply(files.kapa, readRDS, mc.cores = 4)
+
+names(neb.pt.tabs) <- gsub(files.neb, pattern='.+noGpC-|_trim.+', replacement='')
+names(kapa.pt.tabs) <- gsub(files.kapa, pattern='.+noGpC-|_trim.+', replacement='')
 ```
 
-### Difference in template usage
-My reasoning is that for example after multiple rounds of preamp I might see a lot of C primers (because after one preamp the complementary to original appear), but not in one round, telling me that if I put a lot of Cs I might not really amplify the first round
+### PRIMER USAGE
 ```{r}
-five.round.df <- d3r.all.df %>%
-  group_by(template) %>%
+p.usage.neb <- map(neb.pt.tabs, compute.primer.usage)
+p.usage.kapa <- map(kapa.pt.tabs, compute.primer.usage)
+
+map(seq_along(p.usage.neb), function(i) mutate(p.usage.neb[i][[1]], smp=names(p.usage.neb)[i])) %>%
+reduce(bind_rows) %>%
+mutate(n_preamp=as.numeric(substr(smp,1,1))) %>%
+group_by(smp) %>%
+mutate(cum_dist=cume_dist(p.usage)) %>%
+# arrange(-p.usage) %>%
+# mutate(rank=percent_rank(p.usage)) %>%
+ggplot(., aes(p.usage, cum_dist, color=n_preamp)) +
+geom_point(size=0.5) 
+  
+map(seq_along(p.usage.kapa), function(i) mutate(p.usage.kapa[i][[1]], smp=names(p.usage.kapa)[i])) %>%
+reduce(bind_rows) %>%
+mutate(n_preamp=as.numeric(substr(smp,1,1))) %>%
+group_by(smp) %>%
+mutate(cum_dist=cume_dist(p.usage)) %>%
+# arrange(-p.usage) %>%
+# mutate(rank=percent_rank(p.usage)) %>%
+ggplot(., aes(p.usage, cum_dist, color=n_preamp)) +
+geom_point(size=0.5) 
+  
+
+  
+
+```
+
+#### Correlation of primer usage between samples
+```{r}
+p.usage.df.neb <- map(seq_along(p.usage.neb), function(i) mutate(p.usage.neb[i][[1]], smp=names(p.usage.neb)[i])) %>%
+  reduce(bind_rows) %>%
+  mutate(n_preamp=as.numeric(substr(smp,1,1))) %>%
+  mutate(smp=paste0('pa',smp)) %>%
+  dcast(hex~smp, value.var = 'p.usage')
+
+p.usage.df.kapa <- map(seq_along(p.usage.kapa), function(i) mutate(p.usage.kapa[i][[1]], smp=names(p.usage.kapa)[i])) %>%
+  reduce(bind_rows) %>%
+  mutate(n_preamp=as.numeric(substr(smp,1,1))) %>%
+  mutate(smp=paste0('pa',smp)) %>%
+  dcast(hex~smp, value.var = 'p.usage')
+
+
+pheatmap(cor(p.usage.df.neb[,-1], use='pairwise.complete.obs'))
+pheatmap(cor(p.usage.df.kapa[,-1], use='pairwise.complete.obs'))
+```
+
+##### 1 preamp VS 5 preamp
+NEB
+```{r}
+map(seq_along(p.usage.neb), function(i) mutate(p.usage.neb[i][[1]], smp=names(p.usage.neb)[i])) %>%
+  reduce(bind_rows) %>%
+  mutate(n_preamp=as.numeric(substr(smp,1,1))) %>%
+  mutate(smp=paste0('pa',smp)) %>%
+  dcast(hex~smp, value.var = 'p.usage') %>%
+  mutate(nuc=sapply(hex, prevalent_nucleotide)) %>%
+  ggplot(., aes(`pa1preamp-NEB`, `pa5preamp-NEB`, color=nuc)) +
+  geom_point(size=0.5) +
+  geom_abline(slope=1, intercept = 0, color='red')
+
+map(seq_along(p.usage.neb), function(i) mutate(p.usage.neb[i][[1]], smp=names(p.usage.neb)[i])) %>%
+  reduce(bind_rows) %>%
+  mutate(n_preamp=as.numeric(substr(smp,1,1))) %>%
+  mutate(smp=paste0('pa',smp)) %>%
+  dcast(hex~smp, value.var = 'p.usage') %>%
+  mutate(nuc=sapply(hex, prevalent_nucleotide)) %>%
+  ggplot(., aes(`pa1preamp-NEB`, `pa2preamp-NEB`, color=nuc)) +
+  geom_point(size=0.5) +
+  geom_abline(slope=1, intercept = 0, color='red')
+```
+
+Kapa
+```{r}
+map(seq_along(p.usage.kapa), function(i) mutate(p.usage.kapa[i][[1]], smp=names(p.usage.kapa)[i])) %>%
+  reduce(bind_rows) %>%
+  mutate(n_preamp=as.numeric(substr(smp,1,1))) %>%
+  mutate(smp=paste0('pa',smp)) %>%
+  dcast(hex~smp, value.var = 'p.usage') %>%
+  mutate(nuc=sapply(hex, prevalent_nucleotide)) %>%
+  ggplot(., aes(`pa1preamp-Kapa`, `pa5preamp-Kapa`, color=nuc)) +
+  geom_point(size=0.5) +
+  geom_abline(slope=1, intercept = 0, color='red')
+
+map(seq_along(p.usage.kapa), function(i) mutate(p.usage.kapa[i][[1]], smp=names(p.usage.kapa)[i])) %>%
+  reduce(bind_rows) %>%
+  mutate(n_preamp=as.numeric(substr(smp,1,1))) %>%
+  mutate(smp=paste0('pa',smp)) %>%
+  dcast(hex~smp, value.var = 'p.usage') %>%
+  mutate(nuc=sapply(hex, prevalent_nucleotide)) %>%
+  ggplot(., aes(`pa1preamp-Kapa`, `pa2preamp-Kapa`, color=nuc)) +
+  geom_point(size=0.5) +
+  geom_abline(slope=1, intercept = 0, color='red')
+```
+
+
+### template usage
+
+```{r}
+t.usage.df.neb <- map(seq_along(neb.pt.tabs), function(i) mutate(neb.pt.tabs[i][[1]], smp=names(neb.pt.tabs)[i])) %>%
+  map(function(x) select(x, primer,  template, t.usage, smp)) %>%
+  reduce(bind_rows) %>%
+  mutate(n_preamp=as.numeric(substr(smp,1,1))) %>%
+  group_by(template, smp) %>%
   summarise(t.usage=first(t.usage)) %>%
-  ungroup()
-one.round.df <- output$pred.coverage$handMixOld
-one.round.df.2 <- output$pred.coverage$handMixNew
-```
+  # filter(primer==template) %>%
+  mutate(smp=paste0('pa',smp)) %>%
+  dcast(template~smp, value.var = 't.usage')
 
-```{r}
-one.round.df %>%
-  select(template, t.usage, nuc) %>%
-  inner_join(., select(five.round.df, template, t.usage), by='template', suffix=c('.one', '.five')) %>%
-  mutate(CG=ifelse(grepl('CG', as.character(template)), T, F)) %>%
-  ggplot(., aes((t.usage.one), (t.usage.five), 
-                # color=nuc, 
-                color=CG)) +
-  geom_point(alpha=0.3) +
-  geom_abline(slope=1, intercept = 0)
-```
+t.usage.df.kapa <- map(seq_along(kapa.pt.tabs), function(i) mutate(kapa.pt.tabs[i][[1]], smp=names(kapa.pt.tabs)[i])) %>%
+  map(function(x) select(x, primer,  template, t.usage, smp)) %>%
+  reduce(bind_rows) %>%
+  mutate(n_preamp=as.numeric(substr(smp,1,1))) %>%
+  group_by(template, smp) %>%
+  summarise(t.usage=first(t.usage)) %>%
+  mutate(smp=paste0('pa',smp)) %>%
+  dcast(template~smp, value.var = 't.usage')
 
-```{r}
-one.round.df %>%
-  select(template, t.usage, nuc) %>%
-  inner_join(., select(one.round.df.2, template, t.usage), by='template', suffix=c('.one.1', '.one.2')) %>%
-  mutate(CG=ifelse(grepl('CG', as.character(template)), T, F)) %>%
-  ggplot(., aes(log(t.usage.one.1), log(t.usage.one.2), 
-                # color=nuc, 
-                color=CG)) +
-  geom_point(alpha=0.3) +
-  geom_abline(slope=1, intercept = 0)
+
+pheatmap(cor(t.usage.df.neb[,-1], use='pairwise.complete.obs'))
+pheatmap(cor(t.usage.df.kapa[,-1], use='pairwise.complete.obs'))
 ```
 
 
-### Compare $K_{ij}$
+### Kapa VS NEB
+##### Absolute
 ```{r}
-load('~/AvOwork/rdata/d3r_keqs.RData')
+p.usage.df.kapa %>%
+  full_join(p.usage.df.neb) %>%
+  select(hex, starts_with('pa1pre')) %>%
+  mutate(nuc=sapply(hex, prevalent_nucleotide)) %>%
+  ggplot(., aes(`pa1preamp-NEB`, `pa1preamp-Kapa`, color=nuc)) +
+  geom_point(size=0.5) +
+  geom_abline(slope=1, intercept = 0, color='red')
+```
 
-d3r.keqs %>%
-  head %>%
-  select(template, primer, keq) %>%
-  inner_join(., one.round.df, by=c('primer','template')) %>%
-  filter(primer==template)
+##### Relative
+```{r}
+p.usage.df.kapa %>%
+  full_join(p.usage.df.neb) %>%
+  select(hex, starts_with('pa1pre')) %>%
+  mutate(nuc=sapply(hex, prevalent_nucleotide)) %>%
+  ggplot(., aes(`pa1preamp-NEB`/sum(`pa1preamp-NEB`, na.rm = T), `pa1preamp-Kapa`/sum(`pa1preamp-Kapa`, na.rm = T), color=nuc)) +
+  geom_point(size=0.5) +
+  geom_abline(slope=1, intercept = 0, color='red')
+
+
+```
+
+##### Template usage
+###### Relative
+```{r}
+t.usage.df.kapa %>%
+  full_join(t.usage.df.neb) %>%
+  select(template, starts_with('pa1pre')) %>%
+  mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
+  ggplot(., aes(`pa1preamp-NEB`/sum(`pa1preamp-NEB`, na.rm = T), `pa1preamp-Kapa`/sum(`pa1preamp-Kapa`, na.rm = T), color=nuc)) +
+  geom_point(size=0.5) +
+  geom_abline(slope=1, intercept = 0, color='red')
+
+
 ```
