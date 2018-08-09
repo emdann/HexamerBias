@@ -179,10 +179,15 @@ fragCounter = collections.Counter(fragmentPoolFull.keys())
 # smpFragsCounter = {x:fragCounter[x] for x in smpFrags}
 
 ## Amplification rounds
+print('---- Pre-amp 1 ----', flush=True)
 amp1 = preamp_round(kmerFragment, fragCounter, primerProb, keqs, eps, nreads=1000000)
+print('---- Pre-amp 2 ----', flush=True)
 amp2 = preamp_round(multiply_kmer_fragments(amp1, kmerFragment), amp1, primerProb, keqs, eps, nreads=1000000)
+print('---- Pre-amp 3 ----', flush=True)
 amp3 = preamp_round(multiply_kmer_fragments(amp2, kmerFragment), amp2, primerProb, keqs, eps, nreads=1000000)
+print('---- Pre-amp 4 ----', flush=True)
 amp4 = preamp_round(multiply_kmer_fragments(amp3, kmerFragment), amp3, primerProb, keqs, eps, nreads=1000000)
+print('---- Pre-amp 5 ----', flush=True)
 amp5 = preamp_round(multiply_kmer_fragments(amp4, kmerFragment), amp4, primerProb, keqs, eps, nreads=1000000)
 
 save_preamp_result(amp1, 'simulation_preAmp1.bed')
