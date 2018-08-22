@@ -3,7 +3,7 @@ import itertools as it
 configfile: "configfile.json"
 
 SAMPLE=config["sample"]
-READS=["R1","R2"]
+READS=["1","2"]
 CLIP=config["clip5prime"]
 #WD="~/snakemake-tutorial/"
 PATH_BISMARK="/hpc/hub_oudenaarden/bin/software/bismark_v0.16.3"
@@ -32,7 +32,7 @@ rule trim:
         fastq=expand("{{sample}}_{read}.fastq.gz", read=READS),
         # fastq2=expand("{sample}_2.fastq.gz", sample=SAMPLE)
     output:
-        trim=expand("trimmed_samples/{{sample}}_{read}_val_{read}.fq.gz", read=READS),
+        trim=expand("trimmed_samples/{{sample}}_R{read}_val_{read}.fq.gz", read=READS),
     params:
     	clip_5=CLIP
     shell:
@@ -65,10 +65,10 @@ rule trim:
 
 rule map: # <--- Play around with multi threading!
     input:
-        trim=expand("trimmed_samples/{{sample}}_{{read}}_val_{{read}}.fq.gz"),
+        trim=expand("trimmed_samples/{{sample}}_R{{read}}_val_{{read}}.fq.gz"),
         refgen=REF_GEN
     output:
-        bam=expand("bam/{{sample}}_{{read}}_val_{{read}}_bismark_bt2.bam")
+        bam=expand("bam/{{sample}}_R{{read}}_val_{{read}}_bismark_bt2.bam")
     params:
       path2bismark=PATH_BISMARK,
       path2samtools=PATH_SAMTOOLS,
@@ -79,9 +79,9 @@ rule map: # <--- Play around with multi threading!
 
 rule deduplicate:
     input:
-        bam=expand("bam/{{sample}}_{{read}}_val_{{read}}_bismark_bt2.bam")
+        bam=expand("bam/{{sample}}_R{{read}}_val_{{read}}_bismark_bt2.bam")
     output:
-        dedup_bam=expand("bam/{{sample}}_{{read}}_val_{{read}}_bismark_bt2.deduplicated.bam")
+        dedup_bam=expand("bam/{{sample}}_R{{read}}_val_{{read}}_bismark_bt2.deduplicated.bam")
         #zip=expand("data/samples/{sample}_fastqc.zip",sample=SAMPLE)
     params:
       refgen=REF_GEN,
@@ -93,11 +93,11 @@ rule deduplicate:
 
 rule met_extraction:
     input:
-        dedup_bam=expand("bam/{{sample}}_{{read}}_val_{{read}}_bismark_bt2.deduplicated.bam"),
+        dedup_bam=expand("bam/{{sample}}_R{{read}}_val_{{read}}_bismark_bt2.deduplicated.bam"),
         refgen=REF_GEN
         #zip=expand("data/samples/{sample}_fastqc.zip",sample=SAMPLE)
     output:
-        met_extraction=expand("met_extraction/{{sample}}_{{read}}_bismark_bt2.deduplicated.CpG_report.txt.gz")
+        met_extraction=expand("met_extraction/{{sample}}_R{{read}}_bismark_bt2.deduplicated.CpG_report.txt.gz")
     params:
       path2bismark=PATH_BISMARK,
       path2samtools=PATH_SAMTOOLS,
