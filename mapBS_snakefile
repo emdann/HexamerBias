@@ -21,9 +21,9 @@ rule all:
 
 rule qc:
     input:
-        fastq=expand("{{sample}}_{{read}}.fastq.gz", read=READS)
+        fastq=expand("{{sample}}_{read}.fastq.gz", read=READS)
     output:
-        html=expand("fastqc/{{sample}}_{{read}}_fastqc.html", read=READS)
+        html=expand("fastqc/{{sample}}_{read}_fastqc.html", read=READS)
     shell:
         "/hpc/hub_oudenaarden/edann/bin/FastQC/fastqc -o fastqc {input.fastq}"
 
