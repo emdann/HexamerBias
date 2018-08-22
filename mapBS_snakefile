@@ -29,10 +29,10 @@ rule qc:
 
 rule trim:
     input:
-        fastq=expand("{{sample}}_{read}.fastq.gz", read=READS),
+        fastq=expand("{{sample}}_{{read}}.fastq.gz"),
         # fastq2=expand("{sample}_2.fastq.gz", sample=SAMPLE)
     output:
-        trim=expand("trimmed_samples/{{sample}}_{read}_val_{read}.fq.gz", read=READS),
+        trim=expand("trimmed_samples/{{sample}}_{{read}}_val_{{read}}.fq.gz"),
     params:
     	clip_5=CLIP
     shell:
