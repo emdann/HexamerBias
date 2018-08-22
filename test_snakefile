@@ -25,10 +25,10 @@ rule qc:
 
 rule trim:
     input:
-        fastq=expand("{{sample}}_{read}.fastq.gz", read=READS),
+        fastq=expand("{{sample}}_{{read}}.fastq.gz", read=READS),
         # fastq2=expand("{sample}_2.fastq.gz", sample=SAMPLE)
     output:
-        trim=expand("trimmed_samples/{{sample}}_{read}_val_{read}.fq.gz", read=READS),
+        trim=expand("trimmed_samples/{{sample}}_{{read}}_val_{{read}}.fq.gz", read=READS),
     params:
     	clip_5="3"
     shell:
@@ -75,10 +75,10 @@ rule trim:
 
 rule map: # <--- Play around with multi threading!
     input:
-        trim="trimmed_samples/{sample}_{read}_val_{read}.fq.gz",
+        trim=expand("trimmed_samples/{{sample}}_{{read}}_val_{{read}}.fq.gz", read=READS),
         refgen=REF_GEN
     output:
-        bam="bam/{sample}_{read}_val_{read}_bismark_bt2.bam"
+        bam=expand("bam/{sample}_{{read}}_val_{{read}}_bismark_bt2.bam", read=READS)
     params:
       path2bismark=PATH_BISMARK,
       path2samtools=PATH_SAMTOOLS,
