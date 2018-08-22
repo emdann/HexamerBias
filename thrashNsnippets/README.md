@@ -1,6 +1,6 @@
 
 
-![photo](https://github.com/EmmaDann/HexamerBias/thrashNsnippets/pandoras-box-is-now-open.jpg)
+![photo](https://github.com/EmmaDann/HexamerBias/blob/master/thrashNsnippets/pandoras-box-is-now-open.jpg)
 ***
 You must be desperate.
 ***
