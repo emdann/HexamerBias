@@ -18,15 +18,15 @@ From the template usage I want to make a IGV like coverage track based on densit
 bedtools random -g /path/to/genome/file/${mygenome}.genome -n $howmanyregions -l $lengthregions -seed 42 | sort -k 1,1 -V | cut -f 1,2,3
 ```
 The script can compute the predicted track for multiple regions in parallel, so better to have more regions (higher n) of smaller length (small l).
-__CHECK FOR AND REMOVE OVERLAPS!__ Otherwise the script will crash at the very end because the bigWig file has to be ordered:
+__CHECK FOR AND REMOVE OVERLAPS!__ Otherwise the script will crash at the very end because the bigWig file has to be ordered. For example, if l=3000:
 ```
 cat $bedfile | bedtools merge | awk '$3-$2==3000' > bedfile.noOvs.bed
 ```
 2. Build predicted coverage track for regions:
 ```
-python /path/to/repo/artificial_coverage/strand_specific_artificial_coverage.py ${genome_kmer_abundance}.csv ${kmer_coverage}.csv bedfile.noOvs.bed ${reference_genome}.fasta   /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa --output bigWig
+python strand_specific_artificial_coverage.py ${genome_kmer_abundance}.csv ${kmer_coverage}.csv bedfile.noOvs.bed ${reference_genome}.fasta   /hpc/hub_oudenaarden/edann/genomes/mm10/mm10.fa --output bigWig
 ```
- Give it a lot of threads to use! Run `python bin/coverage_bias/artificial_coverage/strand_specific_artificial_coverage.py --help` to check further options and file formats.
+ Give it a lot of threads to use! Run `python strand_specific_artificial_coverage.py --help` to check further options and file formats.
 
 The output predicted track in bigWig format you can upload in R for visualization and comparison with other (experimental or predicted) coverage tracks.
 
