@@ -1,7 +1,10 @@
 import itertools as it
 
-SAMPLE=["test_file"]
+configfile: "configfile.json"
+
+SAMPLE=config["sample"]
 READS=["R1","R2"]
+CLIP=config["clip5prime"]
 #WD="~/snakemake-tutorial/"
 PATH_BISMARK="/hpc/hub_oudenaarden/bin/software/bismark_v0.16.3"
 REF_GEN="/hpc/hub_oudenaarden/avo/BS/mm10"
@@ -31,9 +34,9 @@ rule trim:
     output:
         trim=expand("trimmed_samples/{{sample}}_{{read}}_val_{{read}}.fq.gz", read=READS),
     params:
-    	clip_5="3"
+    	clip_5=CLIP
     shell:
-        '/hpc/hub_oudenaarden/edann/bin/TrimGalore-0.4.3/trim_galore --clip_R1 10 --clip_R2 10 --three_prime_clip_R1 3 --three_prime_clip_R2 3 --path_to_cutadapt /hpc/hub_oudenaarden/edann/venv2/bin/cutadapt --paired -o trimmed_samples {input.fastq}'
+        '/hpc/hub_oudenaarden/edann/bin/TrimGalore-0.4.3/trim_galore --clip_R1 {params.clip} --clip_R2 {params.clip} --three_prime_clip_R1 3 --three_prime_clip_R2 3 --path_to_cutadapt /hpc/hub_oudenaarden/edann/venv2/bin/cutadapt --paired -o trimmed_samples {input.fastq}'
 
 # # rule split:
 # #     input:
