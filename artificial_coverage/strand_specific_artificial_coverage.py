@@ -17,9 +17,9 @@ argparser.add_argument('abfile', type=str, help='Csv file of kmer abundance on r
 argparser.add_argument('covfile', type=str, help='predicted coverage file (in .csv, template sequences in first column)')
 argparser.add_argument('bed', type=str, help='bed of regions OI (N.B. NON OVERLAPPING INTERVALS and with 3 columns only)')
 argparser.add_argument('refgen', type=str, help='Fasta file of reference genome')
-argparser.add_argument('--BS', type=str, default='no',help='BS conversion mode')
-argparser.add_argument('--output', type=str, default='bigWig',help='Format of output file: bedGraph or bigWig')
-argparser.add_argument('-t', type=int, default=10, required=False, help='Amount of threads to use.')
+argparser.add_argument('--BS', type=str, default='no',help='BS conversion mode: yes or no (default: no)')
+argparser.add_argument('--output', type=str, default='bigWig',help='Format of output file: bedGraph or bigWig (default: bigWig)')
+argparser.add_argument('-t', type=int, default=10, required=False, help='Amount of threads to use (default: 10)')
 # argparser.add_argument('--numReads', type=int, default=10, required=False, help='Amount of threads to use.')
 args = argparser.parse_args()
 
