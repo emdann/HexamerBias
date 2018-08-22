@@ -60,7 +60,7 @@ if [ -e ${sample}_trimmed.fq.gz ]
 then
   echo "${sample}_trimmed.fq.gz found"
 else
-  echo "sample=$(echo $file | awk '{gsub(/.fastq.gz/, ""); print}'); ${path_2_trimgalore}/trim_galore --clip_R1 9 --three_prime_clip_R1 3 --path_to_cutadapt ${path_2_cutadapt} -o $outdir $file" | \
+  echo "sample=$(echo $file | awk '{gsub(/.fastq.gz/, ""); print}'); ${path_2_trimgalore}/trim_galore --three_prime_clip_R1 3 --path_to_cutadapt ${path_2_cutadapt} -o $outdir $file" | \ # CLIPPING!!!!!
       qsub -cwd -N trim_${sample} -l h_rt=10:00:00 -l h_vmem=20G -l h_cpu=1:00:00
 fi
 
