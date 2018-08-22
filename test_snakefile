@@ -12,8 +12,8 @@ rule all:
     input:
         # html=expand("fastqc/{sample}_{read}_fastqc.html",sample=SAMPLE, read=READS),
         # trim=expand("trimmed_samples/{sample}_{read}_val_{read}.fq.gz", sample=SAMPLE, read=READS)
-        # met_extraction=expand("met_extraction/{sample}_{read}_bismark_bt2.deduplicated.CpG_report.txt.gz", sample=SAMPLE, read=READS)
         bam=expand("bam/{sample}_{read}_val_{read}_bismark_bt2.bam", sample=SAMPLE, read=READS)
+        met_extraction=expand("met_extraction/{sample}_{read}_bismark_bt2.deduplicated.CpG_report.txt.gz", sample=SAMPLE, read=READS)
         # bam1=expand("bam/{sample}_1_bismark_bt2.bam", sample=SAMPLE)
 
 rule qc:
@@ -48,20 +48,6 @@ rule trim:
 # #     shell:
 # #         'zcat {input.trim} | split -n l/ 40000000 - {params.suffix}'
 
-
-# rule map: # <--- Play around with multi threading!
-#     input:
-#         split_trim="trimmed_samples/split_{sample}_{read}_{suffix}",
-#         refgen=REF_GEN
-#     output:
-#         split_bam="bam/split_{sample}_{read}_{suffix}_bismark_bt2.bam"
-#     params:
-#       path2bismark=PATH_BISMARK,
-#       path2samtools=PATH_SAMTOOLS,
-#       path2bowtie=PATH_BOWTIE
-#     shell:
-#         '{params.path2bismark}/bismark --multicore 10 --non_directional --samtools_path {params.path2samtools} --path_to_bowtie {params.path2bowtie} -o ./bam {input.refgen} {input.split_trim}'
-
 # # rule merge_bam:
 # #     input:
 # #         split_bam=expand("bam/split_{sample}_{read}_{suffix}_bismark_bt2.bam", sample=SAMPLE, read=READS, suffix=[''.join(i) for i in list(it.product("012","0123456789"))])
@@ -90,9 +76,9 @@ rule map: # <--- Play around with multi threading!
 
 rule deduplicate:
     input:
-        bam="bam/{sample}_{read}_val_{read}_bismark_bt2.bam"
+        bam=expand("bam/{{sample}}_{{read}}_val_{{read}}_bismark_bt2.bam", read=READS)
     output:
-        dedup_bam="bam/{sample}_{read}_val_{read}_bismark_bt2.deduplicated.bam"
+        dedup_bam=expand("bam/{{sample}}_{{read}}_val_{{read}}_bismark_bt2.deduplicated.bam", read=READS)
         #zip=expand("data/samples/{sample}_fastqc.zip",sample=SAMPLE)
     params:
       refgen=REF_GEN,
@@ -104,7 +90,7 @@ rule deduplicate:
 
 rule met_extraction:
     input:
-        dedup_bam="bam/{sample}_{read}_bismark_bt2.deduplicated.bam",
+        dedup_bam=expand("bam/{{sample}}_{{read}}_val_{{read}}_bismark_bt2.deduplicated.bam", read=READS)
         refgen=REF_GEN
         #zip=expand("data/samples/{sample}_fastqc.zip",sample=SAMPLE)
     output:
