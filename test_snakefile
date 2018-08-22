@@ -48,18 +48,18 @@ rule trim:
 # #         'zcat {input.trim} | split -n l/ 40000000 - {params.suffix}'
 
 
-rule map: # <--- Play around with multi threading!
-    input:
-        split_trim="split_trimmed_samples/split_{sample}_{read}_{suffix}",
-        refgen=REF_GEN
-    output:
-        split_bam="bam/split_{sample}_{read}_{suffix}_bismark_bt2.bam"
-    params:
-      path2bismark=PATH_BISMARK,
-      path2samtools=PATH_SAMTOOLS,
-      path2bowtie=PATH_BOWTIE
-    shell:
-        '{params.path2bismark}/bismark --multicore 10 --non_directional --samtools_path {params.path2samtools} --path_to_bowtie {params.path2bowtie} -o ./bam {input.refgen} {input.split_trim}'
+# rule map: # <--- Play around with multi threading!
+#     input:
+#         split_trim="trimmed_samples/split_{sample}_{read}_{suffix}",
+#         refgen=REF_GEN
+#     output:
+#         split_bam="bam/split_{sample}_{read}_{suffix}_bismark_bt2.bam"
+#     params:
+#       path2bismark=PATH_BISMARK,
+#       path2samtools=PATH_SAMTOOLS,
+#       path2bowtie=PATH_BOWTIE
+#     shell:
+#         '{params.path2bismark}/bismark --multicore 10 --non_directional --samtools_path {params.path2samtools} --path_to_bowtie {params.path2bowtie} -o ./bam {input.refgen} {input.split_trim}'
 
 # # rule merge_bam:
 # #     input:
@@ -73,19 +73,19 @@ rule map: # <--- Play around with multi threading!
 # #     shell:
 # #         '{params.path2samtools}/samtools merge {output.merged_bam} {input.split_bam}'
 
-# rule map: # <--- Play around with multi threading!
-#     input:
-#         trim="trimmed_samples/{sample}_{read}_val_{read}.fq.gz",
-#         refgen=REF_GEN
-#     output:
-#         bam="bam/{sample}_{read}_val_{read}_bismark_bt2.bam"
-#     params:
-#       path2bismark=PATH_BISMARK,
-#       path2samtools=PATH_SAMTOOLS,
-#       path2bowtie=PATH_BOWTIE
-#     threads: 10
-#     shell:
-#         '{params.path2bismark}/bismark --multicore {threads} --non_directional --samtools_path {params.path2samtools} --path_to_bowtie {params.path2bowtie} -o ./bam {input.refgen} {input.trim}'
+rule map: # <--- Play around with multi threading!
+    input:
+        trim="trimmed_samples/{sample}_{read}_val_{read}.fq.gz",
+        refgen=REF_GEN
+    output:
+        bam="bam/{sample}_{read}_val_{read}_bismark_bt2.bam"
+    params:
+      path2bismark=PATH_BISMARK,
+      path2samtools=PATH_SAMTOOLS,
+      path2bowtie=PATH_BOWTIE
+    threads: 10
+    shell:
+        '{params.path2bismark}/bismark --multicore {threads} --non_directional --samtools_path {params.path2samtools} --path_to_bowtie {params.path2bowtie} -o ./bam {input.refgen} {input.trim}'
 
 rule deduplicate:
     input:
