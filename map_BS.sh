@@ -74,11 +74,10 @@ else
   echo "${path_2_bwa}/bwa mem -t 10 $refgen ${sample}_trimmed.fq.gz | ${path_2_samtools}/samtools view -bS - > ${sample}.bam" | \
       qsub -cwd -N map_${sample} -pe threaded 10 -l h_rt=24:00:00 -l h_vmem=50G -l h_cpu=10:00:00 -hold_jid trim_${sample}
 fi
-#
-# echo "---- Deduplicating! ----"
-# echo "${path_2_bismark}/deduplicate_bismark --samtools_path ${path_2_samtools} -s --bam ${sample}_trimmed_bismark_bt2.bam" | \
-    # qsub -cwd -N dedup_${sample} -l h_rt=10:00:00 -l h_vmem=20G -l h_cpu=1:00:00 -hold_jid map_${sample}
 
+echo "---- Deduplicating! ----"
+echo "${path_2_bismark}/deduplicate_bismark --samtools_path ${path_2_samtools} -s --bam ${sample}_trimmed_bismark_bt2.bam" | \
+    qsub -cwd -N dedup_${sample} -l h_rt=10:00:00 -l h_vmem=20G -l h_cpu=1:00:00 -hold_jid map_${sample}
 
-# ## Optional: methylation extractaction
-# echo "${path_2_bismark}/bismark_methylation_extractor --samtools_path ${path_2_samtools} -s --gzip --report --multicore 8 --comprehensive --merge_non_CpG --bedGraph -o . --genome_folder $refgen_dir $bam"
+## Optional: methylation extractaction
+echo "${path_2_bismark}/bismark_methylation_extractor --samtools_path ${path_2_samtools} -s --gzip --report --multicore 8 --comprehensive --merge_non_CpG --bedGraph -o . --genome_folder $refgen_dir $bam"
