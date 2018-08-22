@@ -1,5 +1,5 @@
 ## PREDICTED COVERAGE PROFILES FROM PRIMER BINDING
-From the template usage I want to make a IGV like coverage track based on density of coverage for every hexamer $\frac{C}{T})$.
+From the template usage I want to make a IGV like coverage track based on density of coverage for every hexamer \(\frac{C}{T})\).
 
 ## Contents
 * __artCov_primer_variation.py__: makes predicted coverage tracks for progressive changes of random primer compositions
