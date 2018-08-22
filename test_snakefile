@@ -90,7 +90,7 @@ rule deduplicate:
 
 rule met_extraction:
     input:
-        dedup_bam=expand("bam/{{sample}}_{{read}}_val_{{read}}_bismark_bt2.deduplicated.bam", read=READS)
+        dedup_bam=expand("bam/{{sample}}_{{read}}_val_{{read}}_bismark_bt2.deduplicated.bam", read=READS),
         refgen=REF_GEN
         #zip=expand("data/samples/{sample}_fastqc.zip",sample=SAMPLE)
     output:
