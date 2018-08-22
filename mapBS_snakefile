@@ -36,7 +36,7 @@ rule trim:
     params:
     	clip_5=CLIP
     shell:
-        '/hpc/hub_oudenaarden/edann/bin/TrimGalore-0.4.3/trim_galore --clip_R1 {params.clip} --clip_R2 {params.clip} --three_prime_clip_R1 3 --three_prime_clip_R2 3 --path_to_cutadapt /hpc/hub_oudenaarden/edann/venv2/bin/cutadapt --paired -o trimmed_samples {input.fastq}'
+        '/hpc/hub_oudenaarden/edann/bin/TrimGalore-0.4.3/trim_galore --clip_R1 {params.clip_5} --clip_R2 {params.clip_5} --three_prime_clip_R1 3 --three_prime_clip_R2 3 --path_to_cutadapt /hpc/hub_oudenaarden/edann/venv2/bin/cutadapt --paired -o trimmed_samples {input.fastq}'
 
 # # rule split:
 # #     input:
