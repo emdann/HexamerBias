@@ -32,7 +32,7 @@ rule trim:
         fastq=expand("{{sample}}_{read}.fastq.gz", read=READS),
         # fastq2=expand("{sample}_2.fastq.gz", sample=SAMPLE)
     output:
-        trim=expand("trimmed_samples/{{sample}}_{{read}}_val_{{read}}.fq.gz"),
+        trim=expand("trimmed_samples/{{sample}}_{read}_val_{read}.fq.gz", read=READS),
     params:
     	clip_5=CLIP
     shell:
