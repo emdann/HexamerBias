@@ -12,7 +12,7 @@ args = argparser.parse_args()
 inputDir=args.o
 clip=args.clip5prime
 
-samples = list(set([f.split('_R')[0] for f in inputDir if "fastq.gz" in f]))
+samples = list(set([f.split('_R')[0] for f in os.listdir(inputDir) if "fastq.gz" in f]))
 
 configDic = {}
 configDic["sample"]=samples
