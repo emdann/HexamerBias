@@ -345,11 +345,13 @@ l <- list(human.bs.pred.cov.batch$pcc.primer.batch %>% mutate(species="H.sapiens
   reduce(bind_rows) 
 
 p <- l %>%
+  mutate(real = ifelse(sample=='moreT', 0.05, ifelse(sample=='moreG', 0.45, 0.25))) %>%
+  mutate(lty='expected\nconcentration') %>%
   mutate(smp=paste(sample, species, sep='.')) %>%
   ggplot(., aes(prob.G, PCC, group=smp, color=sample, shape=species)) +
     geom_line(size=1.5, alpha=0.7) +
-    geom_point(size=2) +
-    theme_minimal() +
+    geom_point(size=4) +
+    theme_bw() +
     xlab('% G') + ylab(expression(R^2)) +
     scale_x_continuous(sec.axis=sec_axis(~0.5-., name='% T')) +
     scale_color_discrete(name='') +
@@ -359,9 +361,12 @@ p <- l %>%
           axis.text = element_text(size=20),
           axis.title = element_text(size=30),
           title = element_text(size=30)) +
+  geom_vline(aes(xintercept=real, color=sample, linetype=lty), size=1.5) +
+  scale_linetype_manual(values=c(2))
     NULL
+p
 
-p + ggsave('~/AvOwork/output/epsilon_estimate/accuracy_BS_all.pdf', width = 15)
+p + ggsave('~/AvOwork/formatted_figs/suppl_figs_final/accuracy_BS_all.pdf', width = 15)
 ```
 
 Save predicted coverage files for track

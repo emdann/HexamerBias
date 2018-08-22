@@ -113,8 +113,9 @@ make_ppm_of_usage <- function(primer.usage.df){
   seqList <- unlist(lapply(1:nrow(df), function(i) rep(as.character(df[i,1]), df[i,2])))
   mat <- apply(do.call(rbind,strsplit(seqList, split='')),2,table)
   prob.mat <- apply(mat,2,function(x) x/sum(x))
-  pwm <- makePWM(prob.mat)
-  return(pwm)
+  # pwm <- makePWM(prob.mat)
+  # return(pwm)
+  return(prob.mat)
 }
 
 # tab <- data.frame(pool = factor())

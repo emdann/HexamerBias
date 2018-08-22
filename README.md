@@ -9,10 +9,10 @@ Random hexamer bias analysis by Emma Dann
 * __deltaGprediction__: scripts for prediction of binding energies from sequencing data
 * __in_silico_conversion__: scripts for in silico BS conversion of genome
 * __mismatch_analisys__: quantification of mismatches at hexamer positions
-* __optimization__: implementation and analysis of Differential Evolution algorithm for primer pool optimization
-* __primer_concentration_effect__: Analysis of variation of coverage fraction upon different primer batches.
-* __quantify_bias__: analysis of coverage profiles in regions of interest
+* __optimization__: algorithm for primer batch optimization (implementation of Differential Evolution and E-score functions)
+* __primer_concentration_effect__: Analysis of differences in coverage for different primer batches.
+* __quantify_bias__: analysis of experimental coverage profiles (in genes, sites of interest etc...)
 * __rscripts__: miscellaneous r scripts
 * __snakefile__: tentative snakemake pipeline for Delta G prediction (not fully functional)
 * __thrashNsnippets__: old scripts and random stuff
-* __utils__: misc useful scripts
+* __utils__: miscellaneous useful scripts (seq data handling, kmer counting, tests...)

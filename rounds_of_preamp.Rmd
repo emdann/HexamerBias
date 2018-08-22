@@ -110,9 +110,16 @@ p.usage.df.kapa <- map(seq_along(p.usage.kapa), function(i) mutate(p.usage.kapa[
   mutate(smp=paste0('pa',smp)) %>%
   dcast(hex~smp, value.var = 'p.usage')
 
-
-pheatmap(cor(p.usage.df.neb[,-1], use='pairwise.complete.obs'))
-pheatmap(cor(p.usage.df.kapa[,-1], use='pairwise.complete.obs'))
+cor.mat <- cor(full_join(p.usage.df.kapa, p.usage.df.neb)[,-1], use='pairwise.complete.obs')
+anno.row <- data.frame(smp=rownames(cor.mat), 
+                       preamp_rounds=as.numeric(gsub(pattern = 'pa|preamp.+', replacement = '', rownames(cor.mat))),
+                       enzyme=gsub(pattern = '.+-', replacement = '', rownames(cor.mat))) %>% 
+  column_to_rownames(var = 'smp')
+pheatmap(cor.mat, cellwidth = 15, cellheight = 15, 
+         # filename = '~/AvOwork/output/preamp_rounds/primer_usage_cor.pdf',
+         # annotation_row = anno.row, 
+         annotation_col = anno.row,
+         show_rownames = F, show_colnames = F)
 ```
 
 ##### 1 preamp VS 5 preamp
@@ -162,6 +169,21 @@ map(seq_along(p.usage.kapa), function(i) mutate(p.usage.kapa[i][[1]], smp=names(
   geom_abline(slope=1, intercept = 0, color='red')
 ```
 
+```{r}
+pwm.primer.kapa <- map(p.usage.kapa, make_ppm_of_usage)
+
+plot.pwm <- function(pwm){
+  pl <- as.data.frame(pwm) %>% 
+    mutate(nuc=rownames(.)) %>% 
+    melt(id.vars='nuc', value.name='prob', variable.name='pos') %>% 
+    plot.nuc.matrix(.)
+ return(pl)
+}
+ 
+map(seq_along(pwm.primer.neb), function(i) plot.pwm(pwm.primer.neb[i]) + ggtitle(names(pwm.primer.neb)[i]))
+plot.pwm(pwm.primer.kapa[1]) + ggtitle(names(pwm.primer.kapa)[1]) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + ggsave("~/AvOwork/output/preamp_rounds/pusage_ppm_1preamp.pdf", height=4)
+plot.pwm(pwm.primer.kapa[5]) + ggtitle(names(pwm.primer.kapa)[5]) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + ggsave("~/AvOwork/output/preamp_rounds/pusage_ppm_5preamp.pdf", height=4)
+```
 
 ### template usage
 
@@ -185,9 +207,16 @@ t.usage.df.kapa <- map(seq_along(kapa.pt.tabs), function(i) mutate(kapa.pt.tabs[
   mutate(smp=paste0('pa',smp)) %>%
   dcast(template~smp, value.var = 't.usage')
 
-
-pheatmap(cor(t.usage.df.neb[,-1], use='pairwise.complete.obs'))
-pheatmap(cor(t.usage.df.kapa[,-1], use='pairwise.complete.obs'))
+cor.mat <- cor(full_join(t.usage.df.kapa, t.usage.df.neb)[,-1], use='pairwise.complete.obs')
+anno.row <- data.frame(smp=rownames(cor.mat), 
+                       preamp_rounds=as.numeric(gsub(pattern = 'pa|preamp.+', replacement = '', rownames(cor.mat))),
+                       enzyme=gsub(pattern = '.+-', replacement = '', rownames(cor.mat))) %>% 
+  column_to_rownames(var = 'smp')
+pheatmap(cor.mat, cellwidth = 15, cellheight = 15, 
+         # filename = '~/AvOwork/output/preamp_rounds/primer_usage_cor.pdf',
+         # annotation_row = anno.row, 
+         annotation_col = anno.row,
+         show_rownames = F, show_colnames = F)
 ```
 
 
@@ -229,3 +258,43 @@ t.usage.df.kapa %>%
 
 
 ```
+
+#### Coverage profiles
+```{r}
+source("~/HexamerBias/quantify_bias/biasProfiles.r")
+
+```
+
+```{r}
+one.preamp.profile <- load.matrix("~/mnt/edann/preAmp_rounds_VAN2590/CG-pbat-bulkES-noGpC-1preamp-Kapa_trim2_R1_bismark_bt2.deduplicated.srt.mat.gz")
+two.preamp.profile <- load.matrix("~/mnt/edann/preAmp_rounds_VAN2590/CG-pbat-bulkES-noGpC-2preamp-Kapa_trim2_R1_bismark_bt2.deduplicated.srt.mat.gz")
+three.preamp.profile <- load.matrix("~/mnt/edann/preAmp_rounds_VAN2590/CG-pbat-bulkES-noGpC-3preamp-Kapa_trim2_R1_bismark_bt2.deduplicated.srt.mat.gz")
+four.preamp.profile <- load.matrix("~/mnt/edann/preAmp_rounds_VAN2590/CG-pbat-bulkES-noGpC-4preamp-Kapa_trim2_R1_bismark_bt2.deduplicated.srt.mat.gz")
+five.preamp.profile <- load.matrix("~/mnt/edann/preAmp_rounds_VAN2590/CG-pbat-bulkES-noGpC-5preamp-Kapa_trim2_R1_bismark_bt2.deduplicated.srt.mat.gz")
+```
+```{r}
+preamp.profiles.df <- make.df.of.profiles(list(preamp1=one.preamp.profile,
+                                               preamp2=two.preamp.profile,
+                                               preamp3=three.preamp.profile,
+                                               preamp4=four.preamp.profile,
+                                               preamp5=five.preamp.profile))
+
+preamp.profiles.df %>%
+  mutate(ax=ifelse(position<400 & position>200, 'start',ifelse(position>700 & position < 900, 'end', NA))) %>%
+  mutate(ax=factor(ax, levels=c('start', 'end', NA))) %>%
+  filter(!is.na(ax)) %>%
+  mutate(sample=substr(sample,7,8)) %>%
+  # filter(ax=='end') %>%
+  plot.genes.profile.df() +
+    facet_grid(.~ax, scales='free_x') +
+    scale_x_continuous(breaks=c(200,300,800,900), labels=c('-1kb', 'TSS', "TES", "+1kb")) +
+    ggsave("~/AvOwork/output/preamp_rounds/bias_profiles_Kapa.pdf", width=8)
+ 
+```
+
+
+
+
+
+
+

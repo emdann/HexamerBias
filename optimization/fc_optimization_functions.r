@@ -49,18 +49,29 @@ plot.ranked.fc <- function(cgi.fc){
   return(p)
 }
 
-plot.ranked.score <- function(cgi.fc){
-  p <- cgi.fc %>%
-    arrange(-score) %>%
-    mutate(rank=min_rank(score)) %>%
+plot.ranked.score <- function(cgi.fc, massage=T){
+  if (massage) {
+    p.df <- cgi.fc %>%
+      arrange(-score) %>%
+      mutate(rank=min_rank(score)) 
+  } else {
+    p.df <- cgi.fc
+  }
+  p <- p.df %>%
     mutate(even=ifelse(template=='dens_0.25_0.25_0.25_0.25', score, NA)) %>%
     mutate(even.label=ifelse(template=='dens_0.25_0.25_0.25_0.25', 'Random', NA)) %>%
     mutate(label=ifelse(rank>=max(rank)-5, as.character(template), '')) %>%
     ggplot(., aes(rank, score, label=label)) + 
-    geom_point(size=0.5, alpha=0.2) +
-    geom_text_repel() +
+    geom_point(size=0.7, alpha=0.5) +
+    # geom_text_repel() +
     geom_point(aes(y=even), color='red', size=2) +
-    geom_text_repel(aes(label=even.label), color='red', nudge_y = 2)
+    # scale_color_gradient2(midpoint=score.midpoint, mid='grey3') +
+    geom_text_repel(aes(label=even.label), color='red', nudge_y = 2, size=6) +
+    geom_hline(yintercept = 0, color='blue') +
+    theme_bw() +
+    theme(axis.title=element_text(size=20),
+          axis.text=element_text(size=14)
+    )
   return(p)
 }
 

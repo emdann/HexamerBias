@@ -36,9 +36,8 @@ ggplot(df, aes(x=avgMM, fill=gc)) +
 ## Mismatch per position
 tab <- read.csv('~/mnt/edann/hexamers/mismatch/L1_mismatchfreq.csv', header = 1, row.names = 1)
 tab <- tab[!grepl('N', rownames(tab)),]
-melt(t(tab)) %>% ggplot(., aes(Var1, value, fill=Var2)) + geom_bar(stat='identity')
 
-freqTab <- apply(tab, 2, function(x) x/sum(x, na.rm = TRUE))
+freqTab <- apply(tab, 2, function(x) x/8245528)
 d <- melt(t(tab)) %>% 
   rename(pos=Var1, MMtype=Var2, freq=value) %>%
   mutate(pos=as.numeric(gsub(pos, pattern = 'X', replacement = '')), freq=ifelse(is.na(freq),0,freq)) %>%
@@ -55,10 +54,11 @@ d1 <- filter(d, !grepl(d$MMtype, pattern = 'N->.+')) %>%
   
 p <- ggplot(d1, aes(pos, freq)) + 
     theme_classic() +
-    geom_bar(stat='identity',aes(fill=MMtype), size=0, width = 1) +
+    geom_bar(stat='identity', size=0, width = 0.7) +
     labs(x='Position', y='# reads') 
-p + geom_label(x=40, y= 120000, label='Tot. no. of reads = 8245528', cex=10) +
-    scale_fill_discrete(name='Mismatch') +
+p + 
+  geom_label(x=40, y= 120000, label='Tot. no. of reads = 8245528', cex=10) +
+    # scale_fill_discrete(name='Mismatch') +
     theme(axis.title = element_text(size = 30), 
           axis.text = element_text(size=25), 
           title = element_text(size=22),
@@ -66,10 +66,69 @@ p + geom_label(x=40, y= 120000, label='Tot. no. of reads = 8245528', cex=10) +
           legend.text = element_text(size=25), 
           legend.key.size = unit(1,"cm"))
 
-ggsave(filename = '~/AvOwork/output/mismatch_per_position_abs_L1.pdf')
+ggsave(filename = '~/AvOwork/formatted_figs/Mismatch figure//mismatch_per_position_abs_L1.pdf')
 
+templ.base <- d1 %>% 
+  filter(pos<7) %>%
+  mutate(original.base=substr(MMtype, start = 1, stop = 1),
+         obs.base = substr(MMtype, start = 4, stop = 4)) %>%
+  ggplot(., aes(pos, freq*100, fill=original.base)) + 
+  theme_classic() +
+  scale_x_continuous(breaks=seq(1,6)) +
+  geom_bar(stat='identity', position='fill',size=0, width = 0.7, ) +
+  labs(x='Position', y='frac. of reads') +
+  theme(axis.title = element_text(size = 30), 
+        axis.text = element_text(size=25), 
+        title = element_text(size=22),
+        legend.title = element_blank(),
+        legend.text = element_text(size=25), 
+        legend.key.size = unit(1,"cm")
+        )
+  NULL
+
+primer.base <- d1 %>% 
+  filter(pos<7) %>%
+  mutate(original.base=sapply(substr(MMtype, start = 1, stop = 1), rev.comp),
+         obs.base = substr(MMtype, start = 4, stop = 4)) %>%
+  ggplot(., aes(pos, freq, fill=obs.base)) + 
+  theme_classic() +
+  scale_x_continuous(breaks=seq(1,6)) +
+  geom_bar(stat='identity', position='fill',size=0, width = 0.7, ) +
+  labs(x='Position', y='frac. of reads') +
+  theme(axis.title = element_text(size = 30), 
+        axis.text = element_text(size=25), 
+        title = element_text(size=22),
+        legend.title = element_blank(),
+        legend.text = element_text(size=25), 
+        legend.key.size = unit(1,"cm")
+  )
+  NULL
+
+primer.base + ggsave('~/AvOwork/formatted_figs/Mismatch figure/primer_mm.pdf')
+templ.base + ggsave('~/AvOwork/formatted_figs/Mismatch figure/templ_mm.pdf')
 # n= 4003987
-  
+
+d1 %>% 
+  filter(pos<7) %>%
+  mutate(orig.base=substr(MMtype, start = 1, stop = 1),
+       obs.base = substr(MMtype, start = 4, stop = 4)) %>%
+  ggplot(., aes(y=freq*100, fill=MMtype)) + 
+  theme_bw() +
+  geom_bar(aes(x=pos),stat='identity', position='dodge',size=0) +
+  facet_grid(orig.base~obs.base, scales='free_x', labeller=label_both) +
+  scale_x_continuous(breaks=seq(1,6)) +
+  scale_fill_brewer(palette='Set3') +
+  ylab('% reads') + xlab("Position") +
+  theme(axis.title = element_text(size = 25), 
+        axis.text = element_text(size=20), 
+        title = element_text(size=22),
+        strip.text = element_text(size=20),
+        legend.title = element_blank(),
+        legend.text = element_text(size=25), 
+        legend.key.size = unit(1,"cm")
+        ) 
+  ggsave("~/AvOwork/formatted_figs/Mismatch figure/primer_template_mm.pdf")
+ 
 ## Mismatch matrix
 mmmatrix <- fread("~/mnt/edann/hexamers/mismatch/L1_R1_primed_seq.original.csv", header = TRUE)
 colnames(mmmatrix)[1]<- 'hex'

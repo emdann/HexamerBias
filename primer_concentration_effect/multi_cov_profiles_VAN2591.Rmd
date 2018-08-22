@@ -8,6 +8,9 @@ library(pheatmap)
 library(purrr)
 library(parallel)
 library(tidyr)
+library(ggpubr)
+library(gridExtra)
+library(ggsignif)
 source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
 source("~/HexamerBias/quantify_bias/biasProfiles.r")
 ```
@@ -23,8 +26,8 @@ Load all profiles on gene for VAN2591 dataset
 profiles.files <- list.files("~/mnt/edann/VAN2591", pattern='mat.gz', full.names = T)
 # profile.human.hmNew <- load.matrix("/Users/user/mnt/edann/VAN2591/CG-BS-pbat-bulk-1xPreamp-noBS-human-APKS-handMixNew_lmerged_R1.srt.mat.gz")
 
-load.profiles.species <- function(species, exp='noBS'){
-  profiles <- map(profiles.files[grep(profiles.files, pattern = paste0(exp,'-', species))], load.matrix)
+load.profiles.species <- function(species, exp='noBS', scale=T, avg=T){
+  profiles <- map(profiles.files[grep(profiles.files, pattern = paste0(exp,'-', species))], load.matrix, scale=scale, avg=avg)
   names(profiles) <- gsub(profiles.files[grep(profiles.files, pattern = paste0(exp,'-', species))], pattern = '.+-|_lmerged.+', replacement = '')
   return(profiles)
   }
@@ -107,13 +110,19 @@ nobs.plot + ggsave('TSScov_noBS.pdf')
 
 ```
 
-Read only TSS position: computed with `zcat ${sample}.mat.gz | tail -n+2 | cut -f 306 > ${sample}.tss.cov`
+Read only TSS position:
+```{r}
+profiles.human <- load.profiles.species('human', avg=F)
+profiles.drerio <- load.profiles.species('dRerio', avg=F)
+profiles.cele <- load.profiles.species('cElegans', avg=F)
+profiles.mm <- load.profiles.species('mMusculus', avg=F)
+
+
+```
+
+
 
 ```{r}
-tss.files <- list.files("~/mnt/edann/VAN2591/", pattern = 'tss.cov', full.names = T)
-tss.coverage <- map(tss.files, scan)
-names(tss.coverage) <- gsub(tss.files, pattern = ".+Preamp-|_lmerged.+", replacement = '')
-
 tss.df <- map(tss.coverage, function(x) (x-mean(x, na.rm=T))/sd(x, na.rm=T)) %>%
   map(function(x) data.frame(cov=x)) %>%
   map2(., names(tss.coverage), function(x,y) mutate(x, sample=y)) %>%
@@ -198,6 +207,74 @@ bs.plot + ggsave('TSScov_BS.pdf')
 ```{r}
 save(all.profiles,file="~/AvOwork/rdata/profiles_VAN2591_noBS.RData")
 save(all.profiles.bs,file="~/AvOwork/rdata/profiles_VAN2591_BS.RData")
+```
+
+##### Do it right and with stats
+```{r}
+profiles.human.mat <- load.profiles.species('human', exp = 'Preamp', avg=F)
+profiles.drerio.mat <- load.profiles.species('dRerio',exp = 'Preamp',  avg=F)
+profiles.cele.mat <- load.profiles.species('cElegans',exp = 'Preamp',  avg=F)
+profiles.mm.mat <- load.profiles.species('mMusculus',exp = 'Preamp',  avg=F)
+
+
+massage4plot <- function(profile.mat){
+  only.tss.mm <- profile.mat %>%
+    map( function(x) filter(x, position=='V300'))
+  df <- map(seq_along(only.tss.mm), function(i) mutate(only.tss.mm[i][[1]], batch=names(only.tss.mm)[i])) %>%
+    reduce(bind_rows) %>%
+    filter(batch!='handMixOld') %>%
+    mutate(batch=ifelse(batch=='handMixNew', 'random',batch)) %>%
+    mutate(batch=factor(batch,levels = c('moreG', 'random', 'moreT'))) 
+  return(df)
+}
+
+plot.mean.tss <- function(massaged.df, signif.range=c(0.15,0.18)){
+  pl <- massaged.df %>% 
+    ggplot(., aes(batch, zscore, fill=batch)) +
+    stat_summary(fun.data = mean_se, geom = "errorbar", width=0.2) +
+    stat_summary(fun.y = mean, geom = "bar") + 
+    theme_classic() +
+    fill.scale.primer.batch +
+      geom_signif(comparisons = list(levels(df$batch)[c(1,2)],
+                                     levels(df$batch)[c(3,2)],
+                                     levels(df$batch)[c(1,3)]
+                                   ), 
+                test='wilcox.test',
+                map_signif_level = TRUE, 
+                y_position = seq(signif.range[1], signif.range[2], length.out = 3), 
+                vjust=0.001,
+                tip_length = 0.0001
+                ) +
+    ylab("Coverage (z-score)") + xlab("") +
+    theme(axis.title = element_text(size = 16), 
+            axis.text = element_text(size=14), 
+            plot.title = element_text(hjust = 0.5,size=33),
+            legend.text = element_text(size=16), 
+            legend.key.size = unit(1,"cm"),
+            panel.spacing = unit(2, "lines"),
+            strip.text.x = element_text(size = 20),
+            axis.text.x = element_blank(),
+            axis.ticks.x = element_blank())
+  return(pl)
+  }
+
+df.plot.human <- massage4plot(profiles.human.mat) 
+df.plot.mm <- massage4plot(profiles.mm.mat) 
+df.plot.drerio <- massage4plot(profiles.drerio.mat) 
+df.plot.cele <- massage4plot(profiles.cele.mat) 
+
+pl.human <- plot.mean.tss(df.plot.human, signif.range=c(0.125, 0.14))
+pl.mm <- plot.mean.tss(df.plot.mm, signif.range=c(0.16, 0.178))
+pl.drerio <- plot.mean.tss(df.plot.drerio, signif.range=c(0.315, 0.35))
+pl.cele <- plot.mean.tss(df.plot.cele, signif.range=c(0.01, 0.02))
+
+pl.human
+pl.mm
+pl.drerio
+pl.cele
+
+tss.avg.grid <- grid.arrange(pl.cele, pl.drerio, pl.human, pl.mm, ncol=2, nrow=2) 
+ggsave(tss.avg.grid, filename = '~/AvOwork/output/coverage_bias/TSS_mean_BS_VAN2591.pdf')
 ```
 
 
