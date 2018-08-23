@@ -29,21 +29,23 @@ reshape.prob.mat <- function(prob.mat){
 }
 
 plot.nuc.matrix <- function(prob.row){ # input is long df of one iteration
-  cols <- brewer.pal(4,'Dark2')
-  mat <- prob.row %>%
-    mutate(nuc=ifelse(prob==0,NA,nuc)) %>% filter(!is.na(nuc))  # To avoid having label for zeroes
-  mat$nuc <- factor(mat$nuc, levels=c('A', 'T', 'C', 'G'))
-  p <- ggplot(mat, aes(pos,prob, fill=nuc)) + 
+  # cols <- brewer.pal(4,'Dark2')
+  # mat <- prob.row %>%
+  #   mutate(nuc=ifelse(prob==0,NA,nuc)) %>% filter(!is.na(nuc))  # To avoid having label for zeroes
+  # mat$nuc <- factor(mat$nuc, levels=c('A', 'T', 'C', 'G'))
+  p <- ggplot(prob.row, aes(pos,prob, fill=nuc)) + 
     geom_bar(stat = 'identity', alpha=0.4) +
-    scale_fill_manual(name='Base', values = cols) +
+    # scale_fill_manual(name='Base', values = cols) +
     # geom_logo(aes(label=nuc, y=prob))
     geom_text(aes(label=nuc, color=nuc, size=prob), position = position_stack(vjust = 0.5), show.legend = FALSE, alpha=1) +
     scale_radius(range=c(1,22)) +
-    scale_color_manual(values = cols) +
+    # scale_color_manual(values = cols) +
     xlab('Position') + ylab('Fraction') +
     ggtitle(paste('Iteration no.', prob.row$iter[1])) +
     theme_classic() +
-    theme(axis.title = element_text(size = 20), axis.text = element_text(size=10), title = element_text(size=22)) 
+    theme(axis.title = element_text(size = 25),
+          axis.text = element_text(size=16), 
+          title = element_text(size=22)) 
   return(p)  
   }
 

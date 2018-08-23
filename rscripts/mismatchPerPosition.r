@@ -14,7 +14,7 @@ counts %>% filter(primed_region_count < 20000 & usage_count < 20000) %>% ggplot(
   ylab('Usage as hexamer') +
   ggsave('~/AvOwork/output/hexVSprimed_usage_low.pdf')
 
-avgMM=read.csv('mnt/edann/hexamers/rnaseq/hexMMusage.csv')
+avgMM=read.csv('~/mnt/edann/hexamers/rnaseq/hexMMusage.csv')
 
 df <- counts %>% mutate(avgMM=avgMM[match(counts$X, avgMM$X),]$avgMM) %>%
   filter(!grepl('N', X)) %>% mutate(gc=sapply(df$X, GCcont))
@@ -90,7 +90,7 @@ primer.base <- d1 %>%
   filter(pos<7) %>%
   mutate(original.base=sapply(substr(MMtype, start = 1, stop = 1), rev.comp),
          obs.base = substr(MMtype, start = 4, stop = 4)) %>%
-  ggplot(., aes(pos, freq, fill=obs.base)) + 
+  ggplot(., aes(pos, freq, fill=original.base)) + 
   theme_classic() +
   scale_x_continuous(breaks=seq(1,6)) +
   geom_bar(stat='identity', position='fill',size=0, width = 0.7, ) +

@@ -606,6 +606,52 @@ ggsave("~/AvOwork/output/epsilon_estimate/keq_cor_celeVSzf.pdf")
 
 ```
 
+###### Is the correlation between Ks higher than the correlation between kmer abundance in the different genomes?
+```{r}
+ab.df <- list(cele.df, human.df, zf.df) %>%
+  map(select, template, abundance) %>%
+  reduce(full_join, by='template') 
+  
+
+cor((as.matrix(ab.df[,2:4])))
+
+
+pt.df <- list(cele.df, human.df, zf.df) %>%
+  map(select, template, pt) %>%
+  reduce(full_join, by='template') 
+
+  
+pheatmap(cor(as.matrix(pt.df[,2:4])))
+ab.df
+```
+
+### Impact of epsilon on Keq
+```{r}
+load("~/AvOwork/rdata/human_pt_all.RData")
+
+ep.100 <- human.all.df %>%
+  compute.keqs(filter.pt = 0, eps=100) %>%
+  filter(template==primer)
+
+ep.10 <- human.all.df %>%
+  compute.keqs(filter.pt = 0, eps=1000) %>%
+  filter(template==primer)
+
+ep.10 %>%
+  mutate(t=t.usage/abundance) %>%
+  arrange(-t)
+
+inner_join(ep.10, ep.100, by='template') %>%
+  ggplot(., aes(keq.x, keq.y)) +
+  geom_point(alpha=0.3)
+
+ep.100 %>%
+  mutate(cd=cume_dist(keq)) %>%
+  ggplot(., aes(keq, cd)) +
+  geom_point(size=0.5)
+
+```
+
 ##### Correlation with MFold values
 ```{r}
 
@@ -623,8 +669,8 @@ a %>%
   filter(primer==template) %>%
   filter(pt.zf>200 & pt.human>200 & pt.cele>200) %>%
   mutate(nuc=sapply(template, prevalent_nucleotide)) %>%
-  ggplot(., aes(dG, -log(avg.keq), color=nuc)) + 
-  geom_point(alpha=0.4)+
+  ggplot(., aes(dG, -log(keq), color=nuc)) + 
+  geom_point(alpha=0.4, size=2)+
   theme_classic() +
       theme(legend.title = element_blank(),
         legend.text = element_text(size=20),
@@ -632,8 +678,12 @@ a %>%
         axis.title = element_text(size=30),
         title = element_text(size=30)) +
   xlab("MFold Delta G") + ylab("log(estimated Keq)") +
-  ggtitle("Filtered pt > 200") 
+  ggtitle("Filtered pt > 200") +
+  coord_fixed(ratio=2) +
+  geom_smooth(method='lm', aes(color=NULL), size=1.5) +
+  stat_cor(aes(color=NULL))
   # coord_fixed(ratio=1) 
+  NULL
 
 ggsave("~/AvOwork/output/epsilon_estimate/keq_mfold_avg_filt200.pdf")
 
@@ -880,6 +930,19 @@ d2t.pred.cov %>%
   theme_classic() +
   xlab("expected cov") + ylab("predicted cov") +
   ggtitle("Mouse - more T - BS")
+
+```
+
+
+#### Understanding epsilon
+How does this guy change with alpha and beta? 
+Alpha (seq efficiency) will be between 0 and 1 
+beta (no. of cells) will be between 1 and 10000...
+
+```{r}
+alpha <- seq(0,1,by = 0.01)
+beta <- c(1,100,1000,10000,1000000)
+
 
 ```
 

@@ -248,21 +248,6 @@ d3r.bs <- make.predVSexp.track(predicted.bw = predicted.bw,
                                 experimental.bw = experimental.bw,
                                reg.length = 5000)
 ```
-
-
-Saving example tracks
-```{r}
-VAN1667.bs <- d3r.bs
-for (n in 1:10) {
-  smp <- sample(VAN1667.bs,1)[[1]]
-  sp <- sp.cele.new$spear[smp$range.id[1]]
-  nice.plotTrack(smp) +
-    annotate('text',x = smp@ranges@start[500], y=max(smp$score), label=paste("Spearman's rho =", round(sp, 2)), size=8) +
-    ggsave(paste0("~/AvOwork/output/MyData/coverage_tracks/cele_noBS_smp", n, '.pdf'), width=10)
-}
-```
-
-
 #### Spearman correlation between exp and predicted
 ```{r}
 sp.mm.new<- compare.spear.real(VAN1667.bs, name.real = 'MMus_VAN1667')
@@ -272,6 +257,21 @@ sp.mm.new$p +
   ggsave("~/AvOwork/formatted_figs/spearman_dist_vs_random_VAN1667.pdf")
 pcc.cele.new$p
 ```
+
+Saving example tracks
+```{r}
+VAN1667.bs <- d3r.bs
+for (n in 1:10) {
+  smp <- sample(VAN1667.bs[which(sp.mm.new$spear>0.8)],1)[[1]]
+  sp <- sp.mm.new$spear[smp$range.id[1]]
+  nice.plotTrack(smp) +
+    annotate('text',x = smp@ranges@start[500], y=max(smp$score), label=paste("Spearman's rho =", round(sp, 2)), size=8) +
+    ggsave(paste0("~/AvOwork/output/artificial_coverage/VAN1667_smp_veryhighspear_", n, '.pdf'), width=10)
+}
+```
+
+
+
 #### Coverage dsitribution per spearman correlation
 ```{r}
 mean.norm.cov <- sapply(VAN1667.bs, function(x) mean(x$score))
