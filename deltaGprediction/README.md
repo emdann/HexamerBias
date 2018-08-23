@@ -20,8 +20,10 @@ Scripts for implementation of model for primer binding, including
 
 ***
 ### How to compute genomic hexamer abundance
-
-
+```
+kmersInGenome.sh reference_genome.fa
+```
+Calls `kmerCounter.py` from `HexamerBias/utils`, by deafault using 8 cores (Ask for them when submitting). Output is `reference_genome.kmerAbundance.csv`.
 
 ### How to build primer-template count matrix
 #### Without wrapper
@@ -31,7 +33,7 @@ python getPrimedRegion.py -o <output_directory> -s <bamfile> <reference_genome_f
 ```
 Outputs bed file of coordinates of templates and fasta file that stores template sequences for every aligned read with high quality primer sequence (read name is in the header).
 
-**N.B.** The script builds the bed file if it doesn't find it in the folder. Please make sure you have no other bed file with the same name in the working directory before running the script. If the script crashes for any reason (e.g. no space left, malformed bed entries...) make sure you delete the output bed before rerunning, or you will get an empty fasta.
+**N.B.** The script builds the bed file if it doesn't find it in the folder. Please make sure you have no other bed file with the same name in the working directory before running the script. If the script crashes for any reason (e.g. no space left, malformed bed entries...) make sure you delete the output bed before rerunning, or you will get an empty fasta (I could fix this, I know).
 
 Run `python getPrimedRegion.py -h` for file formats and further options.
 
@@ -49,5 +51,7 @@ Use the wrapper `build_pt_matrix.sh`. Takes as input:
 2. Reference genome (fasta file)
 3. Untrimmed reads of sample of interest (fastq file)
 4. Data type of input bam: for BS-seq single-end mapped (bs_se), BS-seq paired-end mapped (bs_pe), WGS (no_bs)
+
+**N.B.** This reads a folder in my directory on the cluster where I have stored all the genomic kmer abundances for a number of genomes, not sure if other users can read them.
 
 **N.B. IN ALL MATRIXES TEMPLATES ARE IN ROWS AND PRIMERS ARE IN COLUMNS**  
