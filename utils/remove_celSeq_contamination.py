@@ -14,5 +14,4 @@ outname = fastqFile.split('.fastq')[0]+".noCelSeq.fastq.gz"
 with ps.FastxFile(fastqFile) as infile, open(outname, mode ="w") as outfile:
     for entry in infile:
         if "T"*15 not in entry.sequence:
-            # print(entry.sequence)
             outfile.write(str(entry) + "\n")

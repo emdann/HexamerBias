@@ -21,7 +21,7 @@ then
 else
     echo "--- Indexing bam file ---"
     /hpc/hub_oudenaarden/edann/bin/coverage_bias/utils/index_bam.sh $bamfile
-    bamfile=$(ls $sample*.bai | awk '{gsub(/.bai/,""); print}')
+    bamfile=$(ls $sample.bai | awk '{gsub(/.bai/,""); print}')
     sample=$(echo $bamfile | awk '{gsub(/.bam/, ""); print}')
 fi
 

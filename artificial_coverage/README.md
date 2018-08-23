@@ -7,7 +7,7 @@ From the template usage I want to make a IGV like coverage track based on densit
 * __cov_from_density.py__: helper python functions for computation of predicted profiles
 * __density_EDA.Rmd__: notebook of exploratory data analysis
 * __genome_wide_artificialcov.py__: computes genome wide predicted coverage (Never run until the end, probably takes years)
-* __predicted_tracks_final.Rmd__: R motebook with comparison between predicted and experimental tracks in many samples.
+* __predicted_tracks_final.Rmd__: R notebook with comparison between predicted and experimental tracks in many samples.
 * __strand_specific_artificial_coverage.py__: main function to compute predicted profiles in regions of interest defined in a bed file
 
 ***
@@ -18,7 +18,7 @@ From the template usage I want to make a IGV like coverage track based on densit
 bedtools random -g /path/to/genome/file/${mygenome}.genome -n $howmanyregions -l $lengthregions -seed 42 | sort -k 1,1 -V | cut -f 1,2,3
 ```
 The script can compute the predicted track for multiple regions in parallel, so better to have more regions (higher n) of smaller length (small l).
-__CHECK FOR AND REMOVE OVERLAPS!__ Otherwise the script will crash at the very end because the bigWig file has to be ordered. For example, if l=3000:
+__CHECK FOR AND REMOVE OVERLAPS BETWEEN REGIONS!__ Otherwise the script will crash at the very end because the bigWig file has to be ordered. For example, if l=3000:
 ```
 cat $bedfile | bedtools merge | awk '$3-$2==3000' > bedfile.noOvs.bed
 ```

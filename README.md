@@ -1,4 +1,3 @@
-### HexamerBias
 Random hexamer bias analysis by Emma Dann
 ***
 ## Contents
