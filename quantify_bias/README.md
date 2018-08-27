@@ -5,13 +5,13 @@
 * __make_profile.sh__: script to calculate coverage profiles over annotated regions (hard coded to work on genes or long regions with variable length. Change to reference-point to compute coverage over specific sites)
 * __multi_cov_profiles_VAN2591.Rmd__: R notebook for comparison of coverage bias in different samples (BS and non BS converted, different genomes)
 ***
-## How to make coverage profile across coding regions
+### How to make coverage profile across coding regions
 ```
 make_profile.sh <sample.bam> <refseq_genes.bed>
 ```
 Output is a `.mat.gz` file that is a matrix of coverage over an equal set of bins for each gene.
 
-## How to plot coverage profile
+### How to plot coverage profile
 From the make profile you will get a ```sample.mat.gz``` file.
 
 In R:
