@@ -15,7 +15,6 @@
 
 ***
 ### How to compute E-score
-(Not tested)
 1. Compute log(FC) of hexamer composition between region of interest (ROI) and whole genome **(from folder of annotation of ROI file!**)
 ```
 cd /path/to/roi/file/
