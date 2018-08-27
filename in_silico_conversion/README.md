@@ -1,14 +1,7 @@
-#### IN SILICO BISULFITE CONVERSION
-Scripts to compute kmer counting on in silico converted genome based on reference methylome.
+## IN SILICO BISULFITE CONVERSION
+Scripts for in silico bisulfite conversion of genome based on reference methylome.
 
-## Making in silico reference genome
-Script to make a reference converted genome based on deeply sequenced reference. I assume total conversion of CH sites.
-
-1) Make binary CG reference
-```
-for chr in $(seq 1 19); do echo "zcat met_extraction/merged_reference_CX.cov2c.chr${chr}.gz | grep -e 'CG.' | awk '{if(\$4>\$5){met=1}else if(\$4<\$5){met=0}else{next}}{print \$1,\$2,\$3,met}' | tr ' '  '\t' > met_extraction/merged_reference_CG.met.chr${chr}"; done
-
-
-```
-
- 2)
+### Contents
+* __convert_refgen.py__: script to build in silico converted version of reference genome based on reference methylome (see -h for details)
+* __in_silico_conv_prediction.Rmd__: R notebook for prediction on coverage accounting for BS conversion
+* __weighted_kmers.py__: does kmer counting in genome based on reference methylome (original script, very old, takes very long. Preferable to do the conversion with `convert_refgen.py` and then kmer counting)

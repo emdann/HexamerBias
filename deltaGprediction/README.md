@@ -14,7 +14,7 @@ Scripts for implementation of model for primer binding, including
 * __build_pt_matrix.sh__: wrapper for construction of primer-template matrix (calls the necessary python scripts)
 * __epsilon_downsampling.r__: script for epsilon estimation on downsampled bam files
 * __getPrimedRegion.py__: extracts template sequences from bam files, in fasta format
-* __kmersInGenome.sh__: calls kmer-counter to compute hexamer abundance in reigon of interest
+* __kmersInGenome.sh__: calls kmer-counter to compute hexamer abundance in region of interest
 * __run_cov_prediction_BS.r__: runs coverage prediction in BS-seq samples (makes K estimation on random batch and does prediction for all primer concentration)
 * __run_epsilon_estimation.r__: makes chi-square estimation of epsilon from .RDS table for sample
 
@@ -23,7 +23,7 @@ Scripts for implementation of model for primer binding, including
 ```
 kmersInGenome.sh reference_genome.fa
 ```
-Calls `kmerCounter.py` from `HexamerBias/utils`, by deafault using 8 cores (Ask for them when submitting). Output is `reference_genome.kmerAbundance.csv`.
+Calls `kmerCounter.py` from `HexamerBias/utils`, by default using 8 cores (Ask for them when submitting). Output is `reference_genome.kmerAbundance.csv`.
 
 ### How to build primer-template count matrix
 #### Without wrapper

@@ -15,6 +15,16 @@ library(seqLogo)
 
 ## DATA PARSING ##
 
+#' Load primer-template matrix 
+#'
+#' @description Loads csv file of primer-template matrix
+#' 
+#' @param ptCounts.file path to csv file of p-t matrix
+#' @param compression compression type of csv file ('none' for no compression)
+#'
+#' @return long dataframe of primer-template counts
+#'
+#' @export
 loadPtMatrix <- function(file, compression='gzip'){
   if (compression=='gzip') {
     tab <- fread(paste('zcat',file), sep = ',', header=TRUE)
@@ -39,6 +49,13 @@ make.hex.usage.df <- function(ptTab, type = 'primer', scale =TRUE){
   return(hex.df)
 }
 
+#' Make long dataframe of primer-template counts
+#'
+#' @param dgMat matrix of primer-template counts
+#'
+#' @return long dataframe of primer-template counts 
+#'
+#' @export
 make_pair_df <- function(dgMat){
   pairDf <- dgMat %>% 
     melt(value.name = 'dG') %>% 
@@ -47,6 +64,16 @@ make_pair_df <- function(dgMat){
   return(pairDf)
 }
 
+#' Load primer-template matrix 
+#'
+#' @description Loads csv file of primer-template matrix, computing primer and template usage.
+#' 
+#' @param ptCounts.file path to csv file of p-t matrix
+#' @param diag.pairs logical indicating whether to retain only diagonal pairs (matching primer-template pairs)
+#'
+#' @return long dataframe of primer-template counts and usage  
+#'
+#' @export
 load.pt.data <- function(ptCounts.file, diag.pairs = F){
   # Loading primer-template matrix, returns long matrix 
   pt <- loadPtMatrix(ptCounts.file,compression = 'none')
@@ -67,29 +94,57 @@ load.pt.data <- function(ptCounts.file, diag.pairs = F){
   return(list(matches=matches, t.usage=template.usage, p.usage=primer.usage))
 }
 
+#' Load genomic kmer abundance
+#'
+#' @param kmer.abundance.file path to csv file of kmer abundance
+#'
+#' @return dataframe of kmer abundance 
+#'
+#' @export
 load.kmer.abundance <- function(kmer.abundance.file){
   return(read.csv(kmer.abundance.file, header = F, col.names = c('template', 'abundance')))
 }
 
+#' Load NN deltaG values
+#'
+#' @param deltaG.file path to csv file of NN delta G
+#'
+#' @return dataframe of NN delta G 
+#'
+#' @export
 load.modelled.deltaG <- function(deltaG.file){
   return(read.csv(deltaG.file, header = F, col.names = c('template', 'dG'), sep=' '))
 }
 
-join.pt.data <- function(matches, template.usage, kmer.ab, tabDg){
-  df <- matches %>%
+#' Build dataframe of primer-template data
+#'
+#' @param pt.tab long dataframe of primer-template counts
+#' @param template.usage dataframe of template usage
+#' @param kmer.ab dataframe of kmer genomic abundance
+#' @param tabDg dataframe of NN delta Gs 
+#'
+#' @return long dataframe of primer-template features
+#'
+#' @export
+join.pt.data <- function(pt.tab, template.usage, kmer.ab, tabDg){
+  df <- pt.tab %>%
     # filter(dG!=0) %>%
-    transmute(template=substr(matches$ptPair,1,6), primer=substr(matches$ptPair,8,100), pt=dG) %>%
+    transmute(template=substr(pt.tab$ptPair,1,6), primer=substr(pt.tab$ptPair,8,100), pt=dG) %>%
     inner_join(., kmer.ab, by='template') %>%
     inner_join(., template.usage, by='template') %>%
     inner_join(., tabDg, by='template')
   return(df)
 }
 
-select.diag.pairs <- function(pairs.df){
-  pairs.df <- filter(pairs.df, template == primer)
-  return(pairs.df)
-}
-
+#' Build dataframe of matching primer-template data 
+#'
+#' @param pt.file path to csv file of primer-template counts
+#' @param ab.file path to csv file of kmer genomic abundance
+#'
+#' @return long dataframe of matching primer-template features
+#'
+#' @export
+#' 
 make.match.df <- function(pt.file, ab.file){
   pt.data <- load.pt.data(ptCounts.file = pt.file, diag.pairs = F)
   kmer.ab.data <- load.kmer.abundance(ab.file)
@@ -99,7 +154,13 @@ make.match.df <- function(pt.file, ab.file){
   return(hex.df)
 }
 
-
+#' Compute primer usage
+#'
+#' @param pt.all.df long dataframe of primer-template counts (matching and mismatching)
+#'
+#' @return long dataframe of primer-template features
+#'
+#' @export
 compute.primer.usage <- function(pt.all.df){
   primer.usage <- pt.all.df %>%
     group_by(primer) %>%
@@ -108,6 +169,15 @@ compute.primer.usage <- function(pt.all.df){
   return(primer.usage)
   }
 
+#' From primer usage to position probability matrix
+#'
+#' @description Computes matrix of nucleotide composotion of primers 
+#' 
+#' @param primer.usage.df dataframe of primer usage
+#'
+#' @return position probability matrix of nucleotide composition of primers
+#'
+#' @export
 make_ppm_of_usage <- function(primer.usage.df){
   df <- primer.usage.df
   seqList <- unlist(lapply(1:nrow(df), function(i) rep(as.character(df[i,1]), df[i,2])))
@@ -118,15 +188,21 @@ make_ppm_of_usage <- function(primer.usage.df){
   return(prob.mat)
 }
 
-# tab <- data.frame(pool = factor())
-# for (n in 1:100) {
-#   pool <- simulate.primer.pool(10000)
-#   count <- as.data.frame(table(pool))
-#   tab <- full_join(tab, count, by='pool')
-# }
-
 #### Chi-SQUARE MINIMIZATION BASED ON CALORIMETRY DATA ####
 
+#' Max. likelihood estimation of scaling factor epsilon
+#'
+#' @description From primer-binding model parameters find epsilon value that minimizes the difference between predicted K and K as defined from calorimetry experiments.
+#' 
+#' @param pt.df long dataframe of primer-template features
+#' @param max maximum epsilon value
+#' @param min minimum epsilon value 
+#' @param prob dataframe of primer probability (default is equal for all) 
+#' @param plot logical indicating whether to plot the Chi-square function (to visualize the minimum)
+#'
+#' @return numeric of epsilon value (minimum of Chi-sq. function)
+#'
+#' @export
 epsilon.minimize.chisq <- function(pt.df, max, min=0, prob=batch.prob.uniform(), plot=T){
   min.epsilon <- pt.df %>%
     mutate(ep=t.usage/abundance) %>%
@@ -160,6 +236,17 @@ epsilon.minimize.chisq <- function(pt.df, max, min=0, prob=batch.prob.uniform(),
   return(best.eps)
 }
 
+#' Compute association constants
+#'
+#' @description Compute K with model parameters
+#' 
+#' @param pt.df long dataframe of primer-template features
+#' @param eps epsilon value for the sample
+#' @param filter.pt integer. The minimum number of pt counts to keep a primer template pair
+#'
+#' @return numeric of epsilon value (minimum of Chi-sq. function)
+#'
+#' @export
 compute.keqs <- function(pt.df, eps, filter.pt=200){
   keqs <- pt.df %>%
     filter(pt>filter.pt) %>%
@@ -167,6 +254,17 @@ compute.keqs <- function(pt.df, eps, filter.pt=200){
   return(keqs)
 }
 
+#' Coverage prediction
+#'
+#' @description Predict template sequence coverage based on primer binding model
+#' 
+#' @param keqs.df long dataframe of primer-template features, including association constants for primer-template binding reactions 
+#' @param eps epsilon value for the sample
+#' @param prob dataframe of primer probability (default is equal for all) 
+#'
+#' @return dataframe of primer-template features with column for predicted coverage
+#'
+#' @export
 predict.coverage <- function(keqs.df, eps, prob=batch.prob.uniform()){
   pred.cov <- 
     # keqs.df %>%
@@ -183,6 +281,16 @@ predict.coverage <- function(keqs.df, eps, prob=batch.prob.uniform()){
   return(pred.cov)
 }
 
+#' Plot predicted coverage VS experimental
+#'
+#' @description Make scatterplot of predicted and experimental template coverage fraction
+#' 
+#' @param pred.cov.df dataframe of primer-template features with column for predicted coverage
+#' @param color feature to pass to color aesthetic: "nuc" (default) colors by prevalent nucleotide in template sequence, "CG" colors by present or absence of CG dinucleotide in template sequence
+#'
+#' @return scatterplot
+#'
+#' @export
 plot.prediction <- function(pred.cov.df, color='nuc'){
   # pcc.pred <- cor(pred.cov.df$t.usage, pred.cov.df$pred.cov)
   if (color=='nuc') {
@@ -211,6 +319,13 @@ plot.prediction <- function(pred.cov.df, color='nuc'){
   return(pl)
 }
 
+#' Plot accuracy of prediction for variable primer concentrations
+#'
+#' @param pcc.primer.batch dataframe of R sq. values for prediction with different primer batches (output of \code{run_cov_prediction.r} script)
+#'
+#' @return plot for nucleotide concentration VS R.squared
+#'
+#' @export
 plot.batch.accuracy <- function(pcc.primer.batch){
   pl <- ggplot(pcc.primer.batch, aes(prob.G, PCC, group=sample, color=sample)) +
     geom_line(size=1.5) +
