@@ -1,8 +1,7 @@
 ## Optimization of primer pool for targeted sequence enrichment
 
-***
 ### Contents
-* __compute_kmers_FC.py__: to compute log2(FC) between kmer composition in ROI and rest of the genome (called by wrapper ```get_kmers_ROI```)
+* __compute_kmers_FC.py__: to compute log2(FC) between kmer composition in ROI and rest of the genome (called by wrapper ```get_kmers_ROI.sh```)
 * __compute_yield_track_dir.r__: R script to compute predicted coverage yield in regions of interest
 * __FC_optimization_final.Rmd__: R notebook for E-score analysis
 * __fc_optimization_functions.r__: R functions for E-score analysis (data wrangling, visualization, permutation test)

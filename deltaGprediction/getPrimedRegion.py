@@ -8,7 +8,7 @@ import re
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Extract position of primer placement from trimmed section of aligned reads. By Emma Dann")
 argparser.add_argument('bam', type=str, help='Input bam file')
 argparser.add_argument('refgen', type=str, help='Fasta of reference genome (needs to be unzipped)')
-argparser.add_argument('-t', type=str, default='bs_pe',required=False, help='Original data of bam (bs_pe, bs_se or rna)')
+argparser.add_argument('-t', type=str, default='bs_pe',required=False, help='Original data of bam (bs_pe, bs_se or rna, default: bs_se)')
 argparser.add_argument('-s', action='store_true', help='require strandedness')
 argparser.add_argument('-o', type=str, help='path to directory to save output')
 args = argparser.parse_args()
