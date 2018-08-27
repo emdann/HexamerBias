@@ -28,6 +28,7 @@ source("/path/to/repo/HexamerBias/fc_optimization_functions.r")
 dens.table <- density.combo(prob.vec, keqs.df, eps, nreads)
 ```
 See R documentation for further information on input objects.
+
 3. Compute E-score
 ```
 roi.fc <- read.csv("/path/to/roi/file/roi.kmersFC.csv", header=F, col.names = c("template", "fc"))
