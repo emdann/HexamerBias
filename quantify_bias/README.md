@@ -5,7 +5,13 @@
 * __make_profile.sh__: script to calculate coverage profiles over annotated regions (hard coded to work on genes or long regions with variable length. Change to reference-point to compute coverage over specific sites)
 * __multi_cov_profiles_VAN2591.Rmd__: R notebook for comparison of coverage bias in different samples (BS and non BS converted, different genomes)
 ***
-## Plot coverage profile
+## How to make coverage profile across coding regions
+```
+make_profile.sh <sample.bam> <refseq_genes.bed>
+```
+Output is a `.mat.gz` file that is a matrix of coverage over an equal set of bins for each gene.
+
+## How to plot coverage profile
 From the make profile you will get a ```sample.mat.gz``` file.
 
 In R:
@@ -18,6 +24,16 @@ df <- make.df.of.profiles(list(label_4_smp1 = profile.smp2, label_4_smp2 = profi
 plot.refpoint.profile.df(df, center='the name for the center', color='the label for the legend')
 ```
 **N.B.**: the profiles are normalized as Z-scores!
+
+Alternatively you can use the plotting function from `deepTools`:
+```
+plotProfile -m sample1.mat.gz  \
+              -out outfile.png \
+              --numPlotsPerRow 1 \
+              --yAxisLabel "coverage" \
+              --regionsLabel samplename
+```
+But the plots are ugly and the normalization obscure.
 
 <!-- ## Bias for TSS and exons
 From the coverage bigWig file obtained with ```bamCoverage``` (see artificial coverage) I make a profile of the most covered regions, using deepTools.
