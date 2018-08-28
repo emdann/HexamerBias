@@ -3,7 +3,7 @@
 .RData
 .Ruserdata
 *.html
+*.pyc
 
 ## OS generated files
 .DS_Store
-.pyc
