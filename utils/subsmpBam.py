@@ -4,7 +4,7 @@ import argparse
 
 argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Subsample bam file\n By Emma Dann")
 argparser.add_argument('bamfile', type=str, help='bam input')
-argparser.add_argument('bamout', help='bamout')
+argparser.add_argument('bamout', help='name for output bam')
 argparser.add_argument('-f', type=float, default=0.001, required=False, help='Subsample fraction size')
 # argparser.add_argument('--chr', type=str, required=False, help='chromosome')
 args = argparser.parse_args()

@@ -1,4 +1,4 @@
-## VERY USEFUL SCRIPTS
+## USEFUL SCRIPTS
 
 ### Contents
 * `array_job_wrapper.sh`: wrapper script to send an array of jobs to the cluster
@@ -9,4 +9,7 @@
 * `mergeCov2c.py`: merges cytosine reports from different chromosomes in one file (output of `bismark_methylation_extractor --cytosine_report --split_by_chromosome`)
 * `nuc_tss.py`: computes avg base composition for n sequences of the same length from fasta file
 * `pt_tab_to_rds.r`: converts primer-template matrix from `.ptCounts.qualFilt.csv` to long dataframe R object file `.RDS`, for quick data import
-* `send_array_job,sh`: converts
+* `send_array_job,sh`: called by wrapper `array_job_wrapper.sh`
+* `splitByChr.py`: splits cytosine reports (cov2c) by chromosomes
+* `subsmpBam.py`: makes random subsample of bam file to a certain fraction of reads
+* `subsmpCsv.py`: makes random subsample of rows froma a big csv file
