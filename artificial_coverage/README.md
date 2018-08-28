@@ -2,13 +2,13 @@
 From the template usage I want to make a IGV like coverage track based on density of coverage for every hexamer (where density is the ratio between the template coverage and the template genomic abundance).
 
 ### Contents
-* __artCov_primer_variation.py__: makes predicted coverage tracks for progressive changes of random primer compositions
-* __compare_peaks.r__: helper R functions to load, plot and statistical analysis of predicted VS experimental profiles
-* __cov_from_density.py__: helper python functions for computation of predicted profiles
-* __density_EDA.Rmd__: notebook of exploratory data analysis
-* __genome_wide_artificialcov.py__: computes genome wide predicted coverage (Never run until the end, probably takes years)
-* __predicted_tracks_final.Rmd__: R notebook with comparison between predicted and experimental tracks in many samples.
-* __strand_specific_artificial_coverage.py__: main function to compute predicted profiles in regions of interest defined in a bed file
+* `artCov_primer_variation.py`: makes predicted coverage tracks for progressive changes of random primer compositions
+* `compare_peaks.r`: helper R functions to load, plot and statistical analysis of predicted VS experimental profiles
+* `cov_from_density.py`: helper python functions for computation of predicted profiles
+* `density_EDA.Rmd`: notebook of exploratory data analysis
+* `genome_wide_artificialcov.py`: computes genome wide predicted coverage (Never run until the end, probably takes years)
+* `predicted_tracks_final.Rmd`: R notebook with comparison between predicted and experimental tracks in many samples.
+* `strand_specific_artificial_coverage.py`: main function to compute predicted profiles in regions of interest defined in a bed file
 
 ***
 

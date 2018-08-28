@@ -2,7 +2,7 @@ import pysam as ps
 import collections
 import argparse
 
-argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Deduplicate PCR duplicated from CellSeq bamfile \n By Emma Dann")
+argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="Deduplicate PCR duplicates from CELSeq2 bamfile \n By Emma Dann")
 argparser.add_argument('bamfile', type=str, help='Bam to deduplicate')
 args = argparser.parse_args()
 
