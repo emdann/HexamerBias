@@ -30,7 +30,7 @@ python strand_specific_artificial_coverage.py ${genome_kmer_abundance}.csv ${kme
 
 The output predicted track in bigWig format you can upload in R for visualization and comparison with other (experimental or predicted) coverage tracks.
 
-#### Computing average coverage over coding regions
+<!-- #### Computing average coverage over coding regions
 Using the deepTools suite:
 ```
 computeMatrix scale-regions \
@@ -38,4 +38,4 @@ computeMatrix scale-regions \
   -S ${pred_cov_track}.bw \
   -b 3000 -a 3000 --regionBodyLength 5000 --skipZeros \
   -o ${pred_cov_track}_genes.mat.gz
-```
+``` -->
