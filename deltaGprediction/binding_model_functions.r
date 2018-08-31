@@ -369,12 +369,30 @@ predict.coverage.noeps <- function(keqs.df, prob=4/(4^6)){
 ###### PRIMER POOL AND HEXAMER SEQUENCE MANIPULATION FUNCTIONS ######
 #####################################################################
 
+#' Compute most abundant nucleotide in sequence
+#' 
+#' @description doesn't deal with ties
+#'
+#' @param seq string of nucleotide sequence
+#'
+#' @return string of most abundant nucleotide 
+#'
+#' @export
 prevalent_nucleotide <- function(seq){
   nuc.count <- table(strsplit(seq, ''))
   prev.nuc <- names(which.max(nuc.count))
   return(prev.nuc)
 }
 
+#' Reverse and/or complement sequence
+#' 
+#' @param x string of DNA sequence
+#' @param compl logical indicating wheather to take the complement of sequence x
+#' @param rev logical indicating wheather to take the reverse of sequence x
+#' 
+#' @return string of transformed sequence 
+#' 
+#' @export
 rev.comp<-function(x,compl=TRUE,rev=TRUE){
   x<-toupper(x)
   y<-rep("N",nchar(x))
@@ -418,15 +436,32 @@ rev.comp<-function(x,compl=TRUE,rev=TRUE){
   return(yy)
 }
 
+#' Switch primer and template
+#' 
+#' @description Finds reverse complementary of template sequence to pair primer-template pairs that are supposed to have the same binding energy
+#' 
+#' @param df dataframe of primer-template features
+#' @param smp string of template sequence
+#' 
+#' @return dataframe of selected primer-template pair
 find.rev.pairs <- function(df,smp){
   p <- filter(df, primer==smp$primer, template==smp$template  | template==rev.comp(smp$template, compl = F) )
   return(p)
 }
 
-find.pal.epsilon <- function(smp.ij, smp.ji){
-  return(c((smp.ji$abundance*smp.ij$pt - smp.ij$abundance*smp.ji$pt), (smp.ij$pt*smp.ji$cele.pt - smp.ji$pt*smp.ij$cele.pt)))
-}
+# find.pal.epsilon <- function(smp.ij, smp.ji){
+#   return(c((smp.ji$abundance*smp.ij$pt - smp.ij$abundance*smp.ji$pt), (smp.ij$pt*smp.ji$cele.pt - smp.ji$pt*smp.ij$cele.pt)))
+# }
 
+#' Check for palindrome sequences 
+#' 
+#' @description checks is DNA sequence is a palindrome
+#' 
+#' @param seq strind of DNA sequence
+#' 
+#' @return logical indicating wheather the sequence is a palindrome or not
+#' 
+#' @export
 is.palindrome <- function(seq){
   if (seq == paste0(rev(strsplit(seq,split='')[[1]]), collapse='')) {
     return(TRUE)
@@ -437,6 +472,18 @@ is.palindrome <- function(seq){
 
 ## PRIMER POOL SIMULATION ##
 
+#' Random base 
+#' 
+#' @description Generates a random nucleotide pased on input sequence composition
+#' 
+#' @param pA fraction of A
+#' @param pT fraction of T
+#' @param pG fraction of G
+#' @param pC fraction of C
+#' 
+#' @return string of random base
+#' 
+#' @export
 build.random.base <- function(pA=0.25, pT=0.25, pG=0.25, pC=0.25){
   a <- pA
   c <- a+pC
@@ -449,6 +496,18 @@ build.random.base <- function(pA=0.25, pT=0.25, pG=0.25, pC=0.25){
   if (rand > t) {return('G')}
 }
 
+#' Random hexamer
+#' 
+#' @description Generates a random hexamer pased on input sequence composition
+#' 
+#' @param pA fraction of A
+#' @param pT fraction of T
+#' @param pG fraction of G
+#' @param pC fraction of C
+#' 
+#' @return string of random hexamer
+#' 
+#' @export
 build.random.hex <- function(pA=0.25, pT=0.25, pG=0.25, pC=0.25){
   hex <- ''
   for (n in 1:6) {
@@ -457,6 +516,19 @@ build.random.hex <- function(pA=0.25, pT=0.25, pG=0.25, pC=0.25){
   return(hex)
 }
 
+#' Primer pool simulation
+#' 
+#' @description Generates a pool of random hexamers based on input nucleotide composition  
+#'
+#' @param pool.size integer, number of hexamer sequences in the pool (the more the longer it takes) 
+#' @param pA fraction of A
+#' @param pT fraction of T
+#' @param pG fraction of G
+#' @param pC fraction of C
+#' 
+#' @return vector containing the simulated random hexamers
+#' 
+#' @export
 simulate.primer.pool <- function(pool.size=50000, pA=0.25, pT=0.25, pG=0.25, pC=0.25){
   pool <- c()
   for (n in 1:pool.size) {
@@ -465,11 +537,29 @@ simulate.primer.pool <- function(pool.size=50000, pA=0.25, pT=0.25, pG=0.25, pC=
   return(pool)
 }
 
+#' All possible hexamers
+#' 
+#' @return vector containing all possible DNA hexamer sequences (permutations of 4 letters = 4096 hexamers)
+#' 
+#' @export
 all.hexamers <- function(){
   hexs <- apply(permutations(4,6, v=c("A", "C", "T", "G"), repeats.allowed = T),1, function(x) paste(x, collapse = ""))
   return(hexs)
 }
 
+#' Primer probability
+#' 
+#'  @description Computes the probability of having a given sequence in the primer pool based on input nucleotide composition of primers
+#'  
+#' @param seq string of DNA sequence
+#' @param pA fraction of A
+#' @param pT fraction of T
+#' @param pG fraction of G
+#' @param pC fraction of C   
+#' 
+#' @return numerical of probability
+#' 
+#' @export
 primer.prob <- function(seq, probs = c(pA=0.25, pT=0.25, pG=0.25, pC=0.25)){
   prob=1
   for (l in strsplit(seq, '')) {
@@ -478,6 +568,16 @@ primer.prob <- function(seq, probs = c(pA=0.25, pT=0.25, pG=0.25, pC=0.25)){
   return(prod(prob))
 }
 
+#' Primer probability from batch
+#' 
+#' @description returns probability of having each possible hexamer primer ASSUMING THE SAME NUCLEOTIDE COMPOSITION IN EVERY POSITION OF THE HEXAMER SEQUENCE
+#' 
+#' @param hexs vector of random hexamer sequences 
+#' @param nuc.probs vector of fraction of each nucleotide
+#' 
+#' @return vector of primer probabilities
+#' 
+#' @export
 batch.prob.uniform <- function(hexs = all.hexamers(), nuc.probs = c(pA=0.25, pT=0.25, pG=0.25, pC=0.25)){
   # Computes probability for each hexamer given a set of probabilities for each nucleotide
   # N.B. SAME PROBABILITY FOR ALL POSITIONS!
@@ -485,8 +585,16 @@ batch.prob.uniform <- function(hexs = all.hexamers(), nuc.probs = c(pA=0.25, pT=
   return(probs)
 }
 
+#' Compute all possible nucleotide compositions
+#' 
+#' @description Computes all possible probability combinations for 4 nucletides given a step size for the difference in probability
+#' 
+#' @param stepSize Minimum difference in nucleotide fraction (the smaller, the more combinations)
+#' 
+#' @return Matrix of all possible combinations of nucleotide compositions
+#' 
+#' @export
 hexamerMatrix <- function(stepSize = 0.1){
-  # Computes all possible probability combinations for 4 nucletides given a step size for the difference in probability
   vals = seq(from = 0, to = 1, by = stepSize)
   combMat = expand.grid(vals, vals, vals)
   rowSums = apply(combMat, 1, sum)

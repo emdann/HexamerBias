@@ -1,4 +1,6 @@
-### Compare experimental and predicted coverage
+###################################
+### PREDICTED COVERAGE PROFILES ###
+###################################
 library(dplyr)
 library(data.table)
 library(ggplot2)
@@ -10,6 +12,15 @@ library(rtracklayer)
 library(parallel)
 library(GenomicRanges)
 
+#' Genomic ranges to base resolution
+#' 
+#' Breaks GRanges object to single base resolution, giving same score to every base from a same region
+#' 
+#' @param bw GRanges object 
+#' 
+#' @return GRanges object of base resolution track
+#' 
+#' @export
 make.base.res.bw <- function(bw){
   base.res.bw.list <- tile(bw, width=1)
   base.res.bw <- base.res.bw.list@unlistData
@@ -17,6 +28,18 @@ make.base.res.bw <- function(bw){
   return(base.res.bw)
 }
 
+#' Merge coverage profiles
+#' 
+#' Generates a single GRanges object containing overlapping ranges for 2 GRanges objects with score (coverage)
+#' 
+#' @param pred.bw GRanges track (predicted coverage profile)
+#' @param exp.bw GRanges track (experimental coverage profile)
+#' @param pred.name character of name for first track score column (e.g. "predicted")
+#' @param exp.name character of name for second track score column
+#' 
+#' @return GRanges track of common ranges with 2 score columns
+#' 
+#' @export
 make.predVSexp.range <- function(pred.bw, exp.bw, pred.name='pred', exp.name='score'){
   ranges <- subsetByOverlaps(exp.bw,pred.bw)
   hits <- findOverlaps(exp.bw, pred.bw)
@@ -27,23 +50,47 @@ make.predVSexp.range <- function(pred.bw, exp.bw, pred.name='pred', exp.name='sc
   return(ranges)
 } 
 
-add.id <- function(subset.common){
-  # print(subset.common@ranges@start)
-  breaks <- sapply(seq_along(subset.common@ranges@start), function(ix) 
-    subset.common@ranges@start[ix+1] - subset.common@ranges@start[ix]!=1)
-  # print(breaks)
+#' Add region ID
+#' 
+#' Deprecated. Use \code{add.id.2}
+add.id <- function(ranges){
+  breaks <- sapply(seq_along(ranges@ranges@start), function(ix)
+    ranges@ranges@start[ix+1] - ranges@ranges@start[ix]!=1)
   breaks <- unlist(breaks)
-  break.points <- unique(subset.common[which(breaks)+1]@ranges@start)
-  ids <- cut(subset.common@ranges@start, breaks = c(0,break.points, max(break.points)+10000), include.lowest = TRUE)
-  subset.common$id <- paste(subset.common@seqnames,ids)
-  return(subset.common)
-}
-
-add.id.2 <- function(common.ranges, reg.length=3000){
-  common.ranges$range.id <- cut(seq_along(common.ranges), breaks = seq(0, length(common.ranges), by = reg.length))
-  return(common.ranges)
+  break.points <- unique(ranges[which(breaks)+1]@ranges@start)
+  ids <- cut(ranges@ranges@start, breaks = c(0,break.points, max(break.points)+10000), include.lowest = TRUE)
+  ranges$id <- paste(ranges@seqnames,ids)
+  return(ranges)
   }
 
+
+#' Add region ID
+#' 
+#' Adds column containing region id (chr:start:end) to every track line in base resolution GRanges object,
+#' so that adjacent positions in the same region get the same ID. 
+#' All ranges must have the same length.
+#' 
+#' @param ranges GRanges object
+#' @param reg.length length of regions 
+#' 
+#' @return GRanges object with ID column
+#' 
+#' @export 
+add.id.2 <- function(ranges, reg.length=3000){
+  ranges$range.id <- cut(seq_along(ranges), breaks = seq(0, length(ranges), by = reg.length))
+  return(ranges)
+  }
+
+#' Test IDs
+#' 
+#' Tests if region IDs correspond to start and end of region
+#' 
+#' @param range GRanges object with id column
+#' @param reg.length length of regions
+#' 
+#' @return 'good' or 'bad'
+#' 
+#' @export
 test.add.id <- function(range, reg.length=3000){
   l <- max(range@ranges@start) - min(range@ranges@start)
   chroms <- length(range@seqnames@values)
@@ -54,8 +101,18 @@ test.add.id <- function(range, reg.length=3000){
     }
   }
 
-split.tracks <- function(common.ranges, reg.length){
-  range.list <- split(common.ranges, common.ranges$range.id)
+#' Split ranges by ID
+#' 
+#' Splits GRanges object in GRanges list of ranges with the same ID 
+#' 
+#' @param range GRanges object
+#' @param reg.length length of regions
+#' 
+#' @return GRangesList object as long as the number of regions
+#' 
+#' @export
+split.tracks <- function(range, reg.length){
+  range.list <- split(range, range$range.id)
   all <- sapply(range.list, test.add.id, reg.length=reg.length)
   if (any(all=='bad')){stop('Ranges are not all of the same length!')
   } else {
@@ -63,8 +120,38 @@ split.tracks <- function(common.ranges, reg.length){
     }
   }
 
+#' Standard normalize coverage 
+#' 
+#' Compute z-score normalization (x-mean(x))/sd(x)) for coverage profiles 
+#' 
+#' @param bw GRanges object with score columns 
+#' 
+#' @return GRanges object with normalized coverage profiles 
+#' 
+#' @export
+normalize.coverage <- function(bw){
+  bw.norm <- bw
+  for (col in colnames(values(bw)[sapply(values(bw), is.numeric)])) {
+    # bw.norm@elementMetadata[col][[1]] <- bw.norm@elementMetadata[col][[1]]/mean(bw.norm@elementMetadata[col][[1]])
+    # bw.norm@elementMetadata[col][[1]] <- bw.norm@elementMetadata[col][[1]]/sum(bw.norm@elementMetadata[col][[1]])
+    bw.norm@elementMetadata[col][[1]] <- (bw.norm@elementMetadata[col][[1]] - mean(bw.norm@elementMetadata[col][[1]], na.rm=TRUE))/sd(bw.norm@elementMetadata[col][[1]], na.rm=TRUE)
+    # bw.norm@elementMetadata[col][[1]] <- bw.norm@elementMetadata[col][[1]] +2
+    # bw.norm@elementMetadata[col][[1]] <- (bw.norm@elementMetadata[col][[1]] - min(bw.norm@elementMetadata[col][[1]]))/(max(bw.norm@elementMetadata[col][[1]])-min(bw.norm@elementMetadata[col][[1]]))
+  }
+  return(bw.norm)
+}
 
-load.expVSpred.coverage <- function(pred.bw.file, exp.bw.file, save=FALSE){
+#' Load coverage profiles
+#' 
+#' Loads experimental and predicted coverage profiles from bigWig files 
+#' 
+#' @param pred.bw.file path to bigWig file of predicted coverage profile
+#' @param exp.bw.file path to bigWig file of experimental coverage profile
+#' 
+#' @return list containing 2 GRanges objects
+#' 
+#' @export
+load.expVSpred.coverage <- function(pred.bw.file, exp.bw.file){
   print('Loading predicted coverage profile...')
   pred.bw <- import(pred.bw.file, format = 'BigWig')
   ranges <- GRanges(seqnames = pred.bw@seqnames, 
@@ -73,15 +160,40 @@ load.expVSpred.coverage <- function(pred.bw.file, exp.bw.file, save=FALSE){
   print('Loading expected coverage profile...')
   exp.bw <- import(exp.bw.file, format = 'BigWig', which = ranges)
   exp.bw.base <- make.base.res.bw(exp.bw)
-  # print('Merging coverage profiles...')
-  # common.bw <- make.predVSexp.range(pred.bw = pred.bw, exp.bw = exp.bw.base)
-  # common.bw <- add.id(common.bw)
-  # if (save) {
-  #   save(human_noBS.common.bw, file='~/AvOwork/human_noBS.covprofiles.RData')
-  # }
   return(list(pred=pred.bw, exp=exp.bw))
   }
 
+#' Kernel smoothing of coverage profiles 
+#' 
+#' @param gr GRanges object 
+#' @param bandwidth the bandwidth. The kernels are scaled so that their quartiles (viewed as probability densities) are at +/- 0.25*bandwidth.
+#' 
+#' @return GRanges object of smoothened coverage profile
+#' 
+#' @export
+smooth.coverage <- function(gr, bandwith=100){
+  gr$score <- ksmooth(1:length(gr$score), gr$score, kernel='normal', bandwidth = 100)$y
+  return(gr)
+}
+
+trim.edges <- function(gr, trim=100){
+  trimmed.gr <- gr[(trim+1):(length(gr)-trim)]
+  return(trimmed.gr)
+}
+
+
+#' Make track of predicted VS experimental coverage 
+#' 
+#' Merges, smoothens and normalizes coverage tracks for experimental and predicted coverage, adding IDs for each sampled region
+#' (region length has to be specified)
+#' 
+#' @param predicted.bw GRanges object of predicted coverage track
+#' @param experimental.bw GRanges object of experimental coverage track
+#' @param reg.length length of sampled regions 
+#' 
+#' @return GRangesList object where each element is a sampled region
+#' 
+#' @export
 make.predVSexp.track <- function(predicted.bw, experimental.bw, reg.length=3000){
   pred.exp.tracks <- load.expVSpred.coverage(pred.bw.file = predicted.bw, exp.bw.file = experimental.bw)
   br <- smooth.coverage(make.base.res.bw(pred.exp.tracks[[2]]))
@@ -92,29 +204,29 @@ make.predVSexp.track <- function(predicted.bw, experimental.bw, reg.length=3000)
   return(track.list)  
 }
 
-
-## Subset
-subsetByRegion <- function(bw, chrom, start, end){
-  subset.bw <- bw[bw@seqnames==chrom &
-                  bw@ranges@start >= start &
-                  bw@ranges@start < end]
+### Subset
+#' Subset by region
+#' 
+#' @param ranges GRanges object 
+#' @param chrom selected chromosome 
+#' @param start selected starting position
+#' @param end selected ending position
+#' 
+#' @return GRanges object of track in selected coordinates
+#' 
+#' @export
+subsetByRegion <- function(ranges, chrom, start, end){
+  subset.bw <- ranges[ranges@seqnames==chrom &
+                  ranges@ranges@start >= start &
+                  ranges@ranges@start < end]
   return(subset.bw)  
 }
 
-### Normalizing by avg
-normalize.coverage <- function(bw){
-  bw.norm <- bw
-  for (col in colnames(values(bw)[sapply(values(bw), is.numeric)])) {
-    # bw.norm@elementMetadata[col][[1]] <- bw.norm@elementMetadata[col][[1]]/mean(bw.norm@elementMetadata[col][[1]])
-    # bw.norm@elementMetadata[col][[1]] <- bw.norm@elementMetadata[col][[1]]/sum(bw.norm@elementMetadata[col][[1]])
-    bw.norm@elementMetadata[col][[1]] <- (bw.norm@elementMetadata[col][[1]] - mean(bw.norm@elementMetadata[col][[1]], na.rm=TRUE))/sd(bw.norm@elementMetadata[col][[1]], na.rm=TRUE)
-    # bw.norm@elementMetadata[col][[1]] <- bw.norm@elementMetadata[col][[1]] +2
-    # bw.norm@elementMetadata[col][[1]] <- (bw.norm@elementMetadata[col][[1]] - min(bw.norm@elementMetadata[col][[1]]))/(max(bw.norm@elementMetadata[col][[1]])-min(bw.norm@elementMetadata[col][[1]]))
-      }
-  return(bw.norm)
-}
-
 ## Trying to plot
+
+#' Plot predicted and experimental coverage profiles 
+#' 
+#' Deprecated, use niceplotTrack
 plot.expVSpred.coverage.track <- function(common.bw, met=NULL, plot=TRUE){
   options(ucscChromosomeNames=FALSE)
   gtrack <- GenomeAxisTrack()
@@ -163,21 +275,6 @@ computeDistance <- function(bw.ranges){
   return(met.df)
 }
 
-# split.region <- function(gr, bps=100){
-#   sp <- split(gr, rep(1:round(length(gr)/bps),each=bps)[1:length(gr)])
-#   return(sp)
-# }
-
-smooth.coverage <- function(gr, bandwith=100){
-  gr$score <- ksmooth(1:length(gr$score), gr$score, kernel='normal', bandwidth = 100)$y
-  return(gr)
-}
-
-trim.edges <- function(gr, trim=100){
-  trimmed.gr <- gr[(trim+1):(length(gr)-trim)]
-  return(trimmed.gr)
-}
-
 adjust.prediction <- function(test.bw, plot=FALSE, lm.summary=FALSE){
   perc.rank <- function(x) trunc(rank(x))/length(x)
   local.norm.test.bw <- normalize.coverage(test.bw)
@@ -212,7 +309,6 @@ adjust.prediction <- function(test.bw, plot=FALSE, lm.summary=FALSE){
   return(local.norm.test.bw)
 }
 
-
 adjust.prediction.exp <- function(test.bw, plot=F){
   perc.rank <- function(x) trunc(rank(x))/length(x)
   df <- as.data.frame(values(test.bw)) %>% 
@@ -235,17 +331,31 @@ adjust.prediction.exp <- function(test.bw, plot=F){
   return(test.bw)
   }
 
-get.range.methylation <- function(test.bw, baseres.met){
-  ovs <- findOverlaps(test.bw, baseres.met)
+#' Extract methylation of genomic region
+#' 
+#' @param reg.track GRanges track of one sampled region (single element of GRanges List slit by ID)
+#' @param baseres.met GRanges object of base resolution methylation fraction
+#' 
+#' @return GRanges object of methylation values over the input region
+#' 
+#' @export
+get.range.methylation <- function(reg.track, baseres.met){
+  ovs <- findOverlaps(reg.track, baseres.met)
   meth.prof <- baseres.met[subjectHits(ovs)]
   values(meth.prof) <- values(meth.prof)$frac
-  # values(test.bw) <- data.frame(values(test.bw)) %>% mutate( met.frac=NA)
-  # values(test.bw)$met.frac[queryHits(ovs)] <- meth.prof$frac
   return(meth.prof)
 }
 
-get.avg.methylation <- function(test.bw, baseres.met){
-  met <- get.range.methylation(test.bw, baseres.met = baseres.met)$X
+#' Compute average methylation of genomic region
+#' 
+#' @param reg.track GRanges track of one sampled region (single element of GRanges List slit by ID)
+#' @param baseres.met GRanges object of base resolution methylation fraction
+#' 
+#' @return average meth fraction in input region 
+#' 
+#' @export
+get.avg.methylation <- function(reg.track, baseres.met){
+  met <- get.range.methylation(reg.track, baseres.met = baseres.met)$X
   return(mean(met))
 }
 
@@ -258,11 +368,21 @@ plot.cov.wAnnotation <- function(test.bw, anno.gr){
              main=unique(test.bw$id))
 }
 
-nice.plotTrack <- function(test.bw, labels=c('Experimental ', 'Predicted')){
-  chrom <- test.bw@seqnames@values
-  long.df <- as.data.frame(values(test.bw)) %>% 
+#' Plot comparison of coverage profiles
+#' 
+#' @description Make ggplot viz of predicted and experimental coverage tracks for a sampled region of the genome 
+#' 
+#' @param region.track GRanges track of one sampled region (single element of GRanges List slit by ID)
+#' @param labels vector of names for the 2 compared coverage profiles 
+#' 
+#' @return ggplot object 
+#' 
+#' @export
+nice.plotTrack <- function(region.track, labels=c('Experimental ', 'Predicted')){
+  chrom <- region.track@seqnames@values
+  long.df <- as.data.frame(values(region.track)) %>% 
     select(-range.id) %>%
-    mutate(genomic.coord=test.bw@ranges@start) %>%
+    mutate(genomic.coord=region.track@ranges@start) %>%
     melt(id.vars='genomic.coord', variable.name='sample', value.name='norm.coverage')
   p <- ggplot(long.df, aes(genomic.coord, norm.coverage, group=sample, color=sample, linetype=sample)) +
     geom_line(size=2) +
@@ -280,24 +400,62 @@ nice.plotTrack <- function(test.bw, labels=c('Experimental ', 'Predicted')){
           legend.title = element_blank(),
           legend.key.size = grid::unit(5, "lines"))
   return(p)
-}
+  }
 
 #### CORRELATION ANALYSIS ####
+#' Correlation of predicted and experimental coverage 
+#' 
+#' @param pred vector of predicted coverage profile
+#' @param exp vector of experimental coverage profile
+#' @param method a character string indicating which correlation coefficient is to be computed. One of "pearson", "kendall", or "spearman" (default)
+#' 
+#' @return correlation coefficient 
+#' 
+#' @export
 correlate.pred.exp <- function(pred, exp, method='spearman'){
   cor.coef <- cor(exp, pred, method=method)
   return(cor.coef)  
 }
 
-corr.real <- function(track, method='spearman'){
-  return(correlate.pred.exp(exp=track$score, pred=track$pred)) 
+#' Compute coverage correlation of all sampled regions
+#' 
+#' @param track.list GRangesList object of sampled regions with experimental and predicted coverage 
+#' @param method a character string indicating which correlation coefficient is to be computed. One of "pearson", "kendall", or "spearman" (default)
+#' 
+#' @return vector of correlation coefficients for all sampled regions
+corr.real <- function(track.list, method='spearman'){
+  return(correlate.pred.exp(exp=track.list$score, pred=track.list$pred)) 
 }
 
-randomize <- function(track.list.clean, method='spearman'){
-  rand <- sample(track.list.clean)
-  corr.coef.rand <- map_dbl(seq_along(track.list.clean), function(i) correlate.pred.exp(exp=track.list.clean[[i]]$score, pred=rand[[i]]$pred, method = method))
+#' Compute coverage correlation of random permutations of predicted coverage
+#' 
+#' @description Given a GRangesList of sampled regions, where for each sample the experimental and predicted coverage profile 
+#' @description is given, the function shuffles the predicted coverage profiles, assigning them to random regions and computes the correlation coefficient
+#' 
+#' @param track.list GRangesList object of sampled regions with experimental and predicted coverage 
+#' @param method a character string indicating which correlation coefficient is to be computed. One of "pearson", "kendall", or "spearman" (default)
+#' 
+#' @return vector of correlation coefficients of permutations of sampled regions
+#'
+#' @export
+randomize <- function(track.list, method='spearman'){
+  rand <- sample(track.list)
+  corr.coef.rand <- map_dbl(seq_along(track.list), function(i) correlate.pred.exp(exp=track.list[[i]]$score, pred=rand[[i]]$pred, method = method))
   return(corr.coef.rand)
-}
+  }
 
+#' Quantify correlation of predicted and experimental coverage
+#' 
+#' For a given GRangesList, computes correlation between pred and exp profiles in every regions, in randomnly perputed regions 
+#' and plots boxplot of comparisons, with p-value for Wilcoxon's test.
+#' 
+#' @param track.list GRangesList object of sampled regions with experimental and predicted coverage 
+#' @param name.real character, name of seq library
+#' @param method a character string indicating which correlation coefficient is to be computed. One of "pearson", "kendall", or "spearman" (default)
+#' 
+#' @return list of vector for real correlation coefficients, for coefficients of random permutation, ggplot object of boxplot
+#' 
+#' @export
 compare.spear.real <- function(track.list, name.real='WGS', method='spearman'){
   spear <- map_dbl(track.list, corr.real,method=method)
   rand <- randomize(track.list, method=method)
@@ -318,10 +476,19 @@ compare.spear.real <- function(track.list, name.real='WGS', method='spearman'){
   return(list(spear=spear, rand=rand, p=pl))
 }
   
-
 #### AUC YIELD ANALYSIS ####
 
-
+#' Compute difference in yield between batches
+#' 
+#' Computes difference in coverage yield for region of interest between predicted coverage profiles
+#' of two different primer batches
+#' 
+#'  @param scaled.track GRanges object with values for predicted coverage of best batch (best) and random batch (even) (scaled, so no values < 0)
+#'  @param roi.track GRanges object of regions of interest
+#'  
+#'  @return difference in yield
+#'  
+#'  @export
 coverage.yield.delta <- function(scaled.track, roi.track){
   int.roi <- findOverlaps(query = scaled.track, subject = roi.track)
   auc.best.roi <- auc(seq_along(scaled.track[queryHits(int.roi)]$best), scaled.track[queryHits(int.roi)]$best)
@@ -332,8 +499,19 @@ coverage.yield.delta <- function(scaled.track, roi.track){
   yield.best <- auc.best.roi/auc.best.out
   yield.even <- auc.even.roi/auc.even.out
   return(yield.best-yield.even)
-}
+  }
 
+#' Compute coverage yield
+#' 
+#' Computes ratio between area under the curve in region of interest and outside of region of interest 
+#' (sample of the same bps of the region of interest)
+#' 
+#' @param scaled.track GRanges object with values for predicted coverage of best batch (best) and random batch (even) (scaled, so no values < 0)
+#' @param roi.track GRanges object of regions of interest
+#' 
+#' @return score for coverage yield
+#' 
+#' @export
 coverage.yield.single <- function(scaled.track, roi.track){
   int.roi <- findOverlaps(query = scaled.track, subject = roi.track)
   auc.best.roi <- auc(seq_along(scaled.track[queryHits(int.roi)]$score), scaled.track[queryHits(int.roi)]$score)
@@ -343,6 +521,18 @@ coverage.yield.single <- function(scaled.track, roi.track){
   return(yield.best)
 }
 
+#' Normalize and compute yield 
+#' 
+#' Computes ratio between area under the curve in region of interest and outside of region of interest 
+#' (sample of the same bps of the region of interest) after normalization and scaling to have no coverage values < 0
+#' 
+#' @param raw.track GRanges object with values for predicted coverage of best batch (best) and random batch (even)
+#' @param roi.track GRanges object of regions of interest
+#' @param scale.by scaling fator to add to each coverage value to have all > 0
+#' 
+#' @return score for coverage yield
+#' 
+#' @export
 norm.scale.n.yield <- function(raw.track, roi.track, scale.by=5){
   norm.track <- normalize.coverage(raw.track) %>%
     add.id.2(reg.length = 2000)
@@ -355,6 +545,9 @@ norm.scale.n.yield <- function(raw.track, roi.track, scale.by=5){
   return(yield)
 }
 
+#' Build cumulative distribution of coverage profile 
+#' 
+#' To make random permutation of coverage profile
 make.cum.dist <- function(vec, plot=T){
   cum.dist.best.out <- data.frame(even=vec) %>%
     mutate(cumdist=cume_dist(even)) 
@@ -366,12 +559,23 @@ make.cum.dist <- function(vec, plot=T){
   return(list(cumdist=cum.dist.best.out, p=p))
 }
 
+#' Make random permutation of coverage profile for random batch
 random.from.even.2 <- function(vec, vec.cum.dist){
   r <- runif(1,0,1)
   s <- suppressWarnings(max(vec[r >= vec.cum.dist], na.rm=T))
   return(s)
 }
 
+#' Make random permutation of coverage profile
+#' 
+#' To calculate p-value of difference in yield
+#' 
+#' @param cum.dist.real cumulative distribution of coverage scores 
+#' @param threads amound of threads to use
+#' 
+#' @return vector of permuted coverage profile
+#' 
+#' @export
 make.random.profile <- function(cum.dist.real, threads = detectCores()){
   # random.profile <- c()
   # n <- 1
@@ -391,7 +595,9 @@ make.random.profile <- function(cum.dist.real, threads = detectCores()){
 #   a <- sapply(1:7, function(n) system.time(p <- make.random.profile(cum.dist, threads=n))
 #   }
 
-
+#' Compute difference in yield of permuted coverage profile
+#' 
+#' @export
 delta.yield.permutation <- function(my.track, roi.track, permute='best', threads=detectCores()){
   rand.prof <- make.random.profile(make.cum.dist(my.track$even), threads = threads)
   rand.prof[is.infinite(rand.prof)] <- 0
@@ -405,6 +611,21 @@ delta.yield.permutation <- function(my.track, roi.track, permute='best', threads
   return(yield.delta)  
 }
 
+#' Random yield 
+#' 
+#' Computes difference in coverage yield for region of interest between predicted coverage profiles
+#' of two different primer batches. To calculate p-value of yield score, it also computes the distribution of 
+#' difference in yield between randomnly shuffled coverage profiles.
+#' 
+#' @param my.track GRanges object with values for predicted coverage of best batch (best) and random batch (even) (SCALED so no cov < 0)
+#' @param roi.track GRanges object of regions of interest
+#' @param n.iterations number of iterations 
+#' @param threads number of threads to use
+#' @param verbose logical indicating wheather to print progress
+#' 
+#' @return list of delta yield and vector of delta yield for random permutations 
+#' 
+#' @export
 random.delta.yield.dist <- function(my.track, roi.track, n.iterations=1000, threads=detectCores(), verbose=T){
   real.delta <- coverage.yield.delta(my.track, roi.track)
   it <- 1

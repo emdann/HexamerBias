@@ -1,0 +1,271 @@
+---
+title: "Optimizing coverage at cpg sites"
+output: html_notebook
+---
+
+```{r, warning=FALSE}
+library(rtracklayer)
+library(purrr)
+library(Gviz)
+library(zoo)
+library(flux)
+source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
+source("~/HexamerBias/artificial_coverage/compare_peaks.r")
+```
+
+
+Load predicted coverage track 
+```{r}
+cpg.bed.file <- '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.cpg_coverage.bed'
+random.bed.file <- '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.random.bed'
+
+cpg.bed.even <- import(cpg.bed.file, format = 'BED')
+random.bed.even <- import(random.bed.file, format = 'BED')
+
+# cpg.norm.bed <- normalize.coverage(cpg.bed)
+# random.norm.bed <- normalize.coverage(random.bed)
+boxplot(random.bed$score, cpg.bed$score, outline=F)
+t.test(cpg.bed$score, random.bed$score)
+```
+
+
+```{r}
+cpg.bed.file <- '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0_0.25_0_0.75evenNreads_predcoverage.artCov.cpg_coverage.bed'
+random.bed.file <- '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0_0.25_0_0.75evenNreads_predcoverage.artCov.random.bed'
+
+cpg.bed.best <- import(cpg.bed.file, format = 'BED')
+random.bed.best <- import(random.bed.file, format = 'BED')
+
+# cpg.norm.bed <- normalize.coverage(cpg.bed)
+# random.norm.bed <- normalize.coverage(random.bed)
+df <- as.data.frame(list(best.random=random.bed.best$score, best.cpgs=cpg.bed.best$score, even.cpgs=cpg.bed.even$score, even.random=random.bed.even$score)) %>%
+  melt(value.name='cov.density') %>%
+  mutate(batch=gsub(pattern = '\\..+', replacement = '', variable),
+         region=gsub(pattern = '.+\\.', replacement = '', variable),
+         ) %>%
+  group_by(batch) %>%
+  mutate(zscore=(cov.density-mean(cov.density, na.rm=T))/sd(cov.density, na.rm=T)) %>%
+  ungroup() 
+
+df %>%
+  ggplot(., aes(y=zscore, x=batch, fill=region)) +
+    geom_boxplot(outlier.alpha=0.2) 
+
+data_frame(random.bed.best$score)
+boxplot(random.bed.best$score, cpg.bed.best$score,random.bed$score, cpg.bed$score, outline=F)
+t.test(cpg.bed.best$score, random.bed.best$score)
+```
+
+Try for CpG islands (more CG rich regions)
+```{r}
+cgi.bed.file <- '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0_0.25_0_0.75evenNreads_predcoverage.artCov.zscore.cgi_coverage.bed'
+random.bed.file <- '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0_0.25_0_0.75evenNreads_predcoverage.artCov.zscore.randomCGI.bed'
+
+cgi.bed.best <- import(cgi.bed.file, format = 'BED')
+random.bed.best <- import(random.bed.file, format = 'BED')
+
+
+cgi.bed.file <-  '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.zscore.cgi_coverage.bed'
+random.bed.file <-  '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.zscore.randomCGI.bed'
+
+cgi.bed.even <- import(cgi.bed.file, format = 'BED')
+random.bed.even <- import(random.bed.file, format = 'BED')
+
+
+bed.list <- list(best.random=random.bed.best$score, best.cgis=cgi.bed.best$score, even.cgis=cgi.bed.even$score, even.random=random.bed.even$score) 
+  
+df2 <- map(seq_along(bed.list), function(i) data.frame(cov.density=bed.list[[i]], variable=names(bed.list)[i])) %>%
+  reduce(bind_rows) %>%
+  # melt(value.name='cov.density') %>%
+  mutate(batch=gsub(pattern = '\\..+', replacement = '', variable),
+         region=gsub(pattern = '.+\\.', replacement = '', variable),
+         ) 
+  group_by(batch) %>%
+  mutate(zscore=(cov.density-mean(cov.density))/sd(cov.density)) %>%
+  ungroup() 
+
+
+df2 %>%
+  # filter(batch=='best') %>%
+  # group_by(variable) %>%
+  # summarise(cov=mean(cov.density), sd=sd(cov.density), batch=first(batch), region=first(region)) %>%
+  ggplot(., aes(y=cov.density, x=batch, fill=region)) +
+    geom_boxplot(outlier.alpha=0.01, varwidth = F) +
+  ylim(-5,20)
+```
+
+Try for TSS
+```{r}
+
+compare.best.even <- function(reg.best.bed.file, random.best.bed.file, reg.even.bed.file, random.even.bed.file, plot=T, reg.name='reg'){
+  cgi.bed.best <- import(reg.best.bed.file, format = 'BED')
+  random.bed.best <- import(random.best.bed.file, format = 'BED')
+  cgi.bed.even <- import(reg.even.bed.file, format = 'BED')
+  random.bed.even <- import(random.even.bed.file, format = 'BED')
+  bed.list <- list(best.random=random.bed.best$score, best.reg=cgi.bed.best$score, even.reg=cgi.bed.even$score, even.random=random.bed.even$score) 
+  df2 <- map(seq_along(bed.list), function(i) data.frame(cov.density=bed.list[[i]], variable=names(bed.list)[i])) %>%
+    reduce(bind_rows) %>%
+    mutate(batch=gsub(pattern = '\\..+', replacement = '', variable),
+           region=gsub(pattern = '.+\\.', replacement = '', variable)
+           ) %>%
+    mutate(region=ifelse(region=='reg', reg.name, region))
+  if (plot) {
+    p <- df2 %>%
+    ggplot(., aes(y=cov.density, x=batch, fill=region)) +
+      geom_boxplot(outlier.alpha=0.01, varwidth = F) +
+      ylab("Cov. density (z-score)") +
+      scale_fill_brewer(palette='YlGnBu') +
+      theme_classic() +
+      theme(axis.title=element_text(size=20), 
+        axis.text=element_text(size=16), 
+        strip.text=element_text(size=20), 
+        legend.text = element_text(size=20),
+        legend.title = element_text(size=22))
+    p
+    }
+  return(p)
+  }
+
+p.ctcf <- compare.best.even(
+  reg.best.bed.file = '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0_0.25_0_0.75evenNreads_predcoverage.artCov.zscore.ctcf_coverage.bed',
+  random.best.bed.file = '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0_0.25_0_0.75evenNreads_predcoverage.artCov.zscore.randomCTCF.bed',
+  reg.even.bed.file = "~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.zscore.ctcf_coverage.bed",
+  random.even.bed.file = '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.zscore.randomTSS.bed',
+  reg.name = 'CTCF')
+
+
+p.cgi <- compare.best.even(
+  reg.best.bed.file = '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0_0.25_0_0.75evenNreads_predcoverage.artCov.zscore.cgi_coverage.bed',
+  random.best.bed.file = '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0_0.25_0_0.75evenNreads_predcoverage.artCov.zscore.randomCGI.bed',
+  reg.even.bed.file = "~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.zscore.cgi_coverage.bed",
+  random.even.bed.file = '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.zscore.randomCGI.bed',
+  reg.name='CpG islands')
+
+
+p.ctcf +
+  ylim(-3,4) +
+  ggsave('~/AvOwork/output/DE_optimization/bestFC_vs_even_ctcf_boxplot.pdf')
+
+p.cgi +
+  ylim(-5,25) +
+  ggsave('~/AvOwork/output/DE_optimization/bestFC_vs_even_cgis_boxplot.pdf')
+```
+
+```{r}
+p.cpgs <- compare.best.even(
+  reg.best.bed.file = '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0_0.25_0_0.75evenNreads_predcoverage.artCov.zscore.cpg_coverage.bed',
+  random.best.bed.file = '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0_0.25_0_0.75evenNreads_predcoverage.artCov.zscore.randomCPG.bed',
+  reg.even.bed.file = "~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.zscore.cpg_coverage.bed",
+  random.even.bed.file = '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.zscore.randomCPG.bed',
+  reg.name='CpG sites')
+
+p.cpgs +
+  coord_cartesian(ylim=c(-3,4)) 
+```
+
+Merged CpG islands
+```{r}
+p.cgi.merged <- compare.best.even(
+  reg.best.bed.file = '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0_0.25_0_0.75evenNreads_predcoverage.artCov.zscore.merged.cgi_coverage.bed',
+  random.best.bed.file = '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0_0.25_0_0.75evenNreads_predcoverage.artCov.zscore.merged.randomCGI.bed',
+  reg.even.bed.file = "~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.zscore.merged.cgi_coverage.bed",
+  random.even.bed.file = '~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.zscore.merged.randomCGI.bed',
+  reg.name='CpG islands')
+
+p.cgi.merged +
+  ggsave('~/AvOwork/output/DE_optimization/bestFC_vs_even_cgis_boxplot.pdf')
+```
+
+### Predicted coverage tracks for even VS best
+
+```{r}
+best.batch <- "~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0_0.25_0_0.75evenNreads_predcoverage.artCov.bw"
+even.batch <- "~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/random.42.mm10.noOvsD3R_dens_0.25_0.25_0.25_0.25evenNreads_predcoverage.artCov.bw"
+
+best.even.track <- load.expVSpred.coverage(best.batch, even.batch)
+track <- make.predVSexp.range(pred.bw = best.even.track$pred, exp.bw = best.even.track$exp, pred.name = 'best', exp.name = 'even') %>%
+    normalize.coverage() %>%
+    add.id.2(reg.length = 2000)
+track.list <- lapply(split.tracks(track, reg.length = 2000), trim.edges)
+
+```
+
+
+```{r}
+smp <- sample(track.list,1)[[1]]
+n <- as.numeric(smp$range.id)[1]
+nice.plotTrack(smp, labels = c('even', 'best')) +
+  ggsave(paste0('~/AvOwork/output/DE_optimization/bestVSeven_cov_tracks/bestVSeven_cov_track_', n, '.pdf'))
+
+```
+
+Load track of regions of interest
+```{r}
+cgis.track <- import('~/mnt/edann/hexamers/annotations_bed/CpGislands_srt_mm10.bed', format = 'BED')
+
+int.cgis <- findOverlaps(query = track, subject = cgis.track)
+auc.best.roi <- compute.auc(track[queryHits(int.cgis)]$best)
+auc.even.roi <- compute.auc(track[queryHits(int.cgis)]$even)
+
+random.out <- track[-queryHits(int.cgis)]
+compute.auc(random.out$even)
+compute.auc(random.out$best)
+```
+
+I will try to scale everything up to not have to deal with negative values
+```{r}
+scaled.track <- track
+score.cols <- colnames(values(scaled.track)[sapply(values(scaled.track), is.numeric)])
+min.score <- min(as.matrix(scaled.track@elementMetadata[score.cols]))
+for (col in score.cols) {
+    scaled.track@elementMetadata[col][[1]] <- scaled.track@elementMetadata[col][[1]] + abs(min.score)
+  }
+
+coverage.yield <- function(scaled.track, roi.track){
+  int.roi <- findOverlaps(query = scaled.track, subject = roi.track)
+  auc.best.roi <- auc(seq_along(scaled.track[queryHits(int.roi)]$best), scaled.track[queryHits(int.roi)]$best)
+  auc.even.roi <- auc(seq_along(scaled.track[queryHits(int.roi)]$even), scaled.track[queryHits(int.roi)]$even)
+  random.out <- scaled.track[-queryHits(int.roi)]
+  auc.even.out <- auc(seq_along(sample(random.out$even, length(queryHits(int.roi)))), sample(random.out$even, length(queryHits(int.roi))))
+  auc.best.out <- auc(seq_along(sample(random.out$best, length(queryHits(int.roi)))), sample(random.out$best, length(queryHits(int.roi))))
+  yield.best <- auc.best.roi/auc.best.out
+  yield.even <- auc.even.roi/auc.even.out
+  return(yield.best-yield.even)
+  }
+
+coverage.yield(scaled.track = scaled.track, cgis.track)
+yield.best-yield.even
+```
+
+Yahooo!
+
+##### Is this significant?
+Made script `pval_yield_iteration.r` to compute the $\Delta(yield)$ for random permutations of the original even track, to test significance of the result.
+```{r}
+scaled.track.smp <- readRDS('~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/coverage_yield/smp1.RDS')
+randm <- scan('~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/coverage_yield/yield_pval.smp1.CpGislands_srt_mm10.txt')
+yield <- coverage.yield(scaled.track.smp, cgis.track)
+
+data.frame(randm) %>%
+  ggplot(., aes(randm)) +
+  geom_histogram() +
+  geom_vline(xintercept = yield, color='red')
+  
+(randm, breaks = 30)
+```
+
+### Computing yield for all available tracks
+Used `compute_yield_track_dir.r` to compute yield for all available tracks
+```{r}
+cgi.yield <- read.csv('~/mnt/edann/pred_coverage_primer_batch_D3R/evenNreads/yield_CpGislands_srt_mm10.csv')
+
+cgi.yield %>%
+  mutate(track=gsub(track, pattern = 'random.+D3R_|evenN.+', replacement = '')) %>%
+  mutate(delta_yield=yield-1.3973866) %>%
+  mutate(fc.score=fc.scores.cgi[match(track, names(fc.scores.cgi))]) %>%
+  ggplot(., aes(x=track, fill=fc.score, yield)) +
+  geom_bar(stat='identity') +
+  coord_flip()
+
+```
+

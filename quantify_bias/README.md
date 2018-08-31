@@ -1,9 +1,10 @@
 ## QUANTIFICATION AND VISUALIZATION OF COVERAGE BIASES
 
 ### Contents
-* __biasProfiles.r__: R functions to plot average coverage profiles over annotated regions
-* __make_profile.sh__: script to calculate coverage profiles over annotated regions (hard coded to work on genes or long regions with variable length. Change to reference-point to compute coverage over specific sites)
-* __multi_cov_profiles_VAN2591.Rmd__: R notebook for comparison of coverage bias in different samples (BS and non BS converted, different genomes)
+* `biasProfiles.r`: R functions to plot average coverage profiles over annotated regions
+* `figure1.Rmd`: R notebook of plots for figure 1 in report (biased primer usage)
+* `make_profile.sh`: script to calculate coverage profiles over annotated regions (hard coded to work on genes or long regions with variable length. Change to reference-point to compute coverage over specific sites)
+* `multi_cov_profiles_VAN2591.Rmd`: R notebook for comparison of coverage bias in different samples (BS and non BS converted, different genomes)
 ***
 ### How to make coverage profile across coding regions
 ```

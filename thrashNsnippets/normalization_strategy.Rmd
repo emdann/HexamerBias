@@ -1,0 +1,1371 @@
+---
+title: "Scaling factor"
+output: html_notebook
+---
+
+We want to extract a factor by which we can normalize the number of pt events (hopefully proportional to some experimental number, no. of reads, percentage of genomic coverage etc...).
+To do this we need to rely on calorimetry values.
+Assuming that
+
+$$ \exp\left(\frac{\Delta G_{ij}}{k_BT}\right)\right $$
+
+```{r, echo=FALSE}
+library(purrr)
+library(matlib)
+source('~/HexamerBias/rscripts/sanity_checks_deltaG.r')
+```
+
+
+Load pt counts
+```{r}
+setwd("~/mnt/edann/VAN2423_onePreamp/cov_prediction/")
+load.pt.data <- function(ptCounts.file){
+  pt <- loadPtMatrix(ptCounts.file,compression = 'none')
+  template.usage <- make.hex.usage.df(pt, type='template', scale=F)
+  colnames(cele.template.usage) <- c('template', 't.usage')
+  pairs <- make_pair_df(pt)
+  matches <- pairs[substr(pairs$ptPair,1,6)==substr(pairs$ptPair,8,13),]
+  return(list(matches=matches, t.usage=template.usage))
+}
+
+data.cele <- load.pt.data("~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-CeleTotal-noBS-1preAmp-handMix_lmerged_R1.ptCounts.qualFilt.csv")
+
+```
+Load total genomic abundance and deltaG from calorimetry
+```{r}
+cele.kmer.ab <- read.csv("~/mnt/edann/hexamers/genomes_kmers/WBcel235.kmerAbundance.csv", header = F, col.names = c('template', 'abundance'))
+tabDg <- read.delim(gzfile("~/mnt/edann/hexamers/rand_hex_deltaG_ions.txt.gz"), sep=' ', header = FALSE, col.names=c('template', 'dG'))
+```
+
+Join data
+```{r}
+df <- inner_join(cele.kmer.ab, tabDg, by='template')
+cele.df <- cele.matches %>%
+  transmute(template=substr(ptPair,1,6), primer=substr(ptPair,8,100), pt=dG) %>%
+  filter(pt>300) %>%
+  inner_join(., df, by='template') %>%
+  inner_join(., cele.template.usage, by='template') %>%
+  rename(t.usage=cele.pt) %>%
+  mutate(x=pt/(abundance-t.usage),
+         y=exp(dG))
+
+join.pt.data <- function(matches, template.usage, kmer.ab, tabDg){
+  df <- matches %>%
+  transmute(template=substr(ptPair,1,6), primer=substr(ptPair,8,100), pt=dG) %>%
+  # filter(pt>300) %>%
+  inner_join(., df, by='template') %>%
+  inner_join(., template.usage, by='template')
+  # rename(t.usage=pt)
+  return(df)
+}
+
+cele.df %>%
+  ggplot(., aes(dG,-log(pt/(abundance-t.usage)))) +
+  geom_point(alpha=0.4)
+  Cgeom_abline(lm(dG ~ -(log(pt/(abundance-t.usage))), data=cele.df))
+
+p <- mutate(cele.df, x=dG, y=-log(pt/(abundance-t.usage)))
+cor(p$x, p$y)
+```
+
+Same for different genome
+```{r}
+setwd("~/mnt/edann/VAN2423_onePreamp/cov_prediction/")
+zfish.pt <- loadPtMatrix("CG-pbat-gDNA-zfishTotal-noBS-1preAmp-handMix_lmerged_R1.ptCounts.qualFilt.csv",compression = 'none')
+zfish.template.usage <- make.hex.usage.df(zfish.pt, type='template', scale=F)
+zfish.pairs <- make_pair_df(zfish.pt)
+zfish.matches <- zfish.pairs[substr(zfish.pairs$ptPair,1,6)==substr(zfish.pairs$ptPair,8,13),]
+head(zfish.matches)
+```
+Load total genomic abundance and deltaG from calorimetry
+```{r}
+zfish.kmer.ab <- read.csv("~/mnt/edann/hexamers/genomes_kmers/danRer10.kmerAbundance.csv", header = F, col.names = c('template', 'abundance'))
+tabDg <- read.delim(gzfile("~/mnt/edann/hexamers/rand_hex_deltaG_ions.txt.gz"), sep=' ', header = FALSE, col.names=c('template', 'dG'))
+```
+
+Join data
+```{r}
+df <- inner_join(zfish.kmer.ab, tabDg, by='template')
+zf.df <- zfish.matches %>%
+  transmute(template=substr(ptPair,1,6), primer=substr(ptPair,8,100), pt=dG) %>%
+  filter(pt>300) %>%
+  inner_join(., df, by='template') %>%
+  inner_join(., zfish.template.usage, by='template') %>%
+  rename(t.usage=zfish.pt) %>%
+  mutate(x=pt/(abundance-t.usage),
+         y=exp(dG))
+zf.df %>%
+  ggplot(., aes(dG,log(pt/(abundance-t.usage)))) +
+  geom_point(alpha=0.4)
+
+```
+Human
+```{r}
+data.human <- load.pt.data("~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-humanAPKS-noBS-1preAmp-handMix_lmerged_R1.ptCounts.qualFilt.csv")
+human.kmer.ab <- read.csv("~/mnt/edann/hexamers/genomes_kmers/hg38.kmerAbundance.csv", header = F, col.names = c('template', 'abundance'))
+colnames(data.human$t.usage) <- c('template', 't.usage')
+human.df <- join.pt.data(data.human$matches, data.human$t.usage, human.kmer.ab, tabDg)
+human.df %>%
+  ggplot(., aes(y=dG,x=log(pt/(abundance-t.usage)))) +
+  geom_point(alpha=0.4)
+```
+
+Fitting
+```{r}
+lm.cele <- lm(dG ~ -(log(pt/(abundance-t.usage))), data=cele.df)
+lm.zfish <- lm(dG ~ log(pt/(abundance-t.usage)), data=zf.df)
+lm.human <- lm(dG ~ log(pt/(abundance-t.usage)), data=human.df)
+
+
+<!-- summary(lm.cele) -->
+<!-- summary(lm.zfish) -->
+<!-- summary(lm.human) -->
+
+<!-- exp.lm <- function(lm){exp(lm$coefficients[1])} -->
+<!-- lm.cele$coefficients[1] -->
+<!-- lm.zfish$coefficients[1] -->
+<!-- lm.human$coefficients[1] -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- head(cele.df) -->
+<!-- ggplot(cele.df, aes(dG, log(pt/(abundance-t.usage)))) + -->
+<!--   geom_point(alpha=0.4) -->
+<!-- ggplot(cele.df, aes(dG,lm.cele$coefficients[1]+log(pt/(abundance-t.usage)))) + -->
+<!--   geom_point(alpha=0.4) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- ggplot(cele.df, aes((abundance/pt) - (t.usage/pt), exp(dG))) + -->
+<!--   geom_point() + -->
+<!--   geom_smooth(method='lm') -->
+
+<!-- cele.df <- mutate(cele.df, y= exp(dG) + (t.usage/pt), x=abundance/pt) -->
+<!--   filter(pt>500) %>% -->
+<!--   mutate(C=((abundance/pt) - (t.usage/pt))/exp(dG)) -->
+<!-- hist(cele.df$C, breaks=500, xlim=c(0,10000)) -->
+<!-- cele.df %>% -->
+<!--   ggplot(., aes(x,y)) + geom_point(alpha=0.4) + -->
+<!--   geom_smooth(method='lm') -->
+<!-- zf.df <- mutate(zf.df, y= exp(dG) + (t.usage/pt), x=abundance/pt) -->
+<!-- human.df <- mutate(human.df, y= exp(dG) + (t.usage/pt), x=abundance/pt) -->
+<!-- lm.cele <- lm(y ~ x, data=cele.df) -->
+<!-- lm(y ~ x, data=zf.df) -->
+<!-- lm(y ~ x, data=human.df) -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- C.cele <- 1./(lm.cele$coefficients[2]) -->
+<!-- ggplot(cele.df, aes(exp(dG), (abundance-t.usage)/pt)) + -->
+<!--   geom_point(alpha=0.4) -->
+<!-- ggplot(cele.df, aes(exp(dG),(abundance-(t.usage*C.cele))/ (pt*C.cele))) + -->
+<!--   geom_point(alpha=0.4) -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- pt.df <- zf.df %>% -->
+<!--   inner_join(., cele.df, by='template', suffix=c('.zf', '.cele')) -->
+<!--   # inner_join(., , by='template') %>% -->
+<!--   # rename(pt.cele=pt) -->
+<!-- head(pt.df) -->
+<!-- pt.df %>% -->
+<!--   ggplot(., aes(pt.zf, pt.cele)) + -->
+<!--   geom_point(alpha=0.3) -->
+<!-- pt.df %>% -->
+<!--   ggplot(., aes(log(pt.zf), log(pt.cele))) + -->
+<!--   geom_point(alpha=0.3) -->
+
+<!-- ``` -->
+<!-- Rlog normalization test -->
+<!-- ```{r} -->
+<!-- rownames(pt.df) <- pt.df$template -->
+<!-- pt.counts.mat <- as.matrix(select(pt.df, pt.zf, pt.cele)) -->
+<!-- abundance.mat <- as.matrix(select(pt.df, abundance.cele, abundance.zf)) -->
+<!-- norm.pt.counts <- rlog(round(pt.counts.mat)) -->
+<!-- norm.abundance <- rlog(round(abundance.mat)) -->
+
+<!-- head(norm.pt.counts) -->
+<!-- pt.df %>% -->
+<!--   mutate(norm.pt.zf=norm.pt.counts[,'pt.zf'], -->
+<!--          norm.pt.cele=norm.pt.counts[,'pt.cele']) %>% -->
+<!--   mutate(norm.abundance.zf=norm.abundance[,'abundance.zf'], -->
+<!--          norm.abundance=norm.abundance[,'abundance.cele']) %>% -->
+<!--   mutate(x=norm.pt.zf/(norm.abundance.zf-t.usage.zf), -->
+<!--          y=norm.pt.cele/(norm.abundance.cele-t.usage.cele)) %>% -->
+<!--   mutate(x=log(x), y=log(y)) %>% -->
+<!--   ggplot(., aes(x,y)) + -->
+<!--   geom_point(alpha=0.4) -->
+
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- cele.df %>% mutate(d=abundance-t.usage) %>% -->
+<!--   ggplot(., aes(abundance,d)) + -->
+<!--   geom_point(alpha=0.4) + -->
+<!--   geom_abline(slope=1, intercept = 0, col='red') -->
+
+<!-- zf.df %>% mutate(d=(abundance/20)-t.usage) %>% -->
+<!--   ggplot(., aes(abundance,d)) + -->
+<!--   geom_point(alpha=0.4) -->
+<!--   geom_abline(slope=1, intercept = 0, col='red') -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- cele.df %>% -->
+<!--   mutate(a=(abundance-t.usage)/pt) %>% -->
+<!--   ggplot(., aes(a)) + geom_histogram() -->
+
+<!-- cele.df %>% -->
+<!--   ggplot(., aes(pt)) + geom_histogram() -->
+<!-- ``` -->
+
+```{r}
+# rev.comp<-function(x,compl=TRUE,rev=TRUE){
+#   x<-toupper(x)
+#   y<-rep("N",nchar(x))
+#   xx<-unlist(strsplit(x,NULL))
+#   if(compl==TRUE)
+#     {
+#     for (bbb in 1:nchar(x))
+#       {
+#           if(xx[bbb]=="A") y[bbb]<-"T"
+#           if(xx[bbb]=="C") y[bbb]<-"G"
+#           if(xx[bbb]=="G") y[bbb]<-"C"
+#           if(xx[bbb]=="T") y[bbb]<-"A"
+#       }
+#   }
+#   if(compl==FALSE)
+#     {
+#     for (bbb in 1:nchar(x))
+#       {
+#           if(xx[bbb]=="A") y[bbb]<-"A"
+#           if(xx[bbb]=="C") y[bbb]<-"C"
+#           if(xx[bbb]=="G") y[bbb]<-"G"
+#           if(xx[bbb]=="T") y[bbb]<-"T"
+#       }
+#     }
+#   if(rev==FALSE)
+#       {
+#       for(ccc in (1:nchar(x)))
+#           {
+#           if(ccc==1) yy<-y[ccc] else yy<-paste(yy,y[ccc],sep="")
+#           }
+#       }
+#   if(rev==T)
+#       {
+#       zz<-rep(NA,nchar(x))
+#       for(ccc in (1:nchar(x)))
+#           {
+#           zz[ccc]<-y[nchar(x)+1-ccc]
+#           if(ccc==1) yy<-zz[ccc] else yy<-paste(yy,zz[ccc],sep="")
+#           }
+#       }
+#       return(yy)
+#   }
+
+seq='CTCGGG'
+rev.comp(seq, rev=F, compl = F)
+
+f <- cele.pairs %>%
+  filter(dG>100)
+nrow(f)
+f1 <- join.pt.data(matches = f,template.usage= cele.template.usage, kmer.ab = cele.kmer.ab, tabDg = tabDg)
+
+smp <- sample_n(f1,1)
+smp
+smp.rev <- filter(f1, template==rev.comp(smp$primer), primer==rev.comp(smp$template))
+smp.rev
+smp.ji <- smp
+smp.ij <- smp.rev
+find.epsilon <- function(smp.ij, smp.ji){
+  return((smp.ji$abundance*smp.ij$pt - smp.ij$abundance*smp.ji$pt)/(smp.ij$pt*smp.ji$cele.pt - smp.ji$pt*smp.ij$cele.pt))
+}
+find.epsilon(smp.ji, smp.ij)
+
+ep1 <- find.epsilon(smp.ji, smp.ij)
+ep2 <- find.epsilon(smp.ji, smp.ij)
+ep3 <- find.epsilon(smp.ji, smp.ij)
+
+sapply(1:nrow(f1), function(i) list(f1[i,], filter(f1, template==rev.comp(f[1,]$primer), primer==rev.comp(f[1,]$template))))
+
+find.simmetric.pairs <- function(smp){
+  p <- filter(f1, template==smp$template & primer==smp$primer | template==rev.comp(smp$template) & primer==rev.comp(smp$primer))
+  return(p)
+}
+
+l.pairs <- lapply(sample(1:nrow(f1),1500), function(i) find.simmetric.pairs(f1[i,]))
+dub.pairs <- l.pairs[sapply(l.pairs, function(x) nrow(x)==2)]
+epsilons <- sapply(dub.pairs, function(p) find.epsilon(p[1,], p[2,]))
+pdf("~/hist_epsilons.pdf")
+hist(epsilons, breaks=2000)
+dev.off()
+pdf("~/hist_zoom_epsilons.pdf")
+hist(epsilons, breaks=2000, xlim=c(-2000,2000))
+# dev.off()
+abline(v =median(epsilons), col='red')
+mad(epsilons)
+median(epsilons)
+
+pairs.neg <- dub.pairs[epsilons<0]
+pairs.pos <- dub.pairs[epsilons>0]
+pairs.neg
+m.sumpt <- sapply(dub.pairs, function(p) mean(p$cele.pt))
+plot(m.sumpt, epsilons)
+m.ab <- sapply(dub.pairs, function(p) mean(p$abundance))
+
+diff <- sapply(dub.pairs, function(p) p[1,]$pt - p[2,]$pt)
+plot(diff, epsilons)
+plot(m.sumpt, epsilons)
+plot(m.ab, epsilons)
+pdf("~/cumsum_zoom_epsilons.pdf")
+plot(sort(epsilons), rank(sort(cumsum(sort(epsilons))))/length(epsilons),
+     xlim=c(-500,500), ylab='cumsum(epsilons)')
+abline(h=0.5, col='red')
+dev.off()
+
+median(epsilons)
+```
+
+<!-- ## ALEXANDER'S DELTA IDEA -->
+<!-- ```{r} -->
+<!-- mod.cele.df <- cele.df %>% -->
+<!--   mutate(beta=t.usage/pt, -->
+<!--          alpha=exp(dG), -->
+<!--          delta=(alpha+beta)/beta) -->
+<!-- # head(mod.cele.df) -->
+
+<!-- mod.cele.df %>% -->
+<!--   # filter(abundance>250000) %>% -->
+<!--   mutate(abund = ifelse(abundance>100000, 'big', 'low')) %>% -->
+<!--   # mutate(prev=sapply(as.character(template), prevalent_nucleotide)) %>% -->
+<!--     # mutate(abundance = ifelse(abundance>350000, NA, abundance)) %>% -->
+<!-- ggplot(., aes((abundance), (delta*t.usage), )) + -->
+<!--   # ggplot(., aes((delta*beta), beta+alpha, )) + -->
+<!--   geom_point(alpha=0.3, -->
+<!--              # aes(color=abund) -->
+<!--                # aes(color=prev) -->
+<!--                          # aes(color=abundance) -->
+<!--              ) + -->
+<!--   # scale_color_gradient2(midpoint=200000) -->
+<!--   geom_smooth(method='lm') + -->
+<!--   ylab('delta*sum_all_over_i(p_i t)') + -->
+<!--   ggtitle(paste('eps =', (lm.cele$coefficients[2,1]))) + -->
+<!-- ggsave('~/corrected_epsilon.pdf') -->
+<!-- plot.cele.df <- mod.cele.df %>% -->
+<!--   mutate(y=delta*t.usage, x=abundance) %>% -->
+<!--   ggplot(., aes(log(x),log(y))) + -->
+<!--   geom_point() -->
+<!-- plot.cele.df -->
+<!-- lm.cele <- summary(lm(log(y) ~ log(x), data=plot.cele.df$data)) -->
+<!-- lm.cele -->
+
+<!-- ggsave('epsilon_fit.pdf') -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- mod.cele.df %>% -->
+<!--   ggplot(., aes(eps*1000)) + -->
+<!--   geom_histogram(bins=50) + -->
+<!--   geom_vline(xintercept=median(mod.cele.df$eps*1000))  -->
+<!-- ``` -->
+
+<!-- # Fitting  for matching primer-template pairs -->
+<!-- In log scale epsilon is the exponential of the intercept of the fit (slope is set to 1) -->
+<!-- ```{r} -->
+<!-- GCcont <- function(string){ -->
+<!--   letters <- unlist(strsplit(as.character(string),'')) -->
+<!--   count <- table(factor(letters, levels=c("A","T","C","G"))) -->
+<!--   gc_cont <- sum(count[c("G","C")])/length(letters) -->
+<!--   return(gc_cont) -->
+<!-- } -->
+
+<!-- lm.unfilt <- summary(lm(log(beta+alpha) ~ offset(log(delta*beta)), data=mod.cele.df)) -->
+<!-- lm.linear <- summary(lm(y ~ x, data=mod.cele.df)) -->
+<!-- mod.cele.df %>% -->
+<!--   mutate(ab=ifelse(abundance>200000, 'big', 'low'), -->
+<!--          gc.cont=sapply(template, GCcont)) %>% -->
+<!--   # filter(gc.cont>0.5) %>% -->
+<!--   ggplot(., aes(delta*beta, beta+alpha, label=template)) + -->
+<!--            geom_point(alpha=0.4, -->
+<!--                     aes  (color=gc.cont)) + -->
+<!--   geom_text(size=2)   -->
+<!--   scale_color_gradient2(midpoint=0.8) -->
+<!--   geom_smooth(method = 'lm')  -->
+<!--   # ggsave('~/eps_linear.pdf') -->
+<!--   ggtitle(paste("eps=", exp(lm.linear$coefficients[2]))) -->
+<!-- ``` -->
+
+<!-- Not so unexpectedly the outliars of the distribution of epsilon (so the pairs for which epsilon is very high) are the sequences with a small total abundance in the genome -->
+<!-- ```{r} -->
+<!-- mod.cele.df %>% -->
+<!--   ggplot(., aes(eps,log(abundance))) + -->
+<!--   geom_point(alpha=0.4)  -->
+
+<!-- mod.cele.df %>% -->
+<!--   mutate(abund = ifelse(abundance>150000, '>150000', '<150000')) %>% -->
+<!-- ggplot(., aes(log(delta*beta), log(beta+alpha), )) + -->
+<!--   geom_point(alpha=0.3, -->
+<!--              aes(color=abund) -->
+<!--               # aes(color=abundance) -->
+<!--              ) + -->
+<!--   # scale_color_gradient2(midpoint=200000) -->
+<!--   geom_smooth(method='lm') -->
+<!-- ``` -->
+
+<!-- Indeed if we filter out the low abundance templates the value for epsilon becomes smaller -->
+<!-- ```{r} -->
+<!-- lm.filt <- summary(lm(log(beta+alpha) ~ offset(log(delta*beta)), data=filter(mod.cele.df, abundance>200000))) -->
+<!-- filter(mod.cele.df, abundance>200000) %>% -->
+<!--   ggplot(., aes(offset(log(delta*beta)), log(beta+alpha))) + -->
+<!--            geom_point(alpha=0.4) + -->
+<!--   geom_smooth(method = 'lm') + -->
+<!--   ggtitle(paste("eps=", exp(lm.filt$coefficients))) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- # summary(lm(log(beta+alpha) ~ log(delta*beta), data=filter(mod.cele.df, abundance>162754.8))) -->
+<!-- summary(lm(log(beta+alpha) ~ offset(log(delta*beta)), data=filter(mod.cele.df, abundance>2500000))) -->
+
+<!-- mod.cele.df <- mod.cele.df %>% -->
+<!--   # mutate(eps=(beta+alpha)/(beta*delta)) %>% -->
+<!--   mutate(eps=(delta*t.usage)*abundance) %>% -->
+<!--   mutate(y=(beta+alpha), -->
+<!--          x=delta*beta) -->
+
+<!-- mod.cele.df %>% -->
+<!--   ggplot(., aes(eps)) + -->
+<!--   geom_histogram(bins=50) + -->
+<!--   geom_vline(xintercept=median(mod.cele.df$eps)) + -->
+<!--   xlim(0,100000000) -->
+<!--   # ggsave('~/alexanders_eps_hist.pdf') -->
+
+<!-- mod.cele.df %>% -->
+<!--   ggplot(., aes(eps,log(abundance))) + -->
+<!--   geom_point(alpha=0.4) -->
+<!--   ggsave('~/corr_eps_abundance.pdf') -->
+
+<!-- mean(mod.cele.df$eps) -->
+<!-- sd(mod.cele.df$eps) -->
+<!-- ``` -->
+<!-- Same with zebrafish -->
+<!-- ```{r} -->
+<!-- mod.zf.df <- zf.df %>% -->
+<!--   mutate(beta=t.usage/pt, -->
+<!--          alpha=exp(dG), -->
+<!--          delta=abundance/t.usage) -->
+<!-- mod.zf.df %>% -->
+<!--   mutate(ab=ifelse(abundance>500000, 'big', 'low')) %>% -->
+<!--   ggplot(., aes(log(beta+alpha), log(delta*beta), color=ab)) + -->
+<!--   geom_point(alpha=0.3)  -->
+<!--   geom_smooth(method='lm') -->
+
+<!-- mod.zf.df <- mod.zf.df %>% -->
+<!--   mutate(eps=(delta*t.usage)/abundance) %>% -->
+<!--   mutate(y=(beta+alpha)/beta, -->
+<!--          x=delta) -->
+
+<!-- mod.zf.df$eps -->
+<!-- mod.zf.df %>% -->
+<!--   ggplot(., aes(eps)) + -->
+<!--   geom_histogram(bins=50)  -->
+<!--   geom_vline(xintercept=median(mod.zf.df)) -->
+<!--   # ggsave('~/alexanders_eps_hist.pdf') -->
+
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- lm.unfilt <- summary(lm(log(beta+alpha) ~ offset(log(delta*beta)), data=mod.zf.df)) -->
+<!-- mod.zf.df %>% -->
+<!--   ggplot(., aes(offset(log(delta*beta)), log(beta+alpha))) + -->
+<!--            geom_point(alpha=0.4) + -->
+<!--   geom_smooth(method = 'lm') + -->
+<!--   ggtitle(paste("eps=", exp(lm.unfilt$coefficients))) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- f1 %>% -->
+<!--  filter(template=='CTCTCT') %>% -->
+<!--   rename(t.usage =cele.pt) %>% -->
+<!--   mutate(beta=t.usage/pt, -->
+<!--        alpha=exp(dG), -->
+<!--        delta=abundance/t.usage) %>% -->
+<!--   ggplot(., aes(y=alpha+beta, delta*beta)) + -->
+<!--   geom_point(alpha=0.3) -->
+
+
+<!-- f1 %>% -->
+<!--   head(.) -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- lm.eps <- filter(mod.cele.df, x<500) %>% -->
+<!--   lm(y ~ x, data=.) -->
+<!-- summary(lm.eps) -->
+<!-- plot(mod.cele.df$x, mod.cele.df$y) -->
+<!-- abline(lm.eps) -->
+<!-- ``` -->
+
+<!-- ## More good ideas -->
+<!-- Using palindromes amd simmetric sequences I can compute epsilon because the primer conc is the same and assuming the $K_eq$ is the same. -->
+<!-- ```{r} -->
+<!-- f2 <- join.pt.data(matches = cele.pairs,template.usage= cele.template.usage, kmer.ab = cele.kmer.ab, tabDg = tabDg) -->
+
+<!-- find.rev.pairs <- function(df,smp){ -->
+<!--   p <- filter(df, primer==smp$primer, template==smp$template  | template==rev.comp(smp$template, compl = F) ) -->
+<!--   return(p) -->
+<!-- } -->
+
+<!-- find.pal.epsilon <- function(smp.ij, smp.ji){ -->
+<!--   return(c((smp.ji$abundance*smp.ij$pt - smp.ij$abundance*smp.ji$pt), (smp.ij$pt*smp.ji$cele.pt - smp.ji$pt*smp.ij$cele.pt))) -->
+<!-- } -->
+
+<!-- seq <- 'CGCGCG' -->
+<!-- is.palindrome <- function(seq){ -->
+<!--   if (seq == paste0(rev(strsplit(seq,split='')[[1]]), collapse='')) { -->
+<!--     return(TRUE) -->
+<!--   }else{ -->
+<!--     return(FALSE) -->
+<!--   } -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- find.pal.epsilon(smp.pal.pair[1,], smp.pal.pair[2,]) -->
+
+<!-- polyT.primer <- f2 %>% -->
+<!--   filter(primer == 'TTTTTT') -->
+
+<!-- polyA.primer <- f2 %>% -->
+<!--   filter(primer == 'AAAAAA') -->
+
+<!-- polyG.primer <- f2 %>% -->
+<!--   filter(primer == 'GGGGGG') -->
+
+<!-- polyC.primer <- f2 %>% -->
+<!--   filter(primer == 'CCCCCC') -->
+
+<!-- l.pairs.T <- lapply(1:nrow(polyT.primer), function(i) find.rev.pairs(polyT.primer,polyT.primer[i,])) -->
+<!-- epsilons.T <- sapply(l.pairs.T, function(p) find.pal.epsilon(p[1,], p[2,])) -->
+
+<!-- l.pairs.C <- lapply(1:nrow(polyC.primer), function(i) find.rev.pairs(polyC.primer,polyC.primer[i,])) -->
+<!-- epsilons.C <- sapply(l.pairs.C, function(p) find.pal.epsilon(p[1,], p[2,])) -->
+
+<!-- l.pairs.A <- lapply(1:nrow(polyA.primer), function(i) find.rev.pairs(polyA.primer,polyA.primer[i,])) -->
+<!-- epsilons.A <- sapply(l.pairs.A, function(p) find.pal.epsilon(p[1,], p[2,])) -->
+
+<!-- l.pairs.G <- lapply(1:nrow(polyG.primer), function(i) find.rev.pairs(polyG.primer,polyG.primer[i,])) -->
+<!-- epsilons.G <- sapply(l.pairs.G, function(p) find.pal.epsilon(p[1,], p[2,])) -->
+<!-- hist(epsilons.G, -->
+<!--      # xlim=c(-2000,2000) -->
+<!--      ) -->
+<!-- median(epsilons.G, na.rm=T) -->
+
+
+<!-- hist(epsilons.C, breaks=100 -->
+<!--      # xlim=c(-2000,2000) -->
+<!--      ) -->
+<!-- median(epsilons.C, na.rm=T) -->
+
+
+<!-- hist(epsilons.A, breaks=2000, -->
+<!--      xlim=c(-2000,2000) -->
+<!--      ) -->
+<!-- median(epsilons.A, na.rm=T) -->
+<!-- hist(epsilons.T, breaks=2000, -->
+<!--      xlim=c(-2000,2000) -->
+<!--      ) -->
+<!-- median(epsilons.T, na.rm=T) -->
+
+<!-- plot(sort(epsilons.C), rank(sort(cumsum(sort(epsilons.C))))/length(epsilons.C[!is.na(epsilons.C)])) -->
+<!--      # xlim=c(-500,500), ylab='cumsum(epsilons)') -->
+<!-- abline(h=0.5) -->
+<!-- ``` -->
+
+<!-- We have showed that for a given template sequence $j$ binding to primer $i$: -->
+
+<!-- $$  -->
+<!-- exp(\frac{\Delta G}{k_B T}) = \frac{CT_j - \epsilon \sum_i{x_{ij}}}{\epsilon x_{ij}} -->
+<!-- $$ -->
+
+<!-- where $\epsilon$ is the scaling factor for the sequencing efficiency, $C$ is the scaling factor for the genomic copy number, $T_j$ is the abundance of template $j$ in the genome, $x_ij$ is the number of times we measure the pair $ij$ in the sequencing experiment. -->
+
+<!-- Some primer-template pairs are expected to have the same $\Delta$G, based on sequence symmetry. From these couples of p-t pairs we can fit $\epsilon$ and $C$ -->
+<!-- $$ -->
+<!-- \frac{\epsilon}{C} = \frac{T_ix_{ij} - T_jx_{ji}}{x_{ji}\sum_i{x_{ij}} - x_{ij}\sum_i{x_{ji}}} -->
+<!-- $$ -->
+
+<!-- To rule out fluctuations coming from variable primer concentrations I take symmetric pairs with as primer the same palindrome sequence (e.g. AAAAAA or GGCCGG) and as template a sequence and it's reverse. This way, even if we don't assume primer concentration to be constant for all hexamers, it factors out. -->
+
+<!-- Fitting this on a sample of 1000 palindrome pairs: -->
+<!-- ```{r} -->
+<!-- pals <- unique(f2$primer)[sapply(unique(f2$primer), is.palindrome)] -->
+<!-- pal.df <- f2 %>% -->
+<!--   filter(primer %in% pals) -->
+
+<!-- l.pairs.pals <- lapply(sample(1:nrow(pal.df), 1000), function(i) find.rev.pairs(pal.df,pal.df[i,])) -->
+<!-- epsilons.pals <- sapply(l.pairs.pals, function(p) find.pal.epsilon(p[1,], p[2,])) -->
+
+<!-- as.data.frame(t(epsilons.pals)) %>% -->
+<!--   rename(y=V1, x=V2) %>% -->
+<!-- ggplot(., aes(x,y)) + -->
+<!--   geom_point() + -->
+<!--   geom_smooth(method='lm') + -->
+<!--   ggtitle("No filtering") -->
+
+<!-- lm.eps <- as.data.frame(t(epsilons.pals)) %>% -->
+<!--   rename(y=V1, x=V2) %>% -->
+<!--   filter(x<20000 & x>-20000) %>% -->
+<!--   lm(y ~ x, data=.) -->
+
+<!-- ggplot(lm.eps$model, aes(x,y)) + -->
+<!--   geom_point(alpha=0.4) + -->
+<!--   geom_smooth(method='lm') + -->
+<!--   ggtitle("xlim=[-20000,20000]") -->
+
+<!-- ggplot(lm.eps$model, aes(y/x)) + -->
+<!--   geom_histogram(bins=100) + -->
+<!--   xlab('estimated eps/C')  -->
+<!--   # xlim(-200,500) -->
+
+<!-- summary(lm.eps)  -->
+<!-- ``` -->
+<!-- Repeating this for many samples and taking the average median of the distribution -->
+<!-- ```{r} -->
+<!-- sum<- 0 -->
+<!-- for (n in 1:10) { -->
+<!--   l.pairs.pals <- lapply(sample(1:nrow(pal.df), 1000), function(i) find.rev.pairs(pal.df,pal.df[i,])) -->
+<!--   epsilons.pals <- sapply(l.pairs.pals, function(p) find.pal.epsilon(p[1,], p[2,])) -->
+<!--   lm.eps <- as.data.frame(t(epsilons.pals)) %>% -->
+<!--     rename(y=V1, x=V2) %>% -->
+<!--     filter(x<5000 & x>-5000) %>% -->
+<!--     lm(y ~ x, data=.) -->
+<!--   sum = sum + lm.eps$coefficients['x'] -->
+<!-- } -->
+<!-- avg.epsi <- sum/10 -->
+<!-- avg.epsi -->
+<!-- ``` -->
+
+<!-- Now I have an estimate for $\frac{\epsilon}{C}$.  -->
+<!-- I could use the calorimetry values to estimate $C$ as the value for which the intercept of the correlation between predicted and calorimetry $\Delta$G is 0. -->
+
+<!-- If we set $C = 1$ -->
+<!-- ```{r} -->
+<!-- eps <- avg.epsi -->
+
+<!-- C <- 1 -->
+<!-- corrected.dg.f2 <- f2 %>%  -->
+<!--   filter(primer==template) %>% -->
+<!--   filter(pt>500) %>% -->
+<!--   mutate(scaled.pt = pt*eps*C) %>% -->
+<!--   mutate(pred.dg.scaled= (abundance-scaled.pt)/scaled.pt) %>% -->
+<!--   mutate(pred.dg= (abundance-pt)/pt)  -->
+
+<!-- corrected.dg.f2 %>% -->
+<!--   # ggplot(., aes(dG, pred.dg.scaled)) + -->
+<!--   ggplot(., aes(dG, log(pred.dg.scaled+1))) + -->
+<!--     geom_point() + -->
+<!--   geom_smooth(method='lm') -->
+<!--   # ylim(-20000,20000) -->
+
+<!-- lm.scaled <- corrected.dg.f2 %>% -->
+<!--   lm(log(pred.dg.scaled+1) ~ dG, data=.) -->
+<!-- summary(lm.scaled) -->
+
+<!-- # lm.unscaled <- corrected.dg.f2 %>% -->
+<!-- #   lm(log(pred.dg) ~ dG, data=.) -->
+<!-- # summary(lm.unscaled) -->
+<!-- # corrected.dg.f2 %>% -->
+<!-- #   ggplot(., aes(dG, log(pred.dg))) + -->
+<!-- #   # ggplot(., aes(dG, pred.dg)) + -->
+<!-- #   geom_point()  -->
+<!-- # corrected.dg.f2 %>% -->
+<!--   # mutate(res=lm.scaled$residuals) %>% -->
+<!--   # ggplot(., aes(pt, res)) + -->
+<!--   # geom_point(alpha=0.4) -->
+
+<!-- ``` -->
+
+<!-- What C value gives me intercept==0? -->
+
+<!-- ```{r} -->
+<!-- filt.corr.dg <- f2 %>%  -->
+<!--   filter(primer==template) %>% -->
+<!--   filter(pt>300)  -->
+
+<!-- fit.intercept <- function(C){ -->
+<!--   filt.dg.corr <- filt.corr.dg %>% -->
+<!--     mutate(scaled.pt = pt*eps*C) %>% -->
+<!--     mutate(pred.dg.scaled= (abundance-scaled.pt)/scaled.pt) %>% -->
+<!--     mutate(pred.dg= (abundance-pt)/pt)  -->
+<!--   lm.scaled <- filt.dg.corr %>% -->
+<!--     lm(log(pred.dg.scaled+1) ~ dG, data=.) -->
+<!--   return(c(C,lm.scaled$coefficients[1])) -->
+<!-- } -->
+
+<!-- inter <- sapply(seq(1,1000, 10), fit.intercept) -->
+<!-- plot(inter[1,], inter[2,], xlab='C', ylab='intercept') -->
+<!-- ``` -->
+
+<!-- ## Comparison of biological replicates before and after normalization -->
+<!-- I have to use BS files because I don't have replicas of non BS files -->
+<!-- ```{r} -->
+<!-- kmer.ab.mm10 <- load.kmer.abundance('~/mnt/edann/hexamers/genomes_kmers/mm10.kmerAbundance.csv') -->
+
+<!-- pt.data.D2 <- load.pt.data(ptCounts.file = "~/mnt/edann/primer_conc_VAN2493/D2R_tr2_R1_bismark_bt2.ptCounts.qualFilt.csv", diag.pairs = F) -->
+<!-- pt.data.D3 <- load.pt.data(ptCounts.file = "~/mnt/edann/primer_conc_VAN2493/D3R_tr2_R1_bismark_bt2.ptCounts.qualFilt.csv", diag.pairs = F) -->
+
+<!-- hex.df.d2 <- join.pt.data(filter(pt.data.D2$matches, dG>5), pt.data.D2$t.usage, kmer.ab.mm10, deltaG.data) -->
+<!-- hex.df.d3 <- join.pt.data(filter(pt.data.D3$matches, dG>5), pt.data.D3$t.usage, kmer.ab.mm10, deltaG.data) -->
+<!-- ``` -->
+<!-- Before norm -->
+<!-- ```{r} -->
+<!-- # nrow(hex.df.d3) -->
+<!-- inner_join(hex.df.d2, hex.df.d3, by=c('primer', 'template')) %>% -->
+<!--   ggplot(., aes(log(pt.x), log(pt.y))) + -->
+<!--   geom_point(alpha=0.3) -->
+<!-- ``` -->
+<!-- After norm -->
+<!-- ```{r} -->
+<!-- eps.d2 <- epsilon.distribution(hex.df.d2) -->
+<!-- eps.d3 <- epsilon.distribution(hex.df.d3) -->
+
+<!-- hist(eps.d2, breaks=50) -->
+<!-- abline(v=median(eps.d2, na.rm = T), col='red') -->
+<!-- hist(eps.d3, breaks=50) -->
+<!-- abline(v=median(eps.d3, na.rm = T), col='red') -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- norm.hex.d2 <- normalize.w.palindrome.primers(hex.df.d2, eps=median(eps.d2, na.rm=T)) -->
+<!-- norm.hex.d3 <- normalize.w.palindrome.primers(hex.df.d3, eps=median(eps.d3, na.rm=T)) -->
+
+<!-- inner_join(norm.hex.d2, norm.hex.d3, by=c('primer', 'template')) %>% -->
+<!--   ggplot(., aes(log(-scaled.pt.x), log(-scaled.pt.y))) + -->
+<!--   geom_point(alpha=0.3) -->
+
+
+<!-- ``` -->
+
+<!-- ## CHI-SQUARE APPROACH -->
+<!-- ```{r} -->
+<!-- t.groups <- read.table("~/AvOwork/MatchingTemplate_groups.tsv", col.names = c('template', 'group')) -->
+<!-- # temp.g1 <- filter(t.groups, group==1) %>% select(template) -->
+<!-- # temp.g2 <- filter(t.groups, group==2) %>% select(template) -->
+<!-- # temp.g3 <- filter(t.groups, group==3) %>% select(template) -->
+
+<!-- make.groups.df <- function(hex.df, groupsOI){ -->
+<!--   groups.df <- hex.df %>%  -->
+<!--   inner_join(., t.groups, by='template') %>% -->
+<!--   filter(group %in% groupsOI) %>% -->
+<!--   mutate(A = sum((abundance/pt)^2), -->
+<!--          C = sum((abundance*t.usage)/(pt^2))) %>% -->
+<!--   group_by(group) %>% -->
+<!--   mutate(B=sum(abundance/pt), -->
+<!--          D=sum(t.usage/pt), -->
+<!--          N=n(), -->
+<!--          F=sum((abundance^2)/(pt^2)), -->
+<!--          C.sing=sum((abundance*t.usage)/(pt^2)) -->
+<!--          ) %>% -->
+<!--   select(A,B,C,D,N, F,C.sing, dG) %>% -->
+<!--   summarise_all(funs(first))  -->
+<!--   return(groups.df)   -->
+<!-- } -->
+
+<!-- groups.df -->
+
+<!-- groups.df <- make.groups.df(hex.df, seq(1,40)) %>% -->
+<!--   mutate(eps=((-D*B)+N*C.sing)/(-B^2 + N*F)) -->
+<!-- groups.df -->
+<!-- # groups.df %>% -->
+<!-- groups.df %>% -->
+<!--   ggplot(., aes(eps)) + -->
+<!--   geom_histogram() -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- solve.system <- function(groups.df){ -->
+<!--   first.left <- c(groups.df$A[1], groups.df$B) -->
+<!--   first.right <- groups.df %>% -->
+<!--     transmute(C-sum(B)) %>% -->
+<!--     sample_n(1) -->
+
+<!--   first.right <- c(eps=first.right$`C - sum(B)`) -->
+<!--   coeffs <-c() -->
+<!--   for (n in groups.df$group){ -->
+<!--     coeffs <- rbind(coeffs, sapply(groups.df$group, function(i) ifelse(groups.df[groups.df$group==i,]$group==n,as.numeric(groups.df[groups.df$group==i,'N']), 0))) -->
+<!--       # ifelse(groups.df$group==n) -->
+<!--     } -->
+
+<!--   right <- groups.df %>% -->
+<!--     transmute(group,D) -->
+<!--   right <- as.matrix(cbind(right$group, right$D)) -->
+<!--   rownames(right) <- right[,1] -->
+<!--   right <- right[,2] -->
+
+<!--   left.mat <- rbind(as.numeric(first.left), cbind(groups.df$B, coeffs)) -->
+<!--   right.mat <- c(first.right, right) -->
+<!--   sols <- solve(left.mat, right.mat) -->
+<!--   eps <- sols[1] -->
+<!--   dgs <- sols[2:length(sols)] -->
+<!--   return(list(eps=eps, dgs=dgs))   -->
+<!-- } -->
+
+<!-- save.results <- function(hex.df, groupsOI, eps=F){ -->
+<!--   df <- make.groups.df(hex.df, groupsOI) -->
+<!--   sols <- solve.system(df) -->
+<!--   results <- select(cbind(dgs, df), group, dgs) -->
+<!--   if(eps){ -->
+<!--     return(sols$eps) -->
+<!--   } else { -->
+<!--       return(results) -->
+<!--   } -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- estimated dg for a lot of iteration -->
+<!-- ```{r} -->
+<!-- res.df <- data.frame(group=seq(1,40)) -->
+<!-- count.tab <- c(0,0,0,0) -->
+<!-- iter <- 0 -->
+<!-- while (any(count.tab<100)) { -->
+<!--   iter <- iter + 1 -->
+<!--   # print(paste('Iteration no.', iter)) -->
+<!--   res <- save.results(hex.df, sample(seq(1,40), 10)) -->
+<!--   colnames(res) <- c('group', paste0('dgs.it', iter)) -->
+<!--   res.df <- full_join(res.df, res, by='group') -->
+<!--   count.tab <- sapply(as.data.frame(t(res.df)), function(x) sum(!is.na(x))) -->
+<!-- } -->
+
+<!-- res.df %>% -->
+<!--   melt(id.vars='group') %>% -->
+<!--   ggplot(., aes(log(value))) +  -->
+<!--   facet_wrap(~group)  + -->
+<!--   geom_histogram(bins=50) -->
+<!-- ``` -->
+
+<!-- estimated eps for a lot of iteration -->
+<!-- ```{r} -->
+<!-- eps.df <- c() -->
+<!-- iter <- 0 -->
+<!-- while (iter < 1000) { -->
+<!--   iter <- iter + 1 -->
+<!--   # print(paste('Iteration no.', iter)) -->
+<!--   res <- save.results(hex.df, sample(seq(1,40), 10), eps=T) -->
+<!--   eps.df <- c(eps.df, res) -->
+<!--   } -->
+<!-- hist(eps.df, breaks=100) -->
+
+<!-- p2 <- cbind(dgs, groups.df) %>% -->
+<!--   ggplot(., aes(log(dgs), dG, label=group)) +  -->
+<!--   geom_text() -->
+<!-- p1 -->
+<!-- p2 -->
+<!-- g7 <- res.df %>% -->
+<!--   filter(group==7) -->
+<!-- p1$data %>% -->
+<!--   ggplot(., aes(dgs)) + geom_histogram() -->
+<!-- p2$data %>% -->
+<!--   ggplot(., aes(dgs)) + geom_histogram() -->
+
+<!-- count.tab -->
+
+<!-- norm.hex %>% inner_join(., t.groups, by='template') %>%  -->
+<!--   filter(group==1) %>% -->
+<!--   ggplot(., aes(log(pred.dg.scaled)))+  -->
+<!--   # facet_wrap(~group) +  -->
+<!--   geom_histogram(alpha=0.4) + -->
+<!--   geom_histogram(data=melt(g1), aes(log(value)), alpha=0.4, fill='blue')  -->
+<!--   geom_vline(xintercept=filter(groups.df, group==1)$dG) -->
+
+<!-- ``` -->
+
+
+## Simulation of primer distribution
+Fitting the value of the scaling factor epsilon under the assumption of even primer concentration does not yield reliable results. We tried to simulate process of the formation of the primer pool from even probability for every nucleotide at each position in the hexamer.
+```{r}
+build.random.base <- function(pA=0.25, pT=0.25, pG=0.25, pC=0.25){
+  a <- pA
+  c <- a+pC
+  t <- c+pT
+  g <- t+pG
+  rand <- runif(1,0,1)
+  if (rand < a) {return('A')}
+  if (rand > a & rand < c) {return('C')}
+  if (rand > c & rand < t) {return('T')}
+  if (rand > t) {return('G')}
+  }
+
+build.random.hex <- function(){
+  hex <- ''
+  for (n in 1:6) {
+    hex <- paste0(hex,build.random.base())  
+  }
+  return(hex)
+  }
+
+simulate.primer.pool <- function(pool.size=50000){
+  pool <- c()
+  for (n in 1:pool.size) {
+    pool <- c(pool, build.random.hex())
+  }
+  return(pool)
+}
+
+pool1 <- simulate.primer.pool(pool.size = 100000)
+primers <- table(pool1)/length(pool1)
+
+hist(table(pool1)/length(pool1), breaks=30, xlab='relative frequency of hexamer in pool', main=paste('Mean:', mean(table(pool1)/length(pool1)), ', SD:', sd(table(pool1)/length(pool1))))
+summary(fitdist(as.numeric(table(pool1)), 'norm'))
+summary(fitdist(as.numeric(table(pool1)), 'pois'))
+
+```
+We get a gamma distribution centered at 0.00024, the expected probability. This shows that some hexamer sequences in the random primer pool will be found in a very small fraction, but which ones is random. So we can treat each primer concentration in this setting as a distribution and not a constant.
+
+<!-- ```{r} -->
+<!-- r <- rnorm(10000) -->
+<!-- hist(r, breaks=100) -->
+<!-- hist(1/r, breaks=10000, xlim=c(-10,10)) -->
+<!-- points(seq(1,1000), 1/sqrt(2*pi)*) -->
+
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- hex.df %>%  -->
+<!--   inner_join(., t.groups, by='template') %>% -->
+<!--   filter(group==1) %>% -->
+<!--   mutate(rv=(0.1*abundance/pt)-(t.usage/pt)) %>% -->
+<!--   ggplot(., aes(rv)) + geom_histogram(bins=50) -->
+
+<!-- hex.df %>%  -->
+<!--   inner_join(., t.groups, by='template') %>% -->
+<!--   filter(group==1) %>% -->
+<!--   mutate(rv=(1*abundance/pt)-(t.usage/pt)) %>% -->
+<!--   ggplot(., aes(rv)) + geom_histogram(bins=50) -->
+
+<!-- hex.df %>%  -->
+<!--   inner_join(., t.groups, by='template') %>% -->
+<!--   filter(group==1) %>% -->
+<!--   mutate(rv=(10*abundance/pt)-(t.usage/pt)) %>% -->
+<!--   ggplot(., aes(rv)) + geom_histogram(bins=50) -->
+
+<!-- hex.df %>%  -->
+<!--   inner_join(., t.groups, by='template') %>% -->
+<!--   filter(group==1) %>% -->
+<!--   mutate(rv=(100*abundance/pt)-(t.usage/pt)) %>% -->
+<!--   ggplot(., aes(rv)) + geom_histogram(bins=50) -->
+
+<!-- d <- hex.df %>%  -->
+<!--   inner_join(., t.groups, by='template') %>% -->
+<!--   # filter(group==1) %>% -->
+<!--   mutate(rv01=(1*abundance/pt)-(t.usage/pt), -->
+<!--          rv1=(1*abundance/pt)-(t.usage/pt), -->
+<!--          rv10=(10*abundance/pt)-(t.usage/pt), -->
+<!--          rv100=(100*abundance/pt)-(t.usage/pt), -->
+<!--          rv1000=(1000*abundance/pt)-(t.usage/pt) -->
+<!--          ) -->
+<!-- d %>%   -->
+<!-- select(-primer, -abundance, -t.usage, -group, rv01) %>% -->
+<!--   # melt(id.vars=c('template', 'pt', 'dG'), variable.name='eps') %>% -->
+<!--   ggplot(., aes(1/rv01)) + -->
+<!--   # facet_wrap(~eps) + -->
+<!--   geom_histogram(bins=50) -->
+
+<!-- ``` -->
+<!-- <!-- Fitting a gaussian to the primer conc --> -->
+<!-- <!-- ```{r} --> -->
+<!-- <!-- library(MASS) --> -->
+<!-- <!-- compute.dist.w.eps <- function(eps, filter=200){ --> -->
+<!-- <!--   d <- hex.df %>%  --> -->
+<!-- <!--     filter(pt>filter) %>% --> -->
+<!-- <!--     mutate(rv=exp(-dG)/((eps*abundance/pt)-(t.usage/pt))) --> -->
+<!-- <!--   return(d$rv) --> -->
+<!-- <!-- } --> -->
+<!-- <!-- d <- compute.dist.w.eps(0.1) --> -->
+<!-- <!-- d2 <- compute.dist.w.eps(10) --> -->
+<!-- <!-- d3 <- compute.dist.w.eps(100) --> -->
+<!-- <!-- d4 <- compute.dist.w.eps(0.07) --> -->
+
+<!-- <!-- x <- density(d, na.rm=TRUE) --> -->
+<!-- <!-- y <- rnorm(n=length(d), mean=mean(d, na.rm=T), sd=sd(d, na.rm=T)) --> -->
+<!-- <!-- hist(d, breaks=100) --> -->
+<!-- <!-- hist(d2, breaks=100) --> -->
+<!-- <!-- hist(d3, breaks=100) --> -->
+<!-- <!-- hist(d4, breaks=100000, xlim=c(-0.1,0.1)) --> -->
+<!-- <!-- summary(lm(quantile(y, probs=seq(0,1,0.01),na.rm=T) ~ quantile(d, probs=seq(0,1,0.01), na.rm=T),)) --> -->
+
+<!-- <!-- summary(lm(quantile(y, probs=seq(0,1,0.01),na.rm=T) ~ quantile(d2, probs=seq(0,1,0.01), na.rm=T),)) --> -->
+
+
+<!-- library(MASS) -->
+<!-- library(fitdistrplus) -->
+<!-- # install.packages('fitdistrplus') -->
+
+<!-- fit.norm <- function(eps){ -->
+<!--   d <- compute.dist.w.eps(eps) -->
+<!--   fit1 <- fitdistrplus::fitdist(d[!is.na(d)],'norm', lower=c(0,0)) -->
+<!--   # plot(fit1) -->
+<!--   return(fit1$aic) -->
+<!-- } -->
+
+<!-- p <- sapply(seq(1,30,1), fit.norm) -->
+<!-- plot(seq(1,30,1), p) -->
+<!-- mean(d, na.rm=T) -->
+
+<!-- d5 <- compute.dist.w.eps(2, filter = 500) -->
+<!-- d4 <- compute.dist.w.eps(2, filter = 400) -->
+<!-- d3 <- compute.dist.w.eps(100, filter = 0) -->
+<!-- hist(d3, breaks=200, main=mean(d3)) -->
+<!-- hist(d4, breaks=200, main=mean(d4)) -->
+<!-- hist(d5, breaks=200, main=mean(d5)) -->
+
+<!-- d <- compute.dist.w.eps(0.1, filter = 0) -->
+<!-- hist(d, breaks=200, main=mean(d)) -->
+
+<!-- d2 <- compute.dist.w.eps(2, filter = 0) -->
+<!-- hist(d2, breaks=200, main=mean(d)) -->
+
+<!-- d2 <- compute.dist.w.eps(0.03, filter = 0) -->
+<!-- hist(d2, breaks=200, main=mean(d)) -->
+<!-- # (ppois(d, lambda = 0.00024)) -->
+<!-- table(is.na(d4)) -->
+<!-- fit.norm <- fitdist(d, 'pois')  -->
+<!-- plot(fit.norm) -->
+<!-- fit.norm$aic -->
+
+<!-- k <- hex.df %>% -->
+<!--   mutate(p = t.usage/abundance)  -->
+<!-- max(k$p) -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- hex.df %>% mutate(exp(dG))  -->
+<!-- ``` -->
+
+<!-- <!--  ## MORE SIMMETRY!!! --> -->
+<!-- <!--  We need to group pairs of pt sequences based on if we expect the same $\Delta$G based on sequence simmetry. Using the rev.comp function defined above --> -->
+<!-- <!-- ```{r} --> -->
+<!-- <!-- find.pt.group <- function(primer, template){ --> -->
+<!-- <!--   # primer<- 'ATCGGC' --> -->
+<!-- <!--   # template <- 'ATCGGC' --> -->
+<!-- <!--   mate.pt <- sapply(c(primer,template), function(p) c(rev.comp(p), rev.comp(p, rev=F), rev.comp(p, compl = F))) --> -->
+<!-- <!--   # mate.templates <- sapply(template, function(p) c(rev.comp(p), rev.comp(p, rev=F), rev.comp(p, compl = F))) --> -->
+<!-- <!--   mate.pt <- rbind(mate.pt, colnames(mate.pt)) --> -->
+<!-- <!--   colnames(mate.pt) <- c('primer', 'template') --> -->
+<!-- <!--   switch.mate <- cbind(mate.pt[,'template'], mate.pt[,'primer']) --> -->
+<!-- <!--   all.pt <- as.data.frame(rbind(mate.pt,switch.mate)) --> -->
+<!-- <!--   return(all.pt) --> -->
+<!-- <!--   } --> -->
+
+<!-- <!-- pt.group <- find.pt.group('AAAAAG', 'AAAAAG') --> -->
+<!-- <!-- mod.cele.df --> -->
+<!-- <!-- inner_join(pt.group, mod.cele.df, by=c('primer', 'template')) --> -->
+<!-- <!-- ``` --> -->
+<!-- <!-- Implementing the equation system --> -->
+<!-- <!-- ```{r} --> -->
+
+
+<!-- <!-- ``` --> -->
+# APPROACH 3 - DISTRIBUTION OF EPSILON AND Keq FOR A PRIMER GROUP
+For each group of sequences that supposedly have the same binding free energy (based on sequence simmetry) we can compute epsilon and Keq
+Simulating the primer probability
+```{r}
+group.coeffs.wPrimer <- function(hex.df, groupsOI, gamma.shape=24.05, gamma.rate=0.98, pool.size=sum(table(pool1)), imposeP=F){
+  groups.df <- hex.df %>% 
+  inner_join(., t.groups, by='template') %>%
+  filter(group %in% groupsOI) %>%
+  mutate(dG=dG/0.59) 
+  if (imposeP) {
+    groups.df <- mutate(groups.df, p=1/(4^6))
+  } else {
+  groups.df <- mutate(groups.df, 
+                      p=(sample(rgamma(pool.size, 
+                                       shape=gamma.shape, 
+                                       rate=gamma.rate)/pool.size, n())))
+  }
+  groups.df <- groups.df %>%
+  mutate(B=sum((p*abundance)/pt),
+         D=sum((t.usage/pt)*p),
+         N=n(),
+         F=sum((p^2)*(abundance^2)/(pt^2)),
+         C.sing=sum(((abundance*t.usage)/(pt^2))*(p^2))
+         ) %>%
+  dplyr::select(B,D,N,F,C.sing,dG) %>%
+  summarise_all(funs(first)) 
+  return(groups.df)  
+  }
+
+find.epsNkeq <- function(groupsOI, imposeP=F){
+  p <- group.coeffs.wPrimer(hex.df, groupsOI = groupsOI, imposeP = imposeP)
+  right <- matrix(c(p$F, p$B, p$B, p$N), nrow = 2)
+  left <- c(p$C.sing, p$D)
+  s1 <- solve(right, left)
+  return(s1)
+  }
+
+pool1 <- simulate.primer.pool(pool.size = 100000)
+primers <- table(pool1)/length(pool1)
+
+fit <- summary(fitdist(as.numeric(table(pool1)), 'gamma'))
+fit$estimate['shape']
+
+summary(fitdist(as.numeric(table(pool1)), 'norm'))
+hist(table(pool1)/length(pool1), breaks=30, xlab='relative frequency of hexamer in pool', main=paste('Mean:', mean(table(pool1)/length(pool1)), ', SD:', sd(table(pool1)/length(pool1))))
+# rpois(length(pool1), mean=)
+hist(rorm(100, mean=0.000244, sd=))
+sample(rgamma(length(table(pool1)), shape=24.05, rate=0.98), 10)
+```
+```{r}
+
+eps.keq.distribution <- function(group, n.iter, only.dist=F){
+  sol.df <- c()
+  i = 0
+  while (i<n.iter) {
+    i<- i+1
+    s <- find.epsNkeq(group)
+    sol.df <- rbind(sol.df, s)  
+  }
+  rownames(sol.df) <- NULL
+  sol.df <- data.frame(sol.df) %>%
+    rename(eps=X1, Keq=X2) %>%
+    mutate(Keq=Keq*4)
+  if (only.dist) {
+    sol.df <- sol.df %>%
+      mutate(group=group)
+    return(sol.df)
+  } else {
+    sol.imposeP <- find.epsNkeq(groupsOI = 1, imposeP = T)
+    mfold.keq <- exp(group.coeffs.wPrimer(hex.df, groupsOI = group)$dG[1])
+    return(list(distribution = sol.df, imposeP=sol.imposeP, mfold=mfold.keq))  
+  }
+}
+
+averaging <- function(gr){
+  g <- eps.keq.distribution(gr, n.iter = 100)
+  means <- c(sapply(g$distribution, mean), mfold=g$mfold)
+  return(means)
+}
+
+res <- do.call(rbind, lapply(seq(1,10), eps.keq.distribution, n.iter=100, only.dist=T))
+res %>%
+  mutate(group=as.factor(group)) %>%
+  ggplot(., aes(eps, group=group, fill=group)) + 
+  facet_grid(group~.) +
+  geom_histogram(alpha=0.4)
+# hex.df %>%
+#   inner_join(., t.groups, by='template') %>%
+#   filter(group < 10) %>%
+#   ggplot(., aes(group, dG)) + geom_point()
+
+```
+## APPROACH 4 - SOLVING THE SYSTEM OF EQUATIONS FOR ALL GROUPS
+```{r}
+group.coeffs.wPrimer.all <- function(hex.df, groupsOI, gamma.shape=24.05, gamma.rate=0.98, pool.size=sum(table(pool1)), imposeP=F){
+  groups.df <- hex.df %>% 
+  inner_join(., t.groups, by='template') %>%
+  filter(group %in% groupsOI) %>%
+  mutate(dG=dG/0.59) 
+  if (imposeP) {
+    groups.df <- mutate(groups.df, p=1/(4^6))
+  } else {
+  groups.df <- mutate(groups.df, 
+                      p=(sample(rgamma(pool.size, 
+                                       shape=gamma.shape, 
+                                       rate=gamma.rate)/pool.size, n())))
+  }
+  groups.df <- groups.df %>%
+  mutate(A=sum((p^2)*((abundance/pt)^2)),
+         C=sum(((abundance*t.usage)/(pt^2))*(p^2))) %>%
+  group_by(group) %>%
+  mutate(B=sum((p*abundance)/pt),
+         D=sum((t.usage/pt)*p),
+         N=n(),
+         C.sing=sum(((abundance*t.usage)/(pt^2))*(p^2))
+         ) %>%
+  dplyr::select(A,B,D,N,C,dG) %>%
+  summarise_all(funs(first)) 
+  return(groups.df)  
+  }
+
+solve.system <- function(groups.df){
+  first.left <- c(groups.df$A[1], groups.df$B)
+  first.right <- groups.df %>%
+    transmute(C) %>%
+    sample_n(1)
+  
+  first.right <- c(eps=first.right$C)
+  coeffs <-c()
+  for (n in groups.df$group){
+    coeffs <- rbind(coeffs, sapply(groups.df$group, function(i) ifelse(groups.df[groups.df$group==i,]$group==n,as.numeric(groups.df[groups.df$group==i,'N']), 0)))
+      # ifelse(groups.df$group==n)
+    }
+
+  right <- groups.df %>%
+    transmute(group,D)
+  right <- as.matrix(cbind(right$group, right$D))
+  rownames(right) <- right[,1]
+  right <- right[,2]
+  
+  left.mat <- rbind(as.numeric(first.left), cbind(groups.df$B, coeffs))
+  right.mat <- c(first.right, right)
+  sols <- solve(left.mat, right.mat)
+  eps <- sols[1]
+  dgs <- sols[2:length(sols)]
+  return(list(eps=eps, dgs=dgs))  
+}
+```
+
+Differences in epsilon computed with single distribution or solving system with all groups (red line)
+```{r}
+dgs <- c()
+epsilons <- c()
+i <- 0
+while(i<100){
+  i<- i+1
+  sols <- solve.system(group.coeffs.wPrimer.all(hex.df, seq(1,20)))
+  epsilons <- c(epsilons, sols$eps)
+  dgs <- rbind(dgs, sols$dgs)
+  }
+
+
+res %>%
+  mutate(group=as.factor(group)) %>%
+  ggplot(., aes(eps)) + geom_density(aes(group=group, fill=group, color=group), alpha=0.4) +
+  geom_density(data=as.data.frame(epsilons), aes(epsilons), fill='black',color='red', alpha=0.4) 
+geom_vline(xintercept=sols$eps, color='red')
+```
+
+Differences in Keq computed with single distribution (mean) or solving system with all groups
+```{r}
+as.data.frame(t(res)) %>%
+  mutate(label=1:n()) %>%
+  mutate(other.keq=sols$dgs) %>%
+  # filter(mfold < 0.0025) %>%
+  ggplot(., aes(Keq, other.keq, label=label)) + 
+  geom_text() +
+  xlab("Keq from distribution (approach 3)") + ylab("Keq from system (approach 4)")
+```
+
+Correlations with mfold values (notice how using approach 4 the values seem to fall more nicely in the same range as the predicted values)
+```{r}
+as.data.frame(t(res)) %>%
+  mutate(label=1:n()) %>%
+  mutate(other.keq=sols$dgs) %>%
+  # filter(mfold < 0.0025) %>%
+  ggplot(., aes(Keq*4, mfold, label=label)) + 
+  geom_text() +
+  xlab("Keq from distribution (approach 3)") 
+
+as.data.frame(t(res)) %>%
+  mutate(label=1:n()) %>%
+  mutate(other.keq=sols$dgs) %>%
+  # filter(mfold < 0.0025) %>%
+  ggplot(., aes(other.keq*4, mfold, label=label)) + 
+  geom_text() +
+  xlab("Keq from system (approach 4)") 
+
+```
+ 
+# Testing some parameters of the estimation
+
+Distribution of $\epsilon$ using different groups
+```{r}
+primer.pool <- simulate.primer.pool(pool.size = 200000)
+eps.10 <- estimate.epsilon(hex.df, primer.pool, seq(1,10), iterations = 30)
+eps.20 <- estimate.epsilon(hex.df, primer.pool, seq(10,20), iterations = 30)
+eps.30 <- estimate.epsilon(hex.df, primer.pool, seq(20,30), iterations = 30)
+eps.40 <- estimate.epsilon(hex.df, primer.pool, seq(30,40), iterations = 30)
+
+cbind(eps.10, eps.20, eps.30, eps.40) %>%
+  melt(value.name='eps') %>%
+  ggplot(., aes(Var2, eps)) + geom_boxplot()
+```
+
+Number of groups
+```{r}
+eps.10 <- estimate.epsilon(hex.df, primer.pool, seq(1,10), iterations = 50)
+eps.20 <- estimate.epsilon(hex.df, primer.pool, seq(1,20), iterations = 50)
+eps.30 <- estimate.epsilon(hex.df, primer.pool, seq(1,30), iterations = 50)
+eps.40 <- estimate.epsilon(hex.df, primer.pool, seq(1,40), iterations = 50)
+
+cbind(eps.10, eps.20, eps.30, eps.40) %>%
+  melt(value.name='eps') %>%
+  ggplot(., aes(Var2, eps)) + geom_boxplot()
+```
+
+Standard deviation
+```{r}
+sd(c(eps.10, eps.20, eps.30, eps.40))
+sd(eps.10)
+sd(eps.20)
+sd(eps.30)
+sd(eps.40)
+```
+
+```{r}
+eps.50 <- estimate.epsilon(hex.df, primer.pool, seq(1,50), iterations = 50)
+eps.60 <- estimate.epsilon(hex.df, primer.pool, seq(1,60), iterations = 50)
+eps.70 <- estimate.epsilon(hex.df, primer.pool, sample(seq(1,500),70), iterations = 50)
+
+cbind(eps.10, eps.20, eps.30, eps.40, eps.50, eps.60, eps.70) %>%
+  melt(value.name='eps') %>%
+  ggplot(., aes(Var2, eps)) + geom_boxplot()
+```
+
+Random set
+```{r}
+table(t.groups$group)
+
+eps.10.rand <- estimate.epsilon(hex.df, primer.pool, sample(seq(1,310),10), iterations = 50)
+eps.20.rand <- estimate.epsilon(hex.df, primer.pool, sample(seq(1,310),20), iterations = 50)
+eps.30.rand <- estimate.epsilon(hex.df, primer.pool, sample(seq(1,310),30), iterations = 50)
+eps.40.rand <- estimate.epsilon(hex.df, primer.pool, sample(seq(1,310),40), iterations = 50)
+eps.50.rand <- estimate.epsilon(hex.df, primer.pool, sample(seq(1,310),50), iterations = 50)
+# eps.70 <- estimate.epsilon(hex.df, primer.pool, sample(seq(1,500),70), iterations = 50)
+
+
+p1 <- cbind(eps.10.rand, eps.20.rand, eps.30.rand, eps.40.rand, eps.50.rand) %>%
+  melt(value.name='eps') %>%
+  ggplot(., aes(Var2, eps)) + geom_boxplot()
+
+p2 <- cbind(eps.10.rand, eps.20.rand, eps.30.rand, eps.40.rand, eps.50.rand) %>%
+  melt(value.name='eps') %>%
+  ggplot(., aes(Var2, eps)) + geom_boxplot()
+
+p1;p2
+
+mean(p1$data$eps)
+mean(p2$data$eps)
+
+sd(p1$data$eps)
+sd(p2$data$eps)
+```
+
+Random set with only the bigger groups 
+```{r}
+eps.20.top30 <- estimate.epsilon(hex.df, primer.pool, sample(seq(1,30),20), iterations = 50)
+eps.20.top50 <- estimate.epsilon(hex.df, primer.pool, sample(seq(1,50),20), iterations = 50)
+eps.20.top70 <- estimate.epsilon(hex.df, primer.pool, sample(seq(1,70),20), iterations = 50)
+eps.20.top100 <- estimate.epsilon(hex.df, primer.pool, sample(seq(1,100),20), iterations = 50)
+eps.20.top150 <- estimate.epsilon(hex.df, primer.pool, sample(seq(1,150),20), iterations = 50)
+
+p <- cbind(eps.20.top30, eps.20.top50, eps.20.top70, eps.20.top100, eps.20.top150) %>%
+  melt(value.name='eps') %>%
+  ggplot(., aes(Var2, eps)) + geom_point()
+
+mean(p$data$eps, na.rm=T)
+sd(p$data$eps, na.rm=T)
+p
+```
+```{r}
+
+```
+
+
+

@@ -2,6 +2,7 @@
 
 ### Contents
 * `array_job_wrapper.sh`: wrapper script to send an array of jobs to the cluster
+* `bootstrap.md`: snippets for bootstrapping bam files
 * `count_pt_pairs.py`: script to count the total number of primer-template pairs in the co-occurrency matrix (`.ptCounts.qualFilt.csv`). Useful for example to check how many reads passed the quality control filtering.
 * `deduplicateCELseqSamfile.py`: removes PCR duplicates in CELseq2 libraries (filters out reads with the same position, umi, cell, primer sequence)
 * `find_genomecov.sh`: **(!!!)** computes percentage of genome with coverage=0 calling bedtools (for extrapolation of epsilon)

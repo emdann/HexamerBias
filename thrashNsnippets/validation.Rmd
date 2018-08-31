@@ -1,0 +1,331 @@
+---
+title: "DeltaG prediction validation"
+output: html_notebook
+---
+
+Validation of prediction of free binding energy from multiple organisms in samples without BS conversion
+
+## Are predicted Delta G values consistent for different genomes?
+```{r}
+library(purrr)
+source('~/HexamerBias/rscripts/sanity_checks_deltaG.r')
+```
+
+```{r}
+humanDg <- loadDgMatrix('~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-humanAPKS-noBS-1preAmp-handMix_lmerged_R1_ptDg_qual.csv', compression = 'none')
+celeDg <- loadDgMatrix('~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-CeleTotal-noBS-1preAmp-handMix_lmerged_R1_ptDg_qual.csv', compression = 'none')
+zfDg <- loadDgMatrix('~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-zfishTotal-noBS-1preAmp-handMix_lmerged_R1_ptDg_qual.csv', compression = 'none')
+
+zfPair <- make_pair_df(zfDg) 
+humanPair <- make_pair_df(humanDg)
+celePair <- make_pair_df(celeDg)
+```
+Check correlation of primer-template DeltaGs in common between experiments
+```{r}
+zfPair.noinf <- filter(zfPair, !is.infinite(dG))
+humanPair.noinf <- filter(humanPair, !is.infinite(dG))
+celePair.noinf <- filter(celePair, !is.infinite(dG))
+commonPairs <- inner_join(zfPair.noinf,humanPair.noinf, by='ptPair', suffix=c(".zf", '.human'))
+commonPairs.tot <- inner_join(commonPairs, celePair.noinf, by='ptPair')
+commonPairs.tot <- commonPairs.tot %>% rename(dG.cele=dG)
+head(commonPairs.tot)
+print(paste('No. of common pt pairs: ', nrow(commonPairs.tot)))
+```
+
+Correlation of 4000 random pairs
+```{r}
+smp <- sample_n(commonPairs.tot, 4000) 
+p <- ggplot(smp, aes(dG.human, dG.cele)) + geom_point(alpha=0.4)
+pcc <- round(cor(smp$dG.zf, smp$dG.human),3)
+p + theme_classic() +
+  xlab('Predicted DeltaG - C.elegans') + ylab('Predicted DeltaG - D.rerio') +
+  annotate('text',x=10, y=0, label=paste('PCC =', pcc), size=15) +
+  theme(axis.title = element_text(size = 30), 
+      axis.text = element_text(size=25)) +
+  geom_abline(intercept = 0, slope=1, color='red')
+```
+
+Correlate diagonal
+```{r}
+human.pair.diag <- humanPair[substr(humanPair$ptPair,1,6)==substr(humanPair$ptPair,8,13),]
+zf.pair.diag <- zfPair[substr(zfPair$ptPair,1,6)==substr(zfPair$ptPair,8,13),]
+common.diag <- inner_join(cele.pair.diag, zf.pair.diag, by='ptPair') %>% filter(!is.infinite(dG.x) & !is.infinite(dG.y))
+
+pcc <- round(cor(common.diag$dG.x, common.diag$dG.y),3)
+ggplot(common.diag, aes(dG.x, dG.y)) +
+  geom_point(alpha=0.2) + 
+  theme_classic() +
+  xlab('Predicted DeltaG - C.elegans') + ylab('Predicted DeltaG - D.rerio') +
+  annotate('text',x=10, y=2.5, label=paste('PCC =', pcc), size=15) +
+  theme(axis.title = element_text(size = 30), 
+      axis.text = element_text(size=25)) +
+  geom_abline(intercept = 0, slope=1, color='red')
+```
+
+## Correlation with predicted DeltaG values
+Taking diagonal values first
+```{r}
+celePair.diag <- filter(humanPair, map_lgl(strsplit(ptPair, split='\\.'), function(x) x[1]==x[2]))
+hist(humanPair.diag$dG)
+```
+```{r}
+tabDg <- read.delim(gzfile("~/mnt/edann/hexamers/rand_hex_deltaG_ions.txt.gz"), sep=' ', header = FALSE, col.names=c('seq', 'dG'))
+diagTab <- tabDg %>% 
+  mutate(ptPair=paste0(seq, '.', seq)) %>%
+  select(ptPair, dG) %>%
+  inner_join(.,humanPair.diag, by='ptPair', suffix=c('.NNmodel',".predicted")) 
+head(diagTab)
+```
+The full picture
+```{r}
+ggplot(diagTab, aes(dG.NNmodel, -dG.predicted)) +
+  geom_point() +
+  theme_classic()
+```
+Cleaning a bit
+```{r}
+diagTab.noinf <- diagTab %>% 
+  filter(!is.infinite(dG.predicted)) 
+  # filter(dG.predicted < -18)
+ggplot(diagTab.noinf, aes(dG.NNmodel, -dG.predicted, label=ptPair)) +
+  geom_point() +
+  geom_text(size=2) +
+  theme_classic()
+```
+
+# Filtering values with low counts
+I have recalculated the predicted DeltaGs putting as 0s the values that are under 50
+```{r}
+filteredDg <- loadDgMatrix('~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-humanAPKS-noBS-1preAmp-handMix_lmerged_R1_ptDg_qual.filt50counts.csv', compression = 'none')
+
+filtPair <- make_pair_df(filteredDg)
+filt.pair.diag <- filtPair[substr(filtPair$ptPair,1,6)==substr(filtPair$ptPair,8,13),]
+diagTab <- tabDg %>% 
+  mutate(ptPair=paste0(seq, '.', seq)) %>%
+  select(ptPair, dG) %>%
+  inner_join(.,filt.pair.diag, by='ptPair', suffix=c('.NNmodel',".predicted")) 
+ggplot(diagTab, aes(dG.NNmodel, -dG.predicted)) +
+  geom_point(alpha=0.2) +
+  theme_classic()
+
+diagTab.noinf <- diagTab %>% 
+  filter(!is.infinite(dG.predicted)) 
+cor(diagTab.noinf$dG.NNmodel, diagTab.noinf$dG.predicted)
+```
+
+Compare with genomic abundance (HUman)
+```{r}
+human.abundance <- read_csv("~/mnt/edann/hexamers/genomes_kmers/hg38_clean.kmerAbundance.csv", col_names=FALSE)
+colnames(human.abundance) <- c('hex', 'abundance')
+```
+
+```{r}
+diagTab %>%
+  mutate(tot=zf.abundance$abundance[match(substr(ptPair,1,6), zf.abundance$hex)]) %>%
+  mutate(tot=ifelse(tot>500000, 500000, tot)) %>%
+  ggplot(., aes(dG.NNmodel, -dG.predicted, color=tot)) +
+  geom_point(alpha=0.7) +
+  # geom_text(size=2) +
+  theme_classic()
+```
+
+## More tests with filtered Dg
+
+Correlation of organisms
+```{r}
+filt200.celeDg <- loadDgMatrix('~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-CeleTotal-noBS-1preAmp-handMix_lmerged_R1_ptDg_qual.filt200counts.csv', compression = 'none')
+filt200.zfDg <- loadDgMatrix('~/mnt/edann/VAN2423_onePreamp/cov_prediction/CG-pbat-gDNA-zfishTotal-noBS-1preAmp-handMix_lmerged_R1_ptDg_qual.filt200counts.csv', compression = 'none')
+
+filt200.zfPair <- make_pair_df(filt200.zfDg) 
+filt200.celePair <- make_pair_df(filt200.celeDg)
+```
+Check correlation of primer-template DeltaGs in common between experiments
+```{r}
+filt200.zfPair.noinf <- filter(zfPair, !is.infinite(dG))
+filt200.celePair.noinf <- filter(celePair, !is.infinite(dG))
+commonPairs <- inner_join(filt200.zfPair.noinf,filt200.celePair.noinf, by='ptPair', suffix=c(".zf", '.cele'))
+head(commonPairs)
+```
+Off diagonal
+```{r}
+commonPairs.offdiag <- commonPairs[substr(commonPairs$ptPair,1,6)!=substr(commonPairs$ptPair,8,13),]
+
+smp <- sample_n(commonPairs.offdiag, 20000) 
+p <- ggplot(smp, aes(dG.zf, dG.cele)) + geom_point(alpha=0.4)
+pcc <- round(cor(smp$dG.zf, smp$dG.cele),3)
+p + theme_classic() +
+  xlab('Predicted DeltaG - C.elegans') + ylab('Predicted DeltaG - D.rerio') +
+  annotate('text',x=7, y=-0.5, label=paste('PCC =', pcc), size=15) +
+  theme(axis.title = element_text(size = 30), 
+      axis.text = element_text(size=25)) +
+  geom_abline(intercept = 0, slope=1, color='red')
+```
+
+Correlation with NN model
+```{r}
+filt200.celePair.diag <- filt200.celePair[substr(filt200.celePair$ptPair,1,6)==substr(filt200.celePair$ptPair,8,13),]
+filt200.zfPair.diag <- filt200.zfPair[substr(filt200.zfPair$ptPair,1,6)==substr(filt200.zfPair$ptPair,8,13),]
+
+diagTab <- tabDg %>% 
+  mutate(ptPair=paste0(seq, '.', seq)) %>%
+  select(ptPair, dG) %>%
+  inner_join(.,filt200.zfPair.diag, by='ptPair', suffix=c('.NNmodel',".predicted")) 
+diagTab.noinf <- diagTab %>% 
+  filter(!is.infinite(dG.predicted)) 
+ggplot(diagTab.noinf, aes(dG.NNmodel, -dG.predicted)) +
+  geom_point(alpha=0.2) +
+  theme_classic() +
+  theme(axis.title = element_text(size = 30), 
+      axis.text = element_text(size=25)) +
+  xlab("DeltaG Mfold") + ylab("DeltaG predicted")
+
+cor(diagTab.noinf$dG.NNmodel, diagTab.noinf$dG.predicted)
+
+
+```
+
+<!-- Correlation of abundances -->
+<!-- ```{r} -->
+<!-- human.abundance <- read_csv("~/mnt/edann/hexamers/genomes_kmers/hg38_clean.kmerAbundance.csv", col_names=FALSE) -->
+<!-- colnames(human.abundance) <- c('hex', 'abundance') -->
+<!-- zf.abundance <- read_csv("~/mnt/edann/hexamers/genomes_kmers/danRer10_clean.kmerAbundance.csv", col_names=FALSE) -->
+<!-- cel.abundance <- read_csv("~/mnt/edann/hexamers/genomes_kmers/WBcel235.kmerAbundance.csv", col_names=FALSE) -->
+<!-- colnames(cel.abundance) <- c('hex', 'abundance') -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- j <- full_join(zf.abundance, cel.abundance, by='hex') -->
+<!-- cor(j$abundance.x, j$abundance.y) -->
+<!-- head(j) -->
+<!-- ``` -->
+
+<!-- # Do we need to add a correction for genome size? -->
+<!-- Attempting a bootstrap to see how the correlation between predicted and MFold DeltaG values changes using a smaller number of reads, while genome abundances stay as they are.  -->
+
+<!-- ```{r} -->
+<!-- diag <- as.data.frame(read_csv("~/mnt/edann/VAN2423_onePreamp/bootstrap/diagonal_bootstrap.csv")) -->
+<!-- colnames(diag) <- gsub(colnames(diag), pattern = 'CG-pbat-gDNA-CeleTotal-noBS-1preAmp-handMix_lmerged_R1_|_ptDg_.+', replacement = '') -->
+<!-- diag2 <- select(diag, -hex, -X1) %>%  -->
+<!--   log(.)  -->
+<!-- diag2 <- mutate(diag2, hex=rownames(diag2)) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- df <- tabDg %>% -->
+<!--   rename(hex=seq) %>% -->
+<!--   inner_join(.,diag2, by='hex') -->
+<!-- cor.df <- map_dfr(colnames(select(df, -hex, -dG)), function(x) { -->
+<!--     selection <- select(df, x, dG) -->
+<!--   sel <- selection[!is.infinite(rowSums(selection)),] -->
+<!--   data.frame(smp=x,cor=cor(sel[x], sel$dG)) -->
+<!--   } ) -->
+<!-- cor.df %>% -->
+<!--   transmute(smp=as.numeric(smp), cor=cor) %>% -->
+<!--   ggplot(., aes(smp, cor)) + geom_line() + -->
+<!--   xlab('% reads') + ylab('PCC') -->
+
+<!-- ``` -->
+<!-- The less reads I use, the more zeros I have in the pt count, while with more reads unfrequent events are captured in low numbers. This means that for abundant hexamers in the genome, they end up having a very low predicted delta G. -->
+
+<!-- NEED TO MAKE AN ASSUMPTION ON HOW MUCH OF THE GENOME I AM LOOKING AT WITH MY PT COUNTS -->
+
+<!-- Testing downsampling of kmer abundance, taking 30, 50, 70% of kmers. -->
+
+<!-- ```{r} -->
+<!-- diag <- as.data.frame(read_csv("~/mnt/edann/VAN2423_onePreamp/bootstrap/abundance_bootstrap_corrected.csv")) -->
+<!-- colnames(diag) <- gsub(colnames(diag), pattern = 'cov_predictionCG-pbat-gDNA-CeleTotal-noBS-1preAmp-handMix_lmerged_R1_ptDg_', replacement = '') -->
+<!-- rownames(diag) <- diag$hex -->
+<!-- head(diag) -->
+<!-- diag2 <- select(diag, -hex, -X1) %>%  -->
+<!--   log(.)  -->
+<!-- diag2 <- mutate(diag2, hex=rownames(diag2)) -->
+<!-- head(diag2) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- df <- tabDg %>% -->
+<!--   rename(hex=seq) %>% -->
+<!--   inner_join(.,diag2, by='hex') -->
+<!-- cor.df <- map_dfr(colnames(select(df, -hex, -dG)), function(x) { -->
+<!--     selection <- select(df, x, dG) -->
+<!--   sel <- selection[!is.infinite(rowSums(selection)),] -->
+<!--   data.frame(smp=x,cor=cor(sel[x], sel$dG, use = 'pairwise.complete.obs')) -->
+<!--   } ) -->
+<!-- cor.df %>% -->
+<!--   transmute(smp=as.numeric(substr(smp,3,4)), cor=cor) %>% -->
+<!--   ggplot(., aes(smp, -cor)) + geom_line() + -->
+<!--   xlab('% genome kmers') + ylab('PCC') -->
+
+<!-- ``` -->
+<!-- ```{r} -->
+
+<!-- ggplot(df, aes(-ab30, - ab70, label=hex)) +  -->
+<!--   geom_point() + -->
+<!--   geom_text(size=2) + -->
+<!--   ylim(10,22) -->
+<!-- ggplot(df, aes(dG, - ab30, label=hex)) +  -->
+<!--   geom_point() + -->
+<!--   geom_text(size=2) + -->
+<!--   ylim(10,19) -->
+<!-- ggplot(df, aes(dG, - ab70, label=hex)) +  -->
+<!--   geom_point() + -->
+<!--   geom_text(size=2) + -->
+<!--   ylim(10,19) -->
+<!-- ``` -->
+
+
+<!-- # Scaled T abundance -->
+<!-- ```{r echo=T} -->
+<!-- humanDg1perc <- loadDgMatrix('~/mnt/edann/VAN2423_onePreamp/bootstrap/cov_predictionCG-pbat-gDNA-humanAPKS-noBS-1preAmp-handMix_lmerged_R1_ptDg_qual.ab01.csv', compression = 'none') -->
+
+<!-- human.pair <- make_pair_df(humanDg1perc) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- tabDg <- read.delim(gzfile("~/mnt/edann/hexamers/rand_hex_deltaG_ions.txt.gz"), sep=' ', header = FALSE, col.names=c('seq', 'dG')) -->
+
+<!-- cele.pair.diag <- cele.pair[substr(cele.pair$ptPair,1,6)==substr(cele.pair$ptPair,8,13),] -->
+<!-- human.pair.diag <- humanPair[substr(human.pair$ptPair,1,6)==substr(human.pair$ptPair,8,13),] -->
+
+<!-- diagTab <- tabDg %>%  -->
+<!--   mutate(ptPair=paste0(seq, '.', seq)) %>% -->
+<!--   select(ptPair, dG) %>% -->
+<!--   inner_join(.,human.pair.diag, by='ptPair', suffix=c('.NNmodel',".predicted"))  -->
+
+<!-- head(diagTab) -->
+<!-- ``` -->
+<!-- The full picture -->
+<!-- ```{r} -->
+<!-- ggplot(diagTab, aes(dG.NNmodel, -dG.predicted, label=ptPair)) + -->
+<!--   geom_point(alpha=0.2) + -->
+<!--   # geom_text(size=2) + -->
+<!--   theme_classic()  -->
+<!--   ggsave("~/AvOwork/corrected_correlation.pdf") -->
+
+<!-- diagTab.noinf <- diagTab %>%  -->
+<!--   filter(!is.infinite(dG.predicted))  -->
+<!-- cor(diagTab.noinf$dG.NNmodel, diagTab.noinf$dG.predicted) -->
+<!-- ``` -->
+<!--  ZAN! ZAN! ZAN!  -->
+
+<!--  So now apparently setting a threshold for lowly sampled regions seems like a good idea -->
+
+<!-- # Abundance template bootstrap and scaled T -->
+<!-- ```{r} -->
+<!-- celeDg1perc <- loadDgMatrix('~/mnt/edann/VAN2423_onePreamp/cov_predictionCG-pbat-gDNA-CeleTotal-noBS-1preAmp-handMix_lmerged_R1_ptDg_qual.ab20.csv', compression = 'none') -->
+
+<!-- cele.1perc.pair <- make_pair_df(celeDg1perc) -->
+<!-- cele.1perc.pair.diag <- cele.pair[substr(cele.pair$ptPair,1,6)==substr(cele.pair$ptPair,8,13),] -->
+<!-- diagTab <- tabDg %>%  -->
+<!--   mutate(ptPair=paste0(seq, '.', seq)) %>% -->
+<!--   select(ptPair, dG) %>% -->
+<!--   inner_join(.,cele.1perc.pair.diag, by='ptPair', suffix=c('.NNmodel',".predicted"))  -->
+
+<!-- ggplot(diagTab, aes(dG.NNmodel, -dG.predicted, label=ptPair)) + -->
+<!--   geom_point(alpha=0.2) + -->
+<!--   # geom_text(size=2) + -->
+<!--   theme_classic() -->
+
+<!-- diagTab.noinf <- diagTab %>%  -->
+<!--   filter(!is.infinite(dG.predicted))  -->
+<!-- cor(diagTab.noinf$dG.NNmodel, diagTab.noinf$dG.predicted, use='pairwise.complete.obs') -->
+<!-- ``` -->

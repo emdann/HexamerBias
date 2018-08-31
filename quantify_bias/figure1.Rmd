@@ -1,0 +1,108 @@
+---
+title: "Primer usage figure"
+output: html_notebook
+---
+```{r}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+```
+```{r}
+load("~/AvOwork/rdata/cele_pt_all.RData")
+load("~/AvOwork/rdata/cele_pt.RData")
+load("~/AvOwork/rdata/D3R_pt.RData")
+```
+
+```{r}
+primer.usage.cele <- cele.all.df %>%
+  group_by(primer) %>%
+  summarise(p.usage= sum(pt)) %>%
+  rename(hex=primer)
+
+# primer.usage.zf <- zf.all.df %>%
+#   group_by(primer) %>%
+#   summarise(p.usage= sum(pt)) %>%
+#   rename(hex=primer)
+# 
+# primer.usage.human <- human.all.df %>%
+#   group_by(primer) %>%
+#   summarise(p.usage= sum(pt)) %>%
+#   rename(hex=primer)
+
+pl <- primer.usage.cele %>%
+  # mutate(rank=dense_rank(p.usage)) %>%
+  inner_join(., select(cele.df, hex=template, abundance), by='hex') %>%
+  mutate(ab.frac=abundance/sum(abundance),
+         exp.usage=ab.frac*sum(p.usage)) %>%
+  mutate(obs_exp_usage=p.usage/exp.usage) %>%
+  mutate(rank=dense_rank(obs_exp_usage)) %>%
+  mutate(label=ifelse(rank>4085, hex, '')) %>%
+  ggplot(., aes(rank, log(obs_exp_usage), label=label)) +
+  # ggplot(., aes(p.usage, abundance, label=label)) +
+  geom_point() +
+  geom_text_repel(alpha=0.8, size=6,
+                  nudge_x=1000,
+                  direction='y',
+                  box.padding = 0.1,
+                  segment.size = 0.2
+                  ) +
+  xlim(0,5000) + 
+  ylim(-6,3) +
+  theme_minimal() +
+  geom_hline(yintercept = 0, col='blue', linetype=2) +
+  xlab("Rank") + ylab("log(O/E) primer usage") +
+      theme(legend.title = element_blank(),
+        legend.text = element_text(size=23),
+        axis.text = element_text(size=23),
+        axis.title = element_text(size=33)) 
+
+pl
+
+pl + ggsave("~/AvOwork/formatted_figs/primer_usage_rank_cele.pdf", width=9)
+```
+
+```{r}
+primer.usage.d3r <- d3r.all.df %>%
+  group_by(primer) %>%
+  summarise(p.usage= sum(pt)) %>%
+  rename(hex=primer)
+
+primer.usage.d3r %>%
+  mutate(rank=dense_rank(p.usage)) %>%
+  inner_join(., select(cele.df, hex=template, abundance), by='hex') %>%
+  mutate(label=ifelse(rank>780, hex, '')) %>%
+  ggplot(., aes(rank, p.usage, label=label)) +
+  geom_point() +
+  geom_text_repel(alpha=0.8) +
+  theme_minimal() +
+  xlab("Rank") + 
+  ylab("primer usage") +
+      theme(legend.title = element_blank(),
+        legend.text = element_text(size=20),
+        axis.text = element_text(size=20),
+        axis.title = element_text(size=30))
+
+pl2 <- primer.usage.d3r %>%
+  mutate(perc.reads=(p.usage/sum(p.usage))*100) %>%
+    # mutate(rank=dense_rank(p.usage)) %>%
+  inner_join(., select(cele.df, hex=template, abundance), by='hex') %>%
+  arrange(-perc.reads) %>%
+  mutate(cumsum.p.usage=cumsum(perc.reads/sum(perc.reads))) %>%
+  mutate(rank=dense_rank(cumsum.p.usage)) %>%
+  # mutate(p.usage=cumsum(p.usage)) %>%
+  ggplot(., aes(rank, cumsum.p.usage*100)) +
+  geom_line(color='red', size=2) +
+  # geom_text_repel(alpha=0.8) +
+  # xlim(0,4600) + ylim(0,0.85) +
+  theme_bw() +
+  ylab("cum. % reads") + 
+  xlab("ranked hexamers") +
+      theme(legend.title = element_blank(),
+        legend.text = element_text(size=20),
+        axis.text = element_text(size=20),
+        axis.title = element_text(size=30))
+
+pl2
+
+pl2 + ggsave("~/AvOwork/formatted_figs/primer_usage_cumsum_d3r.pdf", width = 11)
+```
