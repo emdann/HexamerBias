@@ -121,11 +121,11 @@ def get_strandspecific_template_bed(bamfile, trim=9, type='bs_se'):
 		minus=83
 	with ps.AlignmentFile(bamfile,"rb") as bam:
 		for r in bam.fetch(until_eof=True):
-			if not bool(re.search("[^a-zA-Z]", r.qqual[0:6])): # Filter for sequencing quality
-				if r.flag==plus:
-					bed.append((r.reference_name, r.pos - trim, r.pos - trim + 6, r.qname, '.', '+'))
-				if r.flag==minus:
-					bed.append((r.reference_name, r.pos - trim, r.pos - trim + 6, r.qname, '.', '-'))
+			# if not bool(re.search("[^a-zA-Z]", r.qqual[0:6])): # Filter for sequencing quality
+			if r.flag==plus:
+				bed.append((r.reference_name, r.pos - trim, r.pos - trim + 6, r.qname, '.', '+'))
+			if r.flag==minus:
+				bed.append((r.reference_name, r.pos - trim, r.pos - trim + 6, r.qname, '.', '-'))
 	return(bed)
 
 def get_strandspecific_template_fasta(bamfile, fi, outpath, type):
