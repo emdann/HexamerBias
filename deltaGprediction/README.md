@@ -39,7 +39,7 @@ Run `python getPrimedRegion.py -h` for file formats and further options.
 
 2. Build primer template matrix from untrimmed reads and template sequences:
 ```
-python bsPrimerTemplTab.py t <datatype> <untrimmedreads.fastq> <templates.fa> <genomic_kmer_abundance>
+python bsPrimerTemplTab.py -t <datatype> <untrimmedreads.fastq> <templates.fa> <genomic_kmer_abundance>
 ```
 Outputs a csv file of the matrix.
 
