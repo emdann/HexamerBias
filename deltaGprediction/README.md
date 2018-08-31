@@ -32,6 +32,7 @@ Calls `kmerCounter.py` from `HexamerBias/utils`, by default using 8 cores (Ask f
 python getPrimedRegion.py -o <output_directory> -s <bamfile> <reference_genome_fasta>
 ```
 Outputs bed file of coordinates of templates and fasta file that stores template sequences for every aligned read with high quality primer sequence (read name is in the header).
+**WRONG QUALITY FILTERING**
 
 **N.B.** The script builds the bed file if it doesn't find it in the folder. Please make sure you have no other bed file with the same name in the working directory before running the script. If the script crashes for any reason (e.g. no space left, malformed bed entries...) make sure you delete the output bed before rerunning, or you will get an empty fasta (I could fix this, I know).
 

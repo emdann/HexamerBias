@@ -1,4 +1,7 @@
 Random hexamer bias analysis by Emma Dann
+
+The most important folders (the ones that you will most likely have to use) are marked with a **(!!!)**
+
 ***
 ## Contents
 * `artificial_coverage`: **(!!!)** building and analyzing predicted coverage profiles
