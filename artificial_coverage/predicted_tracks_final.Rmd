@@ -244,7 +244,7 @@ Load data
 ```{r}
 predicted.bw <- '~/mnt/edann/hexamers/strand_specific/artificial_coverage/highcov.random.42.artCov.bw'
 experimental.bw <- '~/mnt/edann/hexamers/strand_specific/VAN1667_se.highcov42.bw'
-d3r.bs <- make.predVSexp.track(predicted.bw = predicted.bw,
+VAN1667.bs <- make.predVSexp.track(predicted.bw = predicted.bw,
                                 experimental.bw = experimental.bw,
                                reg.length = 5000)
 ```
@@ -260,7 +260,7 @@ pcc.cele.new$p
 
 Saving example tracks
 ```{r}
-VAN1667.bs <- d3r.bs
+
 for (n in 1:10) {
   smp <- sample(VAN1667.bs[which(sp.mm.new$spear>0.8)],1)[[1]]
   sp <- sp.mm.new$spear[smp$range.id[1]]

@@ -89,12 +89,13 @@ sample.list.2 <- sample.list %>%
 
 Formatting sample list 
 ```{r}
-sample.list.2 %>%
+smp.list <- sample.list.2 %>%
   mutate(PRIMER_BATCH=ifelse(grepl(PRIMER_BATCH, pattern = 'handMix'), 'random', as.character(PRIMER_BATCH))) %>%
   mutate(PRIMER_BATCH=gsub('more', replacement = '', PRIMER_BATCH)) %>%
   mutate(PRIMER_BATCH=ifelse(PRIMER_BATCH!='random', paste0(PRIMER_BATCH, '-rich'), PRIMER_BATCH)) %>%
-  select(SAMPLE_NAME, SPECIES, BS_CONVERSION, PRIMER_BATCH, PREAMP_ROUNDS, SEQ_DEPTH, MAPPING_EFFICIENCY, NO_READS_R1, HQ_PT_PAIRS, NOTES) %>%
-  xtable()
+  select(SAMPLE_NAME, SPECIES, BS_CONVERSION, PRIMER_BATCH, PREAMP_ROUNDS, SEQ_DEPTH, MAPPING_EFFICIENCY, NO_READS_R1, HQ_PT_PAIRS, NOTES) 
+smp.list %>%  xtable()
+smp.list %>% write.csv(file = "~/SampleList_Report.csv")
 ```
 
 

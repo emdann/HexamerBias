@@ -1,0 +1,32 @@
+---
+title: "Multiple pre-amplification steps"
+output: html_notebook
+---
+
+```{r, eval=F}
+library(pheatmap)
+library(purrr)
+library(parallel)
+library(tidyr)
+library(ggpubr)
+library(gridExtra)
+library(ggsignif)
+source("~/HexamerBias/deltaGprediction/binding_model_functions.r")
+source("~/HexamerBias/quantify_bias/biasProfiles.r")
+```
+
+```{r}
+files.kapa <- list.files('~/mnt/edann/preAmp_rounds_VAN2590', pattern = 'Kapa.+.RDS', full.names = T)
+files.neb <- list.files('~/mnt/edann/preAmp_rounds_VAN2590', pattern = 'NEB.+.RDS', full.names = T)
+
+neb.pt.tabs <- map(files.neb, readRDS)
+kapa.pt.tabs <- map(files.kapa, readRDS)
+```
+
+### Primer usage 
+```{r}
+
+
+```
+
+
